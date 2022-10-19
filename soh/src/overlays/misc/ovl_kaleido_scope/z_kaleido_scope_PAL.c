@@ -206,6 +206,39 @@ static void* sSaveTexs[] = {
     sSaveFRATexs,
 };
 
+static void* dungeonNameTexs[] = {
+        gPauseForestTitleENGTex,
+        gPauseFireTitleENGTex, 
+        gPauseWaterTitleENGTex,     
+        gPauseSpiritTitleENGTex, 
+        gPauseShadowTitleENGTex,
+        gPauseIceCavernTitleENGTex,
+        gPauseDekuTitleENGTex, 
+        gPauseDodongoTitleENGTex,   
+        gPauseJabuTitleENGTex,   
+        // gPauseBotWTitleENGTex, 
+        gPauseForestTitleGERTex,
+        gPauseFireTitleGERTex, 
+        gPauseWaterTitleGERTex,     
+        gPauseSpiritTitleGERTex, 
+        gPauseShadowTitleGERTex,
+        gPauseIceCavernTitleGERTex,
+        gPauseDekuTitleGERTex, 
+        gPauseDodongoTitleGERTex,   
+        gPauseJabuTitleGERTex,   
+        // gPauseBotWTitleGERTex, 
+        gPauseForestTitleFRATex,
+        gPauseFireTitleFRATex, 
+        gPauseWaterTitleFRATex,     
+        gPauseSpiritTitleFRATex, 
+        gPauseShadowTitleFRATex,
+        gPauseIceCavernTitleFRATex,
+        gPauseDekuTitleFRATex, 
+        gPauseDodongoTitleFRATex,   
+        gPauseJabuTitleFRATex,   
+        // gPauseBotWTitleFRATex, 
+    };
+
 static void* iconNameTextures[] =
 {
     gDekuStickItemNameENGTex,
@@ -1352,7 +1385,7 @@ void KaleidoScope_DrawPages(GlobalContext* globalCtx, GraphicsContext* gfxCtx) {
 
                 gDPSetCombineMode(POLY_KAL_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
 
-                if (CHECK_DUNGEON_ITEM(DUNGEON_COMPASS, gSaveContext.mapIndex)) {
+                if (CHECK_DUNGEON_ITEM(DUNGEON_COMPASS, CVar_GetS32("gMapSwitcher", -1) == -1 ? gSaveContext.mapIndex : CVar_GetS32("gMapSwitcher", -1))) {
                     PauseMapMark_Draw(globalCtx);
                 }
             } else {
@@ -1400,7 +1433,7 @@ void KaleidoScope_DrawPages(GlobalContext* globalCtx, GraphicsContext* gfxCtx) {
                         KaleidoScope_DrawCursor(globalCtx, PAUSE_MAP);
                     }
 
-                    if (CHECK_DUNGEON_ITEM(DUNGEON_COMPASS, gSaveContext.mapIndex)) {
+                    if (CHECK_DUNGEON_ITEM(DUNGEON_COMPASS, CVar_GetS32("gMapSwitcher", -1) == -1 ? gSaveContext.mapIndex : CVar_GetS32("gMapSwitcher", -1))) {
                         PauseMapMark_Draw(globalCtx);
                     }
                 } else {
@@ -2136,19 +2169,32 @@ void KaleidoScope_UpdateNamePanel(GlobalContext* globalCtx) {
                 const char* textureName = mapNameTextures[sp2A];
                 memcpy(pauseCtx->nameSegment, ResourceMgr_LoadTexByName(textureName), ResourceMgr_LoadTexSizeByName(textureName));
             } else {
-                osSyncPrintf("zoom_name=%d\n", pauseCtx->namedItem);
+                // if (sp2A >= 101 && sp2A <= 110) {
+                //     sp2A -= 101;
+                //     if (gSaveContext.language) {
+                //         sp2A += 9;
+                //     }
+                //     if (gSaveContext.language == LANGUAGE_FRA) {
+                //         sp2A += 9;
+                //     }
 
-                if (gSaveContext.language) {
-                    sp2A += 123;
-                }
-                if (gSaveContext.language == LANGUAGE_FRA) {
-                    sp2A += 123;
-                }
+                //     const char* textureName = dungeonNameTexs[sp2A];
+                //     memcpy(pauseCtx->nameSegment, ResourceMgr_LoadTexByName(textureName), ResourceMgr_LoadTexSizeByName(textureName));
+                // } else {
+                    osSyncPrintf("zoom_name=%d\n", pauseCtx->namedItem);
 
-                osSyncPrintf("J_N=%d  point=%d\n", gSaveContext.language, sp2A);
+                    if (gSaveContext.language) {
+                        sp2A += 123;
+                    }
+                    if (gSaveContext.language == LANGUAGE_FRA) {
+                        sp2A += 123;
+                    }
 
-                const char* textureName = iconNameTextures[sp2A];
-                memcpy(pauseCtx->nameSegment, ResourceMgr_LoadTexByName(textureName), ResourceMgr_LoadTexSizeByName(textureName));
+                    osSyncPrintf("J_N=%d  point=%d\n", gSaveContext.language, sp2A);
+
+                    const char* textureName = iconNameTextures[sp2A];
+                    memcpy(pauseCtx->nameSegment, ResourceMgr_LoadTexByName(textureName), ResourceMgr_LoadTexSizeByName(textureName));
+                // }
             }
 
             pauseCtx->nameDisplayTimer = 0;
@@ -3265,13 +3311,13 @@ void KaleidoScope_UpdateDungeonMap(GlobalContext* globalCtx) {
     KaleidoScope_LoadDungeonMap(globalCtx);
     Map_SetFloorPalettesData(globalCtx, pauseCtx->dungeonMapSlot - 3);
 
-    if ((globalCtx->sceneNum >= SCENE_YDAN) && (globalCtx->sceneNum <= SCENE_TAKARAYA)) {
+    if ((CVar_GetS32("gMapSwitcher", -1) == -1 ? globalCtx->sceneNum : CVar_GetS32("gMapSwitcher", -1) >= SCENE_YDAN) && (CVar_GetS32("gMapSwitcher", -1) == -1 ? globalCtx->sceneNum : CVar_GetS32("gMapSwitcher", -1) <= SCENE_TAKARAYA)) {
         if ((VREG(30) + 3) == pauseCtx->cursorPoint[PAUSE_MAP]) {
             KaleidoScope_OverridePalIndexCI4(interfaceCtx->mapSegment, 2040, interfaceCtx->mapPaletteIndex, 14);
         }
     }
 
-    if ((globalCtx->sceneNum >= SCENE_YDAN) && (globalCtx->sceneNum <= SCENE_TAKARAYA)) {
+    if ((CVar_GetS32("gMapSwitcher", -1) == -1 ? globalCtx->sceneNum : CVar_GetS32("gMapSwitcher", -1) >= SCENE_YDAN) && (CVar_GetS32("gMapSwitcher", -1) == -1 ? globalCtx->sceneNum : CVar_GetS32("gMapSwitcher", -1) <= SCENE_TAKARAYA)) {
         if ((VREG(30) + 3) == pauseCtx->cursorPoint[PAUSE_MAP]) {
             KaleidoScope_OverridePalIndexCI4(interfaceCtx->mapSegment + 0x800, 2040, interfaceCtx->mapPaletteIndex, 14);
         }
@@ -3356,7 +3402,7 @@ void KaleidoScope_Update(GlobalContext* globalCtx)
             //pauseCtx->iconItemAltSegment = (void*)(((uintptr_t)pauseCtx->iconItem24Segment + size + 0xF) & ~0xF);
 #endif
 
-            switch (globalCtx->sceneNum) {
+            switch (CVar_GetS32("gMapSwitcher", -1) == -1 ? globalCtx->sceneNum : CVar_GetS32("gMapSwitcher", -1)) {
                 case SCENE_YDAN:
                 case SCENE_DDAN:
                 case SCENE_BDAN:

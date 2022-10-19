@@ -65,8 +65,8 @@ void PauseMapMark_DrawForDungeon(GlobalContext* globalCtx) {
             break;
         }
 
-        if ((mapMarkData->markType == PAUSE_MAP_MARK_BOSS) && (globalCtx->sceneNum >= SCENE_YDAN_BOSS) &&
-            (globalCtx->sceneNum <= SCENE_GANON_FINAL)) {
+        if ((mapMarkData->markType == PAUSE_MAP_MARK_BOSS) && (CVar_GetS32("gMapSwitcher", -1) == -1 ? globalCtx->sceneNum : CVar_GetS32("gMapSwitcher", -1) >= SCENE_YDAN_BOSS) &&
+            (CVar_GetS32("gMapSwitcher", -1) == -1 ? globalCtx->sceneNum : CVar_GetS32("gMapSwitcher", -1) <= SCENE_GANON_FINAL)) {
             if (gBossMarkState == 0) {
                 Math_ApproachF(&gBossMarkScale, 1.5f, 1.0f, 0.041f);
                 if (gBossMarkScale == 1.5f) {
@@ -103,7 +103,7 @@ void PauseMapMark_DrawForDungeon(GlobalContext* globalCtx) {
                 if (Flags_GetTreasure(globalCtx, markPoint->chestFlag)) {
                     display = false;
                 } else {
-                    switch (globalCtx->sceneNum) {
+                    switch (CVar_GetS32("gMapSwitcher", -1) == -1 ? globalCtx->sceneNum : CVar_GetS32("gMapSwitcher", -1)) {
                         case SCENE_YDAN_BOSS:
                         case SCENE_DDAN_BOSS:
                         case SCENE_BDAN_BOSS:
@@ -155,7 +155,7 @@ void PauseMapMark_DrawForDungeon(GlobalContext* globalCtx) {
 void PauseMapMark_Draw(GlobalContext* globalCtx) {
     PauseMapMark_Init(globalCtx);
 
-    switch (globalCtx->sceneNum) {
+    switch (CVar_GetS32("gMapSwitcher", -1) == -1 ? globalCtx->sceneNum : CVar_GetS32("gMapSwitcher", -1)) {
         case SCENE_YDAN:
         case SCENE_DDAN:
         case SCENE_BDAN:

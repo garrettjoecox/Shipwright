@@ -219,6 +219,37 @@ void KaleidoScope_DrawQuestStatus(GlobalContext* globalCtx, GraphicsContext* gfx
                     D_8082A120 = 10;
                 }
             }
+            if (CHECK_BTN_ALL(input->press.button, BTN_A) && ((sp216 >= QUEST_MEDALLION_FOREST) && (sp216 <= QUEST_MEDALLION_LIGHT) || (sp216 >= QUEST_KOKIRI_EMERALD) && (sp216 <= QUEST_ZORA_SAPPHIRE))) {
+                switch (sp216) {
+                    case QUEST_KOKIRI_EMERALD:
+                        CVar_SetS32("gMapSwitcher", CVar_GetS32("gMapSwitcher", -1) == 0 ? -1 : 0);
+                        break;
+                    case QUEST_GORON_RUBY:
+                        CVar_SetS32("gMapSwitcher", CVar_GetS32("gMapSwitcher", -1) == 1 ? -1 : 1);
+                        break;
+                    case QUEST_ZORA_SAPPHIRE:
+                        CVar_SetS32("gMapSwitcher", CVar_GetS32("gMapSwitcher", -1) == 2 ? -1 : 2);
+                        break;
+                    case QUEST_MEDALLION_FOREST:
+                        CVar_SetS32("gMapSwitcher", CVar_GetS32("gMapSwitcher", -1) == 3 ? -1 : 3);
+                        break;
+                    case QUEST_MEDALLION_FIRE:
+                        CVar_SetS32("gMapSwitcher", CVar_GetS32("gMapSwitcher", -1) == 4 ? -1 : 4);
+                        break;
+                    case QUEST_MEDALLION_WATER:
+                        CVar_SetS32("gMapSwitcher", CVar_GetS32("gMapSwitcher", -1) == 5 ? -1 : 5);
+                        break;
+                    case QUEST_MEDALLION_SPIRIT:
+                        CVar_SetS32("gMapSwitcher", CVar_GetS32("gMapSwitcher", -1) == 6 ? -1 : 6);
+                        break;
+                    case QUEST_MEDALLION_SHADOW:
+                        CVar_SetS32("gMapSwitcher", CVar_GetS32("gMapSwitcher", -1) == 7 ? -1 : 7);
+                        break;
+                }
+
+                Audio_PlaySoundGeneral(NA_SE_SY_DECIDE, &D_801333D4, 4, &D_801333E0, &D_801333E0, &D_801333E8);
+                KaleidoScope_SwitchPage(pauseCtx, 0);
+            }
         } else if (pauseCtx->cursorSpecialPos == PAUSE_CURSOR_PAGE_LEFT) {
             if ((pauseCtx->stickRelX > 30) || (dpad && CHECK_BTN_ALL(input->press.button, BTN_DRIGHT))) {
                 pauseCtx->cursorPoint[PAUSE_QUEST] = 0x15;

@@ -6,6 +6,15 @@
 #include "textures/icon_item_field_static/icon_item_field_static.h"
 #include "textures/icon_item_dungeon_static/icon_item_dungeon_static.h"
 #include "textures/icon_item_nes_static/icon_item_nes_static.h"
+#include "textures/parameter_static/parameter_static.h"
+
+const char* mapDigitTextures[] =
+{
+    gCounterDigit0Tex, gCounterDigit1Tex, gCounterDigit2Tex, gCounterDigit3Tex,
+    gCounterDigit4Tex, gCounterDigit5Tex, gCounterDigit6Tex, gCounterDigit7Tex, gCounterDigit8Tex,
+    gCounterDigit9Tex, gCounterColonTex, gCounterDigit1Tex, gCounterDigit2Tex, gCounterDigit3Tex,
+    gCounterDigit4Tex, gCounterDigit5Tex, gCounterDigit6Tex, gCounterDigit7Tex, gCounterDigit8Tex
+};
 
 void KaleidoScope_DrawDungeonMap(GlobalContext* globalCtx, GraphicsContext* gfxCtx) {
     static void* dungeonItemTexs[] = {
@@ -53,6 +62,8 @@ void KaleidoScope_DrawDungeonMap(GlobalContext* globalCtx, GraphicsContext* gfxC
     s16 stepB;
     u16 rgba16;
     bool dpad = CVar_GetS32("gDpadPause", 0);
+    u16 mapIndex = CVar_GetS32("gMapSwitcher", -1) == -1 ? gSaveContext.mapIndex : CVar_GetS32("gMapSwitcher", -1);
+    bool dpad = CVar_GetS32("gDpadPauseName", 0);
 
     OPEN_DISPS(gfxCtx);
 
@@ -67,11 +78,11 @@ void KaleidoScope_DrawDungeonMap(GlobalContext* globalCtx, GraphicsContext* gfxC
                 } else {
                     pauseCtx->cursorX[PAUSE_MAP] = 1;
                     pauseCtx->cursorPoint[PAUSE_MAP] = 0;
-                    if (!CHECK_DUNGEON_ITEM(DUNGEON_KEY_BOSS, gSaveContext.mapIndex)) {
+                    if (!CHECK_DUNGEON_ITEM(DUNGEON_KEY_BOSS, mapIndex)) {
                         pauseCtx->cursorPoint[PAUSE_MAP]++;
-                        if (!CHECK_DUNGEON_ITEM(DUNGEON_COMPASS, gSaveContext.mapIndex)) {
+                        if (!CHECK_DUNGEON_ITEM(DUNGEON_COMPASS, mapIndex)) {
                             pauseCtx->cursorPoint[PAUSE_MAP]++;
-                            if (!CHECK_DUNGEON_ITEM(DUNGEON_MAP, gSaveContext.mapIndex)) {
+                            if (!CHECK_DUNGEON_ITEM(DUNGEON_MAP, mapIndex)) {
                                 KaleidoScope_MoveCursorToSpecialPos(globalCtx, PAUSE_CURSOR_PAGE_RIGHT);
                             }
                         }
@@ -86,7 +97,7 @@ void KaleidoScope_DrawDungeonMap(GlobalContext* globalCtx, GraphicsContext* gfxC
                     osSyncPrintf("kscope->cursor_point=%d\n", pauseCtx->cursorPoint[PAUSE_MAP]);
                     R_MAP_TEX_INDEX =
                         R_MAP_TEX_INDEX_BASE +
-                        gMapData->floorTexIndexOffset[gSaveContext.mapIndex][pauseCtx->cursorPoint[PAUSE_MAP] - 3];
+                        gMapData->floorTexIndexOffset[mapIndex][pauseCtx->cursorPoint[PAUSE_MAP] - 3];
                     KaleidoScope_UpdateDungeonMap(globalCtx);
                 }
             }
@@ -95,7 +106,7 @@ void KaleidoScope_DrawDungeonMap(GlobalContext* globalCtx, GraphicsContext* gfxC
                 if ((pauseCtx->stickRelY > 30) || (dpad && CHECK_BTN_ALL(input->press.button, BTN_DUP))) {
                     if (pauseCtx->cursorPoint[PAUSE_MAP] != 0) {
                         for (i = pauseCtx->cursorPoint[PAUSE_MAP] - 1; i >= 0; i--) {
-                            if (CHECK_DUNGEON_ITEM(i, gSaveContext.mapIndex)) {
+                            if (CHECK_DUNGEON_ITEM(i, mapIndex)) {
                                 pauseCtx->cursorPoint[PAUSE_MAP] = i;
                                 break;
                             }
@@ -105,7 +116,7 @@ void KaleidoScope_DrawDungeonMap(GlobalContext* globalCtx, GraphicsContext* gfxC
                     if ((pauseCtx->stickRelY < -30) || (dpad && CHECK_BTN_ALL(input->press.button, BTN_DDOWN))) {
                         if (pauseCtx->cursorPoint[PAUSE_MAP] != 2) {
                             for (i = pauseCtx->cursorPoint[PAUSE_MAP] + 1; i < 3; i++) {
-                                if (CHECK_DUNGEON_ITEM(i, gSaveContext.mapIndex)) {
+                                if (CHECK_DUNGEON_ITEM(i, mapIndex)) {
                                     pauseCtx->cursorPoint[PAUSE_MAP] = i;
                                     break;
                                 }
@@ -117,8 +128,8 @@ void KaleidoScope_DrawDungeonMap(GlobalContext* globalCtx, GraphicsContext* gfxC
                 if ((pauseCtx->stickRelY > 30) || (dpad && CHECK_BTN_ALL(input->press.button, BTN_DUP))) {
                     if (pauseCtx->cursorPoint[PAUSE_MAP] >= 4) {
                         for (i = pauseCtx->cursorPoint[PAUSE_MAP] - 3 - 1; i >= 0; i--) {
-                            if ((gSaveContext.sceneFlags[gSaveContext.mapIndex].floors & gBitFlags[i]) ||
-                                (CHECK_DUNGEON_ITEM(DUNGEON_MAP, gSaveContext.mapIndex) &&
+                            if ((gSaveContext.sceneFlags[mapIndex].floors & gBitFlags[i]) ||
+                                (CHECK_DUNGEON_ITEM(DUNGEON_MAP, mapIndex) &&
                                  (gMapData->floorID[interfaceCtx->unk_25A][i] != 0))) {
                                 pauseCtx->cursorPoint[PAUSE_MAP] = i + 3;
                                 break;
@@ -128,8 +139,8 @@ void KaleidoScope_DrawDungeonMap(GlobalContext* globalCtx, GraphicsContext* gfxC
                 } else if ((pauseCtx->stickRelY < -30) || (dpad && CHECK_BTN_ALL(input->press.button, BTN_DDOWN))) {
                     if (pauseCtx->cursorPoint[PAUSE_MAP] != 10) {
                         for (i = pauseCtx->cursorPoint[PAUSE_MAP] - 3 + 1; i < 11; i++) {
-                            if ((gSaveContext.sceneFlags[gSaveContext.mapIndex].floors & gBitFlags[i]) ||
-                                (CHECK_DUNGEON_ITEM(DUNGEON_MAP, gSaveContext.mapIndex) &&
+                            if ((gSaveContext.sceneFlags[mapIndex].floors & gBitFlags[i]) ||
+                                (CHECK_DUNGEON_ITEM(DUNGEON_MAP, mapIndex) &&
                                  (gMapData->floorID[interfaceCtx->unk_25A][i] != 0))) {
                                 pauseCtx->cursorPoint[PAUSE_MAP] = i + 3;
                                 break;
@@ -141,7 +152,7 @@ void KaleidoScope_DrawDungeonMap(GlobalContext* globalCtx, GraphicsContext* gfxC
                 i = R_MAP_TEX_INDEX;
                 R_MAP_TEX_INDEX =
                     R_MAP_TEX_INDEX_BASE +
-                    gMapData->floorTexIndexOffset[gSaveContext.mapIndex][pauseCtx->cursorPoint[PAUSE_MAP] - 3];
+                    gMapData->floorTexIndexOffset[mapIndex][pauseCtx->cursorPoint[PAUSE_MAP] - 3];
                 pauseCtx->dungeonMapSlot = pauseCtx->cursorPoint[PAUSE_MAP];
                 if (i != R_MAP_TEX_INDEX) {
                     KaleidoScope_UpdateDungeonMap(globalCtx);
@@ -163,18 +174,18 @@ void KaleidoScope_DrawDungeonMap(GlobalContext* globalCtx, GraphicsContext* gfxC
                 pauseCtx->cursorSpecialPos = 0;
                 pauseCtx->cursorX[PAUSE_MAP] = 1;
                 pauseCtx->cursorPoint[PAUSE_MAP] = 0;
-                if (!CHECK_DUNGEON_ITEM(DUNGEON_KEY_BOSS, gSaveContext.mapIndex)) {
+                if (!CHECK_DUNGEON_ITEM(DUNGEON_KEY_BOSS, mapIndex)) {
                     pauseCtx->cursorPoint[PAUSE_MAP]++;
-                    if (!CHECK_DUNGEON_ITEM(DUNGEON_COMPASS, gSaveContext.mapIndex)) {
+                    if (!CHECK_DUNGEON_ITEM(DUNGEON_COMPASS, mapIndex)) {
                         pauseCtx->cursorPoint[PAUSE_MAP]++;
-                        if (!CHECK_DUNGEON_ITEM(DUNGEON_MAP, gSaveContext.mapIndex)) {
+                        if (!CHECK_DUNGEON_ITEM(DUNGEON_MAP, mapIndex)) {
                             pauseCtx->cursorX[PAUSE_MAP] = 0;
                             pauseCtx->cursorSlot[PAUSE_MAP] = pauseCtx->cursorPoint[PAUSE_MAP] =
                                 pauseCtx->dungeonMapSlot;
                             R_MAP_TEX_INDEX =
                                 R_MAP_TEX_INDEX_BASE +
                                 gMapData
-                                    ->floorTexIndexOffset[gSaveContext.mapIndex][pauseCtx->cursorPoint[PAUSE_MAP] - 3];
+                                    ->floorTexIndexOffset[mapIndex][pauseCtx->cursorPoint[PAUSE_MAP] - 3];
                             KaleidoScope_UpdateDungeonMap(globalCtx);
                         }
                     }
@@ -224,7 +235,7 @@ void KaleidoScope_DrawDungeonMap(GlobalContext* globalCtx, GraphicsContext* gfxC
 
     gSPVertex(POLY_KAL_DISP++, &pauseCtx->mapPageVtx[68], 16, 0);
 
-    gDPLoadTextureBlock(POLY_KAL_DISP++, dungeonTitleTexs[gSaveContext.mapIndex+(10*gSaveContext.language)], G_IM_FMT_IA, G_IM_SIZ_8b, 96, 16, 0,
+    gDPLoadTextureBlock(POLY_KAL_DISP++, dungeonTitleTexs[mapIndex+(10*gSaveContext.language)], G_IM_FMT_IA, G_IM_SIZ_8b, 96, 16, 0,
                         G_TX_WRAP | G_TX_NOMIRROR, G_TX_WRAP | G_TX_NOMIRROR, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
                         G_TX_NOLOD);
 
@@ -234,7 +245,7 @@ void KaleidoScope_DrawDungeonMap(GlobalContext* globalCtx, GraphicsContext* gfxC
     gDPSetCombineMode(POLY_KAL_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
 
     for (i = 0, j = 4; i < 3; i++, j += 4) {
-        if (CHECK_DUNGEON_ITEM(i, gSaveContext.mapIndex)) {
+        if (CHECK_DUNGEON_ITEM(i, mapIndex)) {
             gDPLoadTextureBlock(POLY_KAL_DISP++, dungeonItemTexs[i], G_IM_FMT_RGBA, G_IM_SIZ_32b, 24, 24, 0,
                                 G_TX_WRAP | G_TX_NOMIRROR, G_TX_WRAP | G_TX_NOMIRROR, G_TX_NOMASK, G_TX_NOMASK,
                                 G_TX_NOLOD, G_TX_NOLOD);
@@ -250,8 +261,8 @@ void KaleidoScope_DrawDungeonMap(GlobalContext* globalCtx, GraphicsContext* gfxC
     gSPVertex(POLY_KAL_DISP++, &pauseCtx->mapPageVtx[84], 32, 0);
 
     for (i = j = 0; i < 8; i++, j += 4) {
-        if ((gSaveContext.sceneFlags[gSaveContext.mapIndex].floors & gBitFlags[i]) ||
-            CHECK_DUNGEON_ITEM(DUNGEON_MAP, gSaveContext.mapIndex)) {
+        if ((gSaveContext.sceneFlags[mapIndex].floors & gBitFlags[i]) ||
+            CHECK_DUNGEON_ITEM(DUNGEON_MAP, mapIndex)) {
             if (i != (pauseCtx->dungeonMapSlot - 3)) {
                 gDPLoadTextureBlock(POLY_KAL_DISP++, floorIconTexs[gMapData->floorID[interfaceCtx->unk_25A][i]],
                                     G_IM_FMT_IA, G_IM_SIZ_8b, 24, 16, 0, G_TX_WRAP | G_TX_NOMIRROR,
@@ -293,10 +304,10 @@ void KaleidoScope_DrawDungeonMap(GlobalContext* globalCtx, GraphicsContext* gfxC
 
     gSP1Quadrangle(POLY_KAL_DISP++, 0, 2, 3, 1, 0);
 
-    if (CHECK_DUNGEON_ITEM(DUNGEON_COMPASS, gSaveContext.mapIndex) &&
-        (gMapData->skullFloorIconY[gSaveContext.mapIndex] != -99)) {
+    if (CHECK_DUNGEON_ITEM(DUNGEON_COMPASS, mapIndex) &&
+        (gMapData->skullFloorIconY[mapIndex] != -99)) {
         pauseCtx->mapPageVtx[120].v.ob[1] = pauseCtx->mapPageVtx[121].v.ob[1] =
-            gMapData->skullFloorIconY[gSaveContext.mapIndex] + pauseCtx->offsetY;
+            gMapData->skullFloorIconY[mapIndex] + pauseCtx->offsetY;
         pauseCtx->mapPageVtx[122].v.ob[1] = pauseCtx->mapPageVtx[123].v.ob[1] = pauseCtx->mapPageVtx[120].v.ob[1] - 16;
 
         gDPLoadTextureBlock(POLY_KAL_DISP++, gDungeonMapSkullTex, G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 16, 0,
@@ -306,9 +317,55 @@ void KaleidoScope_DrawDungeonMap(GlobalContext* globalCtx, GraphicsContext* gfxC
         gSP1Quadrangle(POLY_KAL_DISP++, 4, 6, 7, 5, 0);
     }
 
+    gSPVertex(POLY_KAL_DISP++, &pauseCtx->mapPageVtx[128], 4, 0);
+    pauseCtx->mapPageVtx[128].v.ob[0] = pauseCtx->mapPageVtx[130].v.ob[0] = pauseCtx->mapPageVtx[128].v.ob[0] + 34;
+    pauseCtx->mapPageVtx[129].v.ob[0] = pauseCtx->mapPageVtx[131].v.ob[0] = pauseCtx->mapPageVtx[128].v.ob[0] + 16;
+    pauseCtx->mapPageVtx[128].v.ob[1] = pauseCtx->mapPageVtx[129].v.ob[1] = pauseCtx->mapPageVtx[128].v.ob[1] - 34;
+    pauseCtx->mapPageVtx[130].v.ob[1] = pauseCtx->mapPageVtx[131].v.ob[1] = pauseCtx->mapPageVtx[128].v.ob[1] - 16;
+    gDPPipeSync(POLY_KAL_DISP++);
+    gDPSetPrimColor(POLY_KAL_DISP++, 0, 0, 200, 230, 255, interfaceCtx->magicAlpha);
+    gDPSetEnvColor(POLY_KAL_DISP++, 0, 0, 20, 255);
+    gDPLoadTextureBlock(POLY_KAL_DISP++, gSmallKeyCounterIconTex, G_IM_FMT_IA, G_IM_SIZ_8b, 64, 32, 0,
+                G_TX_WRAP | G_TX_NOMIRROR, G_TX_WRAP | G_TX_NOMIRROR, G_TX_NOMASK, G_TX_NOMASK,
+                G_TX_NOLOD, G_TX_NOLOD);
+    gSP1Quadrangle(POLY_KAL_DISP++, 0, 2, 3, 1, 0);
+
+    interfaceCtx->counterDigits[2] = 0;
+    interfaceCtx->counterDigits[3] = gSaveContext.inventory.dungeonKeys[mapIndex];
+
+    while (interfaceCtx->counterDigits[3] >= 10) {
+        interfaceCtx->counterDigits[2]++;
+        interfaceCtx->counterDigits[3] -= 10;
+    }
+
+    gSPVertex(POLY_KAL_DISP++, &pauseCtx->mapPageVtx[132], 4, 0);
+    pauseCtx->mapPageVtx[132].v.ob[0] = pauseCtx->mapPageVtx[134].v.ob[0] = pauseCtx->mapPageVtx[132].v.ob[0] + 42;
+    pauseCtx->mapPageVtx[133].v.ob[0] = pauseCtx->mapPageVtx[135].v.ob[0] = pauseCtx->mapPageVtx[132].v.ob[0] + 64;
+    pauseCtx->mapPageVtx[132].v.ob[1] = pauseCtx->mapPageVtx[133].v.ob[1] = pauseCtx->mapPageVtx[132].v.ob[1] - 4;
+    pauseCtx->mapPageVtx[134].v.ob[1] = pauseCtx->mapPageVtx[135].v.ob[1] = pauseCtx->mapPageVtx[132].v.ob[1] - 32;
+    gDPPipeSync(POLY_KAL_DISP++);
+    if (interfaceCtx->counterDigits[2] != 0) {
+        gDPLoadTextureBlock(POLY_KAL_DISP++, ((u8*)((u8*)mapDigitTextures[interfaceCtx->counterDigits[2]])), G_IM_FMT_I, G_IM_SIZ_8b, 8, 16, 0,
+                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
+                        G_TX_NOLOD);
+        gSP1Quadrangle(POLY_KAL_DISP++, 0, 2, 3, 1, 0);
+    }
+
+    gSPVertex(POLY_KAL_DISP++, &pauseCtx->mapPageVtx[136], 4, 0);
+    pauseCtx->mapPageVtx[136].v.ob[0] = pauseCtx->mapPageVtx[138].v.ob[0] = pauseCtx->mapPageVtx[136].v.ob[0] + 48;
+    pauseCtx->mapPageVtx[137].v.ob[0] = pauseCtx->mapPageVtx[139].v.ob[0] = pauseCtx->mapPageVtx[136].v.ob[0] + 64;
+    pauseCtx->mapPageVtx[136].v.ob[1] = pauseCtx->mapPageVtx[137].v.ob[1] = pauseCtx->mapPageVtx[136].v.ob[1] + 28;
+    pauseCtx->mapPageVtx[138].v.ob[1] = pauseCtx->mapPageVtx[139].v.ob[1] = pauseCtx->mapPageVtx[136].v.ob[1] - 32;
+    gDPPipeSync(POLY_KAL_DISP++);
+    gDPLoadTextureBlock(POLY_KAL_DISP++, ((u8*)((u8*)mapDigitTextures[interfaceCtx->counterDigits[3]])), G_IM_FMT_I, G_IM_SIZ_8b, 8, 16, 0,
+                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
+                        G_TX_NOLOD);
+    gSP1Quadrangle(POLY_KAL_DISP++, 0, 2, 3, 1, 0);
+
+    gSPVertex(POLY_KAL_DISP++, &pauseCtx->mapPageVtx[116], 12, 0);
     gDPSetPrimColor(POLY_KAL_DISP++, 0, 0, 255, 255, 255, pauseCtx->alpha);
 
-    if (GET_GS_FLAGS(gSaveContext.mapIndex) == gAreaGsFlags[gSaveContext.mapIndex]) {
+    if (GET_GS_FLAGS(mapIndex) == gAreaGsFlags[mapIndex]) {
         KaleidoScope_DrawQuadTextureRGBA32(gfxCtx, gGoldSkulltulaIconTex, 24, 24, 8);
     }
 
