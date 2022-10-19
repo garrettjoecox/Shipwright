@@ -2771,6 +2771,8 @@ RandomizerCheck Randomizer::GetCheckFromActor(s16 actorId, s16 sceneNum, s16 act
                     return RC_DODONGOS_CAVERN_GS_VINES_ABOVE_STAIRS;
                 case 8456:
                     return RC_DODONGOS_CAVERN_GS_BACK_ROOM;
+                case 262:
+                    return RC_DODONGOS_CAVERN_LIZALFOS_PLATFORM_USELESS_CHECK;
             }
             break;
         case 2:
@@ -2789,6 +2791,8 @@ RandomizerCheck Randomizer::GetCheckFromActor(s16 actorId, s16 sceneNum, s16 act
                     return RC_JABU_JABUS_BELLY_GS_LOBBY_BASEMENT_UPPER;
                 case 8708:
                     return RC_JABU_JABUS_BELLY_GS_NEAR_BOSS;
+                case 262:
+                    return RC_JABU_JABUS_BELLY_BOTTOM_ROOM_USELESS_CHECK;
             }
             break;
         case 3:
@@ -3057,6 +3061,8 @@ RandomizerCheck Randomizer::GetCheckFromActor(s16 actorId, s16 sceneNum, s16 act
                     return RC_ICE_CAVERN_GS_HEART_PIECE_ROOM;
                 case 10497:
                     return RC_ICE_CAVERN_GS_PUSH_BLOCK_ROOM;
+                case 1030:
+                    return RC_ICE_CAVERN_MAP_ROOM_FROZEN_USELESS_CHECK;
             }
             break;
         case 10:
@@ -3344,6 +3350,8 @@ RandomizerCheck Randomizer::GetCheckFromActor(s16 actorId, s16 sceneNum, s16 act
                     return RC_ZR_OPEN_GROTTO_GOSSIP_STONE;
                 case 262:
                     return RC_HF_TEKTITE_GROTTO_FREESTANDING_POH;
+                case 1030:
+                    return RC_GV_OCTOROK_GROTTO_USELESS_CHECK;
                 case 14363:
                     return RC_HF_COW_GROTTO_GOSSIP_STONE;
                 case 14355:
@@ -3472,6 +3480,8 @@ RandomizerCheck Randomizer::GetCheckFromActor(s16 actorId, s16 sceneNum, s16 act
                     return RC_KF_GS_BEAN_PATCH;
                 case 19460:
                     return RC_KF_GS_HOUSE_OF_TWINS;
+                case 262:
+                    return RC_KF_ABOVE_BEAN_PATCH_USELESS_CHECK;
             }
             break;
         case 86:
