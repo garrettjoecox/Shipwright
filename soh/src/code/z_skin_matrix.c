@@ -37,6 +37,7 @@ void SkinMatrix_Vec3fMtxFMultXYZW(MtxF* mf, Vec3f* src, Vec3f* xyzDest, f32* wDe
  * \f]
  */
 void SkinMatrix_Vec3fMtxFMultXYZ(MtxF* mf, Vec3f* src, Vec3f* dest) {
+    FrameInterpolation_RecordSkinMatrixVec3fMtxFMultXYZ(mf, src, dest);
     f32 mx = mf->xx;
     f32 my = mf->xy;
     f32 mz = mf->xz;

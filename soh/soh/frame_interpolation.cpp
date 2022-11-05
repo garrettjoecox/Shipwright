@@ -75,6 +75,7 @@ void Matrix_SetTranslateScaleMtx2(Mtx* mtx, f32 scaleX, f32 scaleY, f32 scaleZ, 
 MtxF* Matrix_GetCurrent(void);
 
 void SkinMatrix_MtxFMtxFMult(MtxF* mfA, MtxF* mfB, MtxF* dest);
+void SkinMatrix_Vec3fMtxFMultXYZ(MtxF* mf, Vec3f* src, Vec3f* dest);
 
 }
 
@@ -102,7 +103,8 @@ namespace {
         MatrixToMtx,
         MatrixReplaceRotation,
         MatrixRotateAxis,
-        SkinMatrixMtxFToMtx
+        SkinMatrixMtxFToMtx,
+        SkinMatrixVec3fMatrixMult
     };
 
     typedef pair<const void*, int> label;
@@ -119,6 +121,12 @@ namespace {
             MtxF mf;
             u8 mode;
         } matrix_mult;
+
+        struct {
+            MtxF* mf;
+            Vec3f* src;
+            Vec3f* dest;
+        } vec3f_matrix_mult;
 
         struct {
             f32 x, y, z;
@@ -429,6 +437,11 @@ namespace {
 
                             case Op::SkinMatrixMtxFToMtx:
                                 break;
+
+                            case Op::SkinMatrixVec3fMatrixMult:
+                                lerp_vec3f(&tmp_vec3f, old_op.vec3f_matrix_mult.dest, new_op.vec3f_matrix_mult.dest);
+                                SkinMatrix_Vec3fMtxFMultXYZ(new_op.vec3f_matrix_mult.mf, new_op.vec3f_matrix_mult.src, &tmp_vec3f);
+                                break;
                         }
                     }
                 }
@@ -597,6 +610,12 @@ void FrameInterpolation_RecordSkinMatrixMtxFToMtx(MtxF* src, Mtx* dest) {
     if (!is_recording)
         return;
     FrameInterpolation_RecordMatrixMtxFToMtx(src, dest);
+}
+
+void FrameInterpolation_RecordSkinMatrixVec3fMtxFMultXYZ(MtxF* mf, Vec3f* src, Vec3f* dest) {
+    if (!is_recording)
+        return;
+    append(Op::SkinMatrixVec3fMatrixMult).vec3f_matrix_mult = { mf, src, dest };
 }
 
 // https://stackoverflow.com/questions/1148309/inverting-a-4x4-matrix
