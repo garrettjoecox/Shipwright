@@ -513,7 +513,7 @@ void Cutscene_Command_Terminator(PlayState* play, CutsceneContext* csCtx, CsCmdB
 
         csCtx->state = CS_STATE_UNSKIPPABLE_EXEC;
         Audio_SetCutsceneFlag(0);
-        gSaveContext.unk_1410 = 1;
+        gSaveContext.cutsceneTransitionControl = 1;
 
         osSyncPrintf("\n分岐先指定！！=[%d]番", cmd->base); // "Future fork designation=No. [%d]"
 
@@ -586,7 +586,7 @@ void Cutscene_Command_Terminator(PlayState* play, CutsceneContext* csCtx, CsCmdB
                     play->nextEntranceIndex = 0x02CA;
                     play->sceneLoadFlag = 0x14;
                     play->fadeTransition = 3;
-                    gSaveContext.nextTransition = 3;
+                    gSaveContext.nextTransitionType = 3;
                 }
                 break;
             case 9:
@@ -616,7 +616,7 @@ void Cutscene_Command_Terminator(PlayState* play, CutsceneContext* csCtx, CsCmdB
                 play->nextEntranceIndex = 0x010E;
                 play->sceneLoadFlag = 0x14;
                 play->fadeTransition = 2;
-                gSaveContext.nextTransition = 2;
+                gSaveContext.nextTransitionType = 2;
                 break;
             case 14:
                 play->nextEntranceIndex = 0x0457;
@@ -646,7 +646,7 @@ void Cutscene_Command_Terminator(PlayState* play, CutsceneContext* csCtx, CsCmdB
                 play->nextEntranceIndex = 0x0324;
                 play->sceneLoadFlag = 0x14;
                 play->fadeTransition = 2;
-                gSaveContext.nextTransition = 2;
+                gSaveContext.nextTransitionType = 2;
                 break;
             case 19:
                 play->nextEntranceIndex = 0x013D;
@@ -804,7 +804,7 @@ void Cutscene_Command_Terminator(PlayState* play, CutsceneContext* csCtx, CsCmdB
                 play->nextEntranceIndex = 0x01ED;
                 play->sceneLoadFlag = 0x14;
                 play->fadeTransition = 15;
-                gSaveContext.nextTransition = 15;
+                gSaveContext.nextTransitionType = 15;
                 break;
             case 49:
                 play->nextEntranceIndex = 0x058C;
@@ -936,7 +936,7 @@ void Cutscene_Command_Terminator(PlayState* play, CutsceneContext* csCtx, CsCmdB
                 play->sceneLoadFlag = 0x14;
                 gSaveContext.cutsceneIndex = 0xFFF4;
                 play->fadeTransition = 2;
-                gSaveContext.nextTransition = 2;
+                gSaveContext.nextTransitionType = 2;
                 break;
             case 71:
                 gSaveContext.equips.equipment |= 0x0100;
@@ -954,7 +954,7 @@ void Cutscene_Command_Terminator(PlayState* play, CutsceneContext* csCtx, CsCmdB
                 play->sceneLoadFlag = 0x14;
                 gSaveContext.cutsceneIndex = 0xFFF0;
                 play->fadeTransition = 2;
-                gSaveContext.nextTransition = 2;
+                gSaveContext.nextTransitionType = 2;
                 break;
             case 73:
                 play->linkAgeOnLoad = 1;
@@ -968,7 +968,7 @@ void Cutscene_Command_Terminator(PlayState* play, CutsceneContext* csCtx, CsCmdB
                 play->sceneLoadFlag = 0x14;
                 gSaveContext.cutsceneIndex = 0xFFF3;
                 play->fadeTransition = 3;
-                gSaveContext.nextTransition = 3;
+                gSaveContext.nextTransitionType = 3;
                 break;
             case 75:
                 play->linkAgeOnLoad = 1;
@@ -1060,7 +1060,7 @@ void Cutscene_Command_Terminator(PlayState* play, CutsceneContext* csCtx, CsCmdB
                     play->nextEntranceIndex = 0x0610;
                     play->sceneLoadFlag = 0x14;
                     play->fadeTransition = 3;
-                    gSaveContext.nextTransition = 3;
+                    gSaveContext.nextTransitionType = 3;
                 }
                 break;
             case 97:
@@ -1073,27 +1073,27 @@ void Cutscene_Command_Terminator(PlayState* play, CutsceneContext* csCtx, CsCmdB
                     play->nextEntranceIndex = 0x0580;
                     play->sceneLoadFlag = 0x14;
                     play->fadeTransition = 3;
-                    gSaveContext.nextTransition = 3;
+                    gSaveContext.nextTransitionType = 3;
                 }
                 break;
             case 98:
                 play->nextEntranceIndex = 0x0564;
                 play->sceneLoadFlag = 0x14;
                 play->fadeTransition = 3;
-                gSaveContext.nextTransition = 3;
+                gSaveContext.nextTransitionType = 3;
                 break;
             case 99:
                 play->nextEntranceIndex = 0x0608;
                 play->sceneLoadFlag = 0x14;
                 play->fadeTransition = 2;
-                gSaveContext.nextTransition = 2;
+                gSaveContext.nextTransitionType = 2;
                 break;
             case 100:
                 play->nextEntranceIndex = 0x00EE;
                 gSaveContext.cutsceneIndex = 0xFFF8;
                 play->sceneLoadFlag = 0x14;
                 play->fadeTransition = 3;
-                gSaveContext.nextTransition = 3;
+                gSaveContext.nextTransitionType = 3;
                 break;
             case 101:
                 play->nextEntranceIndex = 0x01F5;
@@ -1199,7 +1199,7 @@ void Cutscene_Command_Terminator(PlayState* play, CutsceneContext* csCtx, CsCmdB
                 play->nextEntranceIndex = 0x0594;
                 play->sceneLoadFlag = 0x14;
                 play->fadeTransition = 2;
-                gSaveContext.nextTransition = 2;
+                gSaveContext.nextTransitionType = 2;
                 break;
             case 116:
                 if (gSaveContext.eventChkInf[12] & 0x100) {
@@ -1211,7 +1211,7 @@ void Cutscene_Command_Terminator(PlayState* play, CutsceneContext* csCtx, CsCmdB
                     play->sceneLoadFlag = 0x14;
                     play->fadeTransition = 3;
                 }
-                gSaveContext.nextTransition = 3;
+                gSaveContext.nextTransitionType = 3;
                 break;
             case 117:
                 gSaveContext.gameMode = 3;
@@ -1226,7 +1226,7 @@ void Cutscene_Command_Terminator(PlayState* play, CutsceneContext* csCtx, CsCmdB
                 gSaveContext.respawn[RESPAWN_MODE_DOWN].entranceIndex = 0x0517;
                 Play_TriggerVoidOut(play);
                 gSaveContext.respawnFlag = -2;
-                gSaveContext.nextTransition = 2;
+                gSaveContext.nextTransitionType = 2;
                 break;
             case 119:
                 gSaveContext.dayTime = 0x8000;
@@ -1304,7 +1304,7 @@ void Cutscene_Command_TransitionFX(PlayState* play, CutsceneContext* csCtx, CsCm
                 }
                 break;
             case 9:
-                gSaveContext.unk_1410 = 1;
+                gSaveContext.cutsceneTransitionControl = 1;
                 break;
             case 10:
             case 11:
@@ -1318,7 +1318,7 @@ void Cutscene_Command_TransitionFX(PlayState* play, CutsceneContext* csCtx, CsCm
                 }
                 break;
             case 12:
-                gSaveContext.unk_1410 = 255.0f - (155.0f * temp);
+                gSaveContext.cutsceneTransitionControl = 255.0f - (155.0f * temp);
                 break;
             case 13:
                 play->envCtx.screenFillColor[0] = 0;

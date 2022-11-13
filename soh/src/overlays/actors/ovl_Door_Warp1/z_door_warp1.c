@@ -583,7 +583,7 @@ void DoorWarp1_ChildWarpOut(DoorWarp1* this, PlayState* play) {
         osSyncPrintf("\n\n\nおわりおわり");
         play->sceneLoadFlag = 0x14;
         play->fadeTransition = 7;
-        gSaveContext.nextTransition = 3;
+        gSaveContext.nextTransitionType = 3;
     }
 
     Math_StepToF(&this->unk_194, 2.0f, 0.01f);
@@ -892,7 +892,7 @@ void DoorWarp1_AdultWarpOut(DoorWarp1* this, PlayState* play) {
         }
         play->sceneLoadFlag = 0x14;
         play->fadeTransition = 3;
-        gSaveContext.nextTransition = 7;
+        gSaveContext.nextTransitionType = 7;
     }
     if (this->warpTimer >= 141) {
         f32 screenFillAlpha;

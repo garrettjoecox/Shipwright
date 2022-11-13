@@ -910,7 +910,7 @@ void GivePlayerRandoRewardImpa(Actor* impa, PlayState* play, RandomizerCheck che
         gSaveContext.eventChkInf[5] |= 0x200;
         play->sceneLoadFlag = 0x14;
         play->fadeTransition = 3;
-        gSaveContext.nextTransition = 3;
+        gSaveContext.nextTransitionType = 3;
         play->nextEntranceIndex = 0x0594;
         gSaveContext.nextCutsceneIndex = 0;
     }
