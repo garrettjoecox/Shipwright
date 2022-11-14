@@ -123,6 +123,7 @@ The CI works via [Github Actions](https://github.com/features/actions) where we 
 To get this step working on your fork, you'll need to add a machine to your own repository as a self-hosted runner via "Settings > Actions > Runners" in your repository settings. If you're on macOS or Linux take a look at `macports-deps.txt` or `apt-deps.txt` to see the dependencies expected to be on your machine. For Windows, deps get installed as part of the CI process. To setup your runner as a service read the docs [here](https://docs.github.com/en/actions/hosting-your-own-runners/configuring-the-self-hosted-runner-application-as-a-service?platform=linux).
 
 
+
 ## Troubleshooting The Exporter
 - Confirm that you have an `/assets` folder filled with XMLs in the same directory as OTRGui.exe
 - Confirm that `zapd.exe` exists in the `/assets/extractor` folder
