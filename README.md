@@ -131,7 +131,7 @@ To get this step working on your fork, you'll need to add a machine to your own 
 Nightly builds of Ship of Harkinian are available here: [Windows](https://nightly.link/HarbourMasters/Shipwright/workflows/generate-builds/develop/soh-windows.zip), [macOS](https://nightly.link/HarbourMasters/Shipwright/workflows/generate-builds/develop/soh-mac.zip), [Linux](https://nightly.link/HarbourMasters/Shipwright/workflows/generate-builds/develop/soh-linux.zip), [Switch](https://nightly.link/HarbourMasters/Shipwright/workflows/generate-builds/develop/soh-switch.zip), [Wii U](https://nightly.link/HarbourMasters/Shipwright/workflows/generate-builds/develop/soh-wiiu.zip)
 
 
-## The Harbour Masters Are...
+## The Harbour Masters Are... super. cool.
 
     Kenix | Lead Developer/Public Relations - Resource Management Programmer, Audio System Programmer, and General Programmer
     Jack Walker | Lead Developer - OTR Format Programmer, Resource Load Programmer, and General Programmer
