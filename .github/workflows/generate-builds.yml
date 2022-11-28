@@ -24,6 +24,7 @@ jobs:
         path: assets.zip
         retention-days: 1
   build-macos:
+    if: false
     needs: extract-assets
     runs-on: macos-12
     steps:
@@ -145,6 +146,7 @@ jobs:
           soh.appimage
           readme.txt
   build-switch:
+    if: false
     needs: extract-assets
     runs-on: ubuntu-latest
     container:
@@ -182,6 +184,7 @@ jobs:
           soh.nro
           readme.txt
   build-wiiu:
+    if: false
     needs: extract-assets
     runs-on: ubuntu-latest
     container:
@@ -224,6 +227,7 @@ jobs:
           soh.wuhb
           readme.txt
   build-windows:
+    if: false
     needs: extract-assets
     runs-on: [self-hosted, Windows, x64]
     steps:
