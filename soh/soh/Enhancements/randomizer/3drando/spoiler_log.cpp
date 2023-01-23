@@ -523,13 +523,21 @@ static void WriteEnabledGlitches(tinyxml2::XMLDocument& spoilerLog) {
 }
 
 // Writes the Master Quest dungeons to the spoiler log, if there are any.
-static void WriteMasterQuestDungeons(tinyxml2::XMLDocument& spoilerLog) {
+static void WriteDungeonInfo() {
     for (const auto* dungeon : Dungeon::dungeonList) {
-        std::string dungeonName;
-        if (dungeon->IsVanilla()) {
-            continue;
+        jsonData["dungeons"][dungeon->GetName()]["masterQuest"] = dungeon->IsMQ();
+        switch (dungeon->GetHintStatus()) {
+            case DUNGEON_WOTH:
+                jsonData["dungeons"][dungeon->GetName()]["hintStatus"] = "woth";
+                break;
+            case DUNGEON_BARREN:
+                jsonData["dungeons"][dungeon->GetName()]["hintStatus"] = "barren";
+                break;
+            case DUNGEON_NEITHER:
+            default:
+                jsonData["dungeons"][dungeon->GetName()]["hintStatus"] = "neither";
+                break;
         }
-        jsonData["masterQuestDungeons"].push_back(dungeon->GetName());
     }
 }
 
@@ -791,7 +799,7 @@ const char* SpoilerLog_Write(int language) {
     //if (Settings::Logic.Is(LOGIC_GLITCHED)) {
     //    WriteEnabledGlitches(spoilerLog);
     //}
-    WriteMasterQuestDungeons(spoilerLog);
+    WriteDungeonInfo();
     WriteRequiredTrials();
     WritePlaythrough();
     //WriteWayOfTheHeroLocation(spoilerLog);
@@ -851,7 +859,7 @@ bool PlacementLog_Write() {
     // WriteStartingInventory(placementLog);
     WriteEnabledTricks(placementLog);
     WriteEnabledGlitches(placementLog);
-    WriteMasterQuestDungeons(placementLog);
+    WriteDungeonInfo();
     //WriteRequiredTrials(placementLog);
 
     placementtxt = "\n" + placementtxt;

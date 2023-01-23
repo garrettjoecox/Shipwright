@@ -348,7 +348,7 @@ typedef enum {
     DUNGEON_NEITHER,
     DUNGEON_BARREN,
     DUNGEON_WOTH,
-} DungeonInfo;
+} DungeonHintStatus;
 
 typedef enum {
     TRAILCOLOR_VANILLAMODE,

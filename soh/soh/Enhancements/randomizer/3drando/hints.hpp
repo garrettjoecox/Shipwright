@@ -213,7 +213,7 @@ private:
 using ConditionalAlwaysHint = std::pair<uint32_t, std::function<bool()>>;
 
 //10 dungeons as GTG and GC are excluded
-extern std::array<DungeonInfo, 10> dungeonInfoData;
+extern std::array<DungeonHintStatus, 10> dungeonHintStatusData;
 
 extern std::array<ConditionalAlwaysHint, 9> conditionalAlwaysHints;
 

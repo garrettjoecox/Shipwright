@@ -110,7 +110,7 @@ constexpr std::array<HintSetting, 4> hintSettingTable{{
   },
 }};
 
-std::array<DungeonInfo, 10> dungeonInfoData;
+std::array<DungeonHintStatus, 10> dungeonHintStatusData;
 
 Text childAltarText;
 Text adultAltarText;
@@ -868,15 +868,25 @@ void CreateAllHints() {
       SPDLOG_DEBUG(wothDungeon + "\n");
   }
 
-  //Set DungeonInfo array for each dungeon
-  for (uint32_t i = 0; i < dungeonInfoData.size(); i++) {
+  //Set DungeonHintStatus array for each dungeon
+  for (uint32_t i = 0; i < dungeonHintStatusData.size(); i++) {
     std::string dungeonName = dungeonNames[i];
+    Dungeon::DungeonInfo *targetDungeon;
+    for (auto* dungeon : Dungeon::dungeonList) {
+      if (dungeon->GetName() == dungeonName) {
+        targetDungeon = dungeon;
+      }
+    }
+
     if (std::find(barrenDungeons.begin(), barrenDungeons.end(), dungeonName) != barrenDungeons.end()) {
-      dungeonInfoData[i] = DungeonInfo::DUNGEON_BARREN;
+      dungeonHintStatusData[i] = DungeonHintStatus::DUNGEON_BARREN;
+      targetDungeon->SetHintStatus(DungeonHintStatus::DUNGEON_BARREN);
     } else if (std::find(wothDungeons.begin(), wothDungeons.end(), dungeonName) != wothDungeons.end()) {
-      dungeonInfoData[i] = DungeonInfo::DUNGEON_WOTH;
+      dungeonHintStatusData[i] = DungeonHintStatus::DUNGEON_WOTH;
+      targetDungeon->SetHintStatus(DungeonHintStatus::DUNGEON_WOTH);
     } else {
-      dungeonInfoData[i] = DungeonInfo::DUNGEON_NEITHER;
+      dungeonHintStatusData[i] = DungeonHintStatus::DUNGEON_NEITHER;
+      targetDungeon->SetHintStatus(DungeonHintStatus::DUNGEON_NEITHER);
     }
   }
 

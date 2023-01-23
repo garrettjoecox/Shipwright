@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "keys.hpp"
+#include "settings.hpp"
 
 namespace Dungeon {
 class DungeonInfo {
@@ -48,6 +49,14 @@ public:
         return !masterQuest;
     }
 
+    void SetHintStatus(DungeonHintStatus newHintStatus) {
+        hintStatus = newHintStatus;
+    }
+
+    DungeonHintStatus GetHintStatus() const {
+        return hintStatus;
+    }
+
     uint8_t GetSmallKeyCount() const {
         return (masterQuest) ? mqKeyCount : vanillaKeyCount;
     }
@@ -80,6 +89,7 @@ private:
     uint8_t mqKeyCount;
     bool masterQuest = false;
     bool hasKeyRing = false;
+    DungeonHintStatus hintStatus;
     std::vector<uint32_t> vanillaLocations;
     std::vector<uint32_t> mqLocations;
     std::vector<uint32_t> sharedLocations;
