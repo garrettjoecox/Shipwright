@@ -39,19 +39,19 @@ const ActorInit Item_Etcetera_InitVars = {
 static s16 sObjectIds[] = {
     OBJECT_GI_BOTTLE, OBJECT_GI_BOTTLE_LETTER, OBJECT_GI_SHIELD_2, OBJECT_GI_ARROWCASE, OBJECT_GI_SCALE,
     OBJECT_GI_SCALE,  OBJECT_GI_KEY,           OBJECT_GI_M_ARROW,  OBJECT_GI_RUPY,      OBJECT_GI_RUPY,
-    OBJECT_GI_RUPY,   OBJECT_GI_RUPY,          OBJECT_GI_HEARTS,   OBJECT_GI_KEY,
+    OBJECT_GI_RUPY,   OBJECT_GI_RUPY,          OBJECT_GI_HEARTS,   OBJECT_GI_KEY,       OBJECT_INVALID,
 };
 
 // Indexes passed to the item table in z_draw.c
 static s16 sDrawItemIndexes[] = {
     GID_BOTTLE,       GID_LETTER_RUTO,  GID_SHIELD_HYLIAN, GID_QUIVER_40,   GID_SCALE_SILVER,
     GID_SCALE_GOLDEN, GID_KEY_SMALL,    GID_ARROW_FIRE,    GID_RUPEE_GREEN, GID_RUPEE_BLUE,
-    GID_RUPEE_RED,    GID_RUPEE_PURPLE, GID_HEART_PIECE,   GID_KEY_SMALL,
+    GID_RUPEE_RED,    GID_RUPEE_PURPLE, GID_HEART_PIECE,   GID_KEY_SMALL,   GID_MAXIMUM,
 };
 
 static s16 sGetItemIds[] = {
     GI_BOTTLE,     GI_LETTER_RUTO, GI_SHIELD_HYLIAN, GI_QUIVER_40, GI_SCALE_SILVER, GI_SCALE_GOLD, GI_KEY_SMALL,
-    GI_ARROW_FIRE, GI_NONE,        GI_NONE,          GI_NONE,      GI_NONE,         GI_NONE,       GI_NONE,
+    GI_ARROW_FIRE, GI_NONE,        GI_NONE,          GI_NONE,      GI_NONE,         GI_NONE,       GI_NONE,      GI_NONE,
 };
 
 void ItemEtcetera_SetupAction(ItemEtcetera* this, ItemEtceteraActionFunc actionFunc) {
@@ -104,6 +104,15 @@ void ItemEtcetera_Init(Actor* thisx, PlayState* play) {
             this->futureActionFunc = func_80B85B28;
             this->drawFunc = ItemEtcetera_DrawThroughLens;
             this->actor.world.pos.y += 15.0f;
+            break;
+        case ITEM_ETC_RANDOMIZER_ITEM:
+            Actor_SetScale(&this->actor, 0.5f);
+            this->futureActionFunc = func_80B85B28;
+            this->drawFunc = ItemEtcetera_DrawThroughLens;
+            this->actor.world.pos.y += 15.0f;
+            GetItemEntry item = ItemTable_RetrieveEntry(this->actor.params >> 16 & 0xFF, this->actor.params >> 8 & 0xFF);
+            this->giDrawId = item.gid;
+            this->getItemId = item.getItemId;
             break;
     }
 }

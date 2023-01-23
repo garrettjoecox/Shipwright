@@ -1,5 +1,6 @@
 #include "z_en_box.h"
 #include "objects/object_box/object_box.h"
+#include "overlays/actors/ovl_Item_Etcetera/z_item_etcetera.h"
 
 #define FLAGS 0
 
@@ -125,12 +126,16 @@ void EnBox_Init(Actor* thisx, PlayState* play2) {
     func_8003ECA8(play, &play->colCtx.dyna, this->dyna.bgId);
 
     this->movementFlags = 0;
-    this->type = thisx->params >> 12 & 0xF;
+    this->type = ENBOX_TYPE_4;
     this->iceSmokeTimer = 0;
     this->unk_1FB = ENBOX_STATE_0;
     this->dyna.actor.gravity = -5.5f;
     this->switchFlag = this->dyna.actor.world.rot.z;
     this->dyna.actor.minVelocityY = -50.0f;
+
+    sItem = Randomizer_GetItemFromActor(this->dyna.actor.id, play->sceneNum, this->dyna.actor.params, this->dyna.actor.params >> 5 & 0x7F);
+    Actor_Spawn(&play->actorCtx, play, ACTOR_ITEM_ETCETERA, this->dyna.actor.world.pos.x, this->dyna.actor.world.pos.y + 10, this->dyna.actor.world.pos.z, 0, 0, 0, 
+        ((sItem.modIndex & 0xFF) << 16) + ((sItem.getItemId & 0xFF) << 8) + (ITEM_ETC_RANDOMIZER_ITEM & 0xFF));
 
     if (play) {} // helps the compiler store play2 into s1
 
