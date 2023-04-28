@@ -701,6 +701,7 @@ void SaveManager::InitFileDebug() {
 }
 
 void SaveManager::SaveFile(int fileNum) {
+    SPDLOG_INFO("Save File - fileNum: {}", fileNum);
     if (fileNum == 0xFF) {
         return;
     }
@@ -746,6 +747,7 @@ void SaveManager::SaveGlobal() {
 }
 
 void SaveManager::LoadFile(int fileNum) {
+    SPDLOG_INFO("Load File - fileNum: {}", fileNum);
     assert(std::filesystem::exists(GetFileName(fileNum)));
     InitFile(false);
 
