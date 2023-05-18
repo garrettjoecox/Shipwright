@@ -392,6 +392,7 @@ namespace GameMenuBar {
 
         if (ImGui::BeginMenu("Enhancements"))
         {
+            /* [Race Template] Hide appropriate enhancements
             DrawPresetSelector(PRESET_TYPE_ENHANCEMENTS);
 
             UIWidgets::PaddedSeparator();
@@ -978,6 +979,9 @@ namespace GameMenuBar {
 
             UIWidgets::PaddedSeparator(true, true, 2.0f, 2.0f);
 
+            */
+            ImGui::Dummy(ImVec2(200.0f, 0.0f));
+
             ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(12.0f, 6.0f));
             ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0, 0));
             ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
@@ -1013,14 +1017,14 @@ namespace GameMenuBar {
                 LUS::RequestCvarSaveOnNextTick();
                 LUS::EnableWindow("Audio Editor", CVarGetInteger("gAudioEditor.WindowOpen", 0));
             }
-            if (ImGui::Button(GetWindowButtonText("Gameplay Stats", CVarGetInteger("gGameplayStatsEnabled", 0)).c_str(), ImVec2(-1.0f, 0.0f))) {
-                if (CVarGetInteger("gGameplayStatsEnabled", 0)) {
-                    CVarClear("gGameplayStatsEnabled");
+            if (ImGui::Button(GetWindowButtonText("Gameplay Stats", CVarGetInteger("gGameplayStats.Enabled", 0)).c_str(), ImVec2(-1.0f, 0.0f))) {
+                if (CVarGetInteger("gGameplayStats.Enabled", 0)) {
+                    CVarClear("gGameplayStats.Enabled");
                 } else {
-                    CVarSetInteger("gGameplayStatsEnabled", 1);
+                    CVarSetInteger("gGameplayStats.Enabled", 1);
                 }
                 LUS::RequestCvarSaveOnNextTick();
-                LUS::EnableWindow("Gameplay Stats", CVarGetInteger("gGameplayStatsEnabled", 0));
+                LUS::EnableWindow("Gameplay Stats", CVarGetInteger("gGameplayStats.Enabled", 0));
             }
             ImGui::PopStyleVar(3);
             ImGui::PopStyleColor(1);
@@ -1039,6 +1043,7 @@ namespace GameMenuBar {
 
         ImGui::SetCursorPosY(0.0f);
 
+        /* [Race Template] Hide Cheats and Developer Tools
         if (ImGui::BeginMenu("Cheats"))
         {
             if (ImGui::BeginMenu("Infinite...")) {
@@ -1256,6 +1261,7 @@ namespace GameMenuBar {
         }
 
         ImGui::SetCursorPosY(0.0f);
+        */
 
         if (ImGui::BeginMenu("Randomizer"))
         {
@@ -1301,6 +1307,7 @@ namespace GameMenuBar {
                 LUS::EnableWindow("Item Tracker Settings", CVarGetInteger("gItemTrackerSettingsEnabled", 0));
             }
             UIWidgets::Spacer(0);
+            /* [Race Template] Hide Entrance Tracker
             if (ImGui::Button(GetWindowButtonText("Entrance Tracker", CVarGetInteger("gEntranceTrackerEnabled", 0)).c_str(), buttonSize))
             {
                 if (CVarGetInteger("gEntranceTrackerEnabled", 0)) {
@@ -1312,6 +1319,7 @@ namespace GameMenuBar {
                 LUS::EnableWindow("Entrance Tracker", CVarGetInteger("gEntranceTrackerEnabled", 0));
             }
             UIWidgets::Spacer(0);
+            */
             if (ImGui::Button(GetWindowButtonText("Check Tracker", CVarGetInteger("gCheckTrackerEnabled", 0)).c_str(), buttonSize))
             {
                 if (CVarGetInteger("gCheckTrackerEnabled", 0)) {
@@ -1335,7 +1343,7 @@ namespace GameMenuBar {
             }
             ImGui::PopStyleVar(3);
             ImGui::PopStyleColor(1);
-
+            /* [Race Template] Hide other rando stuff
             UIWidgets::PaddedSeparator();
 
             if (ImGui::BeginMenu("Rando Enhancements"))
@@ -1415,6 +1423,7 @@ namespace GameMenuBar {
                     "Enemy spawns will stay consistent throughout room reloads. Enemy spawns are based on randomizer seeds, so this only works with randomizer savefiles."
                 );
             }
+            */
 
             ImGui::EndMenu();
         }

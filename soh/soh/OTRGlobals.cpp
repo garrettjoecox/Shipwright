@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
+#include <chrono>
 
 #include <ResourceManager.h>
 #include <File.h>
@@ -48,6 +49,7 @@
 #include <Utils/StringHelper.h>
 #include <Hooks.h>
 #include "Enhancements/custom-message/CustomMessageManager.h"
+#include "Enhancements/presets.h"
 
 #if not defined (__SWITCH__) && not defined(__WIIU__)
 #include "Extractor/Extract.h"
@@ -781,6 +783,11 @@ extern "C" void InitOTR() {
     } else {
         CVarClear("gLetItSnow");
     }
+
+    clearCvars(enhancementsCvars);
+    clearCvars(randomizerCvars);
+    clearCvars(cheatCvars);
+    applyPreset(racePresetEntries);
 #ifdef ENABLE_CROWD_CONTROL
     CrowdControl::Instance = new CrowdControl();
     CrowdControl::Instance->Init();
@@ -831,6 +838,14 @@ extern "C" uint64_t GetPerfCounter() {
 }
 #endif
 
+extern "C" uint64_t GetUnixTimestamp() {
+    auto time = std::chrono::system_clock::now();
+    auto since_epoch = time.time_since_epoch();
+    auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(since_epoch);
+    long now = millis.count();
+    return now;
+}
+
 // C->C++ Bridge
 extern "C" void Graph_ProcessFrame(void (*run_one_game_iter)(void)) {
     OTRGlobals::Instance->context->GetWindow()->MainLoop(run_one_game_iter);
@@ -844,7 +859,9 @@ extern "C" void Graph_StartFrame() {
     int32_t dwScancode = OTRGlobals::Instance->context->GetWindow()->GetLastScancode();
     OTRGlobals::Instance->context->GetWindow()->SetLastScancode(-1);
 
-    switch (dwScancode) {
+    /* [Race Template] Disable save states */
+    // switch (dwScancode) {
+    switch (0) {
         case KbScancode::LUS_KB_F5: {
             const unsigned int slot = OTRGlobals::Instance->gSaveStateMgr->GetCurrentSlot();
             const SaveStateReturn stateReturn =
