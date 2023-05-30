@@ -437,6 +437,8 @@ const std::vector<PresetEntry> racePresetEntries = {
     PRESET_ENTRY_S32("gDisableFirstPersonChus", 1),
     PRESET_ENTRY_S32("gCheatEasyPauseBufferEnabled", 1),
     PRESET_ENTRY_S32("gDampeAllNight", 1),
+    PRESET_ENTRY_S32("gFixDungeonMinimapIcon", 1),
+    PRESET_ENTRY_FLOAT("gCosmetics.Goron_NeckLength", 1000.0f),
     PRESET_ENTRY_S32("gRandomize10GSHint", 1),
     PRESET_ENTRY_S32("gRandomize20GSHint", 1),
     PRESET_ENTRY_S32("gRandomize30GSHint", 1),
