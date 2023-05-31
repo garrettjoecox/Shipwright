@@ -47,6 +47,7 @@
 #include "macros.h"
 #include <Utils/StringHelper.h>
 #include "Enhancements/custom-message/CustomMessageManager.h"
+#include "Enhancements/presets.h"
 
 #if not defined (__SWITCH__) && not defined(__WIIU__)
 #include "Extractor/Extract.h"
@@ -780,6 +781,10 @@ extern "C" void InitOTR() {
     }
 
     srand(now);
+    clearCvars(enhancementsCvars);
+    clearCvars(randomizerCvars);
+    clearCvars(cheatCvars);
+    applyPreset(racePresetEntries);
 #ifdef ENABLE_CROWD_CONTROL
     CrowdControl::Instance = new CrowdControl();
     CrowdControl::Instance->Init();
@@ -861,7 +866,9 @@ extern "C" void Graph_StartFrame() {
     int32_t dwScancode = OTRGlobals::Instance->context->GetWindow()->GetLastScancode();
     OTRGlobals::Instance->context->GetWindow()->SetLastScancode(-1);
 
-    switch (dwScancode) {
+    /* [Race Template] Disable save states */
+    // switch (dwScancode) {
+    switch (0) {
         case KbScancode::LUS_KB_F5: {
             const unsigned int slot = OTRGlobals::Instance->gSaveStateMgr->GetCurrentSlot();
             const SaveStateReturn stateReturn =

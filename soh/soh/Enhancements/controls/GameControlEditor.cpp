@@ -308,6 +308,7 @@ namespace GameControlEditor {
         DrawHelpIcon("Allows the cursor on the pause menu to be over any slot. Sometimes required in rando to select "
                      "certain items.");
         UIWidgets::Spacer(0);
+        /* [Race Template] Hide walk speed modifiers
         UIWidgets::PaddedEnhancementCheckbox("Enable walk speed modifiers", "gEnableWalkModify", true, false);
         DrawHelpIcon("Hold the assigned button to change the maximum walking speed\nTo change the assigned button, go into the Ports tabs above");
          if (CVarGetInteger("gEnableWalkModify", 0)) {
@@ -319,6 +320,7 @@ namespace GameControlEditor {
             window->EndGroupPanelPublic(0);
         }
         UIWidgets::Spacer(0);
+        */
         UIWidgets::PaddedEnhancementCheckbox("Answer Navi Prompt with L Button", "gNaviOnL");
         DrawHelpIcon("Speak to Navi with L but enter first-person camera with C-Up");
         window->EndGroupPanelPublic(0);
