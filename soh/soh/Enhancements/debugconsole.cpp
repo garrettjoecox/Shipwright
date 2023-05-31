@@ -85,7 +85,7 @@ static bool ActorSpawnHandler(std::shared_ptr<LUS::Console> Console, const std::
 
 static bool KillPlayerHandler(std::shared_ptr<LUS::Console> Console, const std::vector<std::string>&) {
     GameInteractionEffectBase* effect = new GameInteractionEffect::SetPlayerHealth();
-    effect->parameters[0] = 0;
+    dynamic_cast<ParameterizedGameInteractionEffect*>(effect)->parameters[0] = 0;
     GameInteractionEffectQueryResult result = GameInteractor::ApplyEffect(effect);
     if (result == GameInteractionEffectQueryResult::Possible) {
         LUS::GetConsole()->SendInfoMessage("[SOH] You've met with a terrible fate, haven't you?");
@@ -116,7 +116,7 @@ static bool SetPlayerHealthHandler(std::shared_ptr<LUS::Console> Console, const 
     }
 
     GameInteractionEffectBase* effect = new GameInteractionEffect::SetPlayerHealth();
-    effect->parameters[0] = health;
+    dynamic_cast<ParameterizedGameInteractionEffect*>(effect)->parameters[0] = health;
     GameInteractionEffectQueryResult result = GameInteractor::ApplyEffect(effect);
     if (result == GameInteractionEffectQueryResult::Possible) {
         LUS::GetConsole()->SendInfoMessage("[SOH] Player health updated to %d", health);
@@ -232,8 +232,8 @@ static bool AddAmmoHandler(std::shared_ptr<LUS::Console> Console, const std::vec
     }
 
     GameInteractionEffectBase* effect = new GameInteractionEffect::AddOrTakeAmmo();
-    effect->parameters[0] = amount;
-    effect->parameters[1] = it->second;
+    dynamic_cast<ParameterizedGameInteractionEffect*>(effect)->parameters[0] = amount;
+    dynamic_cast<ParameterizedGameInteractionEffect*>(effect)->parameters[1] = it->second;
     GameInteractionEffectQueryResult result = GameInteractor::ApplyEffect(effect);
 
     if (result == GameInteractionEffectQueryResult::Possible) {
@@ -272,8 +272,8 @@ static bool TakeAmmoHandler(std::shared_ptr<LUS::Console> Console, const std::ve
     }
 
     GameInteractionEffectBase* effect = new GameInteractionEffect::AddOrTakeAmmo();
-    effect->parameters[0] = -amount;
-    effect->parameters[1] = it->second;
+    dynamic_cast<ParameterizedGameInteractionEffect*>(effect)->parameters[0] = -amount;
+    dynamic_cast<ParameterizedGameInteractionEffect*>(effect)->parameters[1] = it->second;
     GameInteractionEffectQueryResult result = GameInteractor::ApplyEffect(effect);
 
     if (result == GameInteractionEffectQueryResult::Possible) {
@@ -562,7 +562,7 @@ static bool InvisibleHandler(std::shared_ptr<LUS::Console> Console, const std::v
         return CMD_FAILED;
     }
 
-    GameInteractionEffectBase* effect = new GameInteractionEffect::InvisibleLink();
+    RemovableGameInteractionEffect* effect = new GameInteractionEffect::InvisibleLink();
     GameInteractionEffectQueryResult result = 
         state ? GameInteractor::ApplyEffect(effect) : GameInteractor::RemoveEffect(effect);
     if (result == GameInteractionEffectQueryResult::Possible) {
@@ -589,8 +589,8 @@ static bool GiantLinkHandler(std::shared_ptr<LUS::Console> Console, const std::v
         return CMD_FAILED;
     }
 
-    GameInteractionEffectBase* effect = new GameInteractionEffect::ModifyLinkSize();
-    effect->parameters[0] = GI_LINK_SIZE_GIANT;
+    RemovableGameInteractionEffect* effect = new GameInteractionEffect::ModifyLinkSize();
+    dynamic_cast<ParameterizedGameInteractionEffect*>(effect)->parameters[0] = GI_LINK_SIZE_GIANT;
     GameInteractionEffectQueryResult result =
         state ? GameInteractor::ApplyEffect(effect) : GameInteractor::RemoveEffect(effect);
     if (result == GameInteractionEffectQueryResult::Possible) {
@@ -617,8 +617,8 @@ static bool MinishLinkHandler(std::shared_ptr<LUS::Console> Console, const std::
         return CMD_FAILED;
     }
 
-    GameInteractionEffectBase* effect = new GameInteractionEffect::ModifyLinkSize();
-    effect->parameters[0] = GI_LINK_SIZE_MINISH;
+    RemovableGameInteractionEffect* effect = new GameInteractionEffect::ModifyLinkSize();
+    dynamic_cast<ParameterizedGameInteractionEffect*>(effect)->parameters[0] = GI_LINK_SIZE_MINISH;
     GameInteractionEffectQueryResult result =
         state ? GameInteractor::ApplyEffect(effect) : GameInteractor::RemoveEffect(effect);
     if (result == GameInteractionEffectQueryResult::Possible) {
@@ -651,7 +651,7 @@ static bool AddHeartContainerHandler(std::shared_ptr<LUS::Console> Console, cons
     }
 
     GameInteractionEffectBase* effect = new GameInteractionEffect::ModifyHeartContainers();
-    effect->parameters[0] = hearts;
+    dynamic_cast<ParameterizedGameInteractionEffect*>(effect)->parameters[0] = hearts;
     GameInteractionEffectQueryResult result = GameInteractor::ApplyEffect(effect);
     if (result == GameInteractionEffectQueryResult::Possible) {
         LUS::GetConsole()->SendInfoMessage("[SOH] Added %d heart containers", hearts);
@@ -682,7 +682,7 @@ static bool RemoveHeartContainerHandler(std::shared_ptr<LUS::Console> Console, c
     }
 
     GameInteractionEffectBase* effect = new GameInteractionEffect::ModifyHeartContainers();
-    effect->parameters[0] = -hearts;
+    dynamic_cast<ParameterizedGameInteractionEffect*>(effect)->parameters[0] = -hearts;
     GameInteractionEffectQueryResult result = GameInteractor::ApplyEffect(effect);
     if (result == GameInteractionEffectQueryResult::Possible) {
         LUS::GetConsole()->SendInfoMessage("[SOH] Removed %d heart containers", hearts);
@@ -702,7 +702,7 @@ static bool GravityHandler(std::shared_ptr<LUS::Console> Console, const std::vec
     GameInteractionEffectBase* effect = new GameInteractionEffect::ModifyGravity();
 
     try {
-        effect->parameters[0] = LUS::Math::clamp(std::stoi(args[1], nullptr, 10), GI_GRAVITY_LEVEL_LIGHT, GI_GRAVITY_LEVEL_HEAVY);
+        dynamic_cast<ParameterizedGameInteractionEffect*>(effect)->parameters[0] = LUS::Math::clamp(std::stoi(args[1], nullptr, 10), GI_GRAVITY_LEVEL_LIGHT, GI_GRAVITY_LEVEL_HEAVY);
     } catch (std::invalid_argument const& ex) {
         LUS::GetConsole()->SendErrorMessage("[SOH] Gravity value must be a number.");
         return CMD_FAILED;
@@ -732,7 +732,7 @@ static bool NoUIHandler(std::shared_ptr<LUS::Console> Console, const std::vector
         return CMD_FAILED;
     }
     
-    GameInteractionEffectBase* effect = new GameInteractionEffect::NoUI();
+    RemovableGameInteractionEffect* effect = new GameInteractionEffect::NoUI();
     GameInteractionEffectQueryResult result =
         state ? GameInteractor::ApplyEffect(effect) : GameInteractor::RemoveEffect(effect);
 
@@ -767,7 +767,7 @@ static bool DefenseModifierHandler(std::shared_ptr<LUS::Console> Console, const 
     GameInteractionEffectBase* effect = new GameInteractionEffect::ModifyDefenseModifier();
 
     try {
-        effect->parameters[0] = std::stoi(args[1], nullptr, 10);
+        dynamic_cast<ParameterizedGameInteractionEffect*>(effect)->parameters[0] = std::stoi(args[1], nullptr, 10);
     } catch (std::invalid_argument const& ex) {
         LUS::GetConsole()->SendErrorMessage("[SOH] Defense modifier value must be a number.");
         return CMD_FAILED;
@@ -775,7 +775,7 @@ static bool DefenseModifierHandler(std::shared_ptr<LUS::Console> Console, const 
 
     GameInteractionEffectQueryResult result = GameInteractor::ApplyEffect(effect);
     if (result == GameInteractionEffectQueryResult::Possible) {
-        LUS::GetConsole()->SendInfoMessage("[SOH] Defense modifier set to %d", effect->parameters[0]);
+        LUS::GetConsole()->SendInfoMessage("[SOH] Defense modifier set to %d", dynamic_cast<ParameterizedGameInteractionEffect*>(effect)->parameters[0]);
         return CMD_SUCCESS;
     } else {
         LUS::GetConsole()->SendInfoMessage("[SOH] Command failed: Could not set defense modifier.");
@@ -797,7 +797,7 @@ static bool DamageHandler(std::shared_ptr<LUS::Console> Console, const std::vect
             return CMD_FAILED;
         }
 
-        effect->parameters[0] = -value;
+        dynamic_cast<ParameterizedGameInteractionEffect*>(effect)->parameters[0] = -value;
     } catch (std::invalid_argument const& ex) {
         LUS::GetConsole()->SendErrorMessage("[SOH] Damage value must be a number.");
         return CMD_FAILED;
@@ -827,7 +827,7 @@ static bool HealHandler(std::shared_ptr<LUS::Console> Console, const std::vector
             return CMD_FAILED;
         }
 
-        effect->parameters[0] = value;
+        dynamic_cast<ParameterizedGameInteractionEffect*>(effect)->parameters[0] = value;
     } catch (std::invalid_argument const& ex) {
         LUS::GetConsole()->SendErrorMessage("[SOH] Damage value must be a number.");
         return CMD_FAILED;
@@ -883,7 +883,7 @@ static bool NoZHandler(std::shared_ptr<LUS::Console> Console, const std::vector<
         return CMD_FAILED;
     }
 
-    GameInteractionEffectBase* effect = new GameInteractionEffect::DisableZTargeting();
+    RemovableGameInteractionEffect* effect = new GameInteractionEffect::DisableZTargeting();
     GameInteractionEffectQueryResult result =
         state ? GameInteractor::ApplyEffect(effect) : GameInteractor::RemoveEffect(effect);
 
@@ -911,7 +911,7 @@ static bool OneHitKOHandler(std::shared_ptr<LUS::Console> Console, const std::ve
         return CMD_FAILED;
     }
 
-    GameInteractionEffectBase* effect = new GameInteractionEffect::OneHitKO();
+    RemovableGameInteractionEffect* effect = new GameInteractionEffect::OneHitKO();
     GameInteractionEffectQueryResult result =
         state ? GameInteractor::ApplyEffect(effect) : GameInteractor::RemoveEffect(effect);
 
@@ -939,7 +939,7 @@ static bool PacifistHandler(std::shared_ptr<LUS::Console> Console, const std::ve
         return CMD_FAILED;
     }
 
-    GameInteractionEffectBase* effect = new GameInteractionEffect::PacifistMode();
+    RemovableGameInteractionEffect* effect = new GameInteractionEffect::PacifistMode();
     GameInteractionEffectQueryResult result =
         state ? GameInteractor::ApplyEffect(effect) : GameInteractor::RemoveEffect(effect);
 
@@ -967,8 +967,8 @@ static bool PaperLinkHandler(std::shared_ptr<LUS::Console> Console, const std::v
         return CMD_FAILED;
     }
 
-    GameInteractionEffectBase* effect = new GameInteractionEffect::ModifyLinkSize();
-    effect->parameters[0] = GI_LINK_SIZE_PAPER;
+    RemovableGameInteractionEffect* effect = new GameInteractionEffect::ModifyLinkSize();
+    dynamic_cast<ParameterizedGameInteractionEffect*>(effect)->parameters[0] = GI_LINK_SIZE_PAPER;
     GameInteractionEffectQueryResult result =
         state ? GameInteractor::ApplyEffect(effect) : GameInteractor::RemoveEffect(effect);
 
@@ -996,7 +996,7 @@ static bool RainstormHandler(std::shared_ptr<LUS::Console> Console, const std::v
         return CMD_FAILED;
     }
 
-    GameInteractionEffectBase* effect = new GameInteractionEffect::WeatherRainstorm();
+    RemovableGameInteractionEffect* effect = new GameInteractionEffect::WeatherRainstorm();
     GameInteractionEffectQueryResult result =
         state ? GameInteractor::ApplyEffect(effect) : GameInteractor::RemoveEffect(effect);
 
@@ -1024,7 +1024,7 @@ static bool ReverseControlsHandler(std::shared_ptr<LUS::Console> Console, const 
         return CMD_FAILED;
     }
 
-    GameInteractionEffectBase* effect = new GameInteractionEffect::ReverseControls();
+    RemovableGameInteractionEffect* effect = new GameInteractionEffect::ReverseControls();
     GameInteractionEffectQueryResult result =
         state ? GameInteractor::ApplyEffect(effect) : GameInteractor::RemoveEffect(effect);
 
@@ -1047,7 +1047,7 @@ static bool UpdateRupeesHandler(std::shared_ptr<LUS::Console> Console, const std
     GameInteractionEffectBase* effect = new GameInteractionEffect::ModifyRupees();
 
     try {
-        effect->parameters[0] = std::stoi(args[1], nullptr, 10);
+        dynamic_cast<ParameterizedGameInteractionEffect*>(effect)->parameters[0] = std::stoi(args[1], nullptr, 10);
     } catch (std::invalid_argument const& ex) {
         LUS::GetConsole()->SendErrorMessage("[SOH] Rupee value must be a number.");
         return CMD_FAILED;
@@ -1071,7 +1071,7 @@ static bool SpeedModifierHandler(std::shared_ptr<LUS::Console> Console, const st
     GameInteractionEffectBase* effect = new GameInteractionEffect::ModifyRunSpeedModifier();
 
     try {
-        effect->parameters[0] = std::stoi(args[1], nullptr, 10);
+        dynamic_cast<ParameterizedGameInteractionEffect*>(effect)->parameters[0] = std::stoi(args[1], nullptr, 10);
     } catch (std::invalid_argument const& ex) {
         LUS::GetConsole()->SendErrorMessage("[SOH] Speed modifier value must be a number.");
         return CMD_FAILED;
@@ -1106,7 +1106,7 @@ static bool BootsHandler(std::shared_ptr<LUS::Console> Console, const std::vecto
     }
 
     GameInteractionEffectBase* effect = new GameInteractionEffect::ForceEquipBoots();
-    effect->parameters[0] = it->second;
+    dynamic_cast<ParameterizedGameInteractionEffect*>(effect)->parameters[0] = it->second;
     GameInteractionEffectQueryResult result = GameInteractor::ApplyEffect(effect);
 
     if (result == GameInteractionEffectQueryResult::Possible) {
@@ -1137,7 +1137,7 @@ static bool GiveShieldHandler(std::shared_ptr<LUS::Console> Console, const std::
     }
 
     GameInteractionEffectBase* effect = new GameInteractionEffect::GiveOrTakeShield();
-    effect->parameters[0] = it->second;
+    dynamic_cast<ParameterizedGameInteractionEffect*>(effect)->parameters[0] = it->second;
     GameInteractionEffectQueryResult result = GameInteractor::ApplyEffect(effect);
 
     if (result == GameInteractionEffectQueryResult::Possible) {
@@ -1162,7 +1162,7 @@ static bool TakeShieldHandler(std::shared_ptr<LUS::Console> Console, const std::
     }
 
     GameInteractionEffectBase* effect = new GameInteractionEffect::GiveOrTakeShield();
-    effect->parameters[0] = it->second * -1;
+    dynamic_cast<ParameterizedGameInteractionEffect*>(effect)->parameters[0] = it->second * -1;
     GameInteractionEffectQueryResult result = GameInteractor::ApplyEffect(effect);
 
     if (result == GameInteractionEffectQueryResult::Possible) {
@@ -1188,7 +1188,7 @@ static bool KnockbackHandler(std::shared_ptr<LUS::Console> Console, const std::v
             return CMD_FAILED;
         }
 
-        effect->parameters[0] = value;
+        dynamic_cast<ParameterizedGameInteractionEffect*>(effect)->parameters[0] = value;
     } catch (std::invalid_argument const& ex) {
         LUS::GetConsole()->SendErrorMessage("[SOH] Knockback value must be a number.");
         return CMD_FAILED;
