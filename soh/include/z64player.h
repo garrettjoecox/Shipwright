@@ -406,7 +406,8 @@ typedef enum {
     FLAG_SCENE_CLEAR,
     FLAG_SCENE_COLLECTIBLE,
     FLAG_EVENT_CHECK_INF,
-    FLAG_RANDOMIZER_INF
+    FLAG_RANDOMIZER_INF,
+    FLAG_ITEM_GET_INF,
 } FlagType;
 
 typedef struct {

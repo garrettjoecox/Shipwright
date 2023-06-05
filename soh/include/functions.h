@@ -555,6 +555,8 @@ s32 Flags_GetEventChkInf(s32 flag);
 void Flags_SetEventChkInf(s32 flag);
 s32 Flags_GetInfTable(s32 flag);
 void Flags_SetInfTable(s32 flag);
+s32 Flags_GetItemGetInf(s32 flag);
+void Flags_SetItemGetInf(s32 flag);
 s32 Flags_GetRandomizerInf(RandomizerInf flag);
 void Flags_SetRandomizerInf(RandomizerInf flag);
 u16 func_80037C30(PlayState* play, s16 arg1);

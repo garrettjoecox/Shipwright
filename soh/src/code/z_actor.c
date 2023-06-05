@@ -4720,6 +4720,20 @@ void Flags_SetInfTable(s32 flag) {
 }
 
 /**
+ * Tests if "itemGetInf" flag is set.
+ */
+s32 Flags_GetItemGetInf(s32 flag) {
+    return gSaveContext.itemGetInf[flag >> 4] & (1 << (flag & 0xF));
+}
+
+/**
+ * Sets "itemGetInf" flag.
+ */
+void Flags_SetItemGetInf(s32 flag) {
+    gSaveContext.itemGetInf[flag >> 4] |= (1 << (flag & 0xF));
+}
+
+/**
  * Tests if "randomizerInf" flag is set.
  */
 s32 Flags_GetRandomizerInf(RandomizerInf flag) {
