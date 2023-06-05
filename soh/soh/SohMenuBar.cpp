@@ -1063,7 +1063,23 @@ void DrawEnhancementsMenu() {
         UIWidgets::PaddedSeparator(true, true, 2.0f, 2.0f);
 
         */
-        ImGui::Dummy(ImVec2(200.0f, 0.0f));
+
+        UIWidgets::PaddedEnhancementCheckbox("Bunny Hood Available Earlier", "gBunnyHoodAvailableEarlier", true, false);
+        UIWidgets::Tooltip("Make bunny hood available along with keaton mask, as soon as the Mask shop opens");
+
+        UIWidgets::PaddedEnhancementCheckbox("Skip Useful Cutscenes", "gSkipUsefulCutscenes", true, false);
+        UIWidgets::Tooltip("Skip cutscenes that are useful for speedrunning, such darunia's fire temple cutscene, and the forest temple");
+
+        UIWidgets::PaddedEnhancementCheckbox("Glitch line-up tick", "gDrawLineupTick", true, false);
+        UIWidgets::Tooltip("Displays a tick in the top center of the screen to help with glitch line-ups in SoH, as traditional UI based line-ups do not work outside of 4:3");
+
+        UIWidgets::PaddedEnhancementCheckbox("Easy Frame Advancing", "gCheatEasyPauseBufferEnabled", true, false);
+        UIWidgets::Tooltip("Continue holding START button when unpausing to only advance a single frame and then re-pause");
+        const bool bEasyFrameAdvanceEnabled = CVarGetInteger("gCheatEasyPauseBufferEnabled", 0);
+        UIWidgets::PaddedEnhancementCheckbox("Easy Input Buffering", "gCheatEasyInputBufferingEnabled", true, false, bEasyFrameAdvanceEnabled, "Forced enabled when Easy Frame Advancing is enabled");
+        UIWidgets::Tooltip("Inputs that are held down while the Subscreen is closing will be pressed when the game is resumed");
+
+        UIWidgets::PaddedSeparator(true, true, 2.0f, 2.0f);
 
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(12.0f, 6.0f));
         ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0, 0));
@@ -1472,9 +1488,10 @@ void SohMenuBar::DrawElement() {
         DrawDeveloperToolsMenu();
 
         ImGui::SetCursorPosY(0.0f);
-        */
+        *//*
 
         DrawRandomizerMenu();
+        */
 
         ImGui::PopStyleVar(1);
         ImGui::EndMenuBar();

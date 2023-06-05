@@ -387,6 +387,11 @@ s16 ShopItemDisp_SkullMask(s16 v) {
 }
 
 s16 ShopItemDisp_BunnyHood(s16 v) {
+    // Speedrun Build - Bunny Mask available when shop opens
+    if (CVarGetInteger("gBunnyHoodAvailableEarlier", 0)) {
+        return v;
+    }
+
     // Sold Spooky Mask
     if (gSaveContext.itemGetInf[3] & 0x400) {
         return v;

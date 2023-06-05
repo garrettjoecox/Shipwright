@@ -306,8 +306,10 @@ void Sram_InitSave(FileChooseContext* fileChooseCtx) {
         gSaveContext.sceneFlags[SCENE_MIZUSIN].swch |= (1 << 0x10);
 
         // TODO: Make these optional due to being useful
-        Flags_SetInfTable(INFTABLE_SPOKE_TO_DARUNIA_IN_FIRE_TEMPLE);
-        gSaveContext.sceneFlags[SCENE_BMORI1].swch |= (1 << 0x1B); // Forest Temple Poe Intro
+        if (CVarGetInteger("gSkipUsefulCutscenes", 0)) {
+            Flags_SetInfTable(INFTABLE_SPOKE_TO_DARUNIA_IN_FIRE_TEMPLE);
+            gSaveContext.sceneFlags[SCENE_BMORI1].swch |= (1 << 0x1B); // Forest Temple Poe Intro
+        }
 
         // no more kaepora
         Flags_SetInfTable(INFTABLE_SPOKE_TO_KAEPORA_IN_LAKE_HYLIA);
