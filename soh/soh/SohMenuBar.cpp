@@ -21,6 +21,7 @@
 #include "Enhancements/debugger/actorViewer.h"
 #include "Enhancements/debugger/colViewer.h"
 #include "Enhancements/debugger/debugSaveEditor.h"
+#include "soh/InterfaceElements/userInterface.h"
 #include "Enhancements/debugger/dlViewer.h"
 #include "Enhancements/gameplaystatswindow.h"
 #include "Enhancements/randomizer/randomizer_check_tracker.h"
@@ -1266,6 +1267,7 @@ void DrawCheatsMenu() {
 extern std::shared_ptr<LUS::GuiWindow> mStatsWindow;
 extern std::shared_ptr<LUS::GuiWindow> mConsoleWindow;
 extern std::shared_ptr<SaveEditorWindow> mSaveEditorWindow;
+extern std::shared_ptr<UserInterfaceWindow> mUserInterfaceWindow;
 extern std::shared_ptr<ColViewerWindow> mColViewerWindow;
 extern std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
 extern std::shared_ptr<DLViewerWindow> mDLViewerWindow;
@@ -1309,6 +1311,12 @@ void DrawDeveloperToolsMenu() {
         if (mSaveEditorWindow) {
             if (ImGui::Button(GetWindowButtonText("Save Editor", CVarGetInteger("gSaveEditorEnabled", 0)).c_str(), ImVec2(-1.0f, 0.0f))) {
                 mSaveEditorWindow->ToggleVisibility();
+            }
+        }
+        UIWidgets::Spacer(0);
+        if (mUserInterfaceWindow) {
+            if (ImGui::Button(GetWindowButtonText("User Interface", CVarGetInteger("gUserInterfaceEnabled", 0)).c_str(), ImVec2(-1.0f, 0.0f))) {
+                mUserInterfaceWindow->ToggleVisibility();
             }
         }
         UIWidgets::Spacer(0);

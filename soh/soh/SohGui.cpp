@@ -30,6 +30,7 @@
 #include "soh/Enhancements/presets.h"
 #include "soh/resource/type/Skeleton.h"
 #include "libultraship/libultraship.h"
+#include "soh/InterfaceElements/userInterface.h"
 
 #ifdef ENABLE_CROWD_CONTROL
 #include "Enhancements/crowd-control/CrowdControl.h"
@@ -117,6 +118,7 @@ namespace SohGui {
     std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
     std::shared_ptr<ColViewerWindow> mColViewerWindow;
     std::shared_ptr<SaveEditorWindow> mSaveEditorWindow;
+    std::shared_ptr<UserInterfaceWindow> mUserInterfaceWindow;
     std::shared_ptr<DLViewerWindow> mDLViewerWindow;
     std::shared_ptr<GameplayStatsWindow> mGameplayStatsWindow;
     std::shared_ptr<CheckTracker::CheckTrackerSettingsWindow> mCheckTrackerSettingsWindow;
@@ -167,6 +169,8 @@ namespace SohGui {
         gui->AddGuiWindow(mColViewerWindow);
         mSaveEditorWindow = std::make_shared<SaveEditorWindow>("gSaveEditorEnabled", "Save Editor");
         gui->AddGuiWindow(mSaveEditorWindow);
+        mUserInterfaceWindow = std::make_shared<UserInterfaceWindow>("gUserInterfaceEnabled", "User Interface");
+        gui->AddGuiWindow(mUserInterfaceWindow);
         mDLViewerWindow = std::make_shared<DLViewerWindow>("gDLViewerEnabled", "Display List Viewer");
         gui->AddGuiWindow(mDLViewerWindow);
         mGameplayStatsWindow = std::make_shared<GameplayStatsWindow>("gGameplayStatsEnabled", "Gameplay Stats");
@@ -195,6 +199,7 @@ namespace SohGui {
         mGameplayStatsWindow = nullptr;
         mDLViewerWindow = nullptr;
         mSaveEditorWindow = nullptr;
+        mUserInterfaceWindow = nullptr;
         mColViewerWindow = nullptr;
         mActorViewerWindow = nullptr;
         mCosmeticsEditorWindow = nullptr;
