@@ -21,7 +21,7 @@
 #include "Enhancements/debugger/actorViewer.h"
 #include "Enhancements/debugger/colViewer.h"
 #include "Enhancements/debugger/debugSaveEditor.h"
-#include "soh/InterfaceElements/userInterface.h"
+#include "Enhancements/InterfaceElements/userInterface.h"
 #include "Enhancements/debugger/dlViewer.h"
 #include "Enhancements/gameplaystatswindow.h"
 #include "Enhancements/randomizer/randomizer_check_tracker.h"

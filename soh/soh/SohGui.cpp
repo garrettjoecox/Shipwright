@@ -30,7 +30,6 @@
 #include "soh/Enhancements/presets.h"
 #include "soh/resource/type/Skeleton.h"
 #include "libultraship/libultraship.h"
-#include "soh/InterfaceElements/userInterface.h"
 
 #ifdef ENABLE_CROWD_CONTROL
 #include "Enhancements/crowd-control/CrowdControl.h"
