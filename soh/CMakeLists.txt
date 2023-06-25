@@ -174,7 +174,7 @@ source_group("soh\\Enhancements\\cosmetics" REGULAR_EXPRESSION "soh/Enhancements
 source_group("soh\\Enhancements\\crowd-control" REGULAR_EXPRESSION "soh/Enhancements/crowd-control/*")
 source_group("soh\\Enhancements\\custom-message" REGULAR_EXPRESSION "soh/Enhancements/custom-message/*")
 source_group("soh\\Enhancements\\debugger" REGULAR_EXPRESSION "soh/Enhancements/debugger/*")
-source_group("soh\\InterfaceElements\\userinterface" REGULAR_EXPRESSION "soh/InterfaceElements/userinterface *")
+source_group("soh\\InterfaceElements\\userinterfacesettings" REGULAR_EXPRESSION "soh/InterfaceElements/userinterfacesettings *")
 source_group("soh\\Enhancements\\game-interactor" REGULAR_EXPRESSION "soh/Enhancements/game-interactor/*")
 source_group("soh\\Enhancements\\item-tables" REGULAR_EXPRESSION "soh/Enhancements/item-tables/*")
 source_group("soh\\Enhancements\\randomizer" REGULAR_EXPRESSION "soh/Enhancements/randomizer/*")
