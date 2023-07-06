@@ -11,6 +11,9 @@
 #include <objects/object_link_child/object_link_child.h>
 #include <overlays/actors/ovl_En_Bom/z_en_bom.h>
 #include <overlays/actors/ovl_Obj_Switch/z_obj_switch.h>
+#ifdef ENABLE_REMOTE_CONTROL
+#include "soh/Enhancements/game-interactor/GameInteractor_Anchor.h"
+#endif
 
 #define FLAGS (ACTOR_FLAG_UPDATE_WHILE_CULLED | ACTOR_FLAG_DRAW_WHILE_CULLED | ACTOR_FLAG_DRAGGED_BY_HOOKSHOT | ACTOR_FLAG_CAN_PRESS_SWITCH)
 
@@ -75,9 +78,19 @@ void EnPartner_Init(Actor* thisx, PlayState* play) {
     this->innerColor.b = 255.0f;
     this->innerColor.a = 255.0f;
 
-    this->outerColor.r = 0.0f;
-    this->outerColor.g = 255.0f;
-    this->outerColor.b = 0.0f;
+#ifdef ENABLE_REMOTE_CONTROL
+    if (this->actor.params >= 3) {
+        Color_RGB8 color = Anchor_GetClientColor(this->actor.params - 3);
+        this->outerColor.r = color.r;
+        this->outerColor.g = color.g;
+        this->outerColor.b = color.b;
+    } else {
+        this->outerColor.r = 0.0f;
+        this->outerColor.g = 255.0f;
+        this->outerColor.b = 0.0f;
+    }
+#endif
+
     this->outerColor.a = 255.0f;
 
     this->usedItemButton = 0xFF;
@@ -131,11 +144,19 @@ void EnPartner_UpdateLights(EnPartner* this, PlayState* play) {
     Player* player;
 
     player = GET_PLAYER(play);
-    Lights_PointNoGlowSetInfo(&this->lightInfoNoGlow, player->actor.world.pos.x, (s16)(player->actor.world.pos.y) + 69,
-                              player->actor.world.pos.z, 200, 255, 200, lightRadius);
+    if (this->actor.params >= 3) {
+        Lights_PointNoGlowSetInfo(&this->lightInfoNoGlow, player->actor.world.pos.x, (s16)(player->actor.world.pos.y) + 69,
+                            player->actor.world.pos.z, 200, 200, 200, lightRadius);
 
-    Lights_PointGlowSetInfo(&this->lightInfoGlow, this->actor.world.pos.x, this->actor.world.pos.y + 9,
+        Lights_PointGlowSetInfo(&this->lightInfoGlow, this->actor.world.pos.x, this->actor.world.pos.y + 9,
+                            this->actor.world.pos.z, 200, 200, 200, glowLightRadius);
+    } else {
+        Lights_PointNoGlowSetInfo(&this->lightInfoNoGlow, player->actor.world.pos.x, (s16)(player->actor.world.pos.y) + 69,
+                            player->actor.world.pos.z, 200, 255, 200, lightRadius);
+
+        Lights_PointGlowSetInfo(&this->lightInfoGlow, this->actor.world.pos.x, this->actor.world.pos.y + 9,
                             this->actor.world.pos.z, 200, 255, 200, glowLightRadius);
+    }
 
     Actor_SetScale(&this->actor, this->actor.scale.x);
 }
@@ -575,6 +596,40 @@ void UseItem(uint8_t usedItem, u8 started, Actor* thisx, PlayState* play) {
 void EnPartner_Update(Actor* thisx, PlayState* play) {
     s32 pad;
     EnPartner* this = (EnPartner*)thisx;
+
+#ifdef ENABLE_REMOTE_CONTROL
+    if (this->actor.params >= 3) {
+       if (Anchor_GetClientScene(this->actor.params - 3) == play->sceneNum) {
+            PosRot coopPlayerPos = Anchor_GetClientPosition(this->actor.params - 3);
+            // if hidden, immediately update position
+            if (this->actor.world.pos.y == -9999.0f) {
+                this->actor.world = coopPlayerPos;
+                this->actor.world.pos.y += Player_GetHeight(GET_PLAYER(play));
+                this->actor.shape.rot = coopPlayerPos.rot;
+            // Otherwise smoothly update position
+            } else {
+                float dist = 0.0f;
+                dist += Math_SmoothStepToF(&this->actor.world.pos.x, coopPlayerPos.pos.x, 0.5f, 1000.0f, 0.0f);
+                dist += Math_SmoothStepToF(&this->actor.world.pos.y, coopPlayerPos.pos.y + Player_GetHeight(GET_PLAYER(play)), 0.5f, 1000.0f, 0.0f);
+                dist += Math_SmoothStepToF(&this->actor.world.pos.z, coopPlayerPos.pos.z, 0.5f, 1000.0f, 0.0f);
+                if (dist > 1.0f) {
+                    EnPartner_SpawnSparkles(this, play, 12);
+                }
+                this->actor.world.rot = coopPlayerPos.rot;
+                this->actor.shape.rot = coopPlayerPos.rot;
+            }
+        } else {
+            this->actor.world.pos.x = -9999.0f;
+            this->actor.world.pos.y = -9999.0f;
+            this->actor.world.pos.z = -9999.0f;
+        }
+
+        thisx->shape.shadowAlpha = 0xFF;
+        SkelAnime_Update(&this->skelAnime);
+        EnPartner_UpdateLights(this, play);
+        return;
+    }
+#endif
 
     Input sControlInput = play->state.input[this->actor.params];
 
