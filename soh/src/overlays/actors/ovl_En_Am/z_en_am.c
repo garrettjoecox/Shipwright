@@ -885,8 +885,6 @@ void EnAm_Update(Actor* thisx, PlayState* play) {
                     dustPosScale += 60.0f;
                 }
 
-                gSaveContext.sohStats.count[COUNT_ENEMIES_DEFEATED_ARMOS]++;
-
                 Actor_Kill(&this->dyna.actor);
                 return;
             }

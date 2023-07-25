@@ -1,11 +1,8 @@
 #include "mods.h"
 #include <libultraship/bridge.h>
 #include "game-interactor/GameInteractor.h"
-#include "tts/tts.h"
-#include "soh/Enhancements/boss-rush/BossRushTypes.h"
 #include "soh/Enhancements/enhancementTypes.h"
 #include "soh/Enhancements/randomizer/3drando/random.hpp"
-#include "soh/Enhancements/cosmetics/authenticGfxPatches.h"
 
 extern "C" {
 #include <z64.h>
@@ -427,53 +424,6 @@ void RegisterDaytimeGoldSkultullas() {
     });
 }
 
-void RegisterHyperBosses() {
-    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnActorUpdate>([](void* refActor) {
-        // Run the update function a second time to make bosses move and act twice as fast.
-
-        Player* player = GET_PLAYER(gPlayState);
-        Actor* actor = static_cast<Actor*>(refActor);
-
-        uint8_t isBossActor =
-            actor->id == ACTOR_BOSS_GOMA ||                              // Gohma
-            actor->id == ACTOR_BOSS_DODONGO ||                           // King Dodongo
-            actor->id == ACTOR_EN_BDFIRE ||                              // King Dodongo Fire Breath
-            actor->id == ACTOR_BOSS_VA ||                                // Barinade
-            actor->id == ACTOR_BOSS_GANONDROF ||                         // Phantom Ganon
-            actor->id == ACTOR_EN_FHG_FIRE ||                            // Phantom Ganon/Ganondorf Energy Ball/Thunder
-            actor->id == ACTOR_EN_FHG ||                                 // Phantom Ganon's Horse
-            actor->id == ACTOR_BOSS_FD || actor->id == ACTOR_BOSS_FD2 || // Volvagia (grounded/flying)
-            actor->id == ACTOR_EN_VB_BALL ||                             // Volvagia Rocks
-            actor->id == ACTOR_BOSS_MO ||                                // Morpha
-            actor->id == ACTOR_BOSS_SST ||                               // Bongo Bongo
-            actor->id == ACTOR_BOSS_TW ||                                // Twinrova
-            actor->id == ACTOR_BOSS_GANON ||                             // Ganondorf
-            actor->id == ACTOR_BOSS_GANON2;                              // Ganon
-
-        uint8_t hyperBossesActive =
-            CVarGetInteger("gHyperBosses", 0) ||
-            (gSaveContext.isBossRush &&
-             gSaveContext.bossRushOptions[BR_OPTIONS_HYPERBOSSES] == BR_CHOICE_HYPERBOSSES_YES);
-
-        // Don't apply during cutscenes because it causes weird behaviour and/or crashes on some bosses.
-        if (hyperBossesActive && isBossActor && !Player_InBlockingCsMode(gPlayState, player)) {
-            // Barinade needs to be updated in sequence to avoid unintended behaviour.
-            if (actor->id == ACTOR_BOSS_VA) {
-                // params -1 is BOSSVA_BODY
-                if (actor->params == -1) {
-                    Actor* actorList = gPlayState->actorCtx.actorLists[ACTORCAT_BOSS].head;
-                    while (actorList != NULL) {
-                        GameInteractor::RawAction::UpdateActor(actorList);
-                        actorList = actorList->next;
-                    }
-                }
-            } else {
-                GameInteractor::RawAction::UpdateActor(actor);
-            }
-        }
-    });
-}
-
 void RegisterHyperEnemies() {
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnActorUpdate>([](void* refActor) {
         // Run the update function a second time to make enemies and minibosses move and act twice as fast.
@@ -589,7 +539,6 @@ void UpdateMirrorModeState(int32_t sceneNum) {
 
     if (prevMirroredWorld != nextMirroredWorld) {
         prevMirroredWorld = nextMirroredWorld;
-        ApplyMirrorWorldGfxPatches();
     }
 }
 
@@ -600,7 +549,6 @@ void RegisterMirrorModeHandler() {
 }
 
 void InitMods() {
-    RegisterTTS();
     RegisterInfiniteMoney();
     RegisterInfiniteHealth();
     RegisterInfiniteAmmo();
@@ -616,7 +564,6 @@ void InitMods() {
     RegisterDaytimeGoldSkultullas();
     RegisterRupeeDash();
     RegisterShadowTag();
-    RegisterHyperBosses();
     RegisterHyperEnemies();
     RegisterBonkDamage();
     RegisterMenuPathFix();

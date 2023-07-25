@@ -3,7 +3,6 @@
 #include "objects/gameplay_keep/gameplay_keep.h"
 #include "objects/object_oF1d_map/object_oF1d_map.h"
 #include "soh/frame_interpolation.h"
-#include "soh/Enhancements/randomizer/adult_trade_shuffle.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_FRIENDLY | ACTOR_FLAG_UPDATE_WHILE_CULLED | ACTOR_FLAG_DRAW_WHILE_CULLED)
 
@@ -663,15 +662,8 @@ s16 EnGo2_UpdateTalkStateGoronDmtBiggoron(PlayState* play, EnGo2* this) {
             if (Message_ShouldAdvance(play)) {
                 if ((this->actor.textId == 0x3054) || (this->actor.textId == 0x3055)) {
                     if (play->msgCtx.choiceIndex == 0) {
-                        if (gSaveContext.n64ddFlag) {
-                            GetItemEntry getItemEntry = Randomizer_GetItemFromKnownCheck(RC_DMT_TRADE_BROKEN_SWORD, GI_PRESCRIPTION);
-                            Randomizer_ConsumeAdultTradeItem(play, ITEM_SWORD_BROKEN);
-                            EnGo2_GetItemEntry(this, play, getItemEntry);
-                            Flags_SetRandomizerInf(RAND_INF_ADULT_TRADES_DMT_TRADE_BROKEN_SWORD);
-                        } else {
-                            u32 getItemId = GI_PRESCRIPTION;
-                            EnGo2_GetItem(this, play, getItemId);
-                        }
+                        u32 getItemId = GI_PRESCRIPTION;
+                        EnGo2_GetItem(this, play, getItemId);
                         this->actionFunc = EnGo2_SetupGetItem;
                         return NPC_TALK_STATE_ACTION;
                     }
@@ -1959,15 +1951,8 @@ void EnGo2_BiggoronEyedrops(EnGo2* this, PlayState* play) {
                 this->trackingMode = NPC_TRACKING_HEAD_AND_TORSO;
                 this->skelAnime.playSpeed = 0.0f;
                 this->skelAnime.curFrame = this->skelAnime.endFrame;
-                if (gSaveContext.n64ddFlag) {
-                    GetItemEntry getItemEntry = Randomizer_GetItemFromKnownCheck(RC_DMT_TRADE_EYEDROPS, GI_CLAIM_CHECK);
-                    Randomizer_ConsumeAdultTradeItem(play, ITEM_EYEDROPS);
-                    EnGo2_GetItemEntry(this, play, getItemEntry);
-                    Flags_SetRandomizerInf(RAND_INF_ADULT_TRADES_DMT_TRADE_EYEDROPS);
-                } else {
-                    u32 getItemId = GI_CLAIM_CHECK;
-                    EnGo2_GetItem(this, play, getItemId);
-                }
+                u32 getItemId = GI_CLAIM_CHECK;
+                EnGo2_GetItem(this, play, getItemId);
                 this->actionFunc = EnGo2_SetupGetItem;
                 this->goronState = 0;
             }

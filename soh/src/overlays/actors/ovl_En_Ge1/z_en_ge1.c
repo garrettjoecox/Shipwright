@@ -7,7 +7,6 @@
 #include "z_en_ge1.h"
 #include "vt.h"
 #include "objects/object_ge1/object_ge1.h"
-#include "soh/Enhancements/randomizer/randomizer_entrance.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_FRIENDLY)
 
@@ -267,10 +266,6 @@ void EnGe1_KickPlayer(EnGe1* this, PlayState* play) {
             play->nextEntranceIndex = 0x5F8;
         } else {
             play->nextEntranceIndex = 0x3B4;
-        }
-
-        if (gSaveContext.n64ddFlag) {
-            Entrance_OverrideGeurdoGuardCapture();
         }
 
         play->fadeTransition = 0x26;

@@ -1,3 +1,82 @@
+# SoH Redux
+
+## What is this
+I asked myself, if we could re-do it all over again but with the gained knowledge, what would we do differently? This is the result of that question. I have not fully developed my thoughts and plan for this fork long term, some of the changes here may upstreamed, some may not. This project will be executed in phases listed below.
+
+### Phase 1: Strip
+The first phase is to strip the CPP side of the project down to the bare minimum required to run the game with a few notable exceptions:
+- Full LUS support, including the ability to configure graphics, audio, and input settings.
+- Dynamic aspect ratio support (Opposed to the original static 4:3)
+- Interpolation
+- Saving/Loading files to/from JSON
+
+### Phase 2: Pull Decomp Changes
+Ship of Harkinian originally forked from decomp almost 2 years ago and has fallen behind in terms of codebase documentation. We don't need to/can't reach exact parity here but we want to get it as close as possible, and do this more often going forward.
+
+### Phase 3: Experiment
+The third phase is to experiment with and establish patterns for adding functionality to the game. Notable projects will include:
+- A new UI system (Likely still using ImGui, but streamlined)
+- Developing a pattern for interacting with the source code while touching as little of it as possible
+- Coming up with "mod" based organization patterns for the codebase
+- New architecture for randomizer, which accounts for no duplicated data, auto tracking what's obtainable, multiworld support, etc.
+
+### Phase 4: Rebuild
+The fourth phase is to aim for parity with the original project, but with a more organized codebase and a more streamlined development process. The following 4 mods will be developed using the new architecture:
+- Debugging mod
+- Cheats mod
+- Enhancements mod
+- Randomizer mod
+
+Notably, these mods should exist in silos, and should be able to be enabled/disabled at independent of each other.
+
+## Project Goals
+- **Modularity**: The codebase should be organized in a way that makes it easy to add new features and mods.
+- **Maintainability**: The codebase should be easy to maintain, pull requests should be easy to review and merge.
+- **Untouched Source**: The original source code should be left untouched as much as possible, this ensures bugs do not slip into the vanilla experience. All vanilla code paths should remain intact, which will also make updating the project with new decomp changes easier.
+
+## Potential Patterns
+
+```cpp
+// Original Source example
+void En_CowCheckEmptyBottle(EnCow* this, PlayState* play) {
+    if (Inventory_HasEmptyBottle(play)) {
+        this->actionFunc = En_CowGiveMilk;
+        this->actor.textId = 0x4010;
+    } else {
+        this->actionFunc = En_CowReturnToIdle;
+        this->actor.textId = 0x4011;
+    }
+}
+void En_CowGiveMilk(EnCow* this, PlayState* play) {
+    Message_CloseTextbox(play);
+    this->actionFunc = En_CowIdle;
+    GiveItemIdFromActor(&this->actor, play, GI_MILK, 10000.0f, 100.0f);
+}
+
+// Overwritten by randomizer mod
+void Randomizer_CowGiveItem(EnCow* this, PlayState* play) {
+  RandomizerCheck rc = Randomizer_GetRandomizerCheckFromActor(this->actor.params, play->sceneId);
+
+  if (rc.isShuffled()) {
+    if (rc.isObtainable() && !rc.isObtained()) {
+      this->actionFunc = En_CowIdle;
+      Randomzier_ObtainRandomizerCheck(rc);
+    } else {
+      this->actionFunc = En_CowReturnToIdle;
+      this->actor.textId = 0x4011;
+    }
+  } else {
+    this->actionFunc = En_CowCheckEmptyBottle;
+  }
+}
+
+void registerRandomizerMod() {
+  registerFunctionModifier(En_CowCheckEmptyBottle, Randomizer_CowGiveItem, MODIFIER_REPLACE); // MODIFIER_BEFORE, MODIFIER_AFTER
+}
+```
+
+Original README:
+---
 ![Ship of Harkinian](docs/shiptitle.darkmode.png#gh-dark-mode-only)
 ![Ship of Harkinian](docs/shiptitle.lightmode.png#gh-light-mode-only)
 

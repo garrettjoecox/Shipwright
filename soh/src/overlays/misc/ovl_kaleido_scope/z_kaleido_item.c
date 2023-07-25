@@ -1,8 +1,5 @@
 #include "z_kaleido_scope.h"
 #include "textures/parameter_static/parameter_static.h"
-#include "soh/Enhancements/randomizer/adult_trade_shuffle.h"
-#include "soh/Enhancements/randomizer/randomizerTypes.h"
-#include "soh/Enhancements/enhancementTypes.h"
 
 u8 gAmmoItems[] = {
     ITEM_STICK,   ITEM_NUT,  ITEM_BOMB, ITEM_BOW,  ITEM_NONE, ITEM_NONE, ITEM_SLINGSHOT, ITEM_NONE,
@@ -402,7 +399,7 @@ void KaleidoScope_DrawItemSelect(PlayState* play) {
                         gSelectingMask = cursorSlot == SLOT_TRADE_CHILD;
 
                         gSlotAgeReqs[SLOT_TRADE_CHILD] = gItemAgeReqs[ITEM_MASK_BUNNY] =
-                            ((CVarGetInteger("gMMBunnyHood", BUNNY_HOOD_VANILLA) != BUNNY_HOOD_VANILLA || CVarGetInteger("gTimelessEquipment", 0)) &&
+                            ((CVarGetInteger("gMMBunnyHood", 0) != 0 || CVarGetInteger("gTimelessEquipment", 0)) &&
                              INV_CONTENT(ITEM_TRADE_CHILD) == ITEM_MASK_BUNNY)
                                 ? 9
                                 : 1;
@@ -417,11 +414,9 @@ void KaleidoScope_DrawItemSelect(PlayState* play) {
                         if (((pauseCtx->stickRelX > 30 || pauseCtx->stickRelY > 30) ||
                              dpad && CHECK_BTN_ANY(input->press.button, BTN_DRIGHT | BTN_DUP))) {
                             Audio_PlaySoundGeneral(NA_SE_SY_CURSOR, &D_801333D4, 4, &D_801333E0, &D_801333E0, &D_801333E8);
-                            Inventory_ReplaceItem(play, INV_CONTENT(ITEM_TRADE_ADULT), Randomizer_GetNextAdultTradeItem());
                         } else if (((pauseCtx->stickRelX < -30 || pauseCtx->stickRelY < -30) ||
                             dpad && CHECK_BTN_ANY(input->press.button, BTN_DLEFT | BTN_DDOWN))) {
                             Audio_PlaySoundGeneral(NA_SE_SY_CURSOR, &D_801333D4, 4, &D_801333E0, &D_801333E0, &D_801333E8);
-                            Inventory_ReplaceItem(play, INV_CONTENT(ITEM_TRADE_ADULT), Randomizer_GetPrevAdultTradeItem());
                         }
                         gSelectingAdultTrade = cursorSlot == SLOT_TRADE_ADULT;
                     }

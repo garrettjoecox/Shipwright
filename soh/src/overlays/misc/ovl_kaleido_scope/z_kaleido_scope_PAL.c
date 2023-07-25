@@ -16,9 +16,6 @@
 
 #include "soh/frame_interpolation.h"
 #include "soh/Enhancements/game-interactor/GameInteractor.h"
-#include "soh/Enhancements/randomizer/randomizer_entrance.h"
-#include "soh/Enhancements/randomizer/randomizer_grotto.h"
-#include "soh/Enhancements/cosmetics/cosmeticsTypes.h"
 #include "soh/Enhancements/game-interactor/GameInteractor_Hooks.h"
 
 
@@ -1005,7 +1002,7 @@ void KaleidoScope_DrawCursor(PlayState* play, u16 pageIndex) {
 
     if (CVarGetInteger("gCosmetics.Hud_AButton.Changed", 0)) {
         sCursorColors[2] = CVarGetColor24("gCosmetics.Hud_AButton.Value", sCursorColors[2]);
-    } else if (CVarGetInteger("gCosmetics.DefaultColorScheme", COLORSCHEME_N64) == COLORSCHEME_GAMECUBE) {
+    } else if (CVarGetInteger("gCosmetics.DefaultColorScheme", 0) == 1) {
         sCursorColors[2] = (Color_RGB8){ 0, 255, 50 };
     }
 
@@ -1088,7 +1085,7 @@ void KaleidoScope_DrawPages(PlayState* play, GraphicsContext* gfxCtx) {
         aButtonColor = CVarGetColor24("gCosmetics.Hud_AButton.Value", aButtonColor);
         D_8082ACF4[8] = CVarGetColor24("gCosmetics.Hud_AButton.Value", D_8082ACF4[8]);
         D_8082ACF4[11] = CVarGetColor24("gCosmetics.Hud_AButton.Value", D_8082ACF4[11]);
-    } else if (CVarGetInteger("gCosmetics.DefaultColorScheme", COLORSCHEME_N64) == COLORSCHEME_GAMECUBE) {
+    } else if (CVarGetInteger("gCosmetics.DefaultColorScheme", 0) == 1) {
         aButtonColor = (Color_RGB8){ 100, 255, 100 };
         D_8082ACF4[8] = (Color_RGB8){ 0, 255, 50 };
         D_8082ACF4[11] = (Color_RGB8){ 0, 255, 50 };
@@ -1546,7 +1543,7 @@ void KaleidoScope_DrawInfoPanel(PlayState* play) {
     Color_RGB8 aButtonColor = { 0, 100, 255 };
     if (CVarGetInteger("gCosmetics.Hud_AButton.Changed", 0)) {
         aButtonColor = CVarGetColor24("gCosmetics.Hud_AButton.Value", aButtonColor);
-    } else if (CVarGetInteger("gCosmetics.DefaultColorScheme", COLORSCHEME_N64) == COLORSCHEME_GAMECUBE) {
+    } else if (CVarGetInteger("gCosmetics.DefaultColorScheme", 0) == 1) {
         aButtonColor = (Color_RGB8){ 0, 255, 100 };
     }
 
@@ -4135,11 +4132,6 @@ void KaleidoScope_Update(PlayState* play)
                             gSaveContext.entranceIndex = 0x041B;
                             break;
                     }
-
-                    // In ER, handle overriding the game over respawn entrance
-                    if (gSaveContext.n64ddFlag && Randomizer_GetSettingValue(RSK_SHUFFLE_ENTRANCES)) {
-                        Entrance_SetGameOverEntrance();
-                    }
                 } else {
                     Audio_PlaySoundGeneral(NA_SE_SY_DECIDE, &D_801333D4, 4, &D_801333E0, &D_801333E0, &D_801333E8);
                 }
@@ -4162,9 +4154,6 @@ void KaleidoScope_Update(PlayState* play)
                         Play_TriggerRespawn(play);
                         gSaveContext.respawnFlag = -2;
                         // In ER, handle death warp to last entrance from grottos
-                        if (gSaveContext.n64ddFlag && Randomizer_GetSettingValue(RSK_SHUFFLE_ENTRANCES)) {
-                            Grotto_ForceGrottoReturn();
-                        }
                         gSaveContext.nextTransitionType = 2;
                         gSaveContext.health = CVarGetInteger("gFullHealthSpawn", 0) ? gSaveContext.healthCapacity : 0x30;
                         Audio_QueueSeqCmd(0xF << 28 | SEQ_PLAYER_BGM_MAIN << 24 | 0xA);

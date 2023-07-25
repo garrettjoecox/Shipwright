@@ -23,11 +23,9 @@
 #include <soh/Enhancements/custom-message/CustomMessageTypes.h>
 #include "soh/Enhancements/item-tables/ItemTableTypes.h"
 #include "soh/Enhancements/game-interactor/GameInteractor.h"
-#include "soh/Enhancements/randomizer/randomizer_entrance.h"
 #include <overlays/actors/ovl_En_Partner/z_en_partner.h>
 #include "soh/Enhancements/enhancementTypes.h"
 #include "soh/Enhancements/game-interactor/GameInteractor_Hooks.h"
-#include "soh/Enhancements/randomizer/randomizer_grotto.h"
 #include "soh/frame_interpolation.h"
 
 #include <string.h>
@@ -1470,12 +1468,6 @@ void func_808327F8(Player* this, f32 arg1) {
     }
 
     func_800F4010(&this->actor.projectedPos, sfxId, arg1);
-    // Gameplay stats: Count footsteps
-    // Only count while game isn't complete and don't count Link's idle animations or crawling in crawlspaces
-    if (!gSaveContext.sohStats.gameComplete && !(this->stateFlags2 & PLAYER_STATE2_IDLING) &&
-        !(this->stateFlags2 & PLAYER_STATE2_CRAWLING)) {
-        gSaveContext.sohStats.count[COUNT_STEPS]++;
-    }
 }
 
 void func_80832854(Player* this) {
@@ -1965,10 +1957,6 @@ void func_80833A20(Player* this, s32 newSwordState) {
 
         if ((this->meleeWeaponAnimation < 0x10) || (this->meleeWeaponAnimation >= 0x14)) {
             func_80832698(this, voiceSfx);
-        }
-
-        if (this->heldItemAction >= PLAYER_IA_SWORD_MASTER && this->heldItemAction <= PLAYER_IA_SWORD_BGS) {
-            gSaveContext.sohStats.count[COUNT_SWORD_SWINGS]++;
         }
     }
 
@@ -4274,24 +4262,14 @@ s32 func_80839034(PlayState* play, Player* this, CollisionPoly* poly, u32 bgId) 
             } else {
                 play->nextEntranceIndex = play->setupExitList[sp3C - 1];
 
-                // Main override for entrance rando and entrance skips
-                if (gSaveContext.n64ddFlag) {
-                    play->nextEntranceIndex = Entrance_OverrideNextIndex(play->nextEntranceIndex);
-                }
-
                 if (play->nextEntranceIndex == 0x7FFF) {
                     gSaveContext.respawnFlag = 2;
                     play->nextEntranceIndex = gSaveContext.respawn[RESPAWN_MODE_RETURN].entranceIndex;
                     play->fadeTransition = 3;
                     gSaveContext.nextTransitionType = 3;
                 } else if (play->nextEntranceIndex >= 0x7FF9) {
-                    // handle dynamic exits
-                    if (gSaveContext.n64ddFlag) {
-                        play->nextEntranceIndex = Entrance_OverrideDynamicExit(D_80854514[play->nextEntranceIndex - 0x7FF9] + play->curSpawn);
-                    } else {
-                        play->nextEntranceIndex =
-                            D_808544F8[D_80854514[play->nextEntranceIndex - 0x7FF9] + play->curSpawn];
-                    }
+                    play->nextEntranceIndex =
+                        D_808544F8[D_80854514[play->nextEntranceIndex - 0x7FF9] + play->curSpawn];
 
                     func_800994A0(play);
                 } else {
@@ -5340,7 +5318,6 @@ void func_8083BC04(Player* this, PlayState* play) {
     func_80835C58(play, this, func_80844708, 0);
     LinkAnimation_PlayOnceSetSpeed(play, &this->skelAnime, D_80853914[PLAYER_ANIMGROUP_16][this->modelAnimType],
                                    1.25f * D_808535E8);
-    gSaveContext.sohStats.count[COUNT_ROLLS]++;
 }
 
 s32 func_8083BC7C(Player* this, PlayState* play) {
@@ -5395,12 +5372,6 @@ s32 func_8083BDBC(Player* this, PlayState* play) {
             }
         } else {
             func_8083BCD0(this, play, sp2C);
-            if (sp2C == 1 || sp2C == 3) {
-                gSaveContext.sohStats.count[COUNT_SIDEHOPS]++;
-            }
-            if (sp2C == 2) {
-                gSaveContext.sohStats.count[COUNT_BACKFLIPS]++;
-            }
             
             return 1;
         }
@@ -6331,8 +6302,6 @@ s32 func_8083E5A8(Player* this, PlayState* play) {
         func_80837C0C(play, this, 3, 0.0f, 0.0f, 0, 20);
         this->getItemId = GI_NONE;
         this->getItemEntry = (GetItemEntry) GET_ITEM_NONE;
-        // Gameplay stats: Increment Ice Trap count
-        gSaveContext.sohStats.count[COUNT_ICE_TRAPS]++;
         return 1;
     }
 
@@ -8725,7 +8694,6 @@ void func_80844708(Player* this, PlayState* play) {
                     func_8002F7DC(&this->actor, NA_SE_PL_BODY_HIT);
                     func_80832698(this, NA_SE_VO_LI_CLIMB_END);
                     this->unk_850 = 1;
-                    gSaveContext.sohStats.count[COUNT_BONKS]++;
                     GameInteractor_ExecuteOnPlayerBonk();
                     return;
                 }
@@ -9655,11 +9623,6 @@ void Player_Init(Actor* thisx, PlayState* play2) {
     s32 initMode;
     s32 sp50;
     s32 sp4C;
-
-    // In ER, once Link has spawned we know the scene has loaded, so we can sanitize the last known entrance type
-    if (gSaveContext.n64ddFlag && Randomizer_GetSettingValue(RSK_SHUFFLE_ENTRANCES)) {
-        Grotto_SanitizeEntranceType();
-    }
 
     play->shootingGalleryStatus = play->bombchuBowlingStatus = 0;
 
@@ -12966,8 +12929,6 @@ void func_8084E6D4(Player* this, PlayState* play) {
                     GameInteractor_ExecuteOnItemReceiveHooks(this->getItemEntry);
                     this->getItemId = GI_NONE;
                     this->getItemEntry = (GetItemEntry)GET_ITEM_NONE;
-                    // Gameplay stats: Increment Ice Trap count
-                    gSaveContext.sohStats.count[COUNT_ICE_TRAPS]++;
                 }
                 return;
             }
@@ -13500,10 +13461,6 @@ void func_8084F88C(Player* this, PlayState* play) {
                 play->nextEntranceIndex = 0x0088;
             } else if (this->unk_84F < 0) {
                 Play_TriggerRespawn(play);
-                // In ER, handle DMT and other special void outs to respawn from last entrance from grotto 
-                if (gSaveContext.n64ddFlag && Randomizer_GetSettingValue(RSK_SHUFFLE_ENTRANCES)) {
-                    Grotto_ForceRegularVoidOut();
-                }
             } else {
                 Play_TriggerVoidOut(play);
             }

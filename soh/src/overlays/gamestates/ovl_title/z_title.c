@@ -10,7 +10,6 @@
 #include "alloca.h"
 #include "textures/nintendo_rogo_static/nintendo_rogo_static.h"
 #include "assets/objects/gameplay_keep/gameplay_keep.h"
-#include <soh/Enhancements/bootcommands.h>
 #include <GameVersions.h>
 #include <soh/SaveManager.h>
 
@@ -100,11 +99,6 @@ void Title_Calc(TitleContext* this) {
     }
     this->uls = this->ult & 0x7F;
     this->ult++;
-
-    if (gSkipLogoTest || gLoadFileSelect) {
-        this->exit = true;
-    }
-
 #else
     this->exit = true;
 #endif
@@ -251,7 +245,7 @@ void Title_Main(GameState* thisx) {
         gSaveContext.gameMode = 1;
         this->state.running = false;
 
-        if (gLoadFileSelect || CVarGetInteger("gSkipLogoTitle", 0))
+        if (CVarGetInteger("gSkipLogoTitle", 0))
             SET_NEXT_GAMESTATE(&this->state, FileChoose_Init, FileChooseContext);
         else
             SET_NEXT_GAMESTATE(&this->state, Opening_Init, OpeningContext);

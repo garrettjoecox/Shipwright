@@ -2,8 +2,6 @@
 #include "vt.h"
 
 #include <string.h>
-#include "soh/Enhancements/randomizer/randomizer_entrance.h"
-#include "soh/Enhancements/randomizer/savefile.h"
 
 #define NUM_DUNGEONS 8
 #define NUM_COWS 10
@@ -223,8 +221,6 @@ void Sram_InitSave(FileChooseContext* fileChooseCtx) {
         fileChooseCtx->n64ddFlags[fileChooseCtx->buttonIndex] = 1;
         fileChooseCtx->n64ddFlag = 1;
         gSaveContext.n64ddFlag = 1;
-
-        Randomizer_InitSaveFile();
     }
 
     Save_SaveFile();
@@ -238,5 +234,4 @@ void Sram_InitSram(GameState* gameState) {
 
     // When going from a rando save to a vanilla save within the same game instance
     // we need to reset the entrance table back to its vanilla state
-    Entrance_ResetEntranceTable();
 }

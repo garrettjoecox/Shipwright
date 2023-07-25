@@ -6,9 +6,6 @@
 #include "z64audio.h"
 #include "soh/Enhancements/randomizer/randomizerTypes.h"
 #include "soh/Enhancements/randomizer/randomizer_inf.h"
-#include "soh/Enhancements/gameplaystats.h"
-#include "soh/Enhancements/randomizer/randomizer_entrance.h"
-#include "soh/Enhancements/boss-rush/BossRushTypes.h"
 
 typedef enum {
     /* 0x0 */ MAGIC_STATE_IDLE, // Regular gameplay
@@ -86,10 +83,10 @@ typedef struct {
     /*      */ s16 sceneNum;
     /*      */ s8 roomNum;
     /*      */ bool gameComplete;
-    /*      */ u32 itemTimestamp[TIMESTAMP_MAX];
+    /*      */ u32 itemTimestamp[0];
     /*      */ SceneTimestamp sceneTimestamps[8191];
     /*      */ u32 tsIdx;
-    /*      */ u32 count[COUNT_MAX];
+    /*      */ u32 count[0];
     /*      */ u32 entrancesDiscovered[SAVEFILE_ENTRANCES_DISCOVERED_IDX_COUNT];
     /*      */ u32 scenesDiscovered[SAVEFILE_SCENES_DISCOVERED_IDX_COUNT];
     /*      */ u8 locationsSkipped[RC_MAX];
@@ -287,7 +284,7 @@ typedef struct {
     /*        */ uint32_t isMasterQuest;
     /*        */ uint32_t isBossRush;
     /*        */ uint32_t isBossRushPaused;
-    /*        */ uint8_t bossRushOptions[BOSSRUSH_OPTIONS_AMOUNT];
+    /*        */ uint8_t bossRushOptions[0];
     /*        */ u8 mqDungeonCount;
     /*        */ u8 pendingIceTrapCount;
     /*        */ SohStats sohStats;

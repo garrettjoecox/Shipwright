@@ -6,7 +6,6 @@
 
 #include "z_en_kz.h"
 #include "objects/object_kz/object_kz.h"
-#include "soh/Enhancements/randomizer/adult_trade_shuffle.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_FRIENDLY)
 
@@ -471,15 +470,8 @@ void EnKz_SetupGetItem(EnKz* this, PlayState* play) {
         this->actionFunc = EnKz_StartTimer;
     } else {
         if (gSaveContext.n64ddFlag) {
-            if (this->isTrading) {
-                getItemEntry = Randomizer_GetItemFromKnownCheck(RC_ZD_TRADE_PRESCRIPTION, GI_FROG);
-                getItemId = getItemEntry.getItemId;
-                Randomizer_ConsumeAdultTradeItem(play, ITEM_PRESCRIPTION);
-                Flags_SetTreasure(play, 0x1F);
-            } else {
-                getItemEntry = Randomizer_GetItemFromKnownCheck(RC_ZD_KING_ZORA_THAWED, GI_TUNIC_ZORA);
-                getItemId = getItemEntry.getItemId;
-            }
+            getItemEntry = Randomizer_GetItemFromKnownCheck(RC_ZD_KING_ZORA_THAWED, GI_TUNIC_ZORA);
+            getItemId = getItemEntry.getItemId;
         } else {
             getItemId = this->isTrading ? GI_FROG : GI_TUNIC_ZORA;
         }

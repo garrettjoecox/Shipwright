@@ -7,7 +7,6 @@
 #include "objects/gameplay_dangeon_keep/gameplay_dangeon_keep.h"
 #include "objects/object_bdoor/object_bdoor.h"
 #include "soh/frame_interpolation.h"
-#include "soh/Enhancements/enemyrandomizer.h"
 #include "soh/Enhancements/game-interactor/GameInteractor.h"
 #include "soh/Enhancements/game-interactor/GameInteractor_Hooks.h"
 
@@ -3119,12 +3118,6 @@ Actor* Actor_Spawn(ActorContext* actorCtx, PlayState* play, s16 actorId, f32 pos
                    s16 rotX, s16 rotY, s16 rotZ, s16 params, s16 canRandomize) {
 
     uint8_t tryRandomizeEnemy = CVarGetInteger("gRandomizedEnemies", 0) && gSaveContext.fileNum >= 0 && gSaveContext.fileNum <= 2 && canRandomize;
-
-    if (tryRandomizeEnemy) {
-        if (!GetRandomizedEnemy(play, &actorId, &posX, &posY, &posZ, &rotX, &rotY, &rotZ, &params)) {
-            return NULL;
-        }
-    }
 
     Actor* actor;
     s32 objBankIndex;

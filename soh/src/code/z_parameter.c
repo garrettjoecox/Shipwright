@@ -4,14 +4,9 @@
 #include "textures/do_action_static/do_action_static.h"
 #include "textures/icon_item_static/icon_item_static.h"
 #include "soh_assets.h"
-#include "soh/Enhancements/randomizer/adult_trade_shuffle.h"
-#include "soh/Enhancements/randomizer/randomizer_entrance.h"
 
 #include "libultraship/bridge.h"
-#include "soh/Enhancements/gameplaystats.h"
-#include "soh/Enhancements/boss-rush/BossRushTypes.h"
 #include "soh/Enhancements/custom-message/CustomMessageInterfaceAddon.h"
-#include "soh/Enhancements/cosmetics/cosmeticsTypes.h"
 #include "soh/Enhancements/enhancementTypes.h"
 
 #include <string.h>
@@ -20,7 +15,6 @@
 
 #include "soh/Enhancements/game-interactor/GameInteractor.h"
 #include "soh/Enhancements/game-interactor/GameInteractor_Hooks.h"
-#include "soh/Enhancements/randomizer/randomizer_grotto.h"
 
 #define DO_ACTION_TEX_WIDTH() 48
 #define DO_ACTION_TEX_HEIGHT() 16
@@ -1651,84 +1645,6 @@ void func_80084BF4(PlayState* play, u16 flag) {
     }
 }
 
-// Gameplay stat tracking: Update time the item was acquired
-// (special cases for some duplicate items)
-void GameplayStats_SetTimestamp(PlayState* play, u8 item) {
-
-    // If we already have a timestamp for this item, do nothing
-    if (gSaveContext.sohStats.itemTimestamp[item] != 0){
-        return;
-    }
-    // Use ITEM_KEY_BOSS only for Ganon's boss key - not any other boss keys
-    if (play != NULL) {
-        if (item == ITEM_KEY_BOSS && play->sceneNum != 13 && play->sceneNum != 10) {
-            return;
-        }
-    }
-
-    u32 time = GAMEPLAYSTAT_TOTAL_TIME;
-
-    // Have items in Link's pocket shown as being obtained at 0.1 seconds
-    if (time == 0) {
-        time = 1;
-    }
-
-    // Count any bottled item as a bottle
-    if (item >= ITEM_BOTTLE && item <= ITEM_POE) {
-        if (gSaveContext.sohStats.itemTimestamp[ITEM_BOTTLE] == 0) {
-            gSaveContext.sohStats.itemTimestamp[ITEM_BOTTLE] = time;
-        }
-        return;
-    }
-    // Count any bombchu pack as bombchus
-    if (item == ITEM_BOMBCHU || (item >= ITEM_BOMBCHUS_5 && item <= ITEM_BOMBCHUS_20)) {
-        if (gSaveContext.sohStats.itemTimestamp[ITEM_BOMBCHU] == 0) {
-            gSaveContext.sohStats.itemTimestamp[ITEM_BOMBCHU] = time;
-        }
-        return;
-    }
-
-    gSaveContext.sohStats.itemTimestamp[item] = time;
-}
-
-// Gameplay stat tracking: Update time the item was acquired
-// (special cases for rando items)
-void Randomizer_GameplayStats_SetTimestamp(uint16_t item) {
-
-    u32 time = GAMEPLAYSTAT_TOTAL_TIME;
-
-    // Have items in Link's pocket shown as being obtained at 0.1 seconds
-    if (time == 0) {
-        time = 1;
-    }
-
-    // Use ITEM_KEY_BOSS to timestamp Ganon's boss key
-    if (item == RG_GANONS_CASTLE_BOSS_KEY) {
-        gSaveContext.sohStats.itemTimestamp[ITEM_KEY_BOSS] = time;
-    }
-
-    // Count any bottled item as a bottle
-    if (item >= RG_EMPTY_BOTTLE && item <= RG_BOTTLE_WITH_BIG_POE) {
-        if (gSaveContext.sohStats.itemTimestamp[ITEM_BOTTLE] == 0) {
-            gSaveContext.sohStats.itemTimestamp[ITEM_BOTTLE] = time;
-        }
-        return;
-    }
-    // Count any bombchu pack as bombchus
-    if ((item >= RG_BOMBCHU_5 && item <= RG_BOMBCHU_DROP) || item == RG_PROGRESSIVE_BOMBCHUS) {
-        if (gSaveContext.sohStats.itemTimestamp[ITEM_BOMBCHU] = 0) {
-            gSaveContext.sohStats.itemTimestamp[ITEM_BOMBCHU] = time;
-        }
-        return;
-    }
-    if (item == RG_MAGIC_SINGLE) {
-        gSaveContext.sohStats.itemTimestamp[ITEM_SINGLE_MAGIC] = time;
-    }
-    if (item == RG_DOUBLE_DEFENSE) {
-        gSaveContext.sohStats.itemTimestamp[ITEM_DOUBLE_DEFENSE] = time;
-    }
-}
-
 u8 Return_Item_Entry(GetItemEntry itemEntry, ItemID returnItem ) {
     GameInteractor_ExecuteOnItemReceiveHooks(itemEntry);
     return returnItem;
@@ -1767,9 +1683,6 @@ u8 Item_Give(PlayState* play, u8 item) {
     s16 temp;
 
     GetItemID returnItem = ITEM_NONE;
-
-    // Gameplay stats: Update the time the item was obtained
-    GameplayStats_SetTimestamp(play, item);
 
     slot = SLOT(item);
     if (item >= ITEM_STICKS_5) {
@@ -2323,10 +2236,6 @@ u8 Item_Give(PlayState* play, u8 item) {
             Flags_SetItemGetInf(ITEMGETINF_OBTAINED_NUT_UPGRADE_FROM_STAGE);
         }
 
-        if (item >= ITEM_POCKET_EGG) {
-            gSaveContext.adultTradeItems |= ADULT_TRADE_FLAG(item);
-        }
-
         temp = INV_CONTENT(item);
         INV_CONTENT(item) = item;
 
@@ -2359,9 +2268,6 @@ u16 Randomizer_Item_Give(PlayState* play, GetItemEntry giEntry) {
     uint16_t temp;
     uint16_t i;
     uint16_t slot;
-
-    // Gameplay stats: Update the time the item was obtained
-    Randomizer_GameplayStats_SetTimestamp(item);
 
     slot = SLOT(item);
     if (item == RG_MAGIC_SINGLE) {
@@ -2562,7 +2468,6 @@ u16 Randomizer_Item_Give(PlayState* play, GetItemEntry giEntry) {
     if (item == RG_GREG_RUPEE) {
         Rupees_ChangeBy(1);
         Flags_SetRandomizerInf(RAND_INF_GREG_FOUND);
-        gSaveContext.sohStats.itemTimestamp[TIMESTAMP_FOUND_GREG] = GAMEPLAYSTAT_TOTAL_TIME;
         return Return_Item_Entry(giEntry, RG_NONE);
     }
 
@@ -2851,18 +2756,7 @@ s32 Inventory_ConsumeFairy(PlayState* play) {
 }
 
 bool Inventory_HatchPocketCucco(PlayState* play) {
-    if (!gSaveContext.n64ddFlag) {
-        return Inventory_ReplaceItem(play, ITEM_POCKET_EGG, ITEM_POCKET_CUCCO);
-    }
-
-    if (!PLAYER_HAS_SHUFFLED_ADULT_TRADE_ITEM(ITEM_POCKET_EGG)) { 
-         return 0;
-    }
-
-    gSaveContext.adultTradeItems &= ~ADULT_TRADE_FLAG(ITEM_POCKET_EGG);
-    gSaveContext.adultTradeItems |= ADULT_TRADE_FLAG(ITEM_POCKET_CUCCO);
-    Inventory_ReplaceItem(play, ITEM_POCKET_EGG, ITEM_POCKET_CUCCO);
-    return 1;
+    return Inventory_ReplaceItem(play, ITEM_POCKET_EGG, ITEM_POCKET_CUCCO);
 }
 
 void func_80086D5C(s32* buf, u16 size) {
@@ -2977,10 +2871,6 @@ s32 Health_ChangeBy(PlayState* play, s16 healthChange) {
     osSyncPrintf("＊＊＊＊＊  増減=%d (now=%d, max=%d)  ＊＊＊", healthChange, gSaveContext.health,
                  gSaveContext.healthCapacity);
 
-    if (healthChange < 0) {
-        gSaveContext.sohStats.count[COUNT_DAMAGE_TAKEN] += -healthChange;
-    }
-
     // If one-hit ko mode is on, any damage kills you and you cannot gain health.
     if (GameInteractor_OneHitKOActive()) {
         if (healthChange < 0) {
@@ -3044,43 +2934,6 @@ void Rupees_ChangeBy(s16 rupeeChange) {
     } else {
         gSaveContext.rupeeAccumulator += rupeeChange;
     }
-
-    if (rupeeChange > 0) {
-        gSaveContext.sohStats.count[COUNT_RUPEES_COLLECTED] += rupeeChange;
-    }
-    if (rupeeChange < 0) {
-        gSaveContext.sohStats.count[COUNT_RUPEES_SPENT] += -rupeeChange;
-    }
-}
-
-void GameplayStats_UpdateAmmoUsed(s16 item, s16 ammoUsed) {
-
-    switch (item) { 
-        case ITEM_STICK:
-            gSaveContext.sohStats.count[COUNT_AMMO_USED_STICK] += ammoUsed;
-            break;
-        case ITEM_NUT:
-            gSaveContext.sohStats.count[COUNT_AMMO_USED_NUT] += ammoUsed;
-            break;
-        case ITEM_BOMB:
-            gSaveContext.sohStats.count[COUNT_AMMO_USED_BOMB] += ammoUsed;
-            break;
-        case ITEM_BOW:
-            gSaveContext.sohStats.count[COUNT_AMMO_USED_ARROW] += ammoUsed;
-            break;
-        case ITEM_SLINGSHOT:
-            gSaveContext.sohStats.count[COUNT_AMMO_USED_SEED] += ammoUsed;
-            break;
-        case ITEM_BOMBCHU:
-            gSaveContext.sohStats.count[COUNT_AMMO_USED_BOMBCHU] += ammoUsed;
-            break;
-        case ITEM_BEAN:
-            gSaveContext.sohStats.count[COUNT_AMMO_USED_BEAN] += ammoUsed;
-            break;
-        default:
-            break;
-    }
-    return;
 }
 
 void Inventory_ChangeAmmo(s16 item, s16 ammoChange) {
@@ -3140,10 +2993,6 @@ void Inventory_ChangeAmmo(s16 item, s16 ammoChange) {
     }
 
     osSyncPrintf("合計 = (%d)\n", AMMO(item)); // "Total = (%d)"
-
-    if (ammoChange < 0) {
-        GameplayStats_UpdateAmmoUsed(item, -ammoChange);
-    }
 }
 
 void Magic_Fill(PlayState* play) {
@@ -3685,7 +3534,7 @@ void Interface_DrawEnemyHealthBar(TargetContext* targetCtx, PlayState* play) {
     s16 healthbar_actorOffset = 40;
     s32 healthbar_offsetX = CVarGetInteger("gCosmetics.Hud_EnemyHealthBarPosX", 0);
     s32 healthbar_offsetY = CVarGetInteger("gCosmetics.Hud_EnemyHealthBarPosY", 0);
-    s8 anchorType = CVarGetInteger("gCosmetics.Hud_EnemyHealthBarPosType", ENEMYHEALTH_ANCHOR_ACTOR);
+    s8 anchorType = CVarGetInteger("gCosmetics.Hud_EnemyHealthBarPosType", 0);
 
     if (CVarGetInteger("gCosmetics.Hud_EnemyHealthBar.Changed", 0)) {
         healthbar_red = CVarGetColor("gCosmetics.Hud_EnemyHealthBar.Value", healthbar_red);
@@ -3707,7 +3556,7 @@ void Interface_DrawEnemyHealthBar(TargetContext* targetCtx, PlayState* play) {
         f32 halfBarWidth = endTexWidth + (healthbar_fillWidth / 2);
         s16 healthBarFill = ((f32)actor->colChkInfo.health / actor->maximumHealth) * healthbar_fillWidth;
 
-        if (anchorType == ENEMYHEALTH_ANCHOR_ACTOR) {
+        if (anchorType == 0) {
             // Get actor projected position
             func_8002BE04(play, &targetCtx->targetCenterPos, &projTargetCenter, &projTargetCappedInvW);
 
@@ -3720,10 +3569,10 @@ void Interface_DrawEnemyHealthBar(TargetContext* targetCtx, PlayState* play) {
             projTargetCenter.y = projTargetCenter.y - healthbar_offsetY + healthbar_actorOffset;
             projTargetCenter.y = CLAMP(projTargetCenter.y, (-SCREEN_HEIGHT / 2) + (scaledHeight / 2),
                                        (SCREEN_HEIGHT / 2) - (scaledHeight / 2));
-        } else if (anchorType == ENEMYHEALTH_ANCHOR_TOP) {
+        } else if (anchorType == 1) {
             projTargetCenter.x = healthbar_offsetX;
             projTargetCenter.y = (SCREEN_HEIGHT / 2) - (scaledHeight / 2) - healthbar_offsetY;
-        } else if (anchorType == ENEMYHEALTH_ANCHOR_BOTTOM) {
+        } else if (anchorType == 2) {
             projTargetCenter.x = healthbar_offsetX;
             projTargetCenter.y = (-SCREEN_HEIGHT / 2) + (scaledHeight / 2) - healthbar_offsetY;
         }
@@ -3744,7 +3593,7 @@ void Interface_DrawEnemyHealthBar(TargetContext* targetCtx, PlayState* play) {
             f32 slideInOffsetY = 0;
 
             // Slide in the health bar from edge of the screen (mimic the Z-Target triangles fly in)
-            if (anchorType == ENEMYHEALTH_ANCHOR_ACTOR && targetCtx->unk_44 > 120.0f) {
+            if (anchorType == 0 && targetCtx->unk_44 > 120.0f) {
                 slideInOffsetY = (targetCtx->unk_44 - 120.0f) / 2;
                 // Slide in from the top if the bar is placed on the top half of the screen
                 if (healthbar_offsetY - healthbar_actorOffset <= 0) {
@@ -3874,7 +3723,7 @@ void Interface_DrawItemButtons(PlayState* play) {
     Color_RGB8 bButtonColor = { 0, 150, 0 };
     if (CVarGetInteger("gCosmetics.Hud_BButton.Changed", 0)) {
         bButtonColor = CVarGetColor24("gCosmetics.Hud_BButton.Value", bButtonColor);
-    } else if (CVarGetInteger("gCosmetics.DefaultColorScheme", COLORSCHEME_N64) == COLORSCHEME_GAMECUBE) {
+    } else if (CVarGetInteger("gCosmetics.DefaultColorScheme", 0) == 1) {
         bButtonColor = (Color_RGB8){ 255, 30, 30 };
     }
 
@@ -3902,7 +3751,7 @@ void Interface_DrawItemButtons(PlayState* play) {
     Color_RGB8 startButtonColor = { 200, 0, 0 };
     if (CVarGetInteger("gCosmetics.Hud_StartButton.Changed", 0)) {
         startButtonColor = CVarGetColor24("gCosmetics.Hud_StartButton.Value", startButtonColor);
-    } else if (CVarGetInteger("gCosmetics.DefaultColorScheme", COLORSCHEME_N64) == COLORSCHEME_GAMECUBE) {
+    } else if (CVarGetInteger("gCosmetics.DefaultColorScheme", 0) == 1) {
         startButtonColor = (Color_RGB8){ 120, 120, 120 };
     }
 
@@ -4998,7 +4847,7 @@ void Interface_Draw(PlayState* play) {
     Color_RGB8 aButtonColor = { 90, 90, 255 };
     if (CVarGetInteger("gCosmetics.Hud_AButton.Changed", 0)) {
         aButtonColor = CVarGetColor24("gCosmetics.Hud_AButton.Value", aButtonColor);
-    } else if (CVarGetInteger("gCosmetics.DefaultColorScheme", COLORSCHEME_N64) == COLORSCHEME_GAMECUBE) {
+    } else if (CVarGetInteger("gCosmetics.DefaultColorScheme", 0) == 1) {
         aButtonColor = (Color_RGB8){ 0, 200, 50 };
     }
 
@@ -6169,110 +6018,6 @@ void Interface_Draw(PlayState* play) {
     CLOSE_DISPS(play->state.gfxCtx);
 }
 
-void Interface_DrawTotalGameplayTimer(PlayState* play) {
-    // Draw timer based on the Gameplay Stats total time.
-
-    if ((gSaveContext.isBossRush && gSaveContext.bossRushOptions[BR_OPTIONS_TIMER] == BR_CHOICE_TIMER_YES) ||
-        (CVarGetInteger("gGameplayStats.ShowIngameTimer", 0) && gSaveContext.fileNum >= 0 && gSaveContext.fileNum <= 2)) {
-
-        s32 X_Margins_Timer = 0;
-        if (CVarGetInteger("gIGTUseMargins", 0) != 0) {
-            if (CVarGetInteger("gIGTPosType", 0) == 0) {
-                X_Margins_Timer = Left_HUD_Margin;
-            };
-        }
-        s32 rectLeftOri = OTRGetRectDimensionFromLeftEdge(24 + X_Margins_Timer);
-        s32 rectTopOri = 73;
-        if (CVarGetInteger("gIGTPosType", 0) != 0) {
-            rectTopOri = (CVarGetInteger("gIGTPosY", 0));
-            if (CVarGetInteger("gIGTPosType", 0) == 1) { // Anchor Left
-                if (CVarGetInteger("gIGTUseMargins", 0) != 0) {
-                    X_Margins_Timer = Left_HUD_Margin;
-                };
-                rectLeftOri = OTRGetRectDimensionFromLeftEdge(CVarGetInteger("gIGTPosX", 0) + X_Margins_Timer);
-            } else if (CVarGetInteger("gIGTPosType", 0) == 2) { // Anchor Right
-                if (CVarGetInteger("gIGTUseMargins", 0) != 0) {
-                    X_Margins_Timer = Right_HUD_Margin;
-                };
-                rectLeftOri = OTRGetRectDimensionFromRightEdge(CVarGetInteger("gIGTPosX", 0) + X_Margins_Timer);
-            } else if (CVarGetInteger("gIGTPosType", 0) == 3) { // Anchor None
-                rectLeftOri = CVarGetInteger("gIGTPosX", 0) + 204 + X_Margins_Timer;
-            } else if (CVarGetInteger("gIGTPosType", 0) == 4) { // Hidden
-                rectLeftOri = -9999;
-            }
-        }
-
-        s32 rectLeft;
-        s32 rectTop;
-        s32 rectWidth = 8;
-        s32 rectHeightOri = 16;
-        s32 rectHeight;
-
-        OPEN_DISPS(play->state.gfxCtx);
-
-        gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0, 0,
-                          PRIMITIVE, 0);
-
-        gDPSetOtherMode(OVERLAY_DISP++,
-                        G_AD_DISABLE | G_CD_DISABLE | G_CK_NONE | G_TC_FILT | G_TF_BILERP | G_TT_IA16 | G_TL_TILE |
-                            G_TD_CLAMP | G_TP_NONE | G_CYC_1CYCLE | G_PM_NPRIMITIVE,
-                        G_AC_NONE | G_ZS_PRIM | G_RM_XLU_SURF | G_RM_XLU_SURF2);
-
-        char* totalTimeText = GameplayStats_GetCurrentTime();
-        char* textPointer = &totalTimeText[0];
-        uint8_t textLength = strlen(textPointer);
-        uint16_t textureIndex = 0;
-
-        for (uint16_t i = 0; i < textLength; i++) {
-            if (totalTimeText[i] == ':' || totalTimeText[i] == '.') {
-                textureIndex = 10;
-            } else {
-                textureIndex = totalTimeText[i] - 48;
-            }
-
-            rectLeft = rectLeftOri + (i * 8);
-            rectTop = rectTopOri;
-            rectHeight = rectHeightOri;
-
-            // Load correct digit (or : symbol)
-            gDPLoadTextureBlock(OVERLAY_DISP++, ((u8*)digitTextures[textureIndex]), G_IM_FMT_I, G_IM_SIZ_8b, rectWidth,
-                                rectHeight, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK,
-                                G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
-
-            // Create dot image from the colon image.
-            if (totalTimeText[i] == '.') {
-                rectHeight = rectHeight / 2;
-                rectTop += 5;
-                rectLeft -= 1;
-            }
-
-            // Draw text shadow
-            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, 255);
-            gDPSetEnvColor(OVERLAY_DISP++, 255, 255, 255, 255);
-            gSPWideTextureRectangle(OVERLAY_DISP++, rectLeft << 2, rectTop << 2, (rectLeft + rectWidth) << 2,
-                                    (rectTop + rectHeight) << 2, G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
-
-            // Draw regular text. Change color based on if the timer is paused, running or the game is completed.
-            if (gSaveContext.sohStats.gameComplete) {
-                gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 120, 255, 0, 255);
-            } else if (gSaveContext.isBossRushPaused && !gSaveContext.sohStats.rtaTiming) {
-                gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 150, 150, 150, 255);
-            } else {
-                gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, 255);
-            }
-
-            // Offset text so underlaying shadow is to the bottom right of the text.
-            rectLeft -= 1;
-            rectTop -= 1;
-
-            gSPWideTextureRectangle(OVERLAY_DISP++, rectLeft << 2, rectTop << 2, (rectLeft + rectWidth) << 2,
-                                    (rectTop + rectHeight) << 2, G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
-        }
-
-        CLOSE_DISPS(play->state.gfxCtx);
-    }
-}
-
 void Interface_Update(PlayState* play) {
     static u8 D_80125B60 = 0;
     static s16 sPrevTimeIncrement = 0;
@@ -6659,11 +6404,6 @@ void Interface_Update(PlayState* play) {
 
             gSaveContext.respawnFlag = -2;
             play->nextEntranceIndex = gSaveContext.entranceIndex;
-
-            // In ER, handle sun song respawn from last entrance from grottos
-            if (gSaveContext.n64ddFlag && Randomizer_GetSettingValue(RSK_SHUFFLE_ENTRANCES)) {
-                Grotto_ForceGrottoReturn();
-            }
 
             play->sceneLoadFlag = 0x14;
             gSaveContext.sunsSongState = SUNSSONG_INACTIVE;

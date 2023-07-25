@@ -1,9 +1,7 @@
 #include "GameInteractor.h"
 #include <libultraship/bridge.h>
-#include "soh/Enhancements/cosmetics/CosmeticsEditor.h"
 #include "soh/Enhancements/randomizer/3drando/random.hpp"
 #include <math.h>
-#include "soh/Enhancements/debugger/colViewer.h"
 
 extern "C" {
 #include "variables.h"
@@ -232,18 +230,6 @@ void GameInteractor::RawAction::SetTimeOfDay(uint32_t time) {
 void GameInteractor::RawAction::SetCollisionViewer(bool active) {
     CVarSetInteger("gColViewerEnabled", active);
     CVarSetInteger("gColViewerDecal", active);
-    
-    if (active) {
-        CVarSetInteger("gColViewerScene", COLVIEW_TRANSPARENT);
-        CVarSetInteger("gColViewerBgActors", COLVIEW_TRANSPARENT);
-        CVarSetInteger("gColViewerColCheck", COLVIEW_TRANSPARENT);
-        CVarSetInteger("gColViewerWaterbox", COLVIEW_TRANSPARENT);
-    } else {
-        CVarSetInteger("gColViewerScene", COLVIEW_DISABLED);
-        CVarSetInteger("gColViewerBgActors", COLVIEW_DISABLED);
-        CVarSetInteger("gColViewerColCheck", COLVIEW_DISABLED);
-        CVarSetInteger("gColViewerWaterbox", COLVIEW_DISABLED);
-    }
 }
 
 void GameInteractor::RawAction::SetCosmeticsColor(uint8_t cosmeticCategory, uint8_t colorValue) {
@@ -337,7 +323,6 @@ void GameInteractor::RawAction::SetCosmeticsColor(uint8_t cosmeticCategory, uint
     }
 
     LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
-    ApplyOrResetCustomGfxPatches();
 }
 
 void GameInteractor::RawAction::RandomizeCosmeticsColors(bool excludeBiddingWarColors) {
@@ -361,8 +346,6 @@ void GameInteractor::RawAction::RandomizeCosmeticsColors(bool excludeBiddingWarC
             CVarSetInteger(cvarsToLock[i], 1);
         }
     }
-
-    CosmeticsEditor_RandomizeAll();
 
     if (excludeBiddingWarColors) {
         for (uint8_t i = 0; i < 12; i++) {

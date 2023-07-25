@@ -6,7 +6,6 @@
 
 #include "z_en_geldb.h"
 #include "objects/object_geldb/object_geldb.h"
-#include "soh/Enhancements/randomizer/randomizer_entrance.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_HOSTILE | ACTOR_FLAG_UPDATE_WHILE_CULLED)
 
@@ -1321,7 +1320,6 @@ void EnGeldB_SetupDefeated(EnGeldB* this) {
     this->actor.flags &= ~ACTOR_FLAG_TARGETABLE;
     Audio_PlayActorSound2(&this->actor, NA_SE_EN_GERUDOFT_DEAD);
     EnGeldB_SetupAction(this, EnGeldB_Defeated);
-    gSaveContext.sohStats.count[COUNT_ENEMIES_DEFEATED_GERUDO_THIEF]++;
 }
 
 void EnGeldB_Defeated(EnGeldB* this, PlayState* play) {
@@ -1572,10 +1570,6 @@ void EnGeldB_Draw(Actor* thisx, PlayState* play) {
                     play->nextEntranceIndex = 0x5F8;
                 } else {
                     play->nextEntranceIndex = 0x3B4;
-                }
-
-                if (gSaveContext.n64ddFlag) {
-                    Entrance_OverrideGeurdoGuardCapture();
                 }
 
                 play->fadeTransition = 0x26;

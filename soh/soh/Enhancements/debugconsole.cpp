@@ -1,6 +1,5 @@
 #include "debugconsole.h"
 #include <Utils.h>
-#include "savestates.h"
 #include "soh/ActorDB.h"
 
 #include <vector>
@@ -8,7 +7,6 @@
 #include "soh/OTRGlobals.h"
 #include <soh/Enhancements/item-tables/ItemTableManager.h>
 #include "soh/Enhancements/game-interactor/GameInteractor.h"
-#include "soh/Enhancements/cosmetics/CosmeticsEditor.h"
 #include "soh/Enhancements/audio/AudioEditor.h"
 
 #define Path _Path
@@ -499,66 +497,6 @@ static bool FileSelectHandler(std::shared_ptr<LUS::Console> Console, const std::
 
 static bool QuitHandler(std::shared_ptr<LUS::Console> Console, const std::vector<std::string>& args, std::string* output) {
     LUS::Context::GetInstance()->GetWindow()->Close();
-    return 0;
-}
-
-static bool SaveStateHandler(std::shared_ptr<LUS::Console> Console, const std::vector<std::string>& args, std::string* output) {
-    unsigned int slot = OTRGlobals::Instance->gSaveStateMgr->GetCurrentSlot();
-    const SaveStateReturn rtn = OTRGlobals::Instance->gSaveStateMgr->AddRequest({ slot, RequestType::SAVE });
-
-    switch (rtn) {
-        case SaveStateReturn::SUCCESS:
-            INFO_MESSAGE("[SOH] Saved state to slot %u", slot);
-            return 0;
-        case SaveStateReturn::FAIL_WRONG_GAMESTATE:
-            ERROR_MESSAGE("[SOH] Can not save a state outside of \"GamePlay\"");
-            return 1;
-    }
-}
-
-static bool LoadStateHandler(std::shared_ptr<LUS::Console> Console, const std::vector<std::string>& args, std::string* output) {
-    unsigned int slot = OTRGlobals::Instance->gSaveStateMgr->GetCurrentSlot();
-    const SaveStateReturn rtn = OTRGlobals::Instance->gSaveStateMgr->AddRequest({ slot, RequestType::LOAD });
-
-    switch (rtn) {
-        case SaveStateReturn::SUCCESS:
-            INFO_MESSAGE("[SOH] Loaded state from slot (%u)", slot);
-            return 0;
-        case SaveStateReturn::FAIL_INVALID_SLOT:
-            ERROR_MESSAGE("[SOH] Invalid State Slot Number (%u)", slot);
-            return 1;
-        case SaveStateReturn::FAIL_STATE_EMPTY:
-            ERROR_MESSAGE("[SOH] State Slot (%u) is empty", slot);
-            return 1;
-        case SaveStateReturn::FAIL_WRONG_GAMESTATE:
-            ERROR_MESSAGE("[SOH] Can not load a state outside of \"GamePlay\"");
-            return 1;
-    }
-
-}
-
-static bool StateSlotSelectHandler(std::shared_ptr<LUS::Console> Console, const std::vector<std::string>& args, std::string* output) {
-    if (args.size() < 2) {
-        ERROR_MESSAGE("[SOH] Unexpected arguments passed");
-        return 1;
-    }
-    uint8_t slot;
-
-    try {
-        slot = std::stoi(args[1], nullptr, 10);
-    } catch (std::invalid_argument const& ex) {
-        ERROR_MESSAGE("[SOH] SaveState slot value must be a number.");
-        return 1;
-    }
-
-    if (slot < 0) {
-        ERROR_MESSAGE("[SOH] Invalid slot passed. Slot must be between 0 and 2");
-        return 1;
-    }
-
-    OTRGlobals::Instance->gSaveStateMgr->SetCurrentSlot(slot);
-    INFO_MESSAGE("[SOH] Slot %u selected",
-                                        OTRGlobals::Instance->gSaveStateMgr->GetCurrentSlot());
     return 0;
 }
 
@@ -1258,9 +1196,6 @@ static bool CuccoStormHandler(std::shared_ptr<LUS::Console> Console, const std::
 
 static bool GenerateRandoHandler(std::shared_ptr<LUS::Console> Console, const std::vector<std::string>& args, std::string* output) {
     if (args.size() == 1) {
-        if (GenerateRandomizer()) {
-            return 0;
-        }
     }
 
     try {
@@ -1271,9 +1206,7 @@ static bool GenerateRandoHandler(std::shared_ptr<LUS::Console> Console, const st
             seed = "seed_testing_count";
         }
 
-        if (GenerateRandomizer(seed + std::to_string(value))){
-            return 0;
-        }
+        return 0;
     } catch (std::invalid_argument const& ex) {
         ERROR_MESSAGE("[SOH] seed|count value must be a number.");
         return 1;
@@ -1291,9 +1224,7 @@ static bool CosmeticsHandler(std::shared_ptr<LUS::Console> Console, const std::v
     }
 
     if (args[1].compare("reset") == 0) {
-        CosmeticsEditor_ResetAll();
     } else if (args[1].compare("randomize") == 0) {
-        CosmeticsEditor_RandomizeAll();
     } else {
         ERROR_MESSAGE("[SOH] Invalid argument passed, must be 'reset' or 'randomize'");
         return 1;
@@ -1325,13 +1256,6 @@ void DebugConsole_Init(void) {
     CMD_REGISTER("file_select", {FileSelectHandler, "Returns to the file select."});
     CMD_REGISTER("reset", {ResetHandler, "Resets the game."});
     CMD_REGISTER("quit", {QuitHandler, "Quits the game."});
-
-    // Save States
-    CMD_REGISTER("save_state", {SaveStateHandler, "Save a state."});
-    CMD_REGISTER("load_state", {LoadStateHandler, "Load a state."});
-    CMD_REGISTER("set_slot", {StateSlotSelectHandler, "Selects a SaveState slot", {
-            {"Slot number", LUS::ArgumentType::NUMBER,}
-    }});
 
     // Map & Location
     CMD_REGISTER("void", {VoidHandler, "Voids out of the current map."});

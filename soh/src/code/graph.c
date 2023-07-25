@@ -6,8 +6,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "soh/Enhancements/debugger/colViewer.h"
-#include "soh/Enhancements/gameconsole.h"
 #include "soh/OTRGlobals.h"
 
 #define GFXPOOL_HEAD_MAGIC 0x1234
@@ -285,7 +283,6 @@ void Graph_Update(GraphicsContext* gfxCtx, GameState* gameState) {
 
     GameState_ReqPadData(gameState);
     GameState_Update(gameState);
-    DrawColViewer();
 
     OPEN_DISPS(gfxCtx);
 
@@ -433,8 +430,6 @@ static struct RunFrameContext {
 
 extern AudioMgr gAudioMgr;
 
-extern void ProcessSaveStateRequests(void);
-
 static void RunFrame()
 {
     u32 size;
@@ -500,7 +495,6 @@ static void RunFrame()
             //uint64_t diff = (ticksB - ticksA) / (freq / 1000);
             //printf("Frame simulated in %ims\n", diff);
             runFrameContext.state = 1;
-            ProcessSaveStateRequests();
             return;
             nextFrame:;
         }

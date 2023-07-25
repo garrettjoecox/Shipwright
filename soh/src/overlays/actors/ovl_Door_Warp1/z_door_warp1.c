@@ -1,7 +1,5 @@
 #include "z_door_warp1.h"
 #include "objects/object_warp1/object_warp1.h"
-#include "soh/Enhancements/randomizer/randomizer_entrance.h"
-#include "soh/Enhancements/boss-rush/BossRush.h"
 
 #define FLAGS 0
 
@@ -609,11 +607,6 @@ void DoorWarp1_ChildWarpOut(DoorWarp1* this, PlayState* play) {
             gSaveContext.nextCutsceneIndex = 0;
         }
 
-        if (gSaveContext.n64ddFlag && (Randomizer_GetSettingValue(RSK_SHUFFLE_DUNGEON_ENTRANCES) != RO_DUNGEON_ENTRANCE_SHUFFLE_OFF ||
-            Randomizer_GetSettingValue(RSK_SHUFFLE_BOSS_ENTRANCES) != RO_BOSS_ROOM_ENTRANCE_SHUFFLE_OFF)) {
-            Entrance_OverrideBlueWarp();
-        }
-
         osSyncPrintf("\n\n\nおわりおわり");
         play->sceneLoadFlag = 0x14;
         play->fadeTransition = 7;
@@ -716,11 +709,6 @@ void DoorWarp1_RutoWarpOut(DoorWarp1* this, PlayState* play) {
             gSaveContext.nextCutsceneIndex = 0xFFF0;
         }
 
-        if (gSaveContext.n64ddFlag && (Randomizer_GetSettingValue(RSK_SHUFFLE_DUNGEON_ENTRANCES) != RO_DUNGEON_ENTRANCE_SHUFFLE_OFF ||
-            Randomizer_GetSettingValue(RSK_SHUFFLE_BOSS_ENTRANCES) != RO_BOSS_ROOM_ENTRANCE_SHUFFLE_OFF)) {
-            Entrance_OverrideBlueWarp();
-        }
-
         play->sceneLoadFlag = 0x14;
         play->fadeTransition = 7;
     }
@@ -760,11 +748,6 @@ void DoorWarp1_AdultWarpIdle(DoorWarp1* this, PlayState* play) {
     Audio_PlayActorSound2(&this->actor, NA_SE_EV_WARP_HOLE - SFX_FLAG);
 
     if (DoorWarp1_PlayerInRange(this, play)) {
-        // Heal player in Boss Rush
-        if (gSaveContext.isBossRush) {
-            BossRush_HandleBlueWarpHeal(play);
-        }
-
         player = GET_PLAYER(play);
 
         if (gSaveContext.n64ddFlag) {
@@ -826,9 +809,7 @@ void DoorWarp1_AdultWarpOut(DoorWarp1* this, PlayState* play) {
     this->warpTimer++;
 
     if (this->warpTimer > sWarpTimerTarget && gSaveContext.nextCutsceneIndex == 0xFFEF) {
-        if (gSaveContext.isBossRush) {
-            BossRush_HandleBlueWarp(play, this->actor.world.pos.x, this->actor.world.pos.z);
-        } else if (play->sceneNum == SCENE_MORIBOSSROOM) {
+        if (play->sceneNum == SCENE_MORIBOSSROOM) {
             if (!Flags_GetEventChkInf(EVENTCHKINF_USED_FOREST_TEMPLE_BLUE_WARP)) {
                 Flags_SetEventChkInf(EVENTCHKINF_USED_FOREST_TEMPLE_BLUE_WARP);
                 Flags_SetRandomizerInf(RAND_INF_DUNGEONS_DONE_FOREST_TEMPLE);
@@ -939,11 +920,6 @@ void DoorWarp1_AdultWarpOut(DoorWarp1* this, PlayState* play) {
                 }
                 gSaveContext.nextCutsceneIndex = 0;
             }
-        }
-
-        if (gSaveContext.n64ddFlag && (Randomizer_GetSettingValue(RSK_SHUFFLE_DUNGEON_ENTRANCES) != RO_DUNGEON_ENTRANCE_SHUFFLE_OFF ||
-            Randomizer_GetSettingValue(RSK_SHUFFLE_BOSS_ENTRANCES) != RO_BOSS_ROOM_ENTRANCE_SHUFFLE_OFF)) {
-            Entrance_OverrideBlueWarp();
         }
 
         play->sceneLoadFlag = 0x14;

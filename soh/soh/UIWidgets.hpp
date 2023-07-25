@@ -85,12 +85,10 @@ namespace UIWidgets {
     bool EnhancementRadioButton(const char* text, const char* cvarName, int id);
 
     bool DrawResetColorButton(const char* cvarName, ImVec4* colors, ImVec4 defaultcolors, bool has_alpha);
-    bool DrawRandomizeColorButton(const char* cvarName, ImVec4* colors);
     void DrawLockColorCheckbox(const char* cvarName);
     void RainbowColor(const char* cvarName, ImVec4* colors);
 
     void LoadPickersColors(ImVec4& ColorArray, const char* cvarname, const ImVec4& default_colors, bool has_alpha);
-    bool EnhancementColor(const char* text, const char* cvarName, ImVec4 ColorRGBA, ImVec4 default_colors, bool allow_rainbow = true, bool has_alpha = false, bool TitleSameLine = false);
 
     void DrawFlagArray32(const std::string& name, uint32_t& flags);
     void DrawFlagArray16(const std::string& name, uint16_t& flags);

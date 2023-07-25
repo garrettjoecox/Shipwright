@@ -6,7 +6,6 @@
 
 #include "z_en_ds.h"
 #include "objects/object_ds/object_ds.h"
-#include "soh/Enhancements/randomizer/adult_trade_shuffle.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_FRIENDLY)
 
@@ -96,12 +95,6 @@ void EnDs_GiveOddPotion(EnDs* this, PlayState* play) {
         gSaveContext.timer2State = 0;
     } else {
         u32 itemId = GI_ODD_POTION;
-        if (gSaveContext.n64ddFlag) {
-            GetItemEntry itemEntry = Randomizer_GetItemFromKnownCheck(RC_KAK_TRADE_ODD_MUSHROOM, GI_ODD_POTION);
-            GiveItemEntryFromActor(&this->actor, play, itemEntry, 10000.0f, 50.0f);
-            Randomizer_ConsumeAdultTradeItem(play, ITEM_ODD_MUSHROOM);
-            return;
-        }
         func_8002F434(&this->actor, play, itemId, 10000.0f, 50.0f);
     }
 }
@@ -111,12 +104,6 @@ void EnDs_TalkAfterBrewOddPotion(EnDs* this, PlayState* play) {
         Message_CloseTextbox(play);
         this->actionFunc = EnDs_GiveOddPotion;
         u32 itemId = GI_ODD_POTION;
-        if (gSaveContext.n64ddFlag) {
-            GetItemEntry itemEntry = Randomizer_GetItemFromKnownCheck(RC_KAK_TRADE_ODD_MUSHROOM, GI_ODD_POTION);
-            GiveItemEntryFromActor(&this->actor, play, itemEntry, 10000.0f, 50.0f);
-            Randomizer_ConsumeAdultTradeItem(play, ITEM_ODD_MUSHROOM);
-            return;
-        }
         func_8002F434(&this->actor, play, itemId, 10000.0f, 50.0f);
     }
 }

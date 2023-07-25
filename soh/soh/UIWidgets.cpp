@@ -12,7 +12,6 @@
 #include <libultraship/libultraship.h>
 
 #include <libultraship/libultra/types.h>
-#include "soh/Enhancements/cosmetics/CosmeticsEditor.h"
 
 namespace UIWidgets {
 
@@ -504,31 +503,6 @@ namespace UIWidgets {
         return changed;
     }
 
-    bool DrawRandomizeColorButton(const char* cvarName, ImVec4* colors) {
-        bool changed = false;
-        Color_RGBA8 NewColors = {0,0,0,255};
-        std::string Cvar_RBM = std::string(cvarName) + "RBM";
-        std::string FullName = "Random##" + std::string(cvarName) + "Random";
-        if (ImGui::Button(FullName.c_str())) {
-#if defined(__SWITCH__) || defined(__WIIU__)
-            srand(time(NULL));
-#endif
-            ImVec4 color = GetRandomValue(255);
-            colors->x = color.x;
-            colors->y = color.y;
-            colors->z = color.z;
-            NewColors.r = fmin(fmax(colors->x * 255, 0), 255);
-            NewColors.g = fmin(fmax(colors->y * 255, 0), 255);
-            NewColors.b = fmin(fmax(colors->z * 255, 0), 255);
-            CVarSetColor(cvarName, NewColors);
-            CVarSetInteger(Cvar_RBM.c_str(), 0); // On click disable rainbow mode.
-            LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
-            changed = true;
-        }
-        Tooltip("Chooses a random color\nOverwrites previously chosen color");
-        return changed;
-    }
-
     void DrawLockColorCheckbox(const char* cvarName) {
         std::string Cvar_Lock = std::string(cvarName) + "Lock";
         s32 lock = CVarGetInteger(Cvar_Lock.c_str(), 0);
@@ -558,74 +532,6 @@ namespace UIWidgets {
         ColorArray.y = cvarColor.g / 255.0;
         ColorArray.z = cvarColor.b / 255.0;
         ColorArray.w = cvarColor.a / 255.0;
-    }
-
-    bool EnhancementColor(const char* text, const char* cvarName, ImVec4 ColorRGBA, ImVec4 default_colors, bool allow_rainbow, bool has_alpha, bool TitleSameLine) {
-        bool changed = false;
-        LoadPickersColors(ColorRGBA, cvarName, default_colors, has_alpha);
-
-        ImGuiColorEditFlags flags = ImGuiColorEditFlags_None;
-
-        if (!TitleSameLine) {
-            ImGui::Text("%s", text);
-            flags = ImGuiColorEditFlags_NoLabel;
-        }
-
-        ImGui::PushID(cvarName);
-
-        if (!has_alpha) {
-            if (ImGui::ColorEdit3(text, (float*)&ColorRGBA, flags))
-            {
-                Color_RGBA8 colors;
-                colors.r = ColorRGBA.x * 255.0;
-                colors.g = ColorRGBA.y * 255.0;
-                colors.b = ColorRGBA.z * 255.0;
-                colors.a = 255.0;
-
-                CVarSetColor(cvarName, colors);
-                LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
-                changed = true;
-            }
-        }
-        else
-        {
-            flags |= ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_AlphaPreview;
-            if (ImGui::ColorEdit4(text, (float*)&ColorRGBA, flags))
-            {
-                Color_RGBA8 colors;
-                colors.r = ColorRGBA.x * 255.0;
-                colors.g = ColorRGBA.y * 255.0;
-                colors.b = ColorRGBA.z * 255.0;
-                colors.a = ColorRGBA.w * 255.0;
-
-                CVarSetColor(cvarName, colors);
-                LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
-                changed = true;
-            }
-        }
-
-        ImGui::PopID();
-
-        //ImGui::SameLine(); // Removing that one to gain some width spacing on the HUD editor
-        ImGui::PushItemWidth(-FLT_MIN);
-        if (DrawResetColorButton(cvarName, &ColorRGBA, default_colors, has_alpha)) {
-            changed = true;
-        }
-        ImGui::SameLine();
-        if (DrawRandomizeColorButton(cvarName, &ColorRGBA)) {
-            changed = true;
-        }
-        if (allow_rainbow) {
-            if (ImGui::GetContentRegionAvail().x > 185) {
-                ImGui::SameLine();
-            }
-            RainbowColor(cvarName, &ColorRGBA);
-        }
-        DrawLockColorCheckbox(cvarName);
-        ImGui::NewLine();
-        ImGui::PopItemWidth();
-
-        return changed;
     }
 
     void DrawFlagArray32(const std::string& name, uint32_t& flags) {

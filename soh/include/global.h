@@ -9,9 +9,19 @@
 #include "variables.h"
 #include "macros.h"
 #include "soh/OTRGlobals.h"
-#include "soh/Enhancements/gameconsole.h"
-#include "soh/Enhancements/gameplaystats.h"
 #include <libultraship/bridge.h>
+
+// TODO: Remove this, was previously coming in from gameconsole, and people made use of it
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+extern PlayState* gPlayState;
+
+#ifdef __cplusplus
+}
+#endif
 
 #define _AudioseqSegmentRomStart "Audioseq"
 #define _AudiobankSegmentRomStart "Audiobank"

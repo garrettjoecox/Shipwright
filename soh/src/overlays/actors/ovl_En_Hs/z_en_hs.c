@@ -7,7 +7,6 @@
 #include "z_en_hs.h"
 #include "vt.h"
 #include "objects/object_hs/object_hs.h"
-#include "soh/Enhancements/randomizer/adult_trade_shuffle.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_FRIENDLY)
 
@@ -87,13 +86,6 @@ void EnHs_Init(Actor* thisx, PlayState* play) {
             // - If you don't have Cojiro but do have Odd Potion, spawn Fado and not Grog.
             // - If you don't have either, spawn Grog if you haven't traded the Odd Mushroom.
             // - If you don't have either but have traded the mushroom, don't spawn either.
-            if (PLAYER_HAS_SHUFFLED_ADULT_TRADE_ITEM(ITEM_COJIRO)) {
-                shouldSpawn = true;
-            } else if (PLAYER_HAS_SHUFFLED_ADULT_TRADE_ITEM(ITEM_ODD_POTION)) {
-                shouldSpawn = false;
-            } else {
-                shouldSpawn = !tradedMushroom;
-            }
         } else {
             shouldSpawn = !tradedMushroom;
         }
@@ -179,15 +171,8 @@ void func_80A6E740(EnHs* this, PlayState* play) {
         this->actor.parent = NULL;
         func_80A6E3A0(this, func_80A6E630);
     } else {
-        if (gSaveContext.n64ddFlag) {
-            GetItemEntry itemEntry = Randomizer_GetItemFromKnownCheck(RC_LW_TRADE_COJIRO, GI_ODD_MUSHROOM);
-            Randomizer_ConsumeAdultTradeItem(play, ITEM_COJIRO);
-            GiveItemEntryFromActor(&this->actor, play, itemEntry, 10000.0f, 50.0f);
-            Flags_SetRandomizerInf(RAND_INF_ADULT_TRADES_LW_TRADE_COJIRO);
-        } else {
-            s32 itemId = GI_ODD_MUSHROOM;
-            func_8002F434(&this->actor, play, itemId, 10000.0f, 50.0f);
-        }
+        s32 itemId = GI_ODD_MUSHROOM;
+        func_8002F434(&this->actor, play, itemId, 10000.0f, 50.0f);
     }
 
     this->unk_2A8 |= 1;
@@ -198,15 +183,8 @@ void func_80A6E7BC(EnHs* this, PlayState* play) {
         switch (play->msgCtx.choiceIndex) {
             case 0:
                 func_80A6E3A0(this, func_80A6E740);
-                if (gSaveContext.n64ddFlag) {
-                    GetItemEntry itemEntry = Randomizer_GetItemFromKnownCheck(RC_LW_TRADE_COJIRO, GI_ODD_MUSHROOM);
-                    Randomizer_ConsumeAdultTradeItem(play, ITEM_COJIRO);
-                    GiveItemEntryFromActor(&this->actor, play, itemEntry, 10000.0f, 50.0f);
-                    Flags_SetRandomizerInf(RAND_INF_ADULT_TRADES_LW_TRADE_COJIRO);
-                } else {
-                    s32 itemId = GI_ODD_MUSHROOM;
-                    func_8002F434(&this->actor, play, itemId, 10000.0f, 50.0f);
-                }
+                s32 itemId = GI_ODD_MUSHROOM;
+                func_8002F434(&this->actor, play, itemId, 10000.0f, 50.0f);
                 break;
             case 1:
                 Message_ContinueTextbox(play, 0x10B4);

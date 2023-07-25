@@ -3,7 +3,6 @@
 #include "objects/object_os_anime/object_os_anime.h"
 #include "overlays/actors/ovl_En_Niw/z_en_niw.h"
 #include "vt.h"
-#include "soh/Enhancements/randomizer/adult_trade_shuffle.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_FRIENDLY | ACTOR_FLAG_UPDATE_WHILE_CULLED)
 
@@ -433,14 +432,7 @@ void func_80ABAB08(EnNiwLady* this, PlayState* play) {
             case 0:
                 Message_CloseTextbox(play);
                 this->actor.parent = NULL;
-                if (!gSaveContext.n64ddFlag) {
-                    func_8002F434(&this->actor, play, GI_COJIRO, 200.0f, 100.0f);
-                } else {
-                    // TODO: get-item-rework Adult trade sequence
-                    this->getItemEntry = Randomizer_GetItemFromKnownCheck(RC_KAK_TRADE_POCKET_CUCCO, GI_COJIRO);
-                    Randomizer_ConsumeAdultTradeItem(play, ITEM_POCKET_CUCCO);
-                    Flags_SetItemGetInf(ITEMGETINF_2E);
-                }
+                func_8002F434(&this->actor, play, GI_COJIRO, 200.0f, 100.0f);
                 this->actionFunc = func_80ABAC00;
                 break;
             case 1:

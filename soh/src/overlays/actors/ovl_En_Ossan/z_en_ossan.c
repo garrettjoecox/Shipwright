@@ -13,8 +13,6 @@
 #include "objects/object_mastergolon/object_mastergolon.h"
 #include "objects/object_masterzoora/object_masterzoora.h"
 #include "objects/object_masterkokirihead/object_masterkokirihead.h"
-#include "soh/Enhancements/randomizer/randomizer_entrance.h"
-#include "soh/Enhancements/cosmetics/cosmeticsTypes.h"
 #include <assert.h>
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_FRIENDLY | ACTOR_FLAG_UPDATE_WHILE_CULLED)
@@ -945,12 +943,7 @@ void EnOssan_State_StartConversation(EnOssan* this, PlayState* play, Player* pla
                 EnOssan_TryPaybackMask(this, play);
                 return;
             case OSSAN_HAPPY_STATE_ANGRY:
-                // In ER, handle happy mask throwing link out with not enough rupees
-                if (gSaveContext.n64ddFlag && Randomizer_GetSettingValue(RSK_SHUFFLE_ENTRANCES)) {
-                    play->nextEntranceIndex = Entrance_OverrideNextIndex(0x1D1);
-                } else {
-                    play->nextEntranceIndex = 0x1D1;
-                }
+                play->nextEntranceIndex = 0x1D1;
                 play->sceneLoadFlag = 0x14;
                 play->fadeTransition = 0x2E;
                 return;
@@ -1973,7 +1966,7 @@ void EnOssan_UpdateCursorAnim(EnOssan* this) {
     Color_RGB8 aButtonColor = { 0, 80, 255 };
     if (CVarGetInteger("gCosmetics.Hud_AButton.Changed", 0)) {
         aButtonColor = CVarGetColor24("gCosmetics.Hud_AButton.Value", aButtonColor);
-    } else if (CVarGetInteger("gCosmetics.DefaultColorScheme", COLORSCHEME_N64) == COLORSCHEME_GAMECUBE) {
+    } else if (CVarGetInteger("gCosmetics.DefaultColorScheme", 0) == 1) {
         aButtonColor = (Color_RGB8){ 0, 255, 80 };
     }
     f32 t;

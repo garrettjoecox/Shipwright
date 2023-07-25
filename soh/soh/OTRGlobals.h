@@ -8,8 +8,6 @@
 
 #ifdef __cplusplus
 #include <Context.h>
-#include "Enhancements/savestates.h"
-#include "Enhancements/randomizer/randomizer.h"
 #include <vector>
 
 const std::string customMessageTableID = "BaseGameOverrides";
@@ -20,8 +18,6 @@ public:
     static OTRGlobals* Instance;
 
     std::shared_ptr<LUS::Context> context;
-    std::shared_ptr<SaveStateMgr> gSaveStateMgr;
-    std::shared_ptr<Randomizer> gRandomizer;
 
     OTRGlobals();
     ~OTRGlobals();
@@ -112,7 +108,6 @@ void AudioMgr_CreateNextAudioBuffer(s16* samples, u32 num_samples);
 int Controller_ShouldRumble(size_t slot);
 void Controller_BlockGameInput();
 void Controller_UnblockGameInput();
-void* getN64WeirdFrame(s32 i);
 int GetEquipNowMessage(char* buffer, char* src, const int maxBufferSize);
 u32 SpoilerFileExists(const char* spoilerFileName);
 Sprite* GetSeedTexture(uint8_t index);

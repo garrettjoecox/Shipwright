@@ -961,31 +961,11 @@ void func_80ACC00C(EnOwl* this, PlayState* play) {
                     osSyncPrintf(VT_FGCOL(CYAN));
                     osSyncPrintf("SPOT 06 の デモがはしった\n"); // "Demo of SPOT 06 has been completed"
                     osSyncPrintf(VT_RST);
-                    if (gSaveContext.n64ddFlag) {
-                        if (Randomizer_GetSettingValue(RSK_SHUFFLE_OWL_DROPS)) {
-                            play->nextEntranceIndex = Entrance_OverrideNextIndex(0x027E);
-                        } else {
-                            play->nextEntranceIndex = 0x027E;
-                        }
-                        play->sceneLoadFlag = 0x14;
-                        play->fadeTransition = 2;
-                        break;
-                    }
                     play->csCtx.segment = SEGMENTED_TO_VIRTUAL(gLakeHyliaOwlCs);
                     this->actor.draw = NULL;
                     break;
                 case 8:
                 case 9:
-                    if (gSaveContext.n64ddFlag) {
-                        if (Randomizer_GetSettingValue(RSK_SHUFFLE_OWL_DROPS)) {
-                            play->nextEntranceIndex = Entrance_OverrideNextIndex(0x0554);
-                        } else {
-                            play->nextEntranceIndex = 0x0554;
-                        }
-                        play->sceneLoadFlag = 0x14;
-                        play->fadeTransition = 2;
-                        break;
-                    }
                     play->csCtx.segment = SEGMENTED_TO_VIRTUAL(gDMTOwlCs);
                     this->actor.draw = NULL;
                     break;

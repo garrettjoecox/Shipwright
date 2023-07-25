@@ -314,7 +314,6 @@ void EnAnubice_SetupDie(EnAnubice* this, PlayState* play) {
     }
 
     this->actionFunc = EnAnubice_Die;
-    gSaveContext.sohStats.count[COUNT_ENEMIES_DEFEATED_ANUBIS]++;
 }
 
 void EnAnubice_Die(EnAnubice* this, PlayState* play) {

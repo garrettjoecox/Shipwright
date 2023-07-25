@@ -522,7 +522,6 @@ void EnDns_Burrow(EnDns* this, PlayState* play) {
             }
         }
         Actor_Kill(&this->actor);
-        gSaveContext.sohStats.count[COUNT_ENEMIES_DEFEATED_BUSINESS_SCRUB]++;
     }
 }
 

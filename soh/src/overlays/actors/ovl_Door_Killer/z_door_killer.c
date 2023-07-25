@@ -270,7 +270,6 @@ void DoorKiller_Die(DoorKiller* this, PlayState* play) {
         Flags_SetSwitch(play, switchFlag);
     }
     Actor_Kill(&this->actor);
-    gSaveContext.sohStats.count[COUNT_ENEMIES_DEFEATED_DOOR_TRAP]++;
 }
 
 /**

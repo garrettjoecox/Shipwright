@@ -11,7 +11,6 @@
 #include "assets/scenes/dungeons/ganon_boss/ganon_boss_scene.h"
 
 #include "soh/frame_interpolation.h"
-#include "soh/Enhancements/boss-rush/BossRush.h"
 
 #include <string.h>
 
@@ -581,9 +580,7 @@ void BossGanon_IntroCutscene(BossGanon* this, PlayState* play) {
                 BossGanon_SetIntroCsCamera(this, 11);
                 this->unk_198 = 2;
                 this->timers[2] = 110;
-                if (!(gSaveContext.isBossRush && gSaveContext.bossRushOptions[BR_OPTIONS_HEAL] == BR_CHOICE_HEAL_NEVER)) {
-                    gSaveContext.healthAccumulator = 0x140;
-                }
+                gSaveContext.healthAccumulator = 0x140;
                 Audio_QueueSeqCmd(NA_BGM_STOP);
             } else {
                 this->useOpenHand = true;
@@ -2812,8 +2809,6 @@ void BossGanon_UpdateDamage(BossGanon* this, PlayState* play) {
                     func_80078914(&sZeroVec, NA_SE_EN_LAST_DAMAGE);
                     Audio_QueueSeqCmd(0x100100FF);
                     this->screenFlashTimer = 4;
-                    gSaveContext.sohStats.itemTimestamp[TIMESTAMP_DEFEAT_GANONDORF] = GAMEPLAYSTAT_TOTAL_TIME;
-                    BossRush_HandleCompleteBoss(play);
                 } else {
                     Audio_PlayActorSound2(&this->actor, NA_SE_EN_GANON_DAMAGE2);
                     Audio_PlayActorSound2(&this->actor, NA_SE_EN_GANON_CUTBODY);

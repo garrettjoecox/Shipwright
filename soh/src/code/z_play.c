@@ -3,11 +3,9 @@
 
 #include <string.h>
 
-#include "soh/Enhancements/gameconsole.h"
 #include "soh/frame_interpolation.h"
 #include "soh/Enhancements/debugconsole.h"
 #include "soh/Enhancements/game-interactor/GameInteractor.h"
-#include "soh/Enhancements/randomizer/randomizer_entrance.h"
 #include <overlays/actors/ovl_En_Niw/z_en_niw.h>
 #include "soh/Enhancements/enhancementTypes.h"
 #include "soh/Enhancements/game-interactor/GameInteractor_Hooks.h"
@@ -36,9 +34,6 @@ PlayState* gPlayState;
 s16 gEnPartnerId;
 
 void OTRPlay_SpawnScene(PlayState* play, s32 sceneNum, s32 spawn);
-
-void enableBetaQuest();
-void disableBetaQuest();
 
 void func_800BC450(PlayState* play) {
     Camera_ChangeDataIdx(GET_ACTIVE_CAM(play), play->unk_1242B - 1);
@@ -177,11 +172,6 @@ void Play_Destroy(GameState* thisx) {
         play->gameplayFrames = 0;
     }
 
-    // In ER, remove link from epona when entering somewhere that doesn't support epona
-    if (gSaveContext.n64ddFlag && Randomizer_GetSettingValue(RSK_SHUFFLE_OVERWORLD_ENTRANCES)) {
-        Entrance_HandleEponaState();
-    }
-
     play->state.gfxCtx->callback = NULL;
     play->state.gfxCtx->callbackParam = 0;
     SREG(91) = 0;
@@ -218,7 +208,6 @@ void Play_Destroy(GameState* thisx) {
     KaleidoManager_Destroy();
     ZeldaArena_Cleanup();
     Fault_RemoveClient(&D_801614B8);
-    disableBetaQuest();
     gPlayState = NULL;
 }
 
@@ -451,7 +440,6 @@ void GivePlayerRandoRewardSariaGift(PlayState* play, RandomizerCheck check) {
 void Play_Init(GameState* thisx) {
     PlayState* play = (PlayState*)thisx;
     GraphicsContext* gfxCtx = play->state.gfxCtx;
-    enableBetaQuest();
     gPlayState = play;
     //play->state.gfxCtx = NULL;
     uintptr_t zAlloc;
@@ -788,32 +776,6 @@ void Play_Update(PlayState* play) {
     if (FrameAdvance_Update(&play->frameAdvCtx, &input[1])) {
         if ((play->transitionMode == 0) && (play->sceneLoadFlag != 0)) {
             play->transitionMode = 1;
-        }
-
-        // Gameplay stats: Count button presses
-        if (!gSaveContext.sohStats.gameComplete) {
-            if (CHECK_BTN_ALL(input[0].press.button, BTN_A))      {gSaveContext.sohStats.count[COUNT_BUTTON_PRESSES_A]++;}
-            if (CHECK_BTN_ALL(input[0].press.button, BTN_B))      {gSaveContext.sohStats.count[COUNT_BUTTON_PRESSES_B]++;}
-            if (CHECK_BTN_ALL(input[0].press.button, BTN_CUP))    {gSaveContext.sohStats.count[COUNT_BUTTON_PRESSES_CUP]++;}
-            if (CHECK_BTN_ALL(input[0].press.button, BTN_CRIGHT)) {gSaveContext.sohStats.count[COUNT_BUTTON_PRESSES_CRIGHT]++;}
-            if (CHECK_BTN_ALL(input[0].press.button, BTN_CLEFT))  {gSaveContext.sohStats.count[COUNT_BUTTON_PRESSES_CLEFT]++;}
-            if (CHECK_BTN_ALL(input[0].press.button, BTN_CDOWN))  {gSaveContext.sohStats.count[COUNT_BUTTON_PRESSES_CDOWN]++;}
-            if (CHECK_BTN_ALL(input[0].press.button, BTN_DUP))    {gSaveContext.sohStats.count[COUNT_BUTTON_PRESSES_DUP]++;}
-            if (CHECK_BTN_ALL(input[0].press.button, BTN_DRIGHT)) {gSaveContext.sohStats.count[COUNT_BUTTON_PRESSES_DRIGHT]++;}
-            if (CHECK_BTN_ALL(input[0].press.button, BTN_DDOWN))  {gSaveContext.sohStats.count[COUNT_BUTTON_PRESSES_DDOWN]++;}
-            if (CHECK_BTN_ALL(input[0].press.button, BTN_DLEFT))  {gSaveContext.sohStats.count[COUNT_BUTTON_PRESSES_DLEFT]++;}
-            if (CHECK_BTN_ALL(input[0].press.button, BTN_L))      {gSaveContext.sohStats.count[COUNT_BUTTON_PRESSES_L]++;}
-            if (CHECK_BTN_ALL(input[0].press.button, BTN_R))      {gSaveContext.sohStats.count[COUNT_BUTTON_PRESSES_R]++;}
-            if (CHECK_BTN_ALL(input[0].press.button, BTN_Z))      {gSaveContext.sohStats.count[COUNT_BUTTON_PRESSES_Z]++;}
-            if (CHECK_BTN_ALL(input[0].press.button, BTN_START))  {gSaveContext.sohStats.count[COUNT_BUTTON_PRESSES_START]++;}
-
-            // Start RTA timing on first non-c-up input after intro cutscene
-            if (
-                !gSaveContext.sohStats.fileCreatedAt && !Player_InCsMode(play) && 
-                ((input[0].press.button && input[0].press.button != 0x8) || input[0].rel.stick_x != 0 || input[0].rel.stick_y != 0)
-            ) {
-                gSaveContext.sohStats.fileCreatedAt = GetUnixTimestamp();
-            }
         }
 
         if (gTrnsnUnkState != 0) {
@@ -1178,17 +1140,6 @@ void Play_Update(PlayState* play) {
                 }
 
                 play->gameplayFrames++;
-                // Gameplay stat tracking
-                if (!gSaveContext.sohStats.gameComplete &&
-                    (!gSaveContext.isBossRush || (gSaveContext.isBossRush && !gSaveContext.isBossRushPaused))) {
-                      gSaveContext.sohStats.playTimer++;
-                      gSaveContext.sohStats.sceneTimer++;
-                      gSaveContext.sohStats.roomTimer++;
-
-                      if (CVarGetInteger("gMMBunnyHood", BUNNY_HOOD_VANILLA) != BUNNY_HOOD_VANILLA && Player_GetMask(play) == PLAYER_MASK_BUNNY) {
-                          gSaveContext.sohStats.count[COUNT_TIME_BUNNY_HOOD]++;
-                      }
-                }
 
                 func_800AA178(1);
 
@@ -1742,8 +1693,6 @@ void Play_Draw(PlayState* play) {
     }
 
     CLOSE_DISPS(gfxCtx);
-
-    Interface_DrawTotalGameplayTimer(play);
 }
 
 time_t Play_GetRealTime() {
@@ -1916,9 +1865,6 @@ void* Play_LoadFile(PlayState* play, RomFile* file) {
 
 void Play_InitEnvironment(PlayState* play, s16 skyboxId) {
     // For entrance rando, ensure the correct weather state and sky mode is applied
-    if (gSaveContext.n64ddFlag && Randomizer_GetSettingValue(RSK_SHUFFLE_ENTRANCES)) {
-        Entrance_OverrideWeatherState();
-    }
     Skybox_Init(&play->state, &play->skyboxCtx, skyboxId);
     Environment_Init(play, &play->envCtx, 0);
 }
@@ -1952,10 +1898,6 @@ void Play_SpawnScene(PlayState* play, s32 sceneNum, s32 spawn) {
     }
 
     OTRPlay_SpawnScene(play, sceneNum, spawn);
-
-    if (gSaveContext.n64ddFlag && Randomizer_GetSettingValue(RSK_SHUFFLE_ENTRANCES)) {
-        Entrance_OverrideSpawnScene(sceneNum, spawn);
-    }
 }
 
 void func_800C016C(PlayState* play, Vec3f* src, Vec3f* dest) {

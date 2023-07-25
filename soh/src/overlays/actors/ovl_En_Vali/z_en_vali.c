@@ -262,7 +262,6 @@ void EnVali_SetupDivideAndDie(EnVali* this, PlayState* play) {
     this->actor.flags &= ~ACTOR_FLAG_TARGETABLE;
     this->actor.draw = NULL;
     this->actionFunc = EnVali_DivideAndDie;
-    gSaveContext.sohStats.count[COUNT_ENEMIES_DEFEATED_BARI]++;
 }
 
 void EnVali_SetupStunned(EnVali* this) {

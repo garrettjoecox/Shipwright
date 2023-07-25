@@ -3,7 +3,6 @@
 #include "objects/gameplay_keep/gameplay_keep.h"
 #include "objects/object_oF1d_map/object_oF1d_map.h"
 #include "soh/frame_interpolation.h"
-#include "soh/Enhancements/randomizer/adult_trade_shuffle.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_FRIENDLY | ACTOR_FLAG_UPDATE_WHILE_CULLED | ACTOR_FLAG_DRAW_WHILE_CULLED)
 
@@ -967,22 +966,10 @@ void EnGo_GetItem(EnGo* this, PlayState* play) {
                 this->unk_20C = 1;
             }
             if (INV_CONTENT(ITEM_TRADE_ADULT) == ITEM_EYEDROPS) {
-                if (gSaveContext.n64ddFlag) {
-                    getItemEntry = Randomizer_GetItemFromKnownCheck(RC_DMT_TRADE_EYEDROPS, GI_CLAIM_CHECK);
-                    getItemId = getItemEntry.getItemId;
-                    Randomizer_ConsumeAdultTradeItem(play, ITEM_EYEDROPS);
-                } else {
-                    getItemId = GI_CLAIM_CHECK;
-                }
+                getItemId = GI_CLAIM_CHECK;
             }
             if (INV_CONTENT(ITEM_TRADE_ADULT) == ITEM_SWORD_BROKEN) {
-                if (gSaveContext.n64ddFlag) {
-                    getItemEntry = Randomizer_GetItemFromKnownCheck(RC_DMT_TRADE_BROKEN_SWORD, GI_PRESCRIPTION);
-                    Randomizer_ConsumeAdultTradeItem(play, ITEM_SWORD_BROKEN);
-                    getItemId = getItemEntry.getItemId;
-                } else {
-                    getItemId = GI_PRESCRIPTION;
-                }
+                getItemId = GI_PRESCRIPTION;
             }
         }
 

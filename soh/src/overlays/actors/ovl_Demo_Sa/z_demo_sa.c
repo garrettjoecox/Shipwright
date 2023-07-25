@@ -8,7 +8,6 @@
 #include "overlays/actors/ovl_En_Elf/z_en_elf.h"
 #include "overlays/actors/ovl_Door_Warp1/z_door_warp1.h"
 #include "objects/object_sa/object_sa.h"
-#include "soh/Enhancements/boss-rush/BossRush.h"
 
 #include "vt.h"
 
@@ -265,7 +264,6 @@ void func_8098E960(DemoSa* this, PlayState* play) {
             if (gSaveContext.linkAge == LINK_AGE_CHILD) {
                 player->actor.world.rot.y = player->actor.shape.rot.y = -5461 + 0x8000;
             }
-            BossRush_SpawnBlueWarps(play);
         }
     }
 }

@@ -11,7 +11,6 @@
 #include "objects/gameplay_keep/gameplay_keep.h"
 #include "soh_assets.h"
 #include "soh/Enhancements/game-interactor/GameInteractor.h"
-#include "soh/Enhancements/boss-rush/BossRush.h"
 #include "soh/Enhancements/custom-message/CustomMessageTypes.h"
 #include "soh/Enhancements/enhancementTypes.h"
 #include "soh/Enhancements/game-interactor/GameInteractor_Hooks.h"
@@ -19,7 +18,7 @@
 
 
 #define MIN_QUEST (ResourceMgr_GameHasOriginal() ? FS_QUEST_NORMAL : FS_QUEST_MASTER)
-#define MAX_QUEST FS_QUEST_BOSSRUSH
+#define MAX_QUEST (ResourceMgr_GameHasMasterQuest() ? FS_QUEST_MASTER : FS_QUEST_NORMAL)
 
 void Sram_InitDebugSave(void);
 void Sram_InitBossRushSave();
@@ -691,66 +690,6 @@ void FileChoose_UpdateBossRushMenu(GameState* thisx) {
         this->bossRushArrowOffset = 0;
     }
     
-    // Move menu selection up or down.
-    if (ABS(this->stickRelY) > 30 || (dpad && CHECK_BTN_ANY(input->press.button, BTN_DDOWN | BTN_DUP))) {
-        // Move down
-        if (this->stickRelY < -30 || (dpad && CHECK_BTN_ANY(input->press.button, BTN_DDOWN))) {
-            // When selecting past the last option, cycle back to the first option.
-            if ((this->bossRushIndex + 1) > BOSSRUSH_OPTIONS_AMOUNT - 1) {
-                this->bossRushIndex = 0;
-                this->bossRushOffset = 0;
-            } else {
-                this->bossRushIndex++;
-                // When last visible option is selected when moving down, offset the list down by one.
-                if (this->bossRushIndex - this->bossRushOffset > BOSSRUSH_MAX_OPTIONS_ON_SCREEN - 1) {
-                    this->bossRushOffset++;
-                }
-            }
-        } else if (this->stickRelY > 30 || (dpad && CHECK_BTN_ANY(input->press.button, BTN_DUP))) {
-            // When selecting past the first option, cycle back to the last option and offset the list to view it properly.
-            if ((this->bossRushIndex - 1) < 0) {
-                this->bossRushIndex = BOSSRUSH_OPTIONS_AMOUNT - 1;
-                this->bossRushOffset = this->bossRushIndex - BOSSRUSH_MAX_OPTIONS_ON_SCREEN + 1;
-            } else {
-                // When first visible option is selected when moving up, offset the list up by one.
-                if (this->bossRushIndex - this->bossRushOffset == 0) {
-                    this->bossRushOffset--;
-                }
-                this->bossRushIndex--;
-            }
-        }
-
-        Audio_PlaySoundGeneral(NA_SE_SY_FSEL_CURSOR, &D_801333D4, 4, &D_801333E0, &D_801333E0, &D_801333E8);
-    }
-
-    // Cycle through choices for currently selected option.
-    if (ABS(this->stickRelX) > 30 || (dpad && CHECK_BTN_ANY(input->press.button, BTN_DLEFT | BTN_DRIGHT))) {
-        if (this->stickRelX > 30 || (dpad && CHECK_BTN_ANY(input->press.button, BTN_DRIGHT))) {
-            // If exceeding the amount of choices for the selected option, cycle back to the first.
-            if ((gSaveContext.bossRushOptions[this->bossRushIndex] + 1) == BossRush_GetSettingOptionsAmount(this->bossRushIndex)) {
-                gSaveContext.bossRushOptions[this->bossRushIndex] = 0;
-            } else {
-                gSaveContext.bossRushOptions[this->bossRushIndex]++;
-            }
-        } else if (this->stickRelX < -30 || (dpad && CHECK_BTN_ANY(input->press.button, BTN_DLEFT))) {
-            // If cycling back when already at the first choice for the selected option, cycle back to the last choice.
-            if ((gSaveContext.bossRushOptions[this->bossRushIndex] - 1) < 0) {
-                gSaveContext.bossRushOptions[this->bossRushIndex] = BossRush_GetSettingOptionsAmount(this->bossRushIndex) - 1;
-            } else {
-                gSaveContext.bossRushOptions[this->bossRushIndex]--;
-            }
-        }
-
-        Audio_PlaySoundGeneral(NA_SE_SY_FSEL_CURSOR, &D_801333D4, 4, &D_801333E0, &D_801333E0, &D_801333E8);
-    }
-
-    if (sLastBossRushOptionIndex != this->bossRushIndex ||
-        sLastBossRushOptionValue != gSaveContext.bossRushOptions[this->bossRushIndex]) {
-        GameInteractor_ExecuteOnUpdateFileBossRushOptionSelection(this->bossRushIndex, gSaveContext.bossRushOptions[this->bossRushIndex]);
-        sLastBossRushOptionIndex = this->bossRushIndex;
-        sLastBossRushOptionValue = gSaveContext.bossRushOptions[this->bossRushIndex];
-    }
-
     if (CHECK_BTN_ALL(input->press.button, BTN_B)) {
         this->configMode = CM_BOSS_RUSH_TO_QUEST;
         return;
@@ -1632,50 +1571,7 @@ void FileChoose_DrawWindowContents(GameState* thisx) {
             gSPWideTextureRectangle(POLY_OPA_DISP++, arrowUpX << 2, arrowUpY << 2, (arrowUpX + 8) << 2,
                                     (arrowUpY + 8) << 2, G_TX_RENDERTILE, 0, 0, (1 << 11), (1 << 11));
         }
-        // Arrow down
-        if (BOSSRUSH_OPTIONS_AMOUNT - listOffset > BOSSRUSH_MAX_OPTIONS_ON_SCREEN) {
-            uint16_t arrowDownX = 140;
-            uint16_t arrowDownY = 181 + (this->bossRushArrowOffset / 10);
-            gDPLoadTextureBlock(POLY_OPA_DISP++, gArrowDownTex, G_IM_FMT_IA,
-                                G_IM_SIZ_16b, 16, 16, 0,
-                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                                G_TX_NOLOD, G_TX_NOLOD);
-            gSPWideTextureRectangle(POLY_OPA_DISP++, arrowDownX << 2, arrowDownY << 2, (arrowDownX + 8) << 2,
-                                    (arrowDownY + 8) << 2, G_TX_RENDERTILE, 0, 0, (1 << 11), (1 << 11));
-        }
-
-        // Draw options. There's more options than what fits on the screen, so the visible options
-        // depend on the current offset of the list. Currently selected option pulses in
-        // color and has arrows surrounding the option.
-        for (uint8_t i = listOffset; i - listOffset < BOSSRUSH_MAX_OPTIONS_ON_SCREEN; i++) {
-            uint16_t textYOffset = (i - listOffset) * 16;
-
-            // Option name.
-            Interface_DrawTextLine(this->state.gfxCtx, BossRush_GetSettingName(i, gSaveContext.language), 
-                65, (87 + textYOffset), 255, 255, 80, textAlpha, 0.8f, true);
-
-            // Selected choice for option.
-            uint16_t finalKerning = Interface_DrawTextLine(this->state.gfxCtx, BossRush_GetSettingChoiceName(i, gSaveContext.bossRushOptions[i], gSaveContext.language), 
-                165, (87 + textYOffset), 255, 255, 255, textAlpha, 0.8f, true);
-
-            // Draw arrows around selected option.
-            if (this->bossRushIndex == i) {
-                Gfx_SetupDL_39Opa(this->state.gfxCtx);
-                gDPSetCombineMode(POLY_OPA_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
-                gDPLoadTextureBlock(POLY_OPA_DISP++, gArrowCursorTex, G_IM_FMT_IA, G_IM_SIZ_8b, 16, 24, 0,
-                                    G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, 4, G_TX_NOMASK, G_TX_NOLOD,
-                                    G_TX_NOLOD);
-                FileChoose_DrawTextRec(this->state.gfxCtx, this->stickLeftPrompt.arrowColorR,
-                                       this->stickLeftPrompt.arrowColorG, this->stickLeftPrompt.arrowColorB,
-                                       textAlpha, 160, (92 + textYOffset), 0.42f, 0, 0, -1.0f,
-                                       1.0f);
-                FileChoose_DrawTextRec(this->state.gfxCtx, this->stickRightPrompt.arrowColorR,
-                                       this->stickRightPrompt.arrowColorG, this->stickRightPrompt.arrowColorB,
-                                       textAlpha, (171 + finalKerning),
-                                       (92 + textYOffset), 0.42f, 0, 0, 1.0f, 1.0f);
-            }
-        }
-
+       
     } else if (this->configMode != CM_ROTATE_TO_NAME_ENTRY && this->configMode != CM_START_BOSS_RUSH_MENU &&
                this->configMode != CM_ROTATE_TO_BOSS_RUSH_MENU && this->configMode != CM_BOSS_RUSH_TO_QUEST) {
         gDPPipeSync(POLY_OPA_DISP++);
@@ -2368,20 +2264,6 @@ void FileChoose_LoadGame(GameState* thisx) {
             swordEquipMask = BOMSWAP16(gEquipMasks[EQUIP_SWORD]) & gSaveContext.equips.equipment;
             gSaveContext.equips.equipment &= gEquipNegMasks[EQUIP_SWORD];
             gSaveContext.inventory.equipment ^= (gBitFlags[swordEquipMask - 1] << BOMSWAP16(gEquipShifts[EQUIP_SWORD]));
-        }
-    }
-
-    if (gSaveContext.n64ddFlag) {
-        // Setup the modified entrance table and entrance shuffle table for rando
-        Entrance_Init();
-
-        // Handle randomized spawn positions after the save context has been setup from load
-        // When remeber save location is on, set save warp if the save was in an a grotto, or
-        // the entrance index is -1 from shuffle overwarld spawn
-        if (Randomizer_GetSettingValue(RSK_SHUFFLE_ENTRANCES) && ((!CVarGetInteger("gRememberSaveLocation", 0) ||
-            gSaveContext.savedSceneNum == SCENE_YOUSEI_IZUMI_TATE || gSaveContext.savedSceneNum == SCENE_KAKUSIANA) ||
-            (CVarGetInteger("gRememberSaveLocation", 0) && Randomizer_GetSettingValue(RSK_SHUFFLE_OVERWORLD_SPAWNS) && gSaveContext.entranceIndex == -1))) {
-            Entrance_SetSavewarpEntrance();
         }
     }
 
