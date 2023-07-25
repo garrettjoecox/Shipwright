@@ -156,7 +156,7 @@ void func_80A7C058(EnInsect* this) {
         return;
     }
 
-    Audio_PlayActorSound2(&this->actor, NA_SE_EN_MUSI_WALK);
+    Actor_PlaySfx(&this->actor, NA_SE_EN_MUSI_WALK);
 
     this->unk_31E = 3.0f / CLAMP_MIN(this->skelAnime.playSpeed, 0.1f);
     if (this->unk_31E < 2) {
@@ -397,7 +397,7 @@ void func_80A7CBC8(EnInsect* this) {
     this->unk_31A = 60;
     func_80A7BF58(this);
     this->skelAnime.playSpeed = 1.9f;
-    Audio_PlayActorSound2(&this->actor, NA_SE_EN_MUSI_SINK);
+    Actor_PlaySfx(&this->actor, NA_SE_EN_MUSI_SINK);
     Math_Vec3f_Copy(&this->actor.home.pos, &this->actor.world.pos);
     this->actionFunc = func_80A7CC3C;
     this->unk_314 &= ~0x100;
@@ -667,7 +667,7 @@ void func_80A7D460(EnInsect* this, PlayState* play) {
 
     SkelAnime_Update(&this->skelAnime);
     if (!(this->unk_314 & 0x40) && (this->unk_314 & 1) && (this->actor.bgCheckFlags & 1)) {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_MUSI_LAND);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_MUSI_LAND);
         this->unk_314 |= 0x40;
     }
 
@@ -737,7 +737,7 @@ void EnInsect_Update(Actor* thisx, PlayState* play) {
     this->actionFunc(this, play);
 
     if (this->actor.update != NULL) {
-        Actor_MoveForward(&this->actor);
+        Actor_MoveXZGravity(&this->actor);
         if (this->unk_314 & 0x100) {
             if (this->unk_314 & 1) {
                 if (this->actor.bgCheckFlags & 1) {
@@ -779,7 +779,7 @@ void EnInsect_Update(Actor* thisx, PlayState* play) {
 
             if (!(this->unk_314 & 8) && D_80A7DEB4 < 4 && EnInsect_InBottleRange(this, play) &&
                 // GI_MAX in this case allows the player to catch the actor in a bottle
-                func_8002F434(&this->actor, play, GI_MAX, 60.0f, 30.0f)) {
+                Actor_OfferGetItem(&this->actor, play, GI_MAX, 60.0f, 30.0f)) {
                 D_80A7DEB4++;
             }
         }

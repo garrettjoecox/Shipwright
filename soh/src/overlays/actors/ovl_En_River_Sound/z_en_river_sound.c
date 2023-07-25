@@ -172,7 +172,7 @@ void EnRiverSound_Update(Actor* thisx, PlayState* play) {
     s32 sp34;
 
     if ((thisx->params == RS_UNK_0) || (thisx->params == RS_UNK_4) || (thisx->params == RS_UNK_5)) {
-        path = &play->setupPathList[this->pathIndex];
+        path = &play->pathList[this->pathIndex];
         pos = &thisx->world.pos;
 
         if (EnRiverSound_GetSoundPos(SEGMENTED_TO_VIRTUAL(path->points), path->count, &player->actor.world.pos, pos)) {
@@ -199,7 +199,7 @@ void EnRiverSound_Update(Actor* thisx, PlayState* play) {
         }
     } else if ((thisx->params == RS_UNK_13) || (thisx->params == RS_UNK_19)) {
         func_8002DBD0(&player->actor, &thisx->home.pos, &thisx->world.pos);
-    } else if (play->sceneNum == SCENE_DDAN_BOSS && Flags_GetClear(play, thisx->room)) {
+    } else if (play->sceneId == SCENE_DODONGOS_CAVERN_BOSS && Flags_GetClear(play, thisx->room)) {
         Actor_Kill(thisx);
     }
 }
@@ -236,7 +236,7 @@ void EnRiverSound_Draw(Actor* thisx, PlayState* play) {
         this->playSound = true;
     } else if ((this->actor.params == RS_UNK_0) || (this->actor.params == RS_UNK_4) ||
                (this->actor.params == RS_UNK_5)) {
-        Audio_PlaySoundRiver(&this->actor.projectedPos, soundPitch[this->soundPitchIndex]);
+        Audio_PlaySfxRiver(&this->actor.projectedPos, soundPitch[this->soundPitchIndex]);
     } else if (this->actor.params == RS_UNK_11) {
         func_800F4A54(90);
     } else if (this->actor.params == RS_SARIAS_SONG) {
@@ -249,6 +249,6 @@ void EnRiverSound_Draw(Actor* thisx, PlayState* play) {
                (this->actor.params == RS_CHAMBER_OF_SAGES_2) || (this->actor.params == RS_RUMBLING)) {
         func_800788CC(soundEffects[this->actor.params]);
     } else {
-        Audio_PlayActorSound2(&this->actor, soundEffects[this->actor.params]);
+        Actor_PlaySfx(&this->actor, soundEffects[this->actor.params]);
     }
 }

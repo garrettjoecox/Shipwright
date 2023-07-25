@@ -88,7 +88,7 @@ void EnZl1_Init(Actor* thisx, PlayState* play) {
     ActorShape_Init(&this->actor.shape, 0.0f, ActorShadow_DrawCircle, 24.0f);
     this->actor.targetMode = 0;
 
-    if (gSaveContext.sceneSetupIndex >= 4) {
+    if (gSaveContext.sceneLayer >= 4) {
         frameCount = Animation_GetLastFrame(&gChildZelda1Anim_00438);
         Animation_Change(&this->skelAnime, &gChildZelda1Anim_00438, 1.0f, 0.0f, frameCount, ANIMMODE_LOOP, 0.0f);
         this->unk_1E6 = 0;
@@ -140,7 +140,7 @@ void func_80B4AF18(EnZl1* this, PlayState* play) {
     Player* player = GET_PLAYER(play);
     s32 pad;
 
-    func_80038290(play, &this->actor, &this->unk_200, &this->unk_206, this->actor.focus.pos);
+    Actor_TrackPlayer(play, &this->actor, &this->unk_200, &this->unk_206, this->actor.focus.pos);
 
     if (this->unk_1E6 != 0) {
         if (Actor_TextboxIsClosing(&this->actor, play)) {
@@ -180,8 +180,8 @@ void func_80B4B010(EnZl1* this, PlayState* play) {
         play->envCtx.fillScreen = true;
         Play_CameraSetAtEye(play, this->unk_1E8, &vec1, &vec2);
         Play_CameraSetFov(play, this->unk_1E8, 30.0f);
-        ShrinkWindow_SetVal(0x20);
-        Interface_ChangeAlpha(2);
+        Letterbox_SetSizeTarget(0x20);
+        Interface_ChangeHudVisibilityMode(2);
         player->actor.world.pos = playerPos;
         player->actor.speedXZ = 0.0f;
         this->unk_1E2 = 0;
@@ -328,7 +328,7 @@ void func_80B4B240(EnZl1* this, PlayState* play) {
         frameCount = Animation_GetLastFrame(animHeaderSeg);
         Animation_Change(&this->skelAnime, animHeaderSeg, 1.0f, 0.0f, frameCount, sp54[sp3C], -10.0f);
     }
-    func_80038290(play, &this->actor, &this->unk_200, &this->unk_206, this->actor.focus.pos);
+    Actor_TrackPlayer(play, &this->actor, &this->unk_200, &this->unk_206, this->actor.focus.pos);
 }
 
 void func_80B4B7F4(CsCmdActorAction* npcAction, Vec3f* pos) {
@@ -409,7 +409,7 @@ void func_80B4B8B4(EnZl1* this, PlayState* play) {
             }
             this->actor.velocity.z = (sp68.z - sp74.z) / actionLength;
         }
-        func_80038290(play, &this->actor, &this->unk_200, &this->unk_206, this->actor.focus.pos);
+        Actor_TrackPlayer(play, &this->actor, &this->unk_200, &this->unk_206, this->actor.focus.pos);
         Play_CameraSetAtEye(play, this->unk_1E8, &sp98, &sp8C);
         Play_CameraSetFov(play, this->unk_1E8, 70.0f);
     }
@@ -422,7 +422,7 @@ void func_80B4BBC4(EnZl1* this, PlayState* play) {
 
     Animation_Change(&this->skelAnime, &gChildZelda1Anim_00438, 1.0f, 0.0f, frameCount, ANIMMODE_LOOP, 0.0f);
     func_8002DF54(play, &this->actor, 1);
-    func_8002F7DC(&player->actor, NA_SE_VO_LI_SURPRISE_KID);
+    Player_PlaySfx(&player->actor, NA_SE_VO_LI_SURPRISE_KID);
     this->actor.textId = 0x7039;
     Message_StartTextbox(play, this->actor.textId, NULL);
     this->unk_1E2 = 0;
@@ -510,7 +510,7 @@ void func_80B4BF2C(EnZl1* this, PlayState* play) {
             if ((Message_GetState(msgCtx) == TEXT_STATE_EVENT) && Message_ShouldAdvance(play)) {
                 this->actor.textId = 0xFFFF;
                 play->talkWithPlayer(play, &this->actor);
-                func_8002F434(&this->actor, play, GI_LETTER_ZELDA, 120.0f, 10.0f);
+                Actor_OfferGetItem(&this->actor, play, GI_ZELDAS_LETTER, 120.0f, 10.0f);
                 play->msgCtx.msgMode = MSGMODE_TEXT_CLOSING;
                 play->msgCtx.stateTimer = 4;
                 this->unk_1E2++;
@@ -525,7 +525,7 @@ void func_80B4BF2C(EnZl1* this, PlayState* play) {
                 this->actor.parent = NULL;
                 this->unk_1E2++;
             } else {
-                func_8002F434(&this->actor, play, GI_LETTER_ZELDA, 120.0f, 10.0f);
+                Actor_OfferGetItem(&this->actor, play, GI_ZELDAS_LETTER, 120.0f, 10.0f);
             }
             break;
         case 3:
@@ -555,13 +555,13 @@ void func_80B4BF2C(EnZl1* this, PlayState* play) {
         case 6:
             if (Actor_TextboxIsClosing(&this->actor, play)) {
                 func_8002DF54(play, &this->actor, 7);
-                Interface_ChangeAlpha(50);
+                Interface_ChangeHudVisibilityMode(50);
                 this->actor.flags &= ~ACTOR_FLAG_PLAYER_TALKED_TO;
                 this->unk_1E2 = 4;
             }
             break;
     }
-    func_80038290(play, &this->actor, &this->unk_200, &this->unk_206, this->actor.focus.pos);
+    Actor_TrackPlayer(play, &this->actor, &this->unk_200, &this->unk_206, this->actor.focus.pos);
 }
 
 void EnZl1_Update(Actor* thisx, PlayState* play) {

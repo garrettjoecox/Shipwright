@@ -105,7 +105,7 @@ void EnNb_UpdatePath(EnNb* this, PlayState* play) {
     s32 pad;
     s32 path;
 
-    pathList = play->setupPathList;
+    pathList = play->pathList;
 
     if (pathList != NULL) {
         path = EnNb_GetPath(this);
@@ -337,7 +337,7 @@ void EnNb_SetupChamberCsImpl(EnNb* this, PlayState* play) {
     s32 pad[2];
     Player* player;
 
-    if ((gSaveContext.chamberCutsceneNum == 3) && (gSaveContext.sceneSetupIndex < 4)) {
+    if ((gSaveContext.chamberCutsceneNum == 3) && (gSaveContext.sceneLayer < 4)) {
         player = GET_PLAYER(play);
         this->action = NB_CHAMBER_UNDERGROUND;
         play->csCtx.segment = &D_80AB431C;

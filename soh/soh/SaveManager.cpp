@@ -222,7 +222,7 @@ void SaveManager::InitFileNormal() {
     }
     gSaveContext.adultEquips.equipment = 0;
     gSaveContext.unk_54 = 0;
-    gSaveContext.savedSceneNum = 0x34;
+    gSaveContext.savedSceneId = 0x34;
 
     // Equipment
     for (int button = 0; button < ARRAY_COUNT(gSaveContext.equips.buttonItems); button++) {
@@ -308,7 +308,7 @@ void SaveManager::InitFileNormal() {
         gSaveContext.scarecrowSpawnSong[i].semitone = 0;
     }
 
-    gSaveContext.horseData.scene = SCENE_SPOT00;
+    gSaveContext.horseData.scene = SCENE_HYRULE_FIELD;
     gSaveContext.horseData.pos.x = -1840;
     gSaveContext.horseData.pos.y = 72;
     gSaveContext.horseData.pos.z = 5497;
@@ -361,7 +361,7 @@ void SaveManager::InitFileDebug() {
     }
     gSaveContext.adultEquips.equipment = 0;
     gSaveContext.unk_54 = 0;
-    gSaveContext.savedSceneNum = 0x51;
+    gSaveContext.savedSceneId = 0x51;
 
     // Equipment
     static std::array<u8, 8> sButtonItems = { ITEM_SWORD_MASTER, ITEM_BOW, ITEM_BOMB, ITEM_OCARINA_FAIRY, ITEM_NONE, ITEM_NONE, ITEM_NONE, ITEM_NONE };
@@ -376,10 +376,10 @@ void SaveManager::InitFileDebug() {
 
     // Inventory
     static std::array<u8, 24> sItems = {
-        ITEM_STICK,     ITEM_NUT,           ITEM_BOMB,         ITEM_BOW,         ITEM_ARROW_FIRE,  ITEM_DINS_FIRE,
+        ITEM_DEKU_STICK,     ITEM_DEKU_NUT,           ITEM_BOMB,         ITEM_BOW,         ITEM_ARROW_FIRE,  ITEM_DINS_FIRE,
         ITEM_SLINGSHOT, ITEM_OCARINA_FAIRY, ITEM_BOMBCHU,      ITEM_HOOKSHOT,    ITEM_ARROW_ICE,   ITEM_FARORES_WIND,
-        ITEM_BOOMERANG, ITEM_LENS,          ITEM_BEAN,         ITEM_HAMMER,      ITEM_ARROW_LIGHT, ITEM_NAYRUS_LOVE,
-        ITEM_BOTTLE,    ITEM_POTION_RED,    ITEM_POTION_GREEN, ITEM_POTION_BLUE, ITEM_POCKET_EGG,  ITEM_WEIRD_EGG,
+        ITEM_BOOMERANG, ITEM_LENS_OF_TRUTH,          ITEM_MAGIC_BEAN,         ITEM_HAMMER,      ITEM_ARROW_LIGHT, ITEM_NAYRUS_LOVE,
+        ITEM_BOTTLE_EMPTY,    ITEM_BOTTLE_POTION_RED,    ITEM_BOTTLE_POTION_GREEN, ITEM_BOTTLE_POTION_BLUE, ITEM_POCKET_EGG,  ITEM_WEIRD_EGG,
     };
     for (int item = 0; item < ARRAY_COUNT(gSaveContext.inventory.items); item++) {
         gSaveContext.inventory.items[item] = sItems[item];
@@ -401,7 +401,7 @@ void SaveManager::InitFileDebug() {
     gSaveContext.inventory.defenseHearts = 0;
     gSaveContext.inventory.gsTokens = 0;
 
-    gSaveContext.horseData.scene = SCENE_SPOT00;
+    gSaveContext.horseData.scene = SCENE_HYRULE_FIELD;
     gSaveContext.horseData.pos.x = -1840;
     gSaveContext.horseData.pos.y = 72;
     gSaveContext.horseData.pos.z = 5497;
@@ -414,11 +414,11 @@ void SaveManager::InitFileDebug() {
 
     if (LINK_AGE_IN_YEARS == YEARS_CHILD) {
         gSaveContext.equips.buttonItems[0] = ITEM_SWORD_KOKIRI;
-        Inventory_ChangeEquipment(EQUIP_SWORD, 1);
+        Inventory_ChangeEquipment(EQUIP_TYPE_SWORD, 1);
         if (gSaveContext.fileNum == 0xFF) {
             gSaveContext.equips.buttonItems[1] = ITEM_SLINGSHOT;
             gSaveContext.equips.cButtonSlots[0] = SLOT_SLINGSHOT;
-            Inventory_ChangeEquipment(EQUIP_SHIELD, 1);
+            Inventory_ChangeEquipment(EQUIP_TYPE_SHIELD, 1);
         }
     }
 
@@ -699,7 +699,7 @@ void SaveManager::LoadBaseVersion1() {
         SaveManager::Instance->LoadData("equipment", gSaveContext.adultEquips.equipment);
     });
     SaveManager::Instance->LoadData("unk_54", gSaveContext.unk_54);
-    SaveManager::Instance->LoadData("savedSceneNum", gSaveContext.savedSceneNum);
+    SaveManager::Instance->LoadData("savedSceneId", gSaveContext.savedSceneId);
     SaveManager::Instance->LoadStruct("equips", []() {
         SaveManager::Instance->LoadArray("buttonItems", ARRAY_COUNT(gSaveContext.equips.buttonItems), [](size_t i) {
             SaveManager::Instance->LoadData("", gSaveContext.equips.buttonItems[i], static_cast<uint8_t>(ITEM_NONE));
@@ -840,7 +840,7 @@ void SaveManager::LoadBaseVersion2() {
         SaveManager::Instance->LoadData("equipment", gSaveContext.adultEquips.equipment);
     });
     SaveManager::Instance->LoadData("unk_54", gSaveContext.unk_54);
-    SaveManager::Instance->LoadData("savedSceneNum", gSaveContext.savedSceneNum);
+    SaveManager::Instance->LoadData("savedSceneId", gSaveContext.savedSceneId);
     SaveManager::Instance->LoadStruct("equips", []() {
         SaveManager::Instance->LoadArray("buttonItems", ARRAY_COUNT(gSaveContext.equips.buttonItems), [](size_t i) {
             SaveManager::Instance->LoadData("", gSaveContext.equips.buttonItems[i], static_cast<uint8_t>(ITEM_NONE));
@@ -1048,7 +1048,7 @@ void SaveManager::LoadBaseVersion3() {
         SaveManager::Instance->LoadData("equipment", gSaveContext.adultEquips.equipment);
     });
     SaveManager::Instance->LoadData("unk_54", gSaveContext.unk_54);
-    SaveManager::Instance->LoadData("savedSceneNum", gSaveContext.savedSceneNum);
+    SaveManager::Instance->LoadData("savedSceneId", gSaveContext.savedSceneId);
     SaveManager::Instance->LoadStruct("equips", []() {
         SaveManager::Instance->LoadArray("buttonItems", ARRAY_COUNT(gSaveContext.equips.buttonItems), [](size_t i) {
             SaveManager::Instance->LoadData("", gSaveContext.equips.buttonItems[i], static_cast<uint8_t>(ITEM_NONE));
@@ -1266,7 +1266,7 @@ void SaveManager::LoadBaseVersion4() {
         SaveManager::Instance->LoadData("equipment", gSaveContext.adultEquips.equipment);
     });
     SaveManager::Instance->LoadData("unk_54", gSaveContext.unk_54);
-    SaveManager::Instance->LoadData("savedSceneNum", gSaveContext.savedSceneNum);
+    SaveManager::Instance->LoadData("savedSceneId", gSaveContext.savedSceneId);
     SaveManager::Instance->LoadStruct("equips", []() {
         SaveManager::Instance->LoadArray("buttonItems", ARRAY_COUNT(gSaveContext.equips.buttonItems), [](size_t i) {
             SaveManager::Instance->LoadData("", gSaveContext.equips.buttonItems[i], static_cast<uint8_t>(ITEM_NONE));
@@ -1435,7 +1435,7 @@ void SaveManager::SaveBase(SaveContext* saveContext, int sectionID, bool fullSav
         SaveManager::Instance->SaveData("equipment", saveContext->adultEquips.equipment);
     });
     SaveManager::Instance->SaveData("unk_54", saveContext->unk_54);
-    SaveManager::Instance->SaveData("savedSceneNum", saveContext->savedSceneNum);
+    SaveManager::Instance->SaveData("savedSceneId", saveContext->savedSceneId);
     SaveManager::Instance->SaveStruct("equips", [&]() {
         SaveManager::Instance->SaveArray("buttonItems", ARRAY_COUNT(saveContext->equips.buttonItems), [&](size_t i) {
             SaveManager::Instance->SaveData("", saveContext->equips.buttonItems[i]);
@@ -1804,7 +1804,7 @@ typedef struct {
     /* 0x004A */ ItemEquips_v0 adultEquips;
     /* 0x0054 */ u32 unk_54; // this may be incorrect, currently used for alignement
     /* 0x0058 */ char unk_58[0x0E];
-    /* 0x0066 */ s16 savedSceneNum;
+    /* 0x0066 */ s16 savedSceneId;
     /* 0x0068 */ ItemEquips_v0 equips;
     /* 0x0074 */ Inventory_v0 inventory;
     /* 0x00D4 */ SavedSceneFlags_v0 sceneFlags[124];
@@ -1830,7 +1830,7 @@ typedef struct {
     /* 0x1354 */ s32 fileNum;  // "file_no"
     /* 0x1358 */ char unk_1358[0x0004];
     /* 0x135C */ s32 gameMode;
-    /* 0x1360 */ s32 sceneSetupIndex;
+    /* 0x1360 */ s32 sceneLayer;
     /* 0x1364 */ s32 respawnFlag;           // "restart_flag"
     /* 0x1368 */ RespawnData_v0 respawn[3]; // "restart_data"
     /* 0x13BC */ f32 entranceSpeed;
@@ -1930,7 +1930,7 @@ void CopyV0Save(SaveContext_v0& src, SaveContext& dst) {
     }
     dst.adultEquips.equipment = src.adultEquips.equipment;
     dst.unk_54 = src.unk_54;
-    dst.savedSceneNum = src.savedSceneNum;
+    dst.savedSceneId = src.savedSceneId;
     for (size_t i = 0; i < ARRAY_COUNT(src.equips.buttonItems); i++) {
         dst.equips.buttonItems[i] = src.equips.buttonItems[i];
     }

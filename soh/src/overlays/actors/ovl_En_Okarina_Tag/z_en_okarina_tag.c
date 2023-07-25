@@ -127,7 +127,7 @@ void func_80ABEF2C(EnOkarinaTag* this, PlayState* play) {
                         ocarinaSong = 0xA;
                     }
                     player->stateFlags2 |= 0x800000;
-                    func_8010BD58(play, ocarinaSong + OCARINA_ACTION_CHECK_SARIA);
+                    Message_StartOcarina(play, ocarinaSong + OCARINA_ACTION_CHECK_SARIA);
                     this->actionFunc = func_80ABF0CC;
                 } else if ((this->actor.xzDistToPlayer < (50.0f + this->interactRange) &&
                             ((fabsf(player->actor.world.pos.y - this->actor.world.pos.y) < 40.0f)))) {
@@ -149,10 +149,10 @@ void func_80ABF0CC(EnOkarinaTag* this, PlayState* play) {
             if (this->switchFlag >= 0) {
                 Flags_SetSwitch(play, this->switchFlag);
             }
-            if (play->sceneNum == SCENE_MIZUSIN) {
+            if (play->sceneId == SCENE_WATER_TEMPLE) {
                 play->msgCtx.msgMode = MSGMODE_PAUSED;
             }
-            if ((play->sceneNum != SCENE_DAIYOUSEI_IZUMI) && (play->sceneNum != SCENE_YOUSEI_IZUMI_YOKO)) {
+            if ((play->sceneId != SCENE_GREAT_FAIRYS_FOUNTAIN_MAGIC) && (play->sceneId != SCENE_GREAT_FAIRYS_FOUNTAIN_SPELLS)) {
                 play->msgCtx.ocarinaMode = OCARINA_MODE_04;
             }
             func_80078884(NA_SE_SY_CORRECT_CHIME);
@@ -199,16 +199,16 @@ void func_80ABF28C(EnOkarinaTag* this, PlayState* play) {
             if (player->stateFlags2 & 0x1000000) {
                 switch (this->type) {
                     case 1:
-                        func_8010BD58(play, OCARINA_ACTION_CHECK_LULLABY);
+                        Message_StartOcarina(play, OCARINA_ACTION_CHECK_LULLABY);
                         break;
                     case 2:
-                        func_8010BD58(play, OCARINA_ACTION_CHECK_STORMS);
+                        Message_StartOcarina(play, OCARINA_ACTION_CHECK_STORMS);
                         break;
                     case 4:
-                        func_8010BD58(play, OCARINA_ACTION_CHECK_TIME);
+                        Message_StartOcarina(play, OCARINA_ACTION_CHECK_TIME);
                         break;
                     case 6:
-                        func_8010BD58(play, OCARINA_ACTION_CHECK_LULLABY);
+                        Message_StartOcarina(play, OCARINA_ACTION_CHECK_LULLABY);
                         break;
                     default:
                         // "Ocarina Invisible-kun demo start check error source"
@@ -258,7 +258,7 @@ void func_80ABF4C8(EnOkarinaTag* this, PlayState* play) {
             case 4:
                 if (gSaveContext.n64ddFlag) {
                     if (Randomizer_GetSettingValue(RSK_DOOR_OF_TIME) == RO_DOOROFTIME_CLOSED &&
-                        (INV_CONTENT(ITEM_OCARINA_FAIRY) != ITEM_OCARINA_TIME ||
+                        (INV_CONTENT(ITEM_OCARINA_FAIRY) != ITEM_OCARINA_OF_TIME ||
                          !CHECK_QUEST_ITEM(QUEST_KOKIRI_EMERALD) || !CHECK_QUEST_ITEM(QUEST_GORON_RUBY) ||
                          !CHECK_QUEST_ITEM(QUEST_ZORA_SAPPHIRE))) {
                         func_80078884(NA_SE_SY_OCARINA_ERROR);
@@ -325,7 +325,7 @@ void func_80ABF708(EnOkarinaTag* this, PlayState* play) {
 
 void GivePlayerRandoRewardSunSong(EnOkarinaTag* song, PlayState* play, RandomizerCheck check) {
     Flags_SetTreasure(play, 0x1F);
-    GetItemEntry getItemEntry = Randomizer_GetItemFromKnownCheck(check, GI_LETTER_ZELDA);
+    GetItemEntry getItemEntry = Randomizer_GetItemFromKnownCheck(check, GI_ZELDAS_LETTER);
     GiveItemEntryFromActor(&song->actor, play, getItemEntry, 10000.0f, 100.0f);
 }
 

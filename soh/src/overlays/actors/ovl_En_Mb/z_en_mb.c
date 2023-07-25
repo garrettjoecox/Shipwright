@@ -351,7 +351,7 @@ void EnMb_NextWaypoint(EnMb* this, PlayState* play) {
     Path* path;
     Vec3s* waypointPos;
 
-    path = &play->setupPathList[this->path];
+    path = &play->pathList[this->path];
 
     if (this->waypoint == 0) {
         this->direction = 1;
@@ -407,7 +407,7 @@ s32 EnMb_IsPlayerInCorridor(EnMb* this, PlayState* play) {
 }
 
 void EnMb_FindWaypointTowardsPlayer(EnMb* this, PlayState* play) {
-    Path* path = &play->setupPathList[this->path];
+    Path* path = &play->pathList[this->path];
     s16 yawToWaypoint;
     Vec3f waypointPosF;
     Vec3s* waypointPosS;
@@ -487,7 +487,7 @@ void EnMb_SetupSpearPrepareAndCharge(EnMb* this) {
     this->state = ENMB_STATE_ATTACK;
     this->actor.speedXZ = 0.0f;
     this->timer3 = (s16)frameCount + 6;
-    Audio_PlayActorSound2(&this->actor, NA_SE_EN_MORIBLIN_SPEAR_AT);
+    Actor_PlaySfx(&this->actor, NA_SE_EN_MORIBLIN_SPEAR_AT);
     if (this->actor.params == ENMB_TYPE_SPEAR_GUARD) {
         EnMb_SetupAction(this, EnMb_SpearGuardPrepareAndCharge);
     } else {
@@ -497,7 +497,7 @@ void EnMb_SetupSpearPrepareAndCharge(EnMb* this) {
 
 void EnMb_SetupSpearPatrolImmediateCharge(EnMb* this) {
     Animation_PlayLoop(&this->skelAnime, &gEnMbSpearChargeAnim);
-    Audio_PlayActorSound2(&this->actor, NA_SE_EN_MORIBLIN_ATTACK);
+    Actor_PlaySfx(&this->actor, NA_SE_EN_MORIBLIN_ATTACK);
     this->attack = ENMB_ATTACK_SPEAR;
     this->state = ENMB_STATE_ATTACK;
     this->timer3 = 3;
@@ -537,7 +537,7 @@ void EnMb_SetupSpearEndChargeQuick(EnMb* this) {
     this->state = ENMB_STATE_ATTACK_END;
     this->timer1 = 0;
     this->timer3 = 5;
-    Audio_PlayActorSound2(&this->actor, NA_SE_EN_MORIBLIN_SLIDE);
+    Actor_PlaySfx(&this->actor, NA_SE_EN_MORIBLIN_SLIDE);
     EnMb_SetupAction(this, EnMb_SpearEndChargeQuick);
 }
 
@@ -549,7 +549,7 @@ void EnMb_SetupSpearPatrolEndCharge(EnMb* this) {
     this->timer3 = 50;
     this->actor.speedXZ = -8.0f;
     this->actor.velocity.y = 6.0f;
-    Audio_PlayActorSound2(&this->actor, NA_SE_EN_MORIBLIN_SLIDE);
+    Actor_PlaySfx(&this->actor, NA_SE_EN_MORIBLIN_SLIDE);
     EnMb_SetupAction(this, EnMb_SpearPatrolEndCharge);
 }
 
@@ -567,7 +567,7 @@ void EnMb_SetupClubDamaged(EnMb* this) {
     this->state = ENMB_STATE_CLUB_KNEELING;
     this->timer1 = 0;
     this->timer3 = 20;
-    Audio_PlayActorSound2(&this->actor, NA_SE_EN_MORIBLIN_DEAD);
+    Actor_PlaySfx(&this->actor, NA_SE_EN_MORIBLIN_DEAD);
     EnMb_SetupAction(this, EnMb_ClubDamaged);
 }
 
@@ -589,7 +589,7 @@ void EnMb_SetupClubDead(EnMb* this) {
     this->hitbox.dim.radius = 95;
     this->timer1 = 30;
     this->actor.speedXZ = 0.0f;
-    Audio_PlayActorSound2(&this->actor, NA_SE_EN_MORIBLIN_DEAD);
+    Actor_PlaySfx(&this->actor, NA_SE_EN_MORIBLIN_DEAD);
     EnMb_SetupAction(this, EnMb_ClubDead);
 }
 
@@ -603,7 +603,7 @@ void EnMb_SetupStunned(EnMb* this) {
         if (this->actor.params != ENMB_TYPE_CLUB) {
             Animation_PlayOnceSetSpeed(&this->skelAnime, &gEnMbSpearDamagedFromFrontAnim, 0.0f);
         }
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_GOMA_JR_FREEZE);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_GOMA_JR_FREEZE);
     }
     EnMb_SetupAction(this, EnMb_Stunned);
 }
@@ -674,7 +674,7 @@ void EnMb_SpearPatrolTurnTowardsWaypoint(EnMb* this, PlayState* play) {
         relYawFromPlayer = this->actor.shape.rot.y - this->actor.yawTowardsPlayer;
         if (ABS(relYawFromPlayer) <= 0x4000 || (func_8002DDE4(play) && this->actor.xzDistToPlayer < 160.0f)) {
             EnMb_FindWaypointTowardsPlayer(this, play);
-            Audio_PlayActorSound2(&this->actor, NA_SE_EN_MORIBLIN_VOICE);
+            Actor_PlaySfx(&this->actor, NA_SE_EN_MORIBLIN_VOICE);
             EnMb_SetupSpearPrepareAndCharge(this);
         }
     }
@@ -699,7 +699,7 @@ void EnMb_SpearEndChargeQuick(EnMb* this, PlayState* play) {
                                  Animation_GetLastFrame(&gEnMbSpearPrepareChargeAnim), 0.0f, ANIMMODE_ONCE, 0.0f);
                 this->timer1 = 1;
                 this->actor.speedXZ = 0.0f;
-                Audio_PlayActorSound2(&this->actor, NA_SE_EN_MORIBLIN_SPEAR_NORM);
+                Actor_PlaySfx(&this->actor, NA_SE_EN_MORIBLIN_SPEAR_NORM);
             }
         } else {
             if (this->actor.params <= ENMB_TYPE_SPEAR_GUARD) {
@@ -764,7 +764,7 @@ void EnMb_SpearPatrolEndCharge(EnMb* this, PlayState* play) {
                     Animation_Change(&this->skelAnime, &gEnMbSpearPrepareChargeAnim, -1.0f, lastFrame, 0.0f,
                                      ANIMMODE_ONCE, 0.0f);
                     this->actor.speedXZ = 0.0f;
-                    Audio_PlayActorSound2(&this->actor, NA_SE_EN_MORIBLIN_SPEAR_NORM);
+                    Actor_PlaySfx(&this->actor, NA_SE_EN_MORIBLIN_SPEAR_NORM);
                 }
             } else {
                 if (this->actor.xzDistToPlayer <= 160.0f) {
@@ -810,7 +810,7 @@ void EnMb_SpearGuardPrepareAndCharge(EnMb* this, PlayState* play) {
 
     if (SkelAnime_Update(&this->skelAnime)) {
         Animation_PlayLoop(&this->skelAnime, &gEnMbSpearChargeAnim);
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_MORIBLIN_ATTACK);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_MORIBLIN_ATTACK);
     }
 
     if (this->timer3 != 0) {
@@ -822,7 +822,7 @@ void EnMb_SpearGuardPrepareAndCharge(EnMb* this, PlayState* play) {
         Actor_SpawnFloorDustRing(play, &this->actor, &this->actor.world.pos, 5.0f, 3, 4.0f, 100, 15, false);
         if (prevFrame != (s32)this->skelAnime.curFrame &&
             ((s32)this->skelAnime.curFrame == 2 || (s32)this->skelAnime.curFrame == 6)) {
-            Audio_PlayActorSound2(&this->actor, NA_SE_EN_MORIBLIN_DASH);
+            Actor_PlaySfx(&this->actor, NA_SE_EN_MORIBLIN_DASH);
         }
     }
 
@@ -882,8 +882,8 @@ void EnMb_ClubAttack(EnMb* this, PlayState* play) {
         } else {
             effSpawnPos = this->effSpawnPos;
             effSpawnPos.y = this->actor.floorHeight;
-            Audio_PlayActorSound2(&this->actor, NA_SE_EN_MONBLIN_HAM_LAND);
-            func_800AA000(this->actor.xzDistToPlayer, 0xFF, 0x14, 0x96);
+            Actor_PlaySfx(&this->actor, NA_SE_EN_MONBLIN_HAM_LAND);
+            Rumble_Request(this->actor.xzDistToPlayer, 0xFF, 0x14, 0x96);
             EffectSsBlast_SpawnWhiteShockwave(play, &effSpawnPos, &effWhiteShockwaveDynamics,
                                               &effWhiteShockwaveDynamics);
             func_80033480(play, &effSpawnPos, 2.0f, 3, 0x12C, 0xB4, 1);
@@ -891,7 +891,7 @@ void EnMb_ClubAttack(EnMb* this, PlayState* play) {
             // This camera shake gets very annoying as these Moblins can spawn in many rooms,
             // and also often (initially) out of reach for the player.
             if (!CVarGetInteger("gRandomizedEnemies", 0)) {
-                Camera_AddQuake(&play->mainCamera, 2, 0x19, 5);
+                Camera_RequestQuake(&play->mainCamera, 2, 0x19, 5);
             }
             func_800358DC(&this->actor, &effSpawnPos, &this->actor.world.rot, flamesParams, 20, flamesUnused, play,
                           -1, 0);
@@ -899,10 +899,10 @@ void EnMb_ClubAttack(EnMb* this, PlayState* play) {
         }
     } else {
         if (this->timer3 != 0 && this->skelAnime.curFrame == 6.0f) {
-            Audio_PlayActorSound2(&this->actor, NA_SE_EN_MONBLIN_HAM_UP);
+            Actor_PlaySfx(&this->actor, NA_SE_EN_MONBLIN_HAM_UP);
 
         } else if (this->timer3 == 0 && this->skelAnime.curFrame == 3.0f) {
-            Audio_PlayActorSound2(&this->actor, NA_SE_EN_MONBLIN_HAM_DOWN);
+            Actor_PlaySfx(&this->actor, NA_SE_EN_MONBLIN_HAM_DOWN);
         }
     }
 }
@@ -919,7 +919,7 @@ void EnMb_SpearPatrolPrepareAndCharge(EnMb* this, PlayState* play) {
     prevFrame = (s32)this->skelAnime.curFrame;
     if (SkelAnime_Update(&this->skelAnime)) {
         Animation_PlayLoop(&this->skelAnime, &gEnMbSpearChargeAnim);
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_MORIBLIN_ATTACK);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_MORIBLIN_ATTACK);
     }
 
     if (this->timer3 != 0) {
@@ -932,7 +932,7 @@ void EnMb_SpearPatrolPrepareAndCharge(EnMb* this, PlayState* play) {
         Actor_SpawnFloorDustRing(play, &this->actor, &this->actor.world.pos, 5.0f, 3, 4.0f, 100, 15, false);
         if (prevFrame != (s32)this->skelAnime.curFrame &&
             ((s32)this->skelAnime.curFrame == 2 || (s32)this->skelAnime.curFrame == 6)) {
-            Audio_PlayActorSound2(&this->actor, NA_SE_EN_MORIBLIN_DASH);
+            Actor_PlaySfx(&this->actor, NA_SE_EN_MORIBLIN_DASH);
         }
     }
 
@@ -948,7 +948,7 @@ void EnMb_SpearPatrolPrepareAndCharge(EnMb* this, PlayState* play) {
                     }
                 }
                 if (!(this->attackCollider.base.atFlags & AT_BOUNCED)) {
-                    Audio_PlayActorSound2(&player->actor, NA_SE_PL_BODY_HIT);
+                    Actor_PlaySfx(&player->actor, NA_SE_PL_BODY_HIT);
                 }
                 if (play->grabPlayer(play, player)) {
                     player->actor.parent = &this->actor;
@@ -1002,7 +1002,7 @@ void EnMb_SpearPatrolImmediateCharge(EnMb* this, PlayState* play) {
     Actor_SpawnFloorDustRing(play, &this->actor, &this->actor.world.pos, 5.0f, 3, 4.0f, 100, 15, false);
     if (prevFrame != (s32)this->skelAnime.curFrame &&
         ((s32)this->skelAnime.curFrame == 2 || (s32)this->skelAnime.curFrame == 6)) {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_MORIBLIN_DASH);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_MORIBLIN_DASH);
     }
 
     if (this->attackCollider.base.atFlags & AT_HIT) {
@@ -1017,7 +1017,7 @@ void EnMb_SpearPatrolImmediateCharge(EnMb* this, PlayState* play) {
                     }
                 }
                 if (!(this->attackCollider.base.atFlags & AT_BOUNCED)) {
-                    Audio_PlayActorSound2(&player->actor, NA_SE_PL_BODY_HIT);
+                    Actor_PlaySfx(&player->actor, NA_SE_PL_BODY_HIT);
                 }
                 if (play->grabPlayer(play, player)) {
                     player->actor.parent = &this->actor;
@@ -1073,8 +1073,8 @@ void EnMb_ClubDamaged(EnMb* this, PlayState* play) {
         if (this->timer3 != 0) {
             Animation_PlayOnce(&this->skelAnime, &gEnMbClubStandUpAnim);
             this->timer3 = 0;
-            func_800AA000(this->actor.xzDistToPlayer, 0xFF, 0x14, 0x96);
-            Camera_AddQuake(&play->mainCamera, 2, 25, 5);
+            Rumble_Request(this->actor.xzDistToPlayer, 0xFF, 0x14, 0x96);
+            Camera_RequestQuake(&play->mainCamera, 2, 25, 5);
         } else {
             EnMb_SetupClubWaitPlayerNear(this);
         }
@@ -1132,10 +1132,10 @@ void EnMb_ClubDead(EnMb* this, PlayState* play) {
             Actor_Kill(&this->actor);
         }
     } else if ((s32)this->skelAnime.curFrame == 15 || (s32)this->skelAnime.curFrame == 22) {
-        func_800AA000(this->actor.xzDistToPlayer, 0xFF, 0x14, 0x96);
+        Rumble_Request(this->actor.xzDistToPlayer, 0xFF, 0x14, 0x96);
         Actor_SpawnFloorDustRing(play, &this->actor, &effPos, 50.0f, 10, 3.0f, 400, 60, false);
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_RIZA_DOWN);
-        Camera_AddQuake(&play->mainCamera, 2, 25, 5);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_RIZA_DOWN);
+        Camera_RequestQuake(&play->mainCamera, 2, 25, 5);
     }
 }
 
@@ -1181,7 +1181,7 @@ void EnMb_SpearGuardWalk(EnMb* this, PlayState* play) {
             this->timer3--;
         }
         if (this->timer2 == 0) {
-            Audio_PlayActorSound2(&this->actor, NA_SE_EN_MORIBLIN_VOICE);
+            Actor_PlaySfx(&this->actor, NA_SE_EN_MORIBLIN_VOICE);
         }
         this->timer1--;
         if (this->timer1 == 0) {
@@ -1197,7 +1197,7 @@ void EnMb_SpearGuardWalk(EnMb* this, PlayState* play) {
     if (prevFrame != (s32)this->skelAnime.curFrame) {
         if ((beforeCurFrame <= 1 && prevFrame + (s32)playSpeedAbs >= 1) ||
             (beforeCurFrame <= 20 && prevFrame + (s32)playSpeedAbs >= 20)) {
-            Audio_PlayActorSound2(&this->actor, NA_SE_EN_MORIBLIN_WALK);
+            Actor_PlaySfx(&this->actor, NA_SE_EN_MORIBLIN_WALK);
         }
     }
 
@@ -1227,7 +1227,7 @@ void EnMb_SpearPatrolWalkTowardsWaypoint(EnMb* this, PlayState* play) {
         relYawTowardsPlayer = (this->actor.shape.rot.y - this->actor.yawTowardsPlayer);
         if (ABS(relYawTowardsPlayer) <= 0x4000 || (func_8002DDE4(play) && this->actor.xzDistToPlayer < 160.0f)) {
             EnMb_FindWaypointTowardsPlayer(this, play);
-            Audio_PlayActorSound2(&this->actor, NA_SE_EN_MORIBLIN_VOICE);
+            Actor_PlaySfx(&this->actor, NA_SE_EN_MORIBLIN_VOICE);
             EnMb_SetupSpearPrepareAndCharge(this);
             return;
         }
@@ -1240,7 +1240,7 @@ void EnMb_SpearPatrolWalkTowardsWaypoint(EnMb* this, PlayState* play) {
         this->timer3--;
     }
     if (this->timer2 == 0) {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_MORIBLIN_VOICE);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_MORIBLIN_VOICE);
         this->timer2 = Rand_S16Offset(30, 70);
     }
 
@@ -1252,7 +1252,7 @@ void EnMb_SpearPatrolWalkTowardsWaypoint(EnMb* this, PlayState* play) {
     if (prevFrame != (s32)this->skelAnime.curFrame) {
         if ((beforeCurFrame <= 1 && (s32)playSpeedABS + prevFrame >= 1) ||
             (beforeCurFrame <= 20 && (s32)playSpeedABS + prevFrame >= 20)) {
-            Audio_PlayActorSound2(&this->actor, NA_SE_EN_MORIBLIN_WALK);
+            Actor_PlaySfx(&this->actor, NA_SE_EN_MORIBLIN_WALK);
         }
     }
 
@@ -1298,7 +1298,7 @@ void EnMb_SetupSpearDamaged(EnMb* this) {
     this->timer1 = 30;
     this->state = ENMB_STATE_SPEAR_SPEARPATH_DAMAGED;
     this->actor.shape.rot.y = this->actor.world.rot.y;
-    Audio_PlayActorSound2(&this->actor, NA_SE_EN_MORIBLIN_DEAD);
+    Actor_PlaySfx(&this->actor, NA_SE_EN_MORIBLIN_DEAD);
     EnMb_SetupAction(this, EnMb_SpearDamaged);
 }
 
@@ -1328,7 +1328,7 @@ void EnMb_SetupSpearDead(EnMb* this) {
     this->actor.world.rot.y = this->actor.shape.rot.y;
     this->timer1 = 30;
     this->state = ENMB_STATE_SPEAR_SPEARPATH_DAMAGED;
-    Audio_PlayActorSound2(&this->actor, NA_SE_EN_MORIBLIN_DEAD);
+    Actor_PlaySfx(&this->actor, NA_SE_EN_MORIBLIN_DEAD);
     this->actor.flags &= ~ACTOR_FLAG_TARGETABLE;
     EnMb_SetupAction(this, EnMb_SpearDead);
 }
@@ -1464,7 +1464,7 @@ void EnMb_Update(Actor* thisx, PlayState* play) {
     EnMb_CheckColliding(this, play);
     if (thisx->colChkInfo.damageEffect != ENMB_DMGEFF_FREEZE) {
         this->actionFunc(this, play);
-        Actor_MoveForward(thisx);
+        Actor_MoveXZGravity(thisx);
         Actor_UpdateBgCheckInfo(play, thisx, 40.0f, 40.0f, 70.0f, 0x1D);
         Actor_SetFocus(thisx, thisx->scale.x * 4500.0f);
         Collider_UpdateCylinder(thisx, &this->hitbox);

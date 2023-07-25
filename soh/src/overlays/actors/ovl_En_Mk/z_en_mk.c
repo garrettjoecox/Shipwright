@@ -96,20 +96,20 @@ void func_80AACA94(EnMk* this, PlayState* play) {
         this->actor.parent = NULL;
         this->actionFunc = func_80AACA40;
         if (!gSaveContext.n64ddFlag) {
-            func_80088AA0(240);
+            Interface_SetSubTimer(240);
             gSaveContext.eventInf[1] &= ~1;
         }
     } else {
-        s32 getItemID = GI_EYEDROPS;
-        func_8002F434(&this->actor, play, getItemID, 10000.0f, 50.0f);
+        s32 getItemID = GI_EYE_DROPS;
+        Actor_OfferGetItem(&this->actor, play, getItemID, 10000.0f, 50.0f);
     }
 }
 
 void func_80AACB14(EnMk* this, PlayState* play) {
     if (Actor_TextboxIsClosing(&this->actor, play)) {
         this->actionFunc = func_80AACA94;
-        s32 getItemID = GI_EYEDROPS;
-        func_8002F434(&this->actor, play, getItemID, 10000.0f, 50.0f);
+        s32 getItemID = GI_EYE_DROPS;
+        Actor_OfferGetItem(&this->actor, play, getItemID, 10000.0f, 50.0f);
     }
 }
 
@@ -205,7 +205,7 @@ void func_80AACFA0(EnMk* this, PlayState* play) {
     } else {
         // not sure when/how/if this is getting called
         if (!gSaveContext.n64ddFlag) {
-            func_8002F434(&this->actor, play, GI_HEART_PIECE, 10000.0f, 50.0f);
+            Actor_OfferGetItem(&this->actor, play, GI_HEART_PIECE, 10000.0f, 50.0f);
         } else {
             GetItemEntry getItemEntry = Randomizer_GetItemFromKnownCheck(RC_LH_LAB_DIVE, GI_HEART_PIECE);
             GiveItemEntryFromActor(&this->actor, play, getItemEntry, 10000.0f, 50.0f);
@@ -217,7 +217,7 @@ void func_80AAD014(EnMk* this, PlayState* play) {
     if (Actor_TextboxIsClosing(&this->actor, play)) {
         this->actionFunc = func_80AACFA0;
         if (!gSaveContext.n64ddFlag) {
-            func_8002F434(&this->actor, play, GI_HEART_PIECE, 10000.0f, 50.0f);
+            Actor_OfferGetItem(&this->actor, play, GI_HEART_PIECE, 10000.0f, 50.0f);
         } else {
             GetItemEntry getItemEntry = Randomizer_GetItemFromKnownCheck(RC_LH_LAB_DIVE, GI_HEART_PIECE);
             GiveItemEntryFromActor(&this->actor, play, getItemEntry, 10000.0f, 50.0f);
@@ -241,7 +241,7 @@ void EnMk_Wait(EnMk* this, PlayState* play) {
             this->actionFunc = func_80AACA40;
         } else {
             // Skip eye drop text on rando if Link went in the water, so you can still receive the dive check
-            if (INV_CONTENT(ITEM_ODD_MUSHROOM) == ITEM_EYEDROPS &&
+            if (INV_CONTENT(ITEM_ODD_MUSHROOM) == ITEM_EYE_DROPS &&
                 (!gSaveContext.n64ddFlag || this->swimFlag == 0)) {
                 player->actor.textId = 0x4032;
                 this->actionFunc = func_80AACA40;
@@ -267,7 +267,7 @@ void EnMk_Wait(EnMk* this, PlayState* play) {
                             }
                         }
                         break;
-                    case EXCH_ITEM_FROG:
+                    case EXCH_ITEM_EYEBALL_FROG:
                         player->actor.textId = 0x4019;
                         this->actionFunc = func_80AACEE8;
                         Animation_Change(&this->skelAnime, &object_mk_Anim_000368, 1.0f, 0.0f,
@@ -293,7 +293,7 @@ void EnMk_Wait(EnMk* this, PlayState* play) {
         angle = this->actor.yawTowardsPlayer - this->actor.shape.rot.y;
 
         if ((ABS(angle) < 0x2151) && (this->actor.xzDistToPlayer < 100.0f)) {
-            func_8002F298(&this->actor, play, 100.0f, EXCH_ITEM_FROG);
+            func_8002F298(&this->actor, play, 100.0f, EXCH_ITEM_EYEBALL_FROG);
             this->flags |= 1;
         }
     }
@@ -308,7 +308,7 @@ void EnMk_Update(Actor* thisx, PlayState* play) {
 
     Collider_UpdateCylinder(&this->actor, &this->collider);
     CollisionCheck_SetOC(play, &play->colChkCtx, &this->collider.base);
-    Actor_MoveForward(&this->actor);
+    Actor_MoveXZGravity(&this->actor);
     Actor_UpdateBgCheckInfo(play, &this->actor, 0.0f, 0.0f, 0.0f, 4);
 
     if ((!(this->flags & 2)) && (SkelAnime_Update(&this->skelAnime))) {
@@ -318,7 +318,7 @@ void EnMk_Update(Actor* thisx, PlayState* play) {
     this->actionFunc(this, play);
 
     if (this->flags & 1) {
-        func_80038290(play, &this->actor, &this->headRotation, &vec, this->actor.focus.pos);
+        Actor_TrackPlayer(play, &this->actor, &this->headRotation, &vec, this->actor.focus.pos);
     } else {
         Math_SmoothStepToS(&this->headRotation.x, 0, 6, 6200, 100);
         Math_SmoothStepToS(&this->headRotation.y, 0, 6, 6200, 100);

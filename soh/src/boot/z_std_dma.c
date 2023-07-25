@@ -11,7 +11,7 @@ u8 sDmaMgrStack[0x500];
 const char* sDmaMgrCurFileName;
 s32 sDmaMgrCurFileLine;
 
-u32 D_80009460 = 0;
+u32 gDmaMgrVerbose = 0;
 u32 gDmaMgrDmaBuffSize = 0x2000;
 u32 sDmaMgrIsRomCompressed = false;
 
@@ -69,9 +69,9 @@ s32 DmaMgr_DmaRomToRam(uintptr_t rom, uintptr_t ram, size_t size) {
         ioMsg.dramAddr = (void*)ram;
         ioMsg.size = buffSize;
 
-        if (D_80009460 == 10) {
+        if (gDmaMgrVerbose == 10) {
             osSyncPrintf("%10lld ノーマルＤＭＡ %08x %08x %08x (%d)\n", OS_CYCLES_TO_USEC(osGetTime()), ioMsg.dramAddr,
-                         ioMsg.devAddr, ioMsg.size, gPiMgrCmdQ.validCount);
+                         ioMsg.devAddr, ioMsg.size, gPiMgrCmdQueue.validCount);
         }
 
         ret = osEPiStartDma(gCartHandle, &ioMsg, OS_READ);
@@ -79,13 +79,13 @@ s32 DmaMgr_DmaRomToRam(uintptr_t rom, uintptr_t ram, size_t size) {
             goto end;
         }
 
-        if (D_80009460 == 10) {
-            osSyncPrintf("%10lld ノーマルＤＭＡ START (%d)\n", OS_CYCLES_TO_USEC(osGetTime()), gPiMgrCmdQ.validCount);
+        if (gDmaMgrVerbose == 10) {
+            osSyncPrintf("%10lld ノーマルＤＭＡ START (%d)\n", OS_CYCLES_TO_USEC(osGetTime()), gPiMgrCmdQueue.validCount);
         }
 
         osRecvMesg(&queue, NULL, OS_MESG_BLOCK);
-        if (D_80009460 == 10) {
-            osSyncPrintf("%10lld ノーマルＤＭＡ END (%d)\n", OS_CYCLES_TO_USEC(osGetTime()), gPiMgrCmdQ.validCount);
+        if (gDmaMgrVerbose == 10) {
+            osSyncPrintf("%10lld ノーマルＤＭＡ END (%d)\n", OS_CYCLES_TO_USEC(osGetTime()), gPiMgrCmdQueue.validCount);
         }
 
         size -= buffSize;
@@ -100,9 +100,9 @@ s32 DmaMgr_DmaRomToRam(uintptr_t rom, uintptr_t ram, size_t size) {
     ioMsg.dramAddr = (void*)ram;
     ioMsg.size = size;
 
-    if (D_80009460 == 10) {
+    if (gDmaMgrVerbose == 10) {
         osSyncPrintf("%10lld ノーマルＤＭＡ %08x %08x %08x (%d)\n", OS_CYCLES_TO_USEC(osGetTime()), ioMsg.dramAddr,
-                     ioMsg.devAddr, ioMsg.size, gPiMgrCmdQ.validCount);
+                     ioMsg.devAddr, ioMsg.size, gPiMgrCmdQueue.validCount);
     }
 
     ret = osEPiStartDma(gCartHandle, &ioMsg, OS_READ);
@@ -111,8 +111,8 @@ s32 DmaMgr_DmaRomToRam(uintptr_t rom, uintptr_t ram, size_t size) {
     }
 
     osRecvMesg(&queue, NULL, OS_MESG_BLOCK);
-    if (D_80009460 == 10) {
-        osSyncPrintf("%10lld ノーマルＤＭＡ END (%d)\n", OS_CYCLES_TO_USEC(osGetTime()), gPiMgrCmdQ.validCount);
+    if (gDmaMgrVerbose == 10) {
+        osSyncPrintf("%10lld ノーマルＤＭＡ END (%d)\n", OS_CYCLES_TO_USEC(osGetTime()), gPiMgrCmdQueue.validCount);
     }
 
 end:
@@ -129,9 +129,9 @@ s32 DmaMgr_DmaHandler(OSPiHandle* pihandle, OSIoMesg* mb, s32 direction) {
     assert(direction == OS_READ);
     assert(mb != NULL);
 
-    if (D_80009460 == 10) {
+    if (gDmaMgrVerbose == 10) {
         osSyncPrintf("%10lld サウンドＤＭＡ %08x %08x %08x (%d)\n", OS_CYCLES_TO_USEC(osGetTime()), mb->dramAddr,
-                     mb->devAddr, mb->size, gPiMgrCmdQ.validCount);
+                     mb->devAddr, mb->size, gPiMgrCmdQueue.validCount);
     }
 
     ret = osEPiStartDma(pihandle, mb, direction);

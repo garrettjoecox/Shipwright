@@ -140,7 +140,7 @@ void EnDntDemo_Judge(EnDntDemo* this, PlayState* play) {
             switch (Player_GetMask(play)) {
                 case PLAYER_MASK_SKULL:
                     if (!Flags_GetTreasure(play, 0x1F) && !Player_InBlockingCsMode(play, player)) {
-                        GetItemEntry getItemEntry = Randomizer_GetItemFromKnownCheck(RC_DEKU_THEATER_SKULL_MASK, GI_STICK_UPGRADE_30);
+                        GetItemEntry getItemEntry = Randomizer_GetItemFromKnownCheck(RC_DEKU_THEATER_SKULL_MASK, GI_DEKU_STICK_UPGRADE_30);
                         GiveItemEntryWithoutActor(play, getItemEntry);
                         player->pendingFlag.flagID = 0x1F;
                         player->pendingFlag.flagType = FLAG_SCENE_TREASURE;
@@ -148,7 +148,7 @@ void EnDntDemo_Judge(EnDntDemo* this, PlayState* play) {
                     break;
                 case PLAYER_MASK_TRUTH:
                     if (!Flags_GetTreasure(play, 0x1E) && !Player_InBlockingCsMode(play, player)) {
-                        GetItemEntry getItemEntry = Randomizer_GetItemFromKnownCheck(RC_DEKU_THEATER_MASK_OF_TRUTH, GI_NUT_UPGRADE_40);
+                        GetItemEntry getItemEntry = Randomizer_GetItemFromKnownCheck(RC_DEKU_THEATER_MASK_OF_TRUTH, GI_DEKU_NUT_UPGRADE_40);
                         GiveItemEntryWithoutActor(play, getItemEntry);
                         player->pendingFlag.flagID = 0x1E;
                         player->pendingFlag.flagType = FLAG_SCENE_TREASURE;
@@ -188,8 +188,8 @@ void EnDntDemo_Judge(EnDntDemo* this, PlayState* play) {
                     }
                 case PLAYER_MASK_TRUTH:
                     if (!Flags_GetItemGetInf(ITEMGETINF_OBTAINED_NUT_UPGRADE_FROM_STAGE) && (Player_GetMask(play) != PLAYER_MASK_SKULL)) {
-                        Audio_PlaySoundGeneral(NA_SE_SY_TRE_BOX_APPEAR, &D_801333D4, 4, &D_801333E0, &D_801333E0,
-                                               &D_801333E8);
+                        Audio_PlaySfxGeneral(NA_SE_SY_TRE_BOX_APPEAR, &gSfxDefaultPos, 4, &gSfxDefaultFreqAndVolScale, &gSfxDefaultFreqAndVolScale,
+                                               &gSfxDefaultReverb);
                         this->prize = DNT_PRIZE_NUTS;
                         this->leader->stageSignal = DNT_LEADER_SIGNAL_UP;
                         reaction = DNT_SIGNAL_LOOK;

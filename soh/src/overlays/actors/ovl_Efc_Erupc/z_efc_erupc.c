@@ -80,7 +80,7 @@ void EfcErupc_UpdateAction(EfcErupc* this, PlayState* play) {
             switch (play->csCtx.npcActions[2]->action) {
                 case 2:
                     if (this->unk_14E == 0) {
-                        func_800F3F3C(6);
+                        Audio_PlayCutsceneEffectsSequence(6);
                         Flags_SetEventChkInf(EVENTCHKINF_DEATH_MOUNTAIN_ERUPTED);
                     }
                     this->unk_14E++;

@@ -127,7 +127,7 @@ s32 EnGoroiwa_Vec3fNormalize(Vec3f* ret, Vec3f* a) {
 }
 
 void EnGoroiwa_SetSpeed(EnGoroiwa* this, PlayState* play) {
-    if (play->sceneNum == SCENE_SPOT04) {
+    if (play->sceneId == SCENE_KOKIRI_FOREST) {
         this->isInKokiri = true;
         R_EN_GOROIWA_SPEED = 920;
     } else {
@@ -137,7 +137,7 @@ void EnGoroiwa_SetSpeed(EnGoroiwa* this, PlayState* play) {
 }
 
 void EnGoroiwa_FaceNextWaypoint(EnGoroiwa* this, PlayState* play) {
-    Path* path = &play->setupPathList[this->actor.params & 0xFF];
+    Path* path = &play->pathList[this->actor.params & 0xFF];
     Vec3s* nextPos = (Vec3s*)SEGMENTED_TO_VIRTUAL(path->points) + this->nextWaypoint;
     Vec3f nextPosF;
 
@@ -150,7 +150,7 @@ void EnGoroiwa_FaceNextWaypoint(EnGoroiwa* this, PlayState* play) {
 
 void EnGoroiwa_GetPrevWaypointDiff(EnGoroiwa* this, PlayState* play, Vec3f* dest) {
     s16 loopMode = (this->actor.params >> 8) & 3;
-    Path* path = &play->setupPathList[this->actor.params & 0xFF];
+    Path* path = &play->pathList[this->actor.params & 0xFF];
     s16 prevWaypoint = this->currentWaypoint - this->pathDirection;
     Vec3s* prevPointPos;
     Vec3s* currentPointPos;
@@ -215,14 +215,14 @@ void EnGoroiwa_ReverseDirection(EnGoroiwa* this) {
 }
 
 void EnGoroiwa_InitPath(EnGoroiwa* this, PlayState* play) {
-    this->endWaypoint = play->setupPathList [this->actor.params & 0xFF].count - 1;
+    this->endWaypoint = play->pathList [this->actor.params & 0xFF].count - 1;
     this->currentWaypoint = 0;
     this->nextWaypoint = 1;
     this->pathDirection = 1;
 }
 
 void EnGoroiwa_TeleportToWaypoint(EnGoroiwa* this, PlayState* play, s32 waypoint) {
-    Path* path = &play->setupPathList[this->actor.params & 0xFF];
+    Path* path = &play->pathList[this->actor.params & 0xFF];
     Vec3s* pointPos = (Vec3s*)SEGMENTED_TO_VIRTUAL(path->points) + waypoint;
 
     this->actor.world.pos.x = pointPos->x;
@@ -237,7 +237,7 @@ void EnGoroiwa_InitRotation(EnGoroiwa* this) {
 
 s32 EnGoroiwa_GetAscendDirection(EnGoroiwa* this, PlayState* play) {
     s32 pad;
-    Path* path = &play->setupPathList[this->actor.params & 0xFF];
+    Path* path = &play->pathList[this->actor.params & 0xFF];
     Vec3s* nextPointPos = (Vec3s*)SEGMENTED_TO_VIRTUAL(path->points) + this->nextWaypoint;
     Vec3s* currentPointPos = (Vec3s*)SEGMENTED_TO_VIRTUAL(path->points) + this->currentWaypoint;
 
@@ -300,8 +300,8 @@ s32 EnGoroiwa_MoveAndFall(EnGoroiwa* this, PlayState* play) {
     Vec3s* nextPointPos;
 
     Math_StepToF(&this->actor.speedXZ, R_EN_GOROIWA_SPEED * 0.01f, 0.3f);
-    func_8002D868(&this->actor);
-    path = &play->setupPathList[this->actor.params & 0xFF];
+    Actor_UpdateVelocityXZGravity(&this->actor);
+    path = &play->pathList[this->actor.params & 0xFF];
     nextPointPos = (Vec3s*)SEGMENTED_TO_VIRTUAL(path->points) + this->nextWaypoint;
     result = true;
     result &= Math_StepToF(&this->actor.world.pos.x, nextPointPos->x, fabsf(this->actor.velocity.x));
@@ -311,7 +311,7 @@ s32 EnGoroiwa_MoveAndFall(EnGoroiwa* this, PlayState* play) {
 }
 
 s32 EnGoroiwa_Move(EnGoroiwa* this, PlayState* play) {
-    Path* path = &play->setupPathList[this->actor.params & 0xFF];
+    Path* path = &play->pathList[this->actor.params & 0xFF];
     s32 pad;
     Vec3s* nextPointPos = (Vec3s*)SEGMENTED_TO_VIRTUAL(path->points) + this->nextWaypoint;
     Vec3s* currentPointPos = (Vec3s*)SEGMENTED_TO_VIRTUAL(path->points) + this->currentWaypoint;
@@ -343,7 +343,7 @@ s32 EnGoroiwa_Move(EnGoroiwa* this, PlayState* play) {
 
 s32 EnGoroiwa_MoveUpToNextWaypoint(EnGoroiwa* this, PlayState* play) {
     s32 pad;
-    Path* path = &play->setupPathList[this->actor.params & 0xFF];
+    Path* path = &play->pathList[this->actor.params & 0xFF];
     Vec3s* nextPointPos = (Vec3s*)SEGMENTED_TO_VIRTUAL(path->points) + this->nextWaypoint;
 
     Math_StepToF(&this->actor.velocity.y, (R_EN_GOROIWA_SPEED * 0.01f) * 0.5f, 0.18f);
@@ -354,7 +354,7 @@ s32 EnGoroiwa_MoveUpToNextWaypoint(EnGoroiwa* this, PlayState* play) {
 
 s32 EnGoroiwa_MoveDownToNextWaypoint(EnGoroiwa* this, PlayState* play) {
     s32 pad;
-    Path* path = &play->setupPathList[this->actor.params & 0xFF];
+    Path* path = &play->pathList[this->actor.params & 0xFF];
     Vec3s* nextPointPos = (Vec3s*)SEGMENTED_TO_VIRTUAL(path->points) + this->nextWaypoint;
     f32 nextPointY;
     f32 thisY;
@@ -379,10 +379,10 @@ s32 EnGoroiwa_MoveDownToNextWaypoint(EnGoroiwa* this, PlayState* play) {
     if (this->actor.velocity.y < 0.0f && this->actor.world.pos.y <= nextPointY) {
         if (this->bounceCount == 0) {
             if (this->actor.xzDistToPlayer < 600.0f) {
-                quakeIdx = Quake_Add(GET_ACTIVE_CAM(play), 3);
+                quakeIdx = Quake_Request(GET_ACTIVE_CAM(play), 3);
                 Quake_SetSpeed(quakeIdx, -0x3CB0);
-                Quake_SetQuakeValues(quakeIdx, 3, 0, 0, 0);
-                Quake_SetCountdown(quakeIdx, 7);
+                Quake_SetPerturbations(quakeIdx, 3, 0, 0, 0);
+                Quake_SetDuration(quakeIdx, 7);
             }
             this->rollRotSpeed = 0.0f;
             if (!(this->stateFlags & ENGOROIWA_IN_WATER)) {
@@ -542,7 +542,7 @@ void EnGoroiwa_Init(Actor* thisx, PlayState* play) {
         Actor_Kill(&this->actor);
         return;
     }
-    if (play->setupPathList[pathIdx].count < 2) {
+    if (play->pathList[pathIdx].count < 2) {
         // "Error: Invalid Path Data"
         osSyncPrintf("Ｅｒｒｏｒ : レールデータ が不正(%s %d)\n", __FILE__, __LINE__);
         Actor_Kill(&this->actor);
@@ -600,7 +600,7 @@ void EnGoroiwa_Roll(EnGoroiwa* this, PlayState* play) {
         osSyncPrintf("Player ぶっ飛ばし\n"); // "Player knocked down"
         osSyncPrintf(VT_RST);
         onHitSetupFuncs[(this->actor.params >> 10) & 1](this);
-        func_8002F7DC(&GET_PLAYER(play)->actor, NA_SE_PL_BODY_HIT);
+        Player_PlaySfx(&GET_PLAYER(play)->actor, NA_SE_PL_BODY_HIT);
         if ((this->actor.home.rot.z & 1) == 1) {
             this->collisionDisabledTimer = 50;
         }
@@ -628,7 +628,7 @@ void EnGoroiwa_Roll(EnGoroiwa* this, PlayState* play) {
             EnGoroiwa_SetupRoll(this);
         }
     }
-    Audio_PlayActorSound2(&this->actor, NA_SE_EV_BIGBALL_ROLL - SFX_FLAG);
+    Actor_PlaySfx(&this->actor, NA_SE_EV_BIGBALL_ROLL - SFX_FLAG);
 }
 
 void EnGoroiwa_SetupMoveAndFallToGround(EnGoroiwa* this) {
@@ -682,7 +682,7 @@ void EnGoroiwa_MoveUp(EnGoroiwa* this, PlayState* play) {
     if (this->collider.base.atFlags & AT_HIT) {
         this->collider.base.atFlags &= ~AT_HIT;
         func_8002F6D4(play, &this->actor, 2.0f, this->actor.yawTowardsPlayer, 0.0f, 4);
-        func_8002F7DC(&GET_PLAYER(play)->actor, NA_SE_PL_BODY_HIT);
+        Player_PlaySfx(&GET_PLAYER(play)->actor, NA_SE_PL_BODY_HIT);
         if ((this->actor.home.rot.z & 1) == 1) {
             this->collisionDisabledTimer = 50;
         }
@@ -707,7 +707,7 @@ void EnGoroiwa_MoveDown(EnGoroiwa* this, PlayState* play) {
     if (this->collider.base.atFlags & AT_HIT) {
         this->collider.base.atFlags &= ~AT_HIT;
         func_8002F6D4(play, &this->actor, 2.0f, this->actor.yawTowardsPlayer, 0.0f, 4);
-        func_8002F7DC(&GET_PLAYER(play)->actor, NA_SE_PL_BODY_HIT);
+        Player_PlaySfx(&GET_PLAYER(play)->actor, NA_SE_PL_BODY_HIT);
         if ((this->actor.home.rot.z & 1) == 1) {
             this->collisionDisabledTimer = 50;
         }

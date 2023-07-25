@@ -337,9 +337,9 @@ void EnFr_DivingIntoWater(EnFr* this, PlayState* play) {
         EffectSsGSplash_Spawn(play, &vec, NULL, NULL, 1, 1);
 
         if (this->isBelowWaterSurfaceCurrent == false) {
-            Audio_PlayActorSound2(&this->actor, NA_SE_EV_DIVE_INTO_WATER_L);
+            Actor_PlaySfx(&this->actor, NA_SE_EV_DIVE_INTO_WATER_L);
         } else {
-            Audio_PlayActorSound2(&this->actor, NA_SE_EV_BOMB_DROP_WATER);
+            Actor_PlaySfx(&this->actor, NA_SE_EV_BOMB_DROP_WATER);
         }
     }
 }
@@ -463,7 +463,7 @@ void EnFr_JumpingUp(EnFr* this, PlayState* play) {
         this->actor.velocity.y = 25.0f;
         if (this->isJumpingToFrogSong) {
             this->isJumpingToFrogSong = false;
-            Audio_PlayActorSound2(&this->actor, NA_SE_EN_DODO_M_EAT);
+            Actor_PlaySfx(&this->actor, NA_SE_EN_DODO_M_EAT);
         }
     }
 
@@ -570,7 +570,7 @@ void EnFr_UpdateActive(Actor* thisx, PlayState* play) {
         SkelAnime_Update(&this->skelAnime);
         SkelAnime_Update(&this->skelAnimeButterfly);
         EnFr_ButterflyPath(this, play);
-        Actor_MoveForward(&this->actor);
+        Actor_MoveXZGravity(&this->actor);
     }
 }
 
@@ -584,7 +584,7 @@ s32 EnFr_SetupJumpingUp(EnFr* this, s32 frogIndex) {
             frog->isJumpingToFrogSong = true;
         }
         frog->isJumpingUp = true;
-        Audio_PlaySoundTransposed(&frog->actor.projectedPos, NA_SE_EV_FROG_JUMP, semitone);
+        Audio_PlaySfxTransposed(&frog->actor.projectedPos, NA_SE_EV_FROG_JUMP, semitone);
         return true;
     } else {
         return false;
@@ -656,7 +656,7 @@ void func_80A1BE98(EnFr* this, PlayState* play) {
         }
     }
 
-    func_8010BD58(play, OCARINA_ACTION_CHECK_NOWARP);
+    Message_StartOcarina(play, OCARINA_ACTION_CHECK_NOWARP);
     this->actionFunc = EnFr_ListeningToOcarinaNotes;
 }
 
@@ -728,7 +728,7 @@ void EnFr_ChildSong(EnFr* this, PlayState* play) {
             if (frog->actionFunc == EnFr_ChooseJumpFromLogSpot) {
                 frog->isJumpingUp = true;
                 frog->isActive = true;
-                Audio_PlayActorSound2(&frog->actor, NA_SE_EV_FROG_GROW_UP);
+                Actor_PlaySfx(&frog->actor, NA_SE_EV_FROG_GROW_UP);
                 this->actionFunc = EnFr_ChildSongFirstTime;
             } else {
                 this->jumpCounter = 48;
@@ -809,7 +809,7 @@ void EnFr_SetupFrogSong(EnFr* this, PlayState* play) {
     } else {
         this->frogSongTimer = 40;
         this->ocarinaNoteIndex = 0;
-        func_8010BD58(play, OCARINA_ACTION_FROGS);
+        Message_StartOcarina(play, OCARINA_ACTION_FROGS);
         this->ocarinaNote = EnFr_GetNextNoteFrogSong(this->ocarinaNoteIndex);
         EnFr_CheckOcarinaInputFrogSong(this->ocarinaNote);
         this->actionFunc = EnFr_ContinueFrogSong;
@@ -844,7 +844,7 @@ void EnFr_OcarinaMistake(EnFr* this, PlayState* play) {
     this->reward = GI_NONE;
     this->getItemEntry = (GetItemEntry)GET_ITEM_NONE;
     func_80078884(NA_SE_SY_OCARINA_ERROR);
-    Audio_OcaSetInstrument(0);
+    AudioOcarina_SetInstrument(0);
     sEnFrPointers.flags = 12;
     EnFr_DeactivateButterfly();
     this->actionFunc = EnFr_Deactivate;
@@ -909,7 +909,7 @@ void EnFr_SetupReward(EnFr* this, PlayState* play, u8 unkCondition) {
         func_80078884(NA_SE_SY_CORRECT_CHIME);
     }
 
-    Audio_OcaSetInstrument(0);
+    AudioOcarina_SetInstrument(0);
     play->msgCtx.msgMode = MSGMODE_PAUSED;
     this->actionFunc = EnFr_PrintTextBox;
 }
@@ -1029,13 +1029,13 @@ void EnFr_Deactivate(EnFr* this, PlayState* play) {
     }
 
     play->msgCtx.ocarinaMode = OCARINA_MODE_04;
-    Audio_PlayActorSound2(&this->actor, NA_SE_EV_FROG_CRY_0);
+    Actor_PlaySfx(&this->actor, NA_SE_EV_FROG_CRY_0);
     if (this->reward == GI_NONE) {
         this->actionFunc = EnFr_Idle;
     } else {
         this->actionFunc = EnFr_GiveReward;
         if (!gSaveContext.n64ddFlag || this->getItemEntry.getItemId == GI_NONE) {
-            func_8002F434(&this->actor, play, this->reward, 30.0f, 100.0f);
+            Actor_OfferGetItem(&this->actor, play, this->reward, 30.0f, 100.0f);
         } else {
             GiveItemEntryFromActor(&this->actor, play, this->getItemEntry, 30.0f, 100.0f);
         }
@@ -1048,7 +1048,7 @@ void EnFr_GiveReward(EnFr* this, PlayState* play) {
         this->actionFunc = EnFr_SetIdle;
     } else {
         if (!gSaveContext.n64ddFlag || this->getItemEntry.getItemId == GI_NONE) {
-            func_8002F434(&this->actor, play, this->reward, 30.0f, 100.0f);
+            Actor_OfferGetItem(&this->actor, play, this->reward, 30.0f, 100.0f);
         } else {
             GiveItemEntryFromActor(&this->actor, play, this->getItemEntry, 30.0f, 100.0f);
         }

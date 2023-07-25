@@ -235,7 +235,7 @@ SoundParams sVoiceBankParams[] = {
     { 0x30, 0x8041 }, { 0x30, 0x8041 },
 };
 
-SoundParams* gSoundParams[7] = {
+SoundParams* gSfxParams[7] = {
     sPlayerBankParams, sItemBankParams,    sEnvBankParams,   sEnemyBankParams,
     sSystemBankParams, sOcarinaBankParams, sVoiceBankParams,
 };

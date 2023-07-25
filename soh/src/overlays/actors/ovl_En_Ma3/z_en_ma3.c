@@ -117,8 +117,8 @@ s16 func_80AA2BD4(PlayState* play, Actor* thisx) {
             if (Message_ShouldAdvance(play)) {
                 play->nextEntranceIndex = 0x157;
                 gSaveContext.nextCutsceneIndex = 0xFFF0;
-                play->fadeTransition = 0x26;
-                play->sceneLoadFlag = 0x14;
+                play->transitionType = 0x26;
+                play->transitionTrigger = 0x14;
                 gSaveContext.eventInf[0] |= 0x400;
                 gSaveContext.timer1State = 0xF;
             }
@@ -296,11 +296,11 @@ void EnMa3_Update(Actor* thisx, PlayState* play) {
                       func_80AA2AA0, func_80AA2BD4);
     if (this->interactInfo.talkState == NPC_TALK_STATE_IDLE) {
         if (this->unk_20A != 0) {
-            func_800F6584(0);
+            Audio_ToggleMalonSinging(0);
             this->unk_20A = 0;
         }
     } else if (this->unk_20A == 0) {
-        func_800F6584(1);
+        Audio_ToggleMalonSinging(1);
         this->unk_20A = 1;
     }
 }
@@ -361,7 +361,7 @@ void EnMa3_Draw(Actor* thisx, PlayState* play) {
 
     camera = GET_ACTIVE_CAM(play);
     someFloat = Math_Vec3f_DistXZ(&this->actor.world.pos, &camera->eye);
-    func_800F6268(someFloat, NA_BGM_LONLON);
+    Audio_UpdateMalonSinging(someFloat, NA_BGM_LONLON);
     Gfx_SetupDL_25Opa(play->state.gfxCtx);
 
     gSPSegment(POLY_OPA_DISP++, 0x09, SEGMENTED_TO_VIRTUAL(sMouthTextures[this->mouthIndex]));

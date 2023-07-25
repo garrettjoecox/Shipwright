@@ -195,13 +195,13 @@ void func_80A56614(EnHeishi4* this, PlayState* play) {
         this->actionFunc = func_80A56B40;
         return;
     }
-    if (play->sceneNum == SCENE_MIHARIGOYA) {
+    if (play->sceneId == SCENE_MARKET_GUARD_HOUSE) {
         if (IS_DAY) {
             this->actor.textId = 0x7004;
         } else {
             this->actor.textId = 0x709A;
         }
-    } else if (play->sceneNum != SCENE_MARKET_NIGHT) {
+    } else if (play->sceneId != SCENE_MARKET_NIGHT) {
         if (IS_DAY) {
             this->actor.textId = 0x7002;
         } else {
@@ -266,7 +266,7 @@ void func_80A56900(EnHeishi4* this, PlayState* play) {
 
 void func_80A56994(EnHeishi4* this, PlayState* play) {
     SkelAnime_Update(&this->skelAnime);
-    func_80038290(play, &this->actor, &this->unk_260, &this->unk_266, this->actor.focus.pos);
+    Actor_TrackPlayer(play, &this->actor, &this->unk_260, &this->unk_266, this->actor.focus.pos);
     if ((this->unk_282 == Message_GetState(&play->msgCtx)) && Message_ShouldAdvance(play)) {
         Message_CloseTextbox(play);
         Flags_SetInfTable(INFTABLE_6C);
@@ -353,8 +353,8 @@ void EnHeishi4_MarketSneak(EnHeishi4* this, PlayState* play) {
         switch (play->msgCtx.choiceIndex) {
             case 0: //yes
                 play->nextEntranceIndex = 0x00CD; // HF Near bridge (OoT cutscene entrance) to not fall in the water
-                play->sceneLoadFlag = 0x14;
-                play->fadeTransition = 0x2E;
+                play->transitionTrigger = 0x14;
+                play->transitionType = 0x2E;
                 gSaveContext.nextTransitionType = 0x2E;
                 this->actionFunc = func_80A56614;
                 break;
@@ -385,7 +385,7 @@ void EnHeishi4_Update(Actor* thisx, PlayState* play) {
     }
     this->unk_27E += 1;
     this->actionFunc(this, play);
-    Actor_MoveForward(thisx);
+    Actor_MoveXZGravity(thisx);
     Actor_UpdateBgCheckInfo(play, thisx, 10.0f, 10.0f, 30.0f, 0x1D);
     Collider_UpdateCylinder(&this->actor, &this->collider);
     CollisionCheck_SetOC(play, &play->colChkCtx, &this->collider.base);

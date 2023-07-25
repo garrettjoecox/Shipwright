@@ -44,13 +44,13 @@ static s16 sObjectIds[] = {
 
 // Indexes passed to the item table in z_draw.c
 static s16 sDrawItemIndexes[] = {
-    GID_BOTTLE,       GID_LETTER_RUTO,  GID_SHIELD_HYLIAN, GID_QUIVER_40,   GID_SCALE_SILVER,
-    GID_SCALE_GOLDEN, GID_KEY_SMALL,    GID_ARROW_FIRE,    GID_RUPEE_GREEN, GID_RUPEE_BLUE,
-    GID_RUPEE_RED,    GID_RUPEE_PURPLE, GID_HEART_PIECE,   GID_KEY_SMALL,
+    GID_BOTTLE_EMPTY,       GID_BOTTLE_RUTOS_LETTER,  GID_SHIELD_HYLIAN, GID_QUIVER_40,   GID_SCALE_SILVER,
+    GID_SCALE_GOLDEN, GID_SMALL_KEY,    GID_ARROW_FIRE,    GID_RUPEE_GREEN, GID_RUPEE_BLUE,
+    GID_RUPEE_RED,    GID_RUPEE_PURPLE, GID_HEART_PIECE,   GID_SMALL_KEY,
 };
 
 static s16 sGetItemIds[] = {
-    GI_BOTTLE,     GI_LETTER_RUTO, GI_SHIELD_HYLIAN, GI_QUIVER_40, GI_SCALE_SILVER, GI_SCALE_GOLD, GI_KEY_SMALL,
+    GI_BOTTLE_EMPTY,     GI_BOTTLE_RUTOS_LETTER, GI_SHIELD_HYLIAN, GI_QUIVER_40, GI_SCALE_SILVER, GI_SCALE_GOLDEN, GI_SMALL_KEY,
     GI_ARROW_FIRE, GI_NONE,        GI_NONE,          GI_NONE,      GI_NONE,         GI_NONE,       GI_NONE,
 };
 
@@ -134,7 +134,7 @@ void func_80B85824(ItemEtcetera* this, PlayState* play) {
         Actor_Kill(&this->actor);
     } else {
         if (!gSaveContext.n64ddFlag) {
-            func_8002F434(&this->actor, play, this->getItemId, 30.0f, 50.0f);
+            Actor_OfferGetItem(&this->actor, play, this->getItemId, 30.0f, 50.0f);
         } else {
             GetItemEntry getItemEntry = Randomizer_GetItemFromKnownCheck(RC_LH_SUN, GI_ARROW_FIRE);
             GiveItemEntryFromActor(&this->actor, play, getItemEntry, 30.0f, 50.0f);
@@ -157,9 +157,9 @@ void func_80B858B4(ItemEtcetera* this, PlayState* play) {
         if (0) {} // Necessary to match
 
         if (!gSaveContext.n64ddFlag) {
-            func_8002F434(&this->actor, play, this->getItemId, 30.0f, 50.0f);
+            Actor_OfferGetItem(&this->actor, play, this->getItemId, 30.0f, 50.0f);
         } else {
-            GetItemEntry getItemEntry = Randomizer_GetItemFromKnownCheck(RC_LH_UNDERWATER_ITEM, GI_LETTER_RUTO);
+            GetItemEntry getItemEntry = Randomizer_GetItemFromKnownCheck(RC_LH_UNDERWATER_ITEM, GI_BOTTLE_RUTOS_LETTER);
             GiveItemEntryFromActor(&this->actor, play, getItemEntry, 30.0f, 50.0f);
         }
 
@@ -188,7 +188,7 @@ void ItemEtcetera_SpawnSparkles(ItemEtcetera* this, PlayState* play) {
 
 void ItemEtcetera_MoveFireArrowDown(ItemEtcetera* this, PlayState* play) {
     Actor_UpdateBgCheckInfo(play, &this->actor, 10.0f, 10.0f, 0.0f, 5);
-    Actor_MoveForward(&this->actor);
+    Actor_MoveXZGravity(&this->actor);
     if (!(this->actor.bgCheckFlags & 1)) {
         ItemEtcetera_SpawnSparkles(this, play);
     }
@@ -229,7 +229,7 @@ void ItemEtcetera_DrawThroughLens(Actor* thisx, PlayState* play) {
         func_8002EBCC(&this->actor, play, 0);
         func_8002ED80(&this->actor, play, 0);
 
-        if(gSaveContext.n64ddFlag && play->sceneNum == 16) {
+        if(gSaveContext.n64ddFlag && play->sceneId == 16) {
             GetItemEntry randoGetItem = GetChestGameRandoGetItem(this->actor.room, this->giDrawId, play);
             EnItem00_CustomItemsParticles(&this->actor, play, randoGetItem);
             if (randoGetItem.itemId != ITEM_NONE) {
@@ -251,7 +251,7 @@ void ItemEtcetera_Draw(Actor* thisx, PlayState* play) {
         if (type == ITEM_ETC_ARROW_FIRE) {
             randoGetItem = Randomizer_GetItemFromKnownCheck(RC_LH_SUN, GI_ARROW_FIRE);
         } else if (type == ITEM_ETC_LETTER) {
-            randoGetItem = Randomizer_GetItemFromKnownCheck(RC_LH_UNDERWATER_ITEM, GI_LETTER_RUTO);
+            randoGetItem = Randomizer_GetItemFromKnownCheck(RC_LH_UNDERWATER_ITEM, GI_BOTTLE_RUTOS_LETTER);
         }
 
         EnItem00_CustomItemsParticles(&this->actor, play, randoGetItem);

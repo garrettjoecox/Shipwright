@@ -1490,7 +1490,7 @@ void Gfx_SetupFrame(GraphicsContext* gfxCtx, u8 r, u8 g, u8 b) {
     gDPSetDepthImage(POLY_KAL_DISP++, gZBuffer);
     gDPSetDepthImage(OVERLAY_DISP++, gZBuffer);
 
-    if ((R_PAUSE_MENU_MODE < 2) && (gTrnsnUnkState < 2)) {
+    if ((R_PAUSE_MENU_MODE < 2) && (gTransitionTileState < 2)) {
         s32 letterboxSize = ShrinkWindow_GetCurrentVal(); // Upstream TODO: Letterbox
 
         if (HREG(80) == 16) {

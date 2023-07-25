@@ -122,7 +122,7 @@ GameStateOverlay* Graph_GetNextGameState(GameState* gameState) {
     if (gameStateInitFunc == TitleSetup_Init) {
         return &gGameStateOverlayTable[0];
     }
-    if (gameStateInitFunc == Select_Init) {
+    if (gameStateInitFunc == MapSelect_Init) {
         return &gGameStateOverlayTable[1];
     }
     if (gameStateInitFunc == Title_Init) {
@@ -134,7 +134,7 @@ GameStateOverlay* Graph_GetNextGameState(GameState* gameState) {
     if (gameStateInitFunc == Opening_Init) {
         return &gGameStateOverlayTable[4];
     }
-    if (gameStateInitFunc == FileChoose_Init) {
+    if (gameStateInitFunc == FileSelect_Init) {
         return &gGameStateOverlayTable[5];
     }
 
@@ -403,7 +403,7 @@ void Graph_Update(GraphicsContext* gfxCtx, GameState* gameState) {
         if (CHECK_BTN_ALL(gameState->input[0].press.button, BTN_Z) &&
             CHECK_BTN_ALL(gameState->input[0].cur.button, BTN_L | BTN_R)) {
             gSaveContext.gameMode = 0;
-            SET_NEXT_GAMESTATE(gameState, Select_Init, SelectContext);
+            SET_NEXT_GAMESTATE(gameState, MapSelect_Init, SelectContext);
             gameState->running = false;
         }
     }

@@ -52,7 +52,7 @@ s32 func_80043548(DynaPolyActor* dynaActor) {
     }
 }
 
-s32 func_8004356C(DynaPolyActor* dynaActor) {
+s32 DynaPolyActor_IsPlayerOnTop(DynaPolyActor* dynaActor) {
     if (dynaActor->unk_160 & 2) {
         return true;
     } else {

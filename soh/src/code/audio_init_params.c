@@ -1,7 +1,7 @@
 #include "global.h"
 
 u8 D_8016F0E0[0xA0]; // unused
-AudioContext gAudioContext;
+AudioContext gAudioCtx;
 void (*D_801755D0)(void);
 s32 D_801755D8[3]; // unused
 
@@ -11,7 +11,7 @@ const s16 D_8014A6C0[] = {
 };
 
 // OTRTODO: This might be overkill...
-const AudioContextInitSizes D_8014A6C4 = { 0x37F000, 0xE0E00, 0xBCE00 };
+const AudioContextInitSizes gAudioHeapInitSizes = { 0x37F000, 0xE0E00, 0xBCE00 };
 
 ReverbSettings D_80133420[][3] = {
     {

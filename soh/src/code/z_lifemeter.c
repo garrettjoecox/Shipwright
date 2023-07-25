@@ -117,7 +117,7 @@ s16 sBeatingHeartsDDEnv[3];
 s16 sHeartsDDPrim[2][3];
 s16 sHeartsDDEnv[2][3];
 
-void HealthMeter_Init(PlayState* play) {
+void Health_InitMeter(PlayState* play) {
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
     Color_RGB8 mainColor = {HEARTS_PRIM_R, HEARTS_PRIM_G, HEARTS_PRIM_B};
     if (CVarGetInteger("gCosmetics.Consumable_Hearts.Changed", 0)) {
@@ -166,7 +166,7 @@ void HealthMeter_Init(PlayState* play) {
     sHeartsDDEnv[0][2] = sHeartsDDEnv[1][2] = ddColor.b;
 }
 
-void HealthMeter_Update(PlayState* play) {
+void Health_UpdateMeter(PlayState* play) {
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
     f32 factor = interfaceCtx->unk_1FE * 0.1f;
     f32 ddFactor;
@@ -373,7 +373,7 @@ s16 getHealthMeterYOffset() {
     }
 }
 
-void HealthMeter_Draw(PlayState* play) {
+void Health_DrawMeter(PlayState* play) {
     s32 pad[5];
     void* heartBgImg;
     u32 curColorSet;
@@ -627,7 +627,7 @@ void HealthMeter_Draw(PlayState* play) {
     CLOSE_DISPS(gfxCtx);
 }
 
-void HealthMeter_HandleCriticalAlarm(PlayState* play) {
+void Health_UpdateBeatingHeart(PlayState* play) {
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
 
     if (interfaceCtx->unk_22C != 0) {
@@ -636,7 +636,7 @@ void HealthMeter_HandleCriticalAlarm(PlayState* play) {
             interfaceCtx->unk_22A = 0;
             interfaceCtx->unk_22C = 0;
             if (CVarGetInteger("gLowHpAlarm", 0) == 0 && !Player_InCsMode(play) && (play->pauseCtx.state == 0) &&
-            (play->pauseCtx.debugState == 0) && HealthMeter_IsCritical() && !Play_InCsMode(play)) {
+            (play->pauseCtx.debugState == 0) && Health_IsCritical() && !Play_InCsMode(play)) {
                 func_80078884(NA_SE_SY_HITPOINT_ALARM);
             }
         }
@@ -649,7 +649,7 @@ void HealthMeter_HandleCriticalAlarm(PlayState* play) {
     }
 }
 
-u32 HealthMeter_IsCritical(void) {
+u32 Health_IsCritical(void) {
     s32 var;
 
     if (gSaveContext.healthCapacity <= 0x50) {

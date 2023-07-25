@@ -77,7 +77,7 @@ void EnNiwLady_Init(Actor* thisx, PlayState* play) {
         return;
     }
     this->unk_278 = 0;
-    if (play->sceneNum == SCENE_LABO) {
+    if (play->sceneId == SCENE_IMPAS_HOUSE) {
         this->unk_278 = 1;
     }
     if ((this->unk_278 != 0) && IS_DAY) {
@@ -308,10 +308,10 @@ void func_80ABA654(EnNiwLady* this, PlayState* play) {
             this->actor.parent = NULL;
 
             if (!gSaveContext.n64ddFlag) {
-                this->getItemId = GI_BOTTLE;
-                func_8002F434(&this->actor, play, GI_BOTTLE, 100.0f, 50.0f);
+                this->getItemId = GI_BOTTLE_EMPTY;
+                Actor_OfferGetItem(&this->actor, play, GI_BOTTLE_EMPTY, 100.0f, 50.0f);
             } else {
-                this->getItemEntry = Randomizer_GetItemFromKnownCheck(RC_KAK_ANJU_AS_CHILD, GI_BOTTLE);
+                this->getItemEntry = Randomizer_GetItemFromKnownCheck(RC_KAK_ANJU_AS_CHILD, GI_BOTTLE_EMPTY);
                 GiveItemEntryFromActor(&this->actor, play, this->getItemEntry, 100.0f, 50.0f);
             }
 
@@ -320,7 +320,7 @@ void func_80ABA654(EnNiwLady* this, PlayState* play) {
         }
         if (this->unk_26C == 1) {
             this->getItemId = GI_RUPEE_PURPLE;
-            func_8002F434(&this->actor, play, GI_RUPEE_PURPLE, 100.0f, 50.0f);
+            Actor_OfferGetItem(&this->actor, play, GI_RUPEE_PURPLE, 100.0f, 50.0f);
             this->actionFunc = func_80ABAC00;
         }
         this->actionFunc = func_80ABA244;
@@ -398,7 +398,7 @@ void func_80ABA9B8(EnNiwLady* this, PlayState* play) {
                 this->actor.parent = NULL;
 
                 if (!gSaveContext.n64ddFlag) {
-                    func_8002F434(&this->actor, play, GI_POCKET_EGG, 200.0f, 100.0f);
+                    Actor_OfferGetItem(&this->actor, play, GI_POCKET_EGG, 200.0f, 100.0f);
                 } else {
                     // TODO: get-item-rework Adult trade sequence
                     this->getItemEntry = Randomizer_GetItemFromKnownCheck(RC_KAK_ANJU_AS_ADULT, GI_POCKET_EGG);
@@ -432,7 +432,7 @@ void func_80ABAB08(EnNiwLady* this, PlayState* play) {
             case 0:
                 Message_CloseTextbox(play);
                 this->actor.parent = NULL;
-                func_8002F434(&this->actor, play, GI_COJIRO, 200.0f, 100.0f);
+                Actor_OfferGetItem(&this->actor, play, GI_COJIRO, 200.0f, 100.0f);
                 this->actionFunc = func_80ABAC00;
                 break;
             case 1:
@@ -467,7 +467,7 @@ void func_80ABAC00(EnNiwLady* this, PlayState* play) {
             }
         }
         if (this->getItemEntry.getItemId == GI_NONE) {
-            func_8002F434(&this->actor, play, getItemId, 200.0f, 100.0f);
+            Actor_OfferGetItem(&this->actor, play, getItemId, 200.0f, 100.0f);
         }
     }
 }

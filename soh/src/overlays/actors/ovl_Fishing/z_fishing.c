@@ -878,7 +878,7 @@ void Fishing_Init(Actor* thisx, PlayState* play2) {
 
         D_80B7A684 = 20;
         play->specialEffects = sFishingEffects;
-        gTimeIncrement = 1;
+        gTimeSpeed = 1;
         D_80B7E0AC = 0;
         D_80B7E0A6 = 10;
 
@@ -2850,7 +2850,7 @@ void func_80B71278(Fishing* this, u8 arg1) {
         }
     }
 
-    Audio_PlayActorSound2(&this->actor, sfxId);
+    Actor_PlaySfx(&this->actor, sfxId);
 }
 
 void Fishing_HandleAquariumDialog(Fishing* this, PlayState* play) {
@@ -3302,7 +3302,7 @@ void Fishing_UpdateFish(Actor* thisx, PlayState* play2) {
                         Fishing_SpawnRipple(&this->actor.projectedPos, play->specialEffects, &spB8, 30.0f, 400.0f,
                                             150, 90);
 
-                        Audio_PlayActorSound2(&this->actor, NA_SE_PL_CATCH_BOOMERANG);
+                        Actor_PlaySfx(&this->actor, NA_SE_PL_CATCH_BOOMERANG);
                         break;
                     }
                 }
@@ -3576,7 +3576,7 @@ void Fishing_UpdateFish(Actor* thisx, PlayState* play2) {
                 this->unk_194 = 2000.0f;
             } else if (sp124 < 10.0f) {
                 if (sLurePos.y > (WATER_SURFACE_Y(play) - 10.0f)) {
-                    Audio_PlayActorSound2(&this->actor, NA_SE_EV_JUMP_OUT_WATER);
+                    Actor_PlaySfx(&this->actor, NA_SE_EV_JUMP_OUT_WATER);
                     func_80078884(NA_SE_PL_CATCH_BOOMERANG);
                 }
 
@@ -4116,10 +4116,10 @@ void Fishing_UpdateFish(Actor* thisx, PlayState* play2) {
                 Math_ApproachS(&this->unk_16E, spF6, 3, 0xBB8);
             }
 
-            func_8002D908(&this->actor);
+            Actor_UpdateVelocityXYZ(&this->actor);
         }
 
-        func_8002D7EC(&this->actor);
+        Actor_UpdatePos(&this->actor);
 
         this->actor.world.pos.y += (this->unk_184 * 1.5f);
 
@@ -4206,7 +4206,7 @@ void Fishing_UpdateFish(Actor* thisx, PlayState* play2) {
                     this->actor.velocity.x = this->actor.world.pos.x * -0.003f;
                     this->actor.velocity.z = this->actor.world.pos.z * -0.003f;
 
-                    Audio_PlayActorSound2(&this->actor, NA_SE_EV_FISH_LEAP);
+                    Actor_PlaySfx(&this->actor, NA_SE_EV_FISH_LEAP);
                     func_80B70CF0(this, play);
 
                     if (Rand_ZeroOne() < 0.5f) {
@@ -5064,9 +5064,9 @@ void Fishing_HandleOwnerDialog(Fishing* this, PlayState* play) {
                                 HIGH_SCORE(HS_FISHING) |= 0x800;
                                 sSinkingLureLocation = (u8)Rand_ZeroFloat(3.999f) + 1;
                                 if (!gSaveContext.n64ddFlag) {
-                                    getItemId = GI_SCALE_GOLD;
+                                    getItemId = GI_SCALE_GOLDEN;
                                 } else {
-                                    getItemEntry = Randomizer_GetItemFromKnownCheck(RC_LH_ADULT_FISHING, GI_SCALE_GOLD);
+                                    getItemEntry = Randomizer_GetItemFromKnownCheck(RC_LH_ADULT_FISHING, GI_SCALE_GOLDEN);
                                     getItemId = getItemEntry.getItemId;
                                 }
                             }
@@ -5079,7 +5079,7 @@ void Fishing_HandleOwnerDialog(Fishing* this, PlayState* play) {
 
                 this->actor.parent = NULL;
                 if (!gSaveContext.n64ddFlag || getItemEntry.getItemId == GI_NONE) {
-                    func_8002F434(&this->actor, play, getItemId, 2000.0f, 1000.0f);
+                    Actor_OfferGetItem(&this->actor, play, getItemId, 2000.0f, 1000.0f);
                 } else {
                     GiveItemEntryFromActor(&this->actor, play, getItemEntry, 2000.0f, 1000.0f);
                 }
@@ -5125,7 +5125,7 @@ void Fishing_HandleOwnerDialog(Fishing* this, PlayState* play) {
                 if (gSaveContext.temporaryWeapon) {
                     player->currentSwordItemId = ITEM_NONE;
                     gSaveContext.equips.buttonItems[0] = ITEM_NONE;
-                    Inventory_ChangeEquipment(EQUIP_SWORD, PLAYER_SWORD_NONE);
+                    Inventory_ChangeEquipment(EQUIP_TYPE_SWORD, PLAYER_SWORD_NONE);
                     gSaveContext.temporaryWeapon = false;
                 }
 
@@ -5144,9 +5144,9 @@ void Fishing_HandleOwnerDialog(Fishing* this, PlayState* play) {
                 this->unk_15C = 24;
             } else {
                 if (!gSaveContext.n64ddFlag) {
-                    func_8002F434(&this->actor, play, GI_SCALE_GOLD, 2000.0f, 1000.0f);
+                    Actor_OfferGetItem(&this->actor, play, GI_SCALE_GOLDEN, 2000.0f, 1000.0f);
                 } else {
-                    GetItemEntry getItemEntry = Randomizer_GetItemFromKnownCheck(RC_LH_ADULT_FISHING, GI_SCALE_GOLD);
+                    GetItemEntry getItemEntry = Randomizer_GetItemFromKnownCheck(RC_LH_ADULT_FISHING, GI_SCALE_GOLDEN);
                     GiveItemEntryFromActor(&this->actor, play, getItemEntry, 2000.0f, 1000.0f);
                 }
             }
@@ -5344,13 +5344,13 @@ void Fishing_UpdateOwner(Actor* thisx, PlayState* play2) {
             sCameraAt.y = camera->at.y;
             sCameraAt.z = camera->at.z;
             D_80B7A6CC = 2;
-            Interface_ChangeAlpha(12);
+            Interface_ChangeHudVisibilityMode(12);
             D_80B7FECC = 0.0f;
             // fallthrough
         }
 
         case 2:
-            ShrinkWindow_SetVal(0x1B);
+            Letterbox_SetSizeTarget(0x1B);
 
             spFC.x = sLurePos.x - player->actor.world.pos.x;
             spFC.z = sLurePos.z - player->actor.world.pos.z;

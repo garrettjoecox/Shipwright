@@ -177,7 +177,7 @@ void EnWood02_Init(Actor* thisx, PlayState* play2) {
     // as the night scene, For the always spawn GS enhancement we apply the needed
     // params to have the GS drop when bonking
     if ((this->actor.params & 0xFF) == WOOD_TREE_CONICAL_MEDIUM && IS_DAY &&
-        play->sceneNum == SCENE_SPOT01 && CVarGetInteger("gNightGSAlwaysSpawn", 0)) {
+        play->sceneId == SCENE_KAKARIKO_VILLAGE && CVarGetInteger("gNightGSAlwaysSpawn", 0)) {
         this->actor.params = 0x2001;
         this->actor.home.rot.z = 0x71;
     }
@@ -344,7 +344,7 @@ void EnWood02_Update(Actor* thisx, PlayState* play2) {
     if (this->actor.params <= WOOD_TREE_KAKARIKO_ADULT) {
         if (this->collider.base.acFlags & AC_HIT) {
             this->collider.base.acFlags &= ~AC_HIT;
-            Audio_PlayActorSound2(&this->actor, NA_SE_IT_REFLECTION_WOOD);
+            Actor_PlaySfx(&this->actor, NA_SE_IT_REFLECTION_WOOD);
         }
 
         if (this->actor.home.rot.y != 0) {
@@ -371,7 +371,7 @@ void EnWood02_Update(Actor* thisx, PlayState* play2) {
                     (this->actor.params == WOOD_TREE_OVAL_YELLOW_SPAWNED)) {
                     leavesParams = WOOD_LEAF_YELLOW;
                 }
-                Audio_PlayActorSound2(&this->actor, NA_SE_EV_TREE_SWING);
+                Actor_PlaySfx(&this->actor, NA_SE_EV_TREE_SWING);
 
                 for (i = 3; i >= 0; i--) {
                     Actor_Spawn(&play->actorCtx, play, ACTOR_EN_WOOD02, dropsSpawnPt.x, dropsSpawnPt.y,
@@ -400,14 +400,14 @@ void EnWood02_Update(Actor* thisx, PlayState* play2) {
                                                ((this->unk_14C << 4) | 0x8000));
                 }
                 this->unk_14C = -0x15;
-                Audio_PlayActorSound2(&this->actor, NA_SE_EV_TREE_SWING);
+                Actor_PlaySfx(&this->actor, NA_SE_EV_TREE_SWING);
             }
         }
     } else { // Leaves
         this->unk_14C++;
         Math_ApproachF(&this->actor.velocity.x, 0.0f, 1.0f, 5 * 0.01f);
         Math_ApproachF(&this->actor.velocity.z, 0.0f, 1.0f, 5 * 0.01f);
-        func_8002D7EC(&this->actor);
+        Actor_UpdatePos(&this->actor);
         this->actor.shape.rot.z = Math_SinS(3000 * this->unk_14C) * 0x4000;
         this->unk_14E[0]--;
 

@@ -77,7 +77,7 @@ void BgSpot02Objects_Init(Actor* thisx, PlayState* play) {
                 CollisionHeader_GetVirtual(&object_spot02_objects_Col_0128D8, &colHeader);
                 thisx->flags |= ACTOR_FLAG_IGNORE_POINTLIGHTS;
             } else {
-                if (play->sceneNum == SCENE_SPOT02) {
+                if (play->sceneId == SCENE_GRAVEYARD) {
                     this->actionFunc = func_808AC908;
                 } else {
                     this->actionFunc = func_808AC8FC;
@@ -88,7 +88,7 @@ void BgSpot02Objects_Init(Actor* thisx, PlayState* play) {
 
             this->dyna.bgId = DynaPoly_SetBgActor(play, &play->colCtx.dyna, thisx, colHeader);
 
-            if (((Flags_GetEventChkInf(EVENTCHKINF_DESTROYED_ROYAL_FAMILY_TOMB)) && (play->sceneNum == SCENE_SPOT02) &&
+            if (((Flags_GetEventChkInf(EVENTCHKINF_DESTROYED_ROYAL_FAMILY_TOMB)) && (play->sceneId == SCENE_GRAVEYARD) &&
                  (thisx->params == 2)) ||
                 (LINK_IS_ADULT && (thisx->params == 1))) {
                 Actor_Kill(thisx);
@@ -132,7 +132,7 @@ void func_808AC908(BgSpot02Objects* this, PlayState* play) {
     // We want to do most of the same things in rando, but we're not in a cutscene and the flag for
     // destroying the royal tombstone is already set.
     if (gSaveContext.n64ddFlag && Flags_GetEventChkInf(EVENTCHKINF_DESTROYED_ROYAL_FAMILY_TOMB)) {
-        Audio_PlayActorSound2(&this->dyna.actor, NA_SE_EV_GRAVE_EXPLOSION);
+        Actor_PlaySfx(&this->dyna.actor, NA_SE_EV_GRAVE_EXPLOSION);
         this->timer = 25;
         pos.x = (Math_SinS(this->dyna.actor.shape.rot.y) * 50.0f) + this->dyna.actor.world.pos.x;
         pos.y = this->dyna.actor.world.pos.y + 30.0f;
@@ -143,7 +143,7 @@ void func_808AC908(BgSpot02Objects* this, PlayState* play) {
 
     if (play->csCtx.state != 0) {
         if (play->csCtx.npcActions[3] != NULL && play->csCtx.npcActions[3]->action == 2) {
-            Audio_PlayActorSound2(&this->dyna.actor, NA_SE_EV_GRAVE_EXPLOSION);
+            Actor_PlaySfx(&this->dyna.actor, NA_SE_EV_GRAVE_EXPLOSION);
             Flags_SetEventChkInf(EVENTCHKINF_DESTROYED_ROYAL_FAMILY_TOMB);
             this->timer = 25;
             pos.x = (Math_SinS(this->dyna.actor.shape.rot.y) * 50.0f) + this->dyna.actor.world.pos.x;
@@ -176,9 +176,9 @@ void func_808ACA08(BgSpot02Objects* this, PlayState* play) {
     // enter the cutscene context.
     if (play->csCtx.frames == 402 && !(gSaveContext.n64ddFlag)) {
         if (!LINK_IS_ADULT) {
-            func_8002F7DC(&player->actor, NA_SE_VO_LI_DEMO_DAMAGE_KID);
+            Player_PlaySfx(&player->actor, NA_SE_VO_LI_DEMO_DAMAGE_KID);
         } else {
-            func_8002F7DC(&player->actor, NA_SE_VO_LI_DEMO_DAMAGE);
+            Player_PlaySfx(&player->actor, NA_SE_VO_LI_DEMO_DAMAGE);
         }
     }
 }
@@ -193,7 +193,7 @@ void func_808ACAFC(BgSpot02Objects* this, PlayState* play) {
 
 void func_808ACB58(BgSpot02Objects* this, PlayState* play) {
     if (Math_StepToF(&this->dyna.actor.world.pos.y, this->dyna.actor.home.pos.y + 255.0f, 1.0f)) {
-        Audio_PlayActorSound2(&this->dyna.actor, NA_SE_EV_STONEDOOR_STOP);
+        Actor_PlaySfx(&this->dyna.actor, NA_SE_EV_STONEDOOR_STOP);
         this->actionFunc = func_808AC8FC;
     } else {
         func_8002F974(&this->dyna.actor, NA_SE_EV_WALL_MOVE_SP - SFX_FLAG);
@@ -295,7 +295,7 @@ void func_808AD3D4(BgSpot02Objects* this, PlayState* play) {
     if (play->csCtx.state != 0 && play->csCtx.npcActions[2] != NULL &&
         play->csCtx.npcActions[2]->action == 2) {
         if (this->timer == 2) {
-            Audio_PlayActorSound2(&this->dyna.actor, NA_SE_IT_EXPLOSION_ICE);
+            Actor_PlaySfx(&this->dyna.actor, NA_SE_IT_EXPLOSION_ICE);
         }
 
         if (this->timer < 32) {

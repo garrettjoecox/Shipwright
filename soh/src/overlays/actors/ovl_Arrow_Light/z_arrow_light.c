@@ -56,7 +56,7 @@ void ArrowLight_Init(Actor* thisx, PlayState* play) {
 }
 
 void ArrowLight_Destroy(Actor* thisx, PlayState* play) {
-    func_800876C8(play);
+    Magic_Reset(play);
     LOG_STRING("消滅"); // "Disappearance"
 }
 
@@ -163,7 +163,7 @@ void ArrowLight_Fly(ArrowLight* this, PlayState* play) {
     func_80869E6C(&this->unkPos, &this->actor.world.pos, 0.05f);
 
     if (arrow->hitFlags & 1) {
-        Audio_PlayActorSound2(&this->actor, NA_SE_IT_EXPLOSION_LIGHT);
+        Actor_PlaySfx(&this->actor, NA_SE_IT_EXPLOSION_LIGHT);
         ArrowLight_SetupAction(this, ArrowLight_Hit);
         this->timer = 32;
         this->alpha = 255;

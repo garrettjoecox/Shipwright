@@ -21,7 +21,7 @@ s32 __osMotorAccess(OSPfs* pfs, u32 vibrate) {
         ((__OSContRamHeader*)buf)->data[i] = vibrate;
     }
 
-    __osContLastPoll = CONT_CMD_END;
+    __osContLastCmd = CONT_CMD_END;
     __osSiRawStartDma(OS_WRITE, &osPifBuffers[pfs->channel]);
     osRecvMesg(pfs->queue, NULL, OS_MESG_BLOCK);
     __osSiRawStartDma(OS_READ, &osPifBuffers[pfs->channel]);

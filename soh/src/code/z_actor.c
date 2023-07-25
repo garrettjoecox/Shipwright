@@ -212,18 +212,18 @@ void ActorShadow_DrawFeet(Actor* actor, Lights* lights, PlayState* play) {
 
         POLY_OPA_DISP = Gfx_SetupDL(POLY_OPA_DISP, 0x2C);
 
-        actor->shape.feetFloorFlags = 0;
+        actor->shape.feetFloorFlag = 0;
 
         for (i = 0; i < 2; i++) {
             feetPosPtr->y += 50.0f;
             *floorHeightPtr = func_800BFCB8(play, &floorMtx, feetPosPtr);
             feetPosPtr->y -= 50.0f;
-            actor->shape.feetFloorFlags <<= 1;
+            actor->shape.feetFloorFlag <<= 1;
             distToFloor = feetPosPtr->y - *floorHeightPtr;
 
             if ((-1.0f <= distToFloor) && (distToFloor < 500.0f)) {
                 if (distToFloor <= 0.0f) {
-                    actor->shape.feetFloorFlags++;
+                    actor->shape.feetFloorFlag++;
                 }
                 distToFloor = CLAMP_MAX(distToFloor, 30.0f);
                 shadowAlpha = (f32)actor->shape.shadowAlpha * (1.0f - (distToFloor * (1.0f / 30.0f)));
@@ -264,14 +264,14 @@ void ActorShadow_DrawFeet(Actor* actor, Lights* lights, PlayState* play) {
         }
 
         if (!(actor->bgCheckFlags & 1)) {
-            actor->shape.feetFloorFlags = 0;
-        } else if (actor->shape.feetFloorFlags == 3) {
+            actor->shape.feetFloorFlag = 0;
+        } else if (actor->shape.feetFloorFlag == 3) {
             f32 footDistY = actor->shape.feetPos[FOOT_LEFT].y - actor->shape.feetPos[FOOT_RIGHT].y;
 
             if ((floorHeight[0] + footDistY) < (floorHeight[1] - footDistY)) {
-                actor->shape.feetFloorFlags = 2;
+                actor->shape.feetFloorFlag = 2;
             } else {
-                actor->shape.feetFloorFlags = 1;
+                actor->shape.feetFloorFlag = 1;
             }
         }
 
@@ -288,7 +288,7 @@ void Actor_SetFeetPos(Actor* actor, s32 limbIndex, s32 leftFootIndex, Vec3f* lef
     }
 }
 
-void func_8002BE04(PlayState* play, Vec3f* arg1, Vec3f* arg2, f32* arg3) {
+void Actor_ProjectPos(PlayState* play, Vec3f* arg1, Vec3f* arg2, f32* arg3) {
     SkinMatrix_Vec3fMtxFMultXYZW(&play->viewProjectionMtxF, arg1, arg2, arg3);
     *arg3 = (*arg3 < 1.0f) ? 1.0f : (1.0f / *arg3);
 }
@@ -467,7 +467,7 @@ void func_8002C124(TargetContext* targetCtx, PlayState* play) {
             spCE = targetCtx->unk_48;
         }
 
-        func_8002BE04(play, &targetCtx->targetCenterPos, &spBC, &spB4);
+        Actor_ProjectPos(play, &targetCtx->targetCenterPos, &spBC, &spB4);
 
         spBC.x = (160 * (spBC.x * spB4)) * var1;
         spBC.x = CLAMP(spBC.x, -320.0f, 320.0f);
@@ -605,7 +605,7 @@ void func_8002C7BC(TargetContext* targetCtx, Player* player, Actor* actorArg, Pl
     }
 
     if ((actorArg != NULL) && (targetCtx->unk_4B == 0)) {
-        func_8002BE04(play, &actorArg->focus.pos, &sp50, &sp4C);
+        Actor_ProjectPos(play, &actorArg->focus.pos, &sp50, &sp4C);
         if (((sp50.z <= 0.0f) || (1.0f <= fabsf(sp50.x * sp4C))) || (1.0f <= fabsf(sp50.y * sp4C))) {
             actorArg = NULL;
         }
@@ -831,54 +831,54 @@ void TitleCard_InitPlaceName(PlayState* play, TitleCardContext* titleCtx, void* 
                              s32 width, s32 height, s32 delay) {
     SceneTableEntry* loadedScene = play->loadedScene;
   //  size_t size = loadedScene->titleFile.vromEnd - loadedScene->titleFile.vromStart;
-    switch (play->sceneNum) {
-        case SCENE_YDAN:
+    switch (play->sceneId) {
+        case SCENE_DEKU_TREE:
             texture = gDekuTreeTitleCardENGTex;
             break;
-        case SCENE_DDAN:
+        case SCENE_DODONGOS_CAVERN:
             texture = gDodongosCavernTitleCardENGTex;
             break;
-        case SCENE_BDAN:
+        case SCENE_JABU_JABU:
             texture = gJabuJabuTitleCardENGTex;
             break;
-        case SCENE_BMORI1:
+        case SCENE_FOREST_TEMPLE:
             texture = gForestTempleTitleCardENGTex;
             break;
-        case SCENE_HIDAN:
+        case SCENE_FIRE_TEMPLE:
             texture = gFireTempleTitleCardENGTex;
             break;
-        case SCENE_MIZUSIN:
+        case SCENE_WATER_TEMPLE:
             texture = gWaterTempleTitleCardENGTex;
             break;
-        case SCENE_JYASINZOU:
+        case SCENE_SPIRIT_TEMPLE:
             texture = gSpiritTempleTitleCardENGTex;
             break;
-        case SCENE_HAKADAN:
+        case SCENE_SHADOW_TEMPLE:
             texture = gShadowTempleTitleCardENGTex;
             break;
-        case SCENE_HAKADANCH:
+        case SCENE_BOTTOM_OF_THE_WELL:
             texture = gBottomOfTheWellTitleCardENGTex;
             break;
-        case SCENE_ICE_DOUKUTO:
+        case SCENE_ICE_CAVERN:
             texture = gIceCavernTitleCardENGTex;
             break;
-        case SCENE_MEN:
+        case SCENE_GERUDO_TRAINING_GROUND:
             texture = gGERudoTrainingGroundTitleCardENGTex;
             break;
-        case SCENE_GERUDOWAY:
+        case SCENE_THIEVES_HIDEOUT:
             texture = gThievesHideoutTitleCardENGTex;
             break;
-        case SCENE_GANON_TOU:
+        case SCENE_OUTSIDE_GANONS_CASTLE:
             texture = gGanonsCastleTitleCardENGTex;
             break;
-        case SCENE_GANONTIKA:
+        case SCENE_INSIDE_GANONS_CASTLE:
             texture = gInsideGanonsCastleTitleCardENGTex;
             break;
-        case SCENE_TAKARAYA:
+        case SCENE_TREASURE_BOX_SHOP:
             texture = gTreasureBoxShopTitleCardENGTex;
             break;
-        case SCENE_MARKET_ALLEY:
-        case SCENE_MARKET_ALLEY_N:
+        case SCENE_BACK_ALLEY_DAY:
+        case SCENE_BACK_ALLEY_NIGHT:
             texture = gBackAlleyTitleCardENGTex;
             break;
         case SCENE_MARKET_DAY:
@@ -886,130 +886,130 @@ void TitleCard_InitPlaceName(PlayState* play, TitleCardContext* titleCtx, void* 
         case SCENE_MARKET_RUINS:
             texture = gMarketTitleCardENGTex;
             break;
-        case SCENE_SHOP1:
+        case SCENE_BAZAAR:
             texture = gBazaarTitleCardENGTex;
             break;
         case SCENE_KOKIRI_SHOP:
             texture = gKokiriShopTitleCardENGTex;
             break;
-        case SCENE_GOLON:
+        case SCENE_GORON_SHOP:
             texture = gGoronShopTitleCardENGTex;
             break;
-        case SCENE_ZOORA:
+        case SCENE_ZORA_SHOP:
             texture = gZoraShopTitleCardENGTex;
             break;
-        case SCENE_NIGHT_SHOP:
+        case SCENE_BOMBCHU_SHOP:
             texture = gBombchuShopTitleCardENGTex;
             break;
-        case SCENE_DRAG:
-        case SCENE_MAHOUYA:
-        case SCENE_ALLEY_SHOP:
+        case SCENE_POTION_SHOP_KAKARIKO:
+        case SCENE_POTION_SHOP_GRANNY:
+        case SCENE_POTION_SHOP_MARKET:
             texture = gPotionShopTitleCardENGTex;
             break;
-        case SCENE_FACE_SHOP:
+        case SCENE_HAPPY_MASK_SHOP:
             texture = gHappyMaskShopTitleCardENGTex;
             break;
-        case SCENE_MALON_STABLE:
+        case SCENE_STABLE:
             texture = gStableTitleCardENGTex;
             break;
-        case SCENE_HYLIA_LABO:
+        case SCENE_LAKESIDE_LABORATORY:
             texture = gLakesideLaboratoryTitleCardENGTex;
             break;
-        case SCENE_HUT:
+        case SCENE_GRAVEKEEPERS_HUT:
             texture = gGravekeepersHutTitleCardENGTex;
             break;
-        case SCENE_DAIYOUSEI_IZUMI:
-        case SCENE_YOUSEI_IZUMI_YOKO:
+        case SCENE_GREAT_FAIRYS_FOUNTAIN_MAGIC:
+        case SCENE_GREAT_FAIRYS_FOUNTAIN_SPELLS:
             texture = gGreatFairysFountainTitleCardENGTex;
             break;
-        case SCENE_YOUSEI_IZUMI_TATE:
+        case SCENE_FAIRYS_FOUNTAIN:
             texture = gFairysFountainTitleCardENGTex;
             break;
-        case SCENE_HAKAANA_OUKE:
+        case SCENE_ROYAL_FAMILYS_TOMB:
             texture = gRoyalFamilysTombTitleCardENGTex;
             break;
-        case SCENE_SYATEKIJYOU:
+        case SCENE_SHOOTING_GALLERY:
             texture = gShootingGalleryTitleCardENGTex;
             break;
-        case SCENE_TOKINOMA:
+        case SCENE_TEMPLE_OF_TIME:
             texture = gTempleOfTimeTitleCardENGTex;
             break;
-        case SCENE_KENJYANOMA:
+        case SCENE_CHAMBER_OF_THE_SAGES:
             texture = gChamberOfTheSagesTitleCardENGTex;
             break;
-        case SCENE_HAIRAL_NIWA:
-        case SCENE_HAIRAL_NIWA_N:
-        case SCENE_NAKANIWA:
+        case SCENE_CASTLE_COURTYARD_GUARDS_DAY:
+        case SCENE_CASTLE_COURTYARD_GUARDS_NIGHT:
+        case SCENE_CASTLE_COURTYARD_ZELDA:
         case SCENE_HAIRAL_NIWA2:
             texture = gCastleCourtyardTitleCardENGTex;
             break;
-        case SCENE_HAKASITARELAY:
+        case SCENE_WINDMILL_AND_DAMPES_GRAVE:
             texture = gQuestionMarkTitleCardENGTex;
             break;
-        case SCENE_TURIBORI:
+        case SCENE_FISHING_POND:
             texture = gFishingPondTitleCardENGTex;
             break;
-        case SCENE_BOWLING:
+        case SCENE_BOMBCHU_BOWLING_ALLEY:
             texture = gBombchuBowlingAlleyCardENGTex;
             break;
-        case SCENE_KINSUTA:
+        case SCENE_HOUSE_OF_SKULLTULA:
             texture = gHouseOfSkulltulaTitleCardENGTex;
             break;
-        case SCENE_SPOT00:
+        case SCENE_HYRULE_FIELD:
             texture = gHyruleFieldTitleCardENGTex;
             break;
-        case SCENE_SPOT01:
+        case SCENE_KAKARIKO_VILLAGE:
             texture = gKakarikoVillageTitleCardENGTex;
             break;
-        case SCENE_SPOT02:
+        case SCENE_GRAVEYARD:
             texture = gGraveyardTitleCardENGTex;
             break;
-        case SCENE_SPOT03:
+        case SCENE_ZORAS_RIVER:
             texture = gZorasRiverTitleCardENGTex;
             break;
-        case SCENE_SPOT04:
+        case SCENE_KOKIRI_FOREST:
             texture = gKokiriForestTitleCardENGTex;
             break;
-        case SCENE_SPOT05:
+        case SCENE_SACRED_FOREST_MEADOW:
             texture = gSacredForestMeadowTitleCardENGTex;
             break;
-        case SCENE_SPOT06:
+        case SCENE_LAKE_HYLIA:
             texture = gLakeHyliaTitleCardENGTex;
             break;
-        case SCENE_SPOT07:
+        case SCENE_ZORAS_DOMAIN:
             texture = gZorasDomainTitleCardENGTex;
             break;
-        case SCENE_SPOT08:
+        case SCENE_ZORAS_FOUNTAIN:
             texture = gZorasFountainTitleCardENGTex;
             break;
-        case SCENE_SPOT09:
+        case SCENE_GERUDO_VALLEY:
             texture = gGERudoValleyTitleCardENGTex;
             break;
-        case SCENE_SPOT10:
+        case SCENE_LOST_WOODS:
             texture = gLostWoodsTitleCardENGTex;
             break;
-        case SCENE_SPOT11:
+        case SCENE_DESERT_COLOSSUS:
             texture = gDesertColossusTitleCardENGTex;
             break;
-        case SCENE_SPOT12:
+        case SCENE_GERUDOS_FORTRESS:
             texture = gGERudosFortressTitleCardENGTex;
             break;
-        case SCENE_SPOT13:
+        case SCENE_HAUNTED_WASTELAND:
             texture = gHauntedWastelandTitleCardENGTex;
             break;
-        case SCENE_SPOT15:
+        case SCENE_HYRULE_CASTLE:
             texture = gHyruleCastleTitleCardENGTex;
             break;
-        case SCENE_SPOT16:
+        case SCENE_DEATH_MOUNTAIN_TRAIL:
             texture = gDeathMountainTrailTitleCardENGTex;
             break;
-        case SCENE_SPOT17:
+        case SCENE_DEATH_MOUNTAIN_CRATER:
             texture = gDeathMountainCraterTitleCardENGTex;
             break;
-        case SCENE_SPOT18:
+        case SCENE_GORON_CITY:
             texture = gGoronCityTitleCardENGTex;
             break;
-        case SCENE_SPOT20:
+        case SCENE_LON_LON_RANCH:
             texture = gLonLonRanchTitleCardENGTex;
             break;
         default:
@@ -1134,7 +1134,7 @@ void TitleCard_Draw(PlayState* play, TitleCardContext* titleCtx) {
     }
 }
 
-s32 func_8002D53C(PlayState* play, TitleCardContext* titleCtx) {
+s32 TitleCard_Clear(PlayState* play, TitleCardContext* titleCtx) {
     if ((play->actorCtx.titleCtx.delayTimer != 0) || (play->actorCtx.titleCtx.alpha != 0)) {
         titleCtx->durationTimer = 0;
         titleCtx->delayTimer = 0;
@@ -1198,7 +1198,7 @@ void Actor_Init(Actor* actor, PlayState* play) {
     if (CVarGetInteger("gDisableDrawDistance", 0) != 0 && actor->id != ACTOR_EN_TORCH2 && actor->id != ACTOR_EN_BLKOBJ // Extra check for Dark Link and his room 
         && actor->id != ACTOR_EN_HORSE // Check for Epona, else if we call her she will spawn at the other side of the  map + we can hear her during the title screen sequence
         && actor->id != ACTOR_EN_HORSE_GANON && actor->id != ACTOR_EN_HORSE_ZELDA  // check for Zelda's and Ganondorf's horses that will always be scene during cinematic whith camera paning
-        && (play->sceneNum != SCENE_DDAN && actor->id != ACTOR_EN_ZF)) { // Check for DC and Lizalfos for the case where the miniboss music would still play under certains conditions and changing room
+        && (play->sceneId != SCENE_DODONGOS_CAVERN && actor->id != ACTOR_EN_ZF)) { // Check for DC and Lizalfos for the case where the miniboss music would still play under certains conditions and changing room
         actor->uncullZoneForward = 32767.0f;
         actor->uncullZoneScale = 32767.0f;
         actor->uncullZoneDownward = 32767.0f;
@@ -1229,7 +1229,7 @@ void Actor_Destroy(Actor* actor, PlayState* play) {
     }
 }
 
-void func_8002D7EC(Actor* actor) {
+void Actor_UpdatePos(Actor* actor) {
     f32 speedRate = R_UPDATE_RATE * 0.5f;
 
     actor->world.pos.x += (actor->velocity.x * speedRate) + actor->colChkInfo.displacement.x;
@@ -1237,7 +1237,7 @@ void func_8002D7EC(Actor* actor) {
     actor->world.pos.z += (actor->velocity.z * speedRate) + actor->colChkInfo.displacement.z;
 }
 
-void func_8002D868(Actor* actor) {
+void Actor_UpdateVelocityXZGravity(Actor* actor) {
     actor->velocity.x = Math_SinS(actor->world.rot.y) * actor->speedXZ;
     actor->velocity.z = Math_CosS(actor->world.rot.y) * actor->speedXZ;
 
@@ -1247,12 +1247,12 @@ void func_8002D868(Actor* actor) {
     }
 }
 
-void Actor_MoveForward(Actor* actor) {
-    func_8002D868(actor);
-    func_8002D7EC(actor);
+void Actor_MoveXZGravity(Actor* actor) {
+    Actor_UpdateVelocityXZGravity(actor);
+    Actor_UpdatePos(actor);
 }
 
-void func_8002D908(Actor* actor) {
+void Actor_UpdateVelocityXYZ(Actor* actor) {
     f32 sp24 = Math_CosS(actor->world.rot.x) * actor->speedXZ;
 
     actor->velocity.x = Math_SinS(actor->world.rot.y) * sp24;
@@ -1260,12 +1260,12 @@ void func_8002D908(Actor* actor) {
     actor->velocity.z = Math_CosS(actor->world.rot.y) * sp24;
 }
 
-void func_8002D97C(Actor* actor) {
-    func_8002D908(actor);
-    func_8002D7EC(actor);
+void Actor_MoveXYZ(Actor* actor) {
+    Actor_UpdateVelocityXYZ(actor);
+    Actor_UpdatePos(actor);
 }
 
-void func_8002D9A4(Actor* actor, f32 arg1) {
+void Actor_SetProjectileSpeed(Actor* actor, f32 arg1) {
     actor->speedXZ = Math_CosS(actor->world.rot.x) * arg1;
     actor->velocity.y = -Math_SinS(actor->world.rot.x) * arg1;
 }
@@ -1397,7 +1397,7 @@ void func_8002DE04(PlayState* play, Actor* actorA, Actor* actorB) {
 }
 
 void func_8002DE74(PlayState* play, Player* player) {
-    if ((play->roomCtx.curRoom.behaviorType1 != ROOM_BEHAVIOR_TYPE1_4) && func_800C0CB8(play)) {
+    if ((play->roomCtx.curRoom.behaviorType1 != ROOM_BEHAVIOR_TYPE1_4) && Play_CamIsNotFixed(play)) {
         Camera_ChangeSetting(Play_GetCamera(play, MAIN_CAM), CAM_SET_HORSE);
     }
 }
@@ -1944,7 +1944,7 @@ void Actor_GetScreenPos(PlayState* play, Actor* actor, s16* x, s16* y) {
     Vec3f projectedPos;
     f32 w;
 
-    func_8002BE04(play, &actor->focus.pos, &projectedPos, &w);
+    Actor_ProjectPos(play, &actor->focus.pos, &projectedPos, &w);
     *x = projectedPos.x * w * (SCREEN_WIDTH / 2) + (SCREEN_WIDTH / 2);
     *y = projectedPos.y * w * -(SCREEN_HEIGHT / 2) + (SCREEN_HEIGHT / 2);
 }
@@ -2044,7 +2044,7 @@ void GiveItemEntryFromActorWithFixedRange(Actor* actor, PlayState* play, GetItem
 
 // TODO: Rename to GiveItemIdFromActor or similar
 // If you're doing something for randomizer, you're probably looking for GiveItemEntryFromActor
-s32 func_8002F434(Actor* actor, PlayState* play, s32 getItemId, f32 xzRange, f32 yRange) {
+s32 Actor_OfferGetItem(Actor* actor, PlayState* play, s32 getItemId, f32 xzRange, f32 yRange) {
     Player* player = GET_PLAYER(play);
 
     if (!(player->stateFlags1 & 0x3C7080) && Player_GetExplosiveHeld(player) < 0) {
@@ -2070,12 +2070,12 @@ s32 func_8002F434(Actor* actor, PlayState* play, s32 getItemId, f32 xzRange, f32
 
 // TODO: Rename to GiveItemIdFromActorWithFixedRange or similar
 // If you're doing something for randomizer, you're probably looking for GiveItemEntryFromActorWithFixedRange
-void func_8002F554(Actor* actor, PlayState* play, s32 getItemId) {
-    func_8002F434(actor, play, getItemId, 50.0f, 10.0f);
+void Actor_OfferGetItemNearby(Actor* actor, PlayState* play, s32 getItemId) {
+    Actor_OfferGetItem(actor, play, getItemId, 50.0f, 10.0f);
 }
 
-void func_8002F580(Actor* actor, PlayState* play) {
-    func_8002F554(actor, play, GI_NONE);
+void Actor_OfferCarry(Actor* actor, PlayState* play) {
+    Actor_OfferGetItemNearby(actor, play, GI_NONE);
 }
 
 u32 Actor_HasNoParent(Actor* actor, PlayState* play) {
@@ -2101,7 +2101,7 @@ void func_8002F5C4(Actor* actorA, Actor* actorB, PlayState* play) {
     actorA->parent = NULL;
 }
 
-void func_8002F5F0(Actor* actor, PlayState* play) {
+void Actor_SetClosestSecretDistance(Actor* actor, PlayState* play) {
     Player* player = GET_PLAYER(play);
 
     if (actor->xyzDistToPlayerSq < player->unk_6A4) {
@@ -2163,21 +2163,21 @@ void func_8002F7A0(PlayState* play, Actor* actor, f32 arg2, s16 arg3, f32 arg4) 
     func_8002F758(play, actor, arg2, arg3, arg4, 0);
 }
 
-void func_8002F7DC(Actor* actor, u16 sfxId) {
+void Player_PlaySfx(Actor* actor, u16 sfxId) {
     if (actor->id != ACTOR_PLAYER || sfxId < NA_SE_VO_LI_SWORD_N || sfxId > NA_SE_VO_LI_ELECTRIC_SHOCK_LV_KID) {
-        Audio_PlaySoundGeneral(sfxId, &actor->projectedPos, 4, &D_801333E0 , &D_801333E0, &D_801333E8);
+        Audio_PlaySfxGeneral(sfxId, &actor->projectedPos, 4, &gSfxDefaultFreqAndVolScale , &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
     } else {
         freqMultiplier = CVarGetFloat("gLinkVoiceFreqMultiplier", 1.0);
         if (freqMultiplier <= 0) { 
             freqMultiplier = 1;
         }
-        // Authentic behavior uses D_801333E0 for both freqScale and a4
-        // Audio_PlaySoundGeneral(sfxId, &actor->projectedPos, 4, &D_801333E0 , &D_801333E0, &D_801333E8);
-        Audio_PlaySoundGeneral(sfxId, &actor->projectedPos, 4, &freqMultiplier, &D_801333E0, &D_801333E8);
+        // Authentic behavior uses gSfxDefaultFreqAndVolScale for both freqScale and a4
+        // Audio_PlaySfxGeneral(sfxId, &actor->projectedPos, 4, &gSfxDefaultFreqAndVolScale , &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
+        Audio_PlaySfxGeneral(sfxId, &actor->projectedPos, 4, &freqMultiplier, &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
     }
 }
 
-void Audio_PlayActorSound2(Actor* actor, u16 sfxId) {
+void Actor_PlaySfx(Actor* actor, u16 sfxId) {
     func_80078914(&actor->projectedPos, sfxId);
 }
 
@@ -2235,10 +2235,10 @@ void func_8002F994(Actor* actor, s32 arg1) {
 
 // Tests if something hit Jabu Jabu surface, displaying hit splash and playing sfx if true
 s32 func_8002F9EC(PlayState* play, Actor* actor, CollisionPoly* poly, s32 bgId, Vec3f* pos) {
-    if (func_80041D4C(&play->colCtx, poly, bgId) == 8) {
+    if (SurfaceType_GetFloorType(&play->colCtx, poly, bgId) == 8) {
         play->roomCtx.unk_74[0] = 1;
         CollisionCheck_BlueBlood(play, NULL, pos);
-        Audio_PlayActorSound2(actor, NA_SE_IT_WALL_HIT_BUYO);
+        Actor_PlaySfx(actor, NA_SE_IT_WALL_HIT_BUYO);
         return true;
     }
 
@@ -2434,16 +2434,16 @@ void func_80030488(PlayState* play) {
 void Actor_DisableLens(PlayState* play) {
     if (play->actorCtx.lensActive) {
         play->actorCtx.lensActive = false;
-        func_800876C8(play);
+        Magic_Reset(play);
     }
 }
 
 // Actor_InitContext
-void func_800304DC(PlayState* play, ActorContext* actorCtx, ActorEntry* actorEntry) {
+void Actor_InitContext(PlayState* play, ActorContext* actorCtx, ActorEntry* actorEntry) {
     SavedSceneFlags* savedSceneFlags;
     s32 i;
 
-    savedSceneFlags = &gSaveContext.sceneFlags[play->sceneNum];
+    savedSceneFlags = &gSaveContext.sceneFlags[play->sceneId];
 
     memset(actorCtx, 0, sizeof(*actorCtx));
 
@@ -2701,13 +2701,13 @@ void Actor_Draw(PlayState* play, Actor* actor) {
 
 void func_80030ED8(Actor* actor) {
     if (actor->flags & ACTOR_FLAG_SFX_AT_POS) {
-        Audio_PlaySoundGeneral(actor->sfx, &actor->projectedPos, 4, &D_801333E0, &D_801333E0, &D_801333E8);
+        Audio_PlaySfxGeneral(actor->sfx, &actor->projectedPos, 4, &gSfxDefaultFreqAndVolScale, &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
     } else if (actor->flags & ACTOR_FLAG_SFX_AT_CENTER) {
         func_80078884(actor->sfx);
     } else if (actor->flags & ACTOR_FLAG_SFX_AT_CENTER2) {
         func_800788CC(actor->sfx);
     } else if (actor->flags & ACTOR_FLAG_SFX_AS_TIMER) {
-        func_800F4C58(&D_801333D4, NA_SE_SY_TIMER - SFX_FLAG, (s8)(actor->sfx - 1));
+        func_800F4C58(&gSfxDefaultPos, NA_SE_SY_TIMER - SFX_FLAG, (s8)(actor->sfx - 1));
     } else {
         func_80078914(&actor->projectedPos, actor->sfx);
     }
@@ -2837,7 +2837,7 @@ s32 func_800314D4(PlayState* play, Actor* actor, Vec3f* arg2, f32 arg3) {
     if (CVarGetInteger("gDisableDrawDistance", 0) != 0 && actor->id != ACTOR_EN_TORCH2 && actor->id != ACTOR_EN_BLKOBJ // Extra check for Dark Link and his room 
         && actor->id != ACTOR_EN_HORSE // Check for Epona, else if we call her she will spawn at the other side of the  map + we can hear her during the title screen sequence
         && actor->id != ACTOR_EN_HORSE_GANON && actor->id != ACTOR_EN_HORSE_ZELDA  // check for Zelda's and Ganondorf's horses that will always be scene during cinematic whith camera paning
-        && (play->sceneNum != SCENE_DDAN && actor->id != ACTOR_EN_ZF)) { // Check for DC and Lizalfos for the case where the miniboss music would still play under certains conditions and changing room
+        && (play->sceneId != SCENE_DODONGOS_CAVERN && actor->id != ACTOR_EN_ZF)) { // Check for DC and Lizalfos for the case where the miniboss music would still play under certains conditions and changing room
         return true;
     }
 
@@ -2954,7 +2954,7 @@ void func_800315AC(PlayState* play, ActorContext* actorCtx) {
     CLOSE_DISPS(play->state.gfxCtx);
 }
 
-void func_80031A28(PlayState* play, ActorContext* actorCtx) {
+void Actor_KillAllWithMissingObject(PlayState* play, ActorContext* actorCtx) {
     Actor* actor;
     s32 i;
 
@@ -3727,70 +3727,70 @@ Actor* Actor_GetProjectileActor(PlayState* play, Actor* refActor, f32 radius) {
 void Actor_SetTextWithPrefix(PlayState* play, Actor* actor, s16 baseTextId) {
     s16 prefix;
 
-    switch (play->sceneNum) {
-        case SCENE_YDAN:
-        case SCENE_YDAN_BOSS:
-        case SCENE_MORIBOSSROOM:
-        case SCENE_KOKIRI_HOME:
-        case SCENE_KOKIRI_HOME3:
-        case SCENE_KOKIRI_HOME4:
-        case SCENE_KOKIRI_HOME5:
+    switch (play->sceneId) {
+        case SCENE_DEKU_TREE:
+        case SCENE_DEKU_TREE_BOSS:
+        case SCENE_FOREST_TEMPLE_BOSS:
+        case SCENE_KNOW_IT_ALL_BROS_HOUSE:
+        case SCENE_TWINS_HOUSE:
+        case SCENE_MIDOS_HOUSE:
+        case SCENE_SARIAS_HOUSE:
         case SCENE_KOKIRI_SHOP:
-        case SCENE_LINK_HOME:
-        case SCENE_SPOT04:
-        case SCENE_SPOT05:
-        case SCENE_SPOT10:
+        case SCENE_LINKS_HOUSE:
+        case SCENE_KOKIRI_FOREST:
+        case SCENE_SACRED_FOREST_MEADOW:
+        case SCENE_LOST_WOODS:
         case 112:
             prefix = 0x1000;
             break;
-        case SCENE_MALON_STABLE:
-        case SCENE_SPOT00:
-        case SCENE_SPOT20:
+        case SCENE_STABLE:
+        case SCENE_HYRULE_FIELD:
+        case SCENE_LON_LON_RANCH:
             prefix = 0x2000;
             break;
-        case SCENE_HIDAN:
-        case SCENE_DDAN_BOSS:
-        case SCENE_FIRE_BS:
-        case SCENE_SPOT16:
-        case SCENE_SPOT17:
-        case SCENE_SPOT18:
+        case SCENE_FIRE_TEMPLE:
+        case SCENE_DODONGOS_CAVERN_BOSS:
+        case SCENE_FIRE_TEMPLE_BOSS:
+        case SCENE_DEATH_MOUNTAIN_TRAIL:
+        case SCENE_DEATH_MOUNTAIN_CRATER:
+        case SCENE_GORON_CITY:
             prefix = 0x3000;
             break;
-        case SCENE_BDAN:
-        case SCENE_BDAN_BOSS:
-        case SCENE_SPOT03:
-        case SCENE_SPOT07:
-        case SCENE_SPOT08:
+        case SCENE_JABU_JABU:
+        case SCENE_JABU_JABU_BOSS:
+        case SCENE_ZORAS_RIVER:
+        case SCENE_ZORAS_DOMAIN:
+        case SCENE_ZORAS_FOUNTAIN:
             prefix = 0x4000;
             break;
-        case SCENE_HAKADAN:
-        case SCENE_HAKADAN_BS:
-        case SCENE_KAKARIKO:
-        case SCENE_KAKARIKO3:
-        case SCENE_IMPA:
-        case SCENE_HUT:
-        case SCENE_HAKAANA:
-        case SCENE_HAKASITARELAY:
-        case SCENE_SPOT01:
-        case SCENE_SPOT02:
+        case SCENE_SHADOW_TEMPLE:
+        case SCENE_SHADOW_TEMPLE_BOSS:
+        case SCENE_KAKARIKO_CENTER_GUEST_HOUSE:
+        case SCENE_BACK_ALLEY_HOUSE:
+        case SCENE_DOG_LADY_HOUSE:
+        case SCENE_GRAVEKEEPERS_HUT:
+        case SCENE_REDEAD_GRAVE:
+        case SCENE_WINDMILL_AND_DAMPES_GRAVE:
+        case SCENE_KAKARIKO_VILLAGE:
+        case SCENE_GRAVEYARD:
             prefix = 0x5000;
             break;
-        case SCENE_JYASINZOU:
-        case SCENE_JYASINBOSS:
-        case SCENE_LABO:
-        case SCENE_TENT:
-        case SCENE_SPOT06:
-        case SCENE_SPOT09:
-        case SCENE_SPOT11:
+        case SCENE_SPIRIT_TEMPLE:
+        case SCENE_SPIRIT_TEMPLE_BOSS:
+        case SCENE_IMPAS_HOUSE:
+        case SCENE_CARPENTERS_TENT:
+        case SCENE_LAKE_HYLIA:
+        case SCENE_GERUDO_VALLEY:
+        case SCENE_DESERT_COLOSSUS:
             prefix = 0x6000;
             break;
-        case SCENE_ENTRA:
-        case SCENE_MARKET_ALLEY:
-        case SCENE_MARKET_ALLEY_N:
+        case SCENE_MARKET_ENTRANCE_DAY:
+        case SCENE_BACK_ALLEY_DAY:
+        case SCENE_BACK_ALLEY_NIGHT:
         case SCENE_MARKET_DAY:
         case SCENE_MARKET_NIGHT:
         case SCENE_MARKET_RUINS:
-        case SCENE_SPOT15:
+        case SCENE_HYRULE_CASTLE:
             prefix = 0x7000;
             break;
         default:
@@ -3890,7 +3890,7 @@ void func_80033C30(Vec3f* arg0, Vec3f* arg1, u8 alpha, PlayState* play) {
     sp50.y = arg0->y + 1.0f;
     sp50.z = arg0->z;
 
-    var = BgCheck_EntityRaycastFloor2(play, &play->colCtx, &sp4C, &sp50);
+    var = BgCheck_EntityRaycastDown2(play, &play->colCtx, &sp4C, &sp50);
 
     if (sp4C != NULL) {
         func_80038A28(sp4C, arg0->x, var, arg0->z, &sp60);
@@ -3908,30 +3908,30 @@ void func_80033C30(Vec3f* arg0, Vec3f* arg1, u8 alpha, PlayState* play) {
     CLOSE_DISPS(play->state.gfxCtx);
 }
 
-void func_80033DB8(PlayState* play, s16 arg1, s16 arg2) {
-    s16 var = Quake_Add(&play->mainCamera, 3);
+void Actor_RequestQuake(PlayState* play, s16 arg1, s16 arg2) {
+    s16 var = Quake_Request(&play->mainCamera, 3);
 
     Quake_SetSpeed(var, 20000);
-    Quake_SetQuakeValues(var, arg1, 0, 0, 0);
-    Quake_SetCountdown(var, arg2);
+    Quake_SetPerturbations(var, arg1, 0, 0, 0);
+    Quake_SetDuration(var, arg2);
 }
 
-void func_80033E1C(PlayState* play, s16 arg1, s16 arg2, s16 arg3) {
-    s16 var = Quake_Add(&play->mainCamera, 3);
+void Actor_RequestQuakeWithSpeed(PlayState* play, s16 arg1, s16 arg2, s16 arg3) {
+    s16 var = Quake_Request(&play->mainCamera, 3);
 
     Quake_SetSpeed(var, arg3);
-    Quake_SetQuakeValues(var, arg1, 0, 0, 0);
-    Quake_SetCountdown(var, arg2);
+    Quake_SetPerturbations(var, arg1, 0, 0, 0);
+    Quake_SetDuration(var, arg2);
 }
 
-void func_80033E88(Actor* actor, PlayState* play, s16 arg2, s16 arg3) {
+void Actor_RequestQuakeAndRumble(Actor* actor, PlayState* play, s16 arg2, s16 arg3) {
     if (arg2 >= 5) {
-        func_800AA000(actor->xyzDistToPlayerSq, 0xFF, 0x14, 0x96);
+        Rumble_Request(actor->xyzDistToPlayerSq, 0xFF, 0x14, 0x96);
     } else {
-        func_800AA000(actor->xyzDistToPlayerSq, 0xB4, 0x14, 0x64);
+        Rumble_Request(actor->xyzDistToPlayerSq, 0xB4, 0x14, 0x64);
     }
 
-    func_80033DB8(play, arg2, arg3);
+    Actor_RequestQuake(play, arg2, arg3);
 }
 
 f32 Rand_ZeroFloat(f32 f) {
@@ -4022,7 +4022,7 @@ void func_8003424C(PlayState* play, Vec3f* arg1) {
 
 void Actor_SetColorFilter(Actor* actor, s16 colorFlag, s16 colorIntensityMax, s16 xluFlag, s16 duration) {
     if ((colorFlag == 0x8000) && !(colorIntensityMax & 0x8000)) {
-        Audio_PlayActorSound2(actor, NA_SE_EN_LIGHT_ARROW_HIT);
+        Actor_PlaySfx(actor, NA_SE_EN_LIGHT_ARROW_HIT);
     }
 
     actor->colorFilterParams = colorFlag | xluFlag | ((colorIntensityMax & 0xF8) << 5) | duration;
@@ -4385,7 +4385,7 @@ s16 func_80034DD4(Actor* actor, PlayState* play, s16 arg2, f32 arg3) {
     Player* player = GET_PLAYER(play);
     f32 var;
 
-    if ((play->csCtx.state != CS_STATE_IDLE) || (gDbgCamEnabled)) {
+    if ((play->csCtx.state != CS_STATE_IDLE) || (gDebugCamEnabled)) {
         var = Math_Vec3f_DistXYZ(&actor->world.pos, &play->view.eye) * 0.25f;
     } else {
         var = Math_Vec3f_DistXYZ(&actor->world.pos, &player->actor.world.pos);
@@ -4438,13 +4438,13 @@ s32 func_80035124(Actor* actor, PlayState* play) {
             if (Actor_HasParent(actor, play)) {
                 actor->params = 1;
             } else if (!(actor->bgCheckFlags & 1)) {
-                Actor_MoveForward(actor);
+                Actor_MoveXZGravity(actor);
                 Math_SmoothStepToF(&actor->speedXZ, 0.0f, 1.0f, 0.1f, 0.0f);
             } else if ((actor->bgCheckFlags & 2) && (actor->velocity.y < -4.0f)) {
                 ret = 1;
             } else {
                 actor->shape.rot.x = actor->shape.rot.z = 0;
-                func_8002F580(actor, play);
+                Actor_OfferCarry(actor, play);
             }
             break;
         case 1:
@@ -4497,7 +4497,7 @@ s32 func_800354B4(PlayState* play, Actor* actor, f32 range, s16 arg3, s16 arg4, 
     var1 = (s16)(actor->yawTowardsPlayer + 0x8000) - player->actor.shape.rot.y;
     var2 = actor->yawTowardsPlayer - arg5;
 
-    if ((actor->xzDistToPlayer <= range) && (player->swordState != 0) && (arg4 >= ABS(var1)) && (arg3 >= ABS(var2))) {
+    if ((actor->xzDistToPlayer <= range) && (player->meleeWeaponState != 0) && (arg4 >= ABS(var1)) && (arg3 >= ABS(var2))) {
         return true;
     } else {
         return false;
@@ -4537,7 +4537,7 @@ void func_800355B8(PlayState* play, Vec3f* pos) {
 u8 func_800355E4(PlayState* play, Collider* collider) {
     Player* player = GET_PLAYER(play);
 
-    if ((collider->acFlags & AC_TYPE_PLAYER) && (player->swordState != 0) && (player->meleeWeaponAnimation == 0x16)) {
+    if ((collider->acFlags & AC_TYPE_PLAYER) && (player->meleeWeaponState != 0) && (player->meleeWeaponAnimation == 0x16)) {
         return true;
     } else {
         return false;
@@ -5084,7 +5084,7 @@ u32 func_80035BFC(PlayState* play, s16 arg1) {
             }
             break;
         case 16:
-            if (play->sceneNum == SCENE_SPOT15) {
+            if (play->sceneId == SCENE_HYRULE_CASTLE) {
                 retTextId = 0x7002;
             } else if (Flags_GetInfTable(INFTABLE_6A)) {
                 retTextId = 0x7004;
@@ -5540,8 +5540,8 @@ void func_80036E50(u16 textId, s16 arg1) {
                     Flags_SetInfTable(INFTABLE_0C);
                     return;
                 case 0x1033:
-                    Audio_PlaySoundGeneral(NA_SE_SY_CORRECT_CHIME, &D_801333D4, 4, &D_801333E0, &D_801333E0,
-                                           &D_801333E8);
+                    Audio_PlaySfxGeneral(NA_SE_SY_CORRECT_CHIME, &gSfxDefaultPos, 4, &gSfxDefaultFreqAndVolScale, &gSfxDefaultFreqAndVolScale,
+                                           &gSfxDefaultReverb);
                     Flags_SetEventChkInf(EVENTCHKINF_SHOWED_MIDO_SWORD_SHIELD);
                     Flags_SetInfTable(INFTABLE_0E);
                     return;
@@ -6004,7 +6004,7 @@ s32 func_80037CB8(PlayState* play, Actor* actor, s16 arg2) {
         case TEXT_STATE_CHOICE:
         case TEXT_STATE_EVENT:
             if (Message_ShouldAdvance(play) && func_80037C94(play, actor, arg2)) {
-                Audio_PlaySoundGeneral(NA_SE_SY_CANCEL, &D_801333D4, 4, &D_801333E0, &D_801333E0, &D_801333E8);
+                Audio_PlaySfxGeneral(NA_SE_SY_CANCEL, &gSfxDefaultPos, 4, &gSfxDefaultFreqAndVolScale, &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
                 msgCtx->msgMode = MSGMODE_TEXT_CLOSING;
                 ret = true;
             }
@@ -6104,7 +6104,7 @@ s32 func_80038154(PlayState* play, Actor* actor, Vec3s* arg2, Vec3s* arg3, f32 a
     actor->focus.pos = actor->world.pos;
     actor->focus.pos.y += arg4;
 
-    if (!(((play->csCtx.state != CS_STATE_IDLE) || (gDbgCamEnabled)) && (gSaveContext.entranceIndex == 0x00EE))) {
+    if (!(((play->csCtx.state != CS_STATE_IDLE) || (gDebugCamEnabled)) && (gSaveContext.entranceIndex == 0x00EE))) {
         var = actor->yawTowardsPlayer - actor->shape.rot.y;
         abs_var = ABS(var);
         if (abs_var >= 0x4300) {
@@ -6113,7 +6113,7 @@ s32 func_80038154(PlayState* play, Actor* actor, Vec3s* arg2, Vec3s* arg3, f32 a
         }
     }
 
-    if (((play->csCtx.state != CS_STATE_IDLE) || (gDbgCamEnabled)) && (gSaveContext.entranceIndex == 0x00EE)) {
+    if (((play->csCtx.state != CS_STATE_IDLE) || (gDebugCamEnabled)) && (gSaveContext.entranceIndex == 0x00EE)) {
         sp2C = play->view.eye;
     } else {
         sp2C = player->actor.focus.pos;
@@ -6124,7 +6124,7 @@ s32 func_80038154(PlayState* play, Actor* actor, Vec3s* arg2, Vec3s* arg3, f32 a
     return true;
 }
 
-s32 func_80038290(PlayState* play, Actor* actor, Vec3s* arg2, Vec3s* arg3, Vec3f arg4) {
+s32 Actor_TrackPlayer(PlayState* play, Actor* actor, Vec3s* arg2, Vec3s* arg3, Vec3f arg4) {
     Player* player = GET_PLAYER(play);
     s32 pad;
     Vec3f sp24;
@@ -6133,7 +6133,7 @@ s32 func_80038290(PlayState* play, Actor* actor, Vec3s* arg2, Vec3s* arg3, Vec3f
 
     actor->focus.pos = arg4;
 
-    if (!(((play->csCtx.state != CS_STATE_IDLE) || (gDbgCamEnabled)) && (gSaveContext.entranceIndex == 0x00EE))) {
+    if (!(((play->csCtx.state != CS_STATE_IDLE) || (gDebugCamEnabled)) && (gSaveContext.entranceIndex == 0x00EE))) {
         var = actor->yawTowardsPlayer - actor->shape.rot.y;
         abs_var = ABS(var);
         if (abs_var >= 0x4300) {
@@ -6142,7 +6142,7 @@ s32 func_80038290(PlayState* play, Actor* actor, Vec3s* arg2, Vec3s* arg3, Vec3f
         }
     }
 
-    if (((play->csCtx.state != CS_STATE_IDLE) || (gDbgCamEnabled)) && (gSaveContext.entranceIndex == 0x00EE)) {
+    if (((play->csCtx.state != CS_STATE_IDLE) || (gDebugCamEnabled)) && (gSaveContext.entranceIndex == 0x00EE)) {
         sp24 = play->view.eye;
     } else {
         sp24 = player->actor.focus.pos;

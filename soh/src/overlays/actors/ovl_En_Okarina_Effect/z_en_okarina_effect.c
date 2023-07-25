@@ -85,7 +85,7 @@ void EnOkarinaEffect_ManageStorm(EnOkarinaEffect* this, PlayState* play) {
         }
     }
 
-    if (D_8011FB38 != 0) {
+    if (gInterruptSongOfStorms != 0) {
         this->timer = 0;
     }
 

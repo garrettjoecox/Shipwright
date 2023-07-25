@@ -1,7 +1,7 @@
 #include "global.h"
 
-OSPifRam __osPifInternalBuff;
-u8 __osContLastPoll;
+OSPifRam __osContPifRam;
+u8 __osContLastCmd;
 u8 __osMaxControllers; // always 4
 
 OSTimer __osEepromTimer;
@@ -32,12 +32,12 @@ s32 osContInit(OSMesgQueue* mq, u8* ctlBitfield, OSContStatus* status) {
     }
     __osMaxControllers = MAXCONTROLLERS;
     __osPackRequestData(CONT_CMD_REQUEST_STATUS);
-    ret = __osSiRawStartDma(OS_WRITE, &__osPifInternalBuff);
+    ret = __osSiRawStartDma(OS_WRITE, &__osContPifRam);
     osRecvMesg(mq, &mesg, OS_MESG_BLOCK);
-    ret = __osSiRawStartDma(OS_READ, &__osPifInternalBuff);
+    ret = __osSiRawStartDma(OS_READ, &__osContPifRam);
     osRecvMesg(mq, &mesg, OS_MESG_BLOCK);
     __osContGetInitData(ctlBitfield, status);
-    __osContLastPoll = CONT_CMD_REQUEST_STATUS;
+    __osContLastCmd = CONT_CMD_REQUEST_STATUS;
     __osSiCreateAccessQueue();
     osCreateMesgQueue(&__osEepromTimerMsgQ, &__osEepromTimerMsg, 1);
 
@@ -50,7 +50,7 @@ void __osContGetInitData(u8* ctlBitfield, OSContStatus* status) {
     s32 i;
     u8 bitfieldTemp = 0;
 
-    bufptr = (u8*)(&__osPifInternalBuff);
+    bufptr = (u8*)(&__osContPifRam);
 
     for (i = 0; i < __osMaxControllers; i++, bufptr += sizeof(req), status++) {
         req = *((__OSContRequestHeader*)bufptr);
@@ -71,11 +71,11 @@ void __osPackRequestData(u8 poll) {
     s32 i;
 
     for (i = 0; i < 0xF; i++) {
-        __osPifInternalBuff.ram[i] = 0;
+        __osContPifRam.ram[i] = 0;
     }
-    __osPifInternalBuff.status = 1;
+    __osContPifRam.status = 1;
 
-    bufptr = (u8*)(&__osPifInternalBuff);
+    bufptr = (u8*)(&__osContPifRam);
 
     req.align = 0xFF;
     req.txsize = 1;

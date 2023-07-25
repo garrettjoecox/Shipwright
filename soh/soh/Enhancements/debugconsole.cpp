@@ -212,10 +212,10 @@ static bool ResetHandler(std::shared_ptr<LUS::Console> Console, std::vector<std:
 }
 
 const static std::map<std::string, uint16_t> ammoItems{ 
-    { "sticks", ITEM_STICK }, { "nuts", ITEM_NUT },
+    { "sticks", ITEM_DEKU_STICK }, { "nuts", ITEM_DEKU_NUT },
     { "bombs", ITEM_BOMB },   { "seeds", ITEM_SLINGSHOT },
     { "arrows", ITEM_BOW },   { "bombchus", ITEM_BOMBCHU },
-    { "beans", ITEM_BEAN }
+    { "beans", ITEM_MAGIC_BEAN }
 };
 
 static bool AddAmmoHandler(std::shared_ptr<LUS::Console> Console, const std::vector<std::string>& args, std::string* output) {
@@ -298,10 +298,10 @@ static bool TakeAmmoHandler(std::shared_ptr<LUS::Console> Console, const std::ve
 }
 
 const static std::map<std::string, uint16_t> bottleItems{
-    { "green_potion", ITEM_POTION_GREEN }, { "red_potion", ITEM_POTION_RED }, { "blue_potion", ITEM_POTION_BLUE },
-    { "milk", ITEM_MILK },                 { "half_milk", ITEM_MILK_HALF },   { "fairy", ITEM_FAIRY },
-    { "bugs", ITEM_BUG },                  { "fish", ITEM_FISH },             { "poe", ITEM_POE },
-    { "big_poe", ITEM_BIG_POE },           { "blue_fire", ITEM_BLUE_FIRE },   { "rutos_letter", ITEM_LETTER_RUTO },
+    { "green_potion", ITEM_BOTTLE_POTION_GREEN }, { "red_potion", ITEM_BOTTLE_POTION_RED }, { "blue_potion", ITEM_BOTTLE_POTION_BLUE },
+    { "milk", ITEM_MILK },                 { "half_milk", ITEM_BOTTLE_MILK_HALF },   { "fairy", ITEM_BOTTLE_FAIRY },
+    { "bugs", ITEM_BOTTLE_BUG },                  { "fish", ITEM_BOTTLE_FISH },             { "poe", ITEM_BOTTLE_POE },
+    { "big_poe", ITEM_BOTTLE_BIG_POE },           { "blue_fire", ITEM_BOTTLE_BLUE_FIRE },   { "rutos_letter", ITEM_BOTTLE_RUTOS_LETTER },
 };
 
 static bool BottleHandler(std::shared_ptr<LUS::Console> Console, const std::vector<std::string>& args, std::string* output) {
@@ -394,8 +394,8 @@ static bool EntranceHandler(std::shared_ptr<LUS::Console> Console, const std::ve
     }
 
     gPlayState->nextEntranceIndex = entrance;
-    gPlayState->sceneLoadFlag = 0x14;
-    gPlayState->fadeTransition = 11;
+    gPlayState->transitionTrigger = 0x14;
+    gPlayState->transitionType = 11;
     gSaveContext.nextTransitionType = 11;
 }
 
@@ -404,9 +404,9 @@ static bool VoidHandler(std::shared_ptr<LUS::Console> Console, const std::vector
             gSaveContext.respawn[RESPAWN_MODE_DOWN].tempSwchFlags = gPlayState->actorCtx.flags.tempSwch;
             gSaveContext.respawn[RESPAWN_MODE_DOWN].tempCollectFlags = gPlayState->actorCtx.flags.tempCollect;
             gSaveContext.respawnFlag = 1;
-            gPlayState->sceneLoadFlag = 0x14;
+            gPlayState->transitionTrigger = 0x14;
             gPlayState->nextEntranceIndex = gSaveContext.respawn[RESPAWN_MODE_DOWN].entranceIndex;
-            gPlayState->fadeTransition = 2;
+            gPlayState->transitionType = 2;
             gSaveContext.nextTransitionType = 2;
     } else {
         ERROR_MESSAGE("gPlayState == nullptr");
@@ -418,8 +418,8 @@ static bool VoidHandler(std::shared_ptr<LUS::Console> Console, const std::vector
 static bool ReloadHandler(std::shared_ptr<LUS::Console> Console, const std::vector<std::string>& args, std::string* output) {
     if (gPlayState != nullptr) {
         gPlayState->nextEntranceIndex = gSaveContext.entranceIndex;
-        gPlayState->sceneLoadFlag = 0x14;
-        gPlayState->fadeTransition = 11;
+        gPlayState->transitionTrigger = 0x14;
+        gPlayState->transitionType = 11;
         gSaveContext.nextTransitionType = 11;
     } else {
         ERROR_MESSAGE("gPlayState == nullptr");
@@ -454,9 +454,9 @@ static bool FWHandler(std::shared_ptr<LUS::Console> Console, const std::vector<s
                 break;
             case 1: //warp
                 if (gSaveContext.respawn[RESPAWN_MODE_TOP].data > 0) {
-                    gPlayState->sceneLoadFlag = 0x14;
+                    gPlayState->transitionTrigger = 0x14;
                     gPlayState->nextEntranceIndex = gSaveContext.respawn[RESPAWN_MODE_TOP].entranceIndex;
-                    gPlayState->fadeTransition = 5;
+                    gPlayState->transitionType = 5;
                 } else {
                     ERROR_MESSAGE("Farore's wind not set!");
                     return 1;
@@ -486,7 +486,7 @@ static bool FWHandler(std::shared_ptr<LUS::Console> Console, const std::vector<s
 
 static bool FileSelectHandler(std::shared_ptr<LUS::Console> Console, const std::vector<std::string>& args, std::string* output) {
     if (gPlayState != nullptr) {
-        SET_NEXT_GAMESTATE(&gPlayState->state, FileChoose_Init, FileChooseContext);
+        SET_NEXT_GAMESTATE(&gPlayState->state, FileSelect_Init, FileChooseContext);
         gPlayState->state.running = 0;
     } else {
         ERROR_MESSAGE("gPlayState == nullptr");

@@ -349,15 +349,15 @@ void EnFz_ApplyDamage(EnFz* this, PlayState* play) {
                     Actor_ApplyDamage(&this->actor);
                     Actor_SetColorFilter(&this->actor, 0x4000, 0xFF, 0x2000, 8);
                     if (this->actor.colChkInfo.health) {
-                        Audio_PlayActorSound2(&this->actor, NA_SE_EN_FREEZAD_DAMAGE);
+                        Actor_PlaySfx(&this->actor, NA_SE_EN_FREEZAD_DAMAGE);
                         vec.x = this->actor.world.pos.x;
                         vec.y = this->actor.world.pos.y;
                         vec.z = this->actor.world.pos.z;
                         EnFz_Damaged(this, play, &vec, 10, 0.0f);
                         this->unusedCounter++;
                     } else {
-                        Audio_PlayActorSound2(&this->actor, NA_SE_EN_FREEZAD_DEAD);
-                        Audio_PlayActorSound2(&this->actor, NA_SE_EV_ICE_BROKEN);
+                        Actor_PlaySfx(&this->actor, NA_SE_EN_FREEZAD_DEAD);
+                        Actor_PlaySfx(&this->actor, NA_SE_EV_ICE_BROKEN);
                         vec.x = this->actor.world.pos.x;
                         vec.y = this->actor.world.pos.y;
                         vec.z = this->actor.world.pos.z;
@@ -369,10 +369,10 @@ void EnFz_ApplyDamage(EnFz* this, PlayState* play) {
                 Actor_ApplyDamage(&this->actor);
                 Actor_SetColorFilter(&this->actor, 0x4000, 0xFF, 0x2000, 8);
                 if (this->actor.colChkInfo.health == 0) {
-                    Audio_PlayActorSound2(&this->actor, NA_SE_EN_FREEZAD_DEAD);
+                    Actor_PlaySfx(&this->actor, NA_SE_EN_FREEZAD_DEAD);
                     EnFz_SetupMelt(this);
                 } else {
-                    Audio_PlayActorSound2(&this->actor, NA_SE_EN_FREEZAD_DAMAGE);
+                    Actor_PlaySfx(&this->actor, NA_SE_EN_FREEZAD_DAMAGE);
                 }
             }
         }
@@ -696,7 +696,7 @@ void EnFz_Update(Actor* thisx, PlayState* play) {
     }
 
     Math_StepToF(&this->actor.speedXZ, this->speedXZ, 0.2f);
-    Actor_MoveForward(&this->actor);
+    Actor_MoveXZGravity(&this->actor);
 
     if (this->updateBgInfo) {
         Actor_UpdateBgCheckInfo(play, &this->actor, 20.0f, 20.0f, 20.0f, 5);

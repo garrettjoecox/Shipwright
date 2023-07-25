@@ -373,7 +373,7 @@ void EnXc_SetupSerenadeAction(EnXc* this, PlayState* play) {
     }
 
     // Player is adult and does not have iron boots and has not learned Serenade
-    if ((!CHECK_OWNED_EQUIP(EQUIP_BOOTS, 1) && !Flags_GetEventChkInf(EVENTCHKINF_LEARNED_SERENADE_OF_WATER)) && LINK_IS_ADULT) {
+    if ((!CHECK_OWNED_EQUIP(EQUIP_TYPE_BOOTS, 1) && !Flags_GetEventChkInf(EVENTCHKINF_LEARNED_SERENADE_OF_WATER)) && LINK_IS_ADULT) {
         this->action = SHEIK_ACTION_SERENADE;
         osSyncPrintf("水のセレナーデ シーク誕生!!!!!!!!!!!!!!!!!!\n");
     } else {
@@ -387,7 +387,7 @@ s32 EnXc_SerenadeCS(EnXc* this, PlayState* play) {
         Player* player = GET_PLAYER(play);
         s32 stateFlags = player->stateFlags1;
 
-        if (((CHECK_OWNED_EQUIP(EQUIP_BOOTS, 1) && !gSaveContext.n64ddFlag) ||
+        if (((CHECK_OWNED_EQUIP(EQUIP_TYPE_BOOTS, 1) && !gSaveContext.n64ddFlag) ||
              (Flags_GetTreasure(play, 2) && gSaveContext.n64ddFlag)) &&
             !Flags_GetEventChkInf(EVENTCHKINF_LEARNED_SERENADE_OF_WATER) && !(stateFlags & 0x20000000) &&
             !Play_InCsMode(play)) {
@@ -445,9 +445,9 @@ void EnXc_SetNutThrowSFX(EnXc* this, PlayState* play) {
 
 void EnXc_SetLandingSFX(EnXc* this, PlayState* play) {
     u32 sfxId;
-    s16 sceneNum = play->sceneNum;
+    s16 sceneId = play->sceneId;
 
-    if ((gSaveContext.sceneSetupIndex != 4) || (sceneNum != SCENE_SPOT11)) {
+    if ((gSaveContext.sceneLayer != 4) || (sceneId != SCENE_DESERT_COLOSSUS)) {
         if (Animation_OnFrame(&this->skelAnime, 11.0f)) {
             sfxId = SFX_FLAG;
             sfxId += SurfaceType_GetSfx(&play->colCtx, this->actor.floorPoly, this->actor.floorBgId);
@@ -458,11 +458,11 @@ void EnXc_SetLandingSFX(EnXc* this, PlayState* play) {
 
 void EnXc_SetColossusAppearSFX(EnXc* this, PlayState* play) {
     static Vec3f sXyzDist;
-    s16 sceneNum;
+    s16 sceneId;
 
-    if (gSaveContext.sceneSetupIndex == 4) {
-        sceneNum = play->sceneNum;
-        if (sceneNum == SCENE_SPOT11) {
+    if (gSaveContext.sceneLayer == 4) {
+        sceneId = play->sceneId;
+        if (sceneId == SCENE_DESERT_COLOSSUS) {
             CutsceneContext* csCtx = &play->csCtx;
             u16 frameCount = csCtx->frames;
             f32 wDest[2];
@@ -484,9 +484,9 @@ void EnXc_SetColossusAppearSFX(EnXc* this, PlayState* play) {
 }
 
 void func_80B3D118(PlayState* play) {
-    s16 sceneNum;
+    s16 sceneId;
 
-    if ((gSaveContext.sceneSetupIndex != 4) || (sceneNum = play->sceneNum, sceneNum != SCENE_SPOT11)) {
+    if ((gSaveContext.sceneLayer != 4) || (sceneId = play->sceneId, sceneId != SCENE_DESERT_COLOSSUS)) {
         func_800788CC(NA_SE_PL_SKIP);
     }
 }
@@ -495,14 +495,14 @@ static Vec3f D_80B42DA0;
 
 s32 D_80B41D90 = 0;
 void EnXc_SetColossusWindSFX(PlayState* play) {
-    if (gSaveContext.sceneSetupIndex == 4) {
+    if (gSaveContext.sceneLayer == 4) {
         static Vec3f sPos = { 0.0f, 0.0f, 0.0f };
         static f32 sMaxSpeed = 0.0f;
         static Vec3f D_80B42DB0;
         s32 pad;
-        s16 sceneNum = play->sceneNum;
+        s16 sceneId = play->sceneId;
 
-        if (sceneNum == SCENE_SPOT11) {
+        if (sceneId == SCENE_DESERT_COLOSSUS) {
             CutsceneContext* csCtx = &play->csCtx;
             u16 frameCount = csCtx->frames;
 
@@ -568,9 +568,9 @@ void EnXc_DestroyFlame(EnXc* this) {
 s32 D_80B41DA8 = 1;
 void EnXc_InitFlame(EnXc* this, PlayState* play) {
     s32 pad;
-    s16 sceneNum = play->sceneNum;
+    s16 sceneId = play->sceneId;
 
-    if (sceneNum == SCENE_SPOT17) {
+    if (sceneId == SCENE_DEATH_MOUNTAIN_CRATER) {
         CsCmdActorAction* npcAction = EnXc_GetCsCmd(play, 0);
         if (npcAction != NULL) {
             s32 action = npcAction->action;
@@ -641,11 +641,11 @@ void EnXc_CalcXZAccel(EnXc* this) {
         *speedXZ = (kREG(2) * 0.01f) + 1.2f;
     }
 
-    Actor_MoveForward(&this->actor);
+    Actor_MoveXZGravity(&this->actor);
 }
 
 void func_80B3D644(EnXc* this) {
-    Actor_MoveForward(&this->actor);
+    Actor_MoveXZGravity(&this->actor);
 }
 
 void EnXc_CalcXZSpeed(EnXc* this) {
@@ -657,7 +657,7 @@ void EnXc_CalcXZSpeed(EnXc* this) {
     } else {
         *speedXZ = 0.0f;
     }
-    Actor_MoveForward(&this->actor);
+    Actor_MoveXZGravity(&this->actor);
 }
 
 void func_80B3D6F0(EnXc* this) {
@@ -665,7 +665,7 @@ void func_80B3D6F0(EnXc* this) {
 }
 
 void func_80B3D710(EnXc* this) {
-    Actor_MoveForward(&this->actor);
+    Actor_MoveXZGravity(&this->actor);
 }
 
 void func_80B3D730(EnXc* this) {
@@ -909,10 +909,10 @@ void EnXc_SetupDisappear(EnXc* this, PlayState* play) {
         CsCmdActorAction* npcAction = play->csCtx.npcActions[4];
 
         if (npcAction != NULL && npcAction->action == 9) {
-            s16 sceneNum = play->sceneNum;
+            s16 sceneId = play->sceneId;
 
             // Sheik fades away if end of Bolero CS, kill actor otherwise
-            if (sceneNum == SCENE_SPOT17) {
+            if (sceneId == SCENE_DEATH_MOUNTAIN_CRATER) {
                 this->action = SHEIK_ACTION_FADE;
                 this->drawMode = SHEIK_DRAW_NOTHING;
                 this->actor.shape.shadowAlpha = 0;
@@ -1572,7 +1572,7 @@ void func_80B3FA08(EnXc* this, PlayState* play) {
 }
 
 void func_80B3FA2C(void) {
-    func_800F3F3C(1);
+    Audio_PlayCutsceneEffectsSequence(1);
 }
 
 void EnXc_PlayTriforceSFX(Actor* thisx, PlayState* play) {
@@ -1810,7 +1810,7 @@ void EnXc_SetThrownAroundSFX(EnXc* this) {
 
 void EnXc_PlayLinkScreamSFX(EnXc* this, PlayState* play) {
     if (play->csCtx.frames == 1455) {
-        func_800F3F3C(7);
+        Audio_PlayCutsceneEffectsSequence(7);
     }
 }
 

@@ -12,8 +12,8 @@ OSViMode osViModeNtscLan1;
 OSViMode osViModeMpalLan1;
 OSViMode osViModeFpalLan1;
 OSViMode osViModePalLan1;
-// AudioContext gAudioContext;
-// unk_D_8016E750 D_8016E750[4];
+// AudioContext gAudioCtx;
+// unk_D_8016E750 gActiveSeqs[4];
 u8 gLetterTLUT[4][32];
 u8 gFontFF[999];
 DmaEntry gDmaDataTable[0x60C];
@@ -22,7 +22,7 @@ u16 gAudioSEFlagSwapSource[64];
 u16 gAudioSEFlagSwapTarget[64];
 u8 gAudioSEFlagSwapMode[64];
 
-u8 osAppNmiBuffer[2048];
+u8 osAppNMIBuffer[2048];
 
 f32 qNaN0x10000 = 0x7F810000;
 

@@ -39,7 +39,7 @@ const ActorInit En_Encount2_InitVars = {
 void EnEncount2_Init(Actor* thisx, PlayState* play) {
     EnEncount2* this = (EnEncount2*)thisx;
 
-    if (play->sceneNum != SCENE_SPOT16) {
+    if (play->sceneId != SCENE_DEATH_MOUNTAIN_TRAIL) {
         this->isNotDeathMountain = true;
     }
 
@@ -75,10 +75,10 @@ void EnEncount2_Wait(EnEncount2* this, PlayState* play) {
             spawnerState = ENCOUNT2_ACTIVE_DEATH_MOUNTAIN;
         }
     } else if ((this->actor.xzDistToPlayer < 700.0f) && (Flags_GetSwitch(play, 0x37))) {
-        s16 scene = play->sceneNum;
+        s16 scene = play->sceneId;
 
-        if (((scene == SCENE_GANON_DEMO) || (scene == SCENE_GANON_FINAL) || (scene == SCENE_GANON_SONOGO) ||
-             (scene == SCENE_GANONTIKA_SONOGO)) &&
+        if (((scene == SCENE_GANON_BOSS) || (scene == SCENE_GANONS_TOWER_COLLAPSE_EXTERIOR) || (scene == SCENE_GANONS_TOWER_COLLAPSE_INTERIOR) ||
+             (scene == SCENE_INSIDE_GANONS_CASTLE_COLLAPSE)) &&
             (!this->collapseSpawnerInactive)) {
             spawnerState = ENCOUNT2_ACTIVE_GANONS_TOWER;
         }
@@ -94,10 +94,10 @@ void EnEncount2_Wait(EnEncount2* this, PlayState* play) {
             break;
         case ENCOUNT2_ACTIVE_DEATH_MOUNTAIN:
             if ((this->deathMountainSpawnerTimer == 1) || (!this->isQuaking)) {
-                quakeIndex = Quake_Add(GET_ACTIVE_CAM(play), 1);
+                quakeIndex = Quake_Request(GET_ACTIVE_CAM(play), 1);
                 Quake_SetSpeed(quakeIndex, 0x7FFF);
-                Quake_SetQuakeValues(quakeIndex, 50, 0, 0, 0);
-                Quake_SetCountdown(quakeIndex, 300);
+                Quake_SetPerturbations(quakeIndex, 50, 0, 0, 0);
+                Quake_SetDuration(quakeIndex, 300);
                 this->isQuaking = true;
             }
         case ENCOUNT2_ACTIVE_GANONS_TOWER:
@@ -153,12 +153,12 @@ void EnEncount2_SpawnRocks(EnEncount2* this, PlayState* play) {
             spawnerState = ENCOUNT2_ACTIVE_DEATH_MOUNTAIN;
         }
 
-        Audio_PlayActorSound2(&this->actor, NA_SE_EV_VOLCANO - SFX_FLAG);
+        Actor_PlaySfx(&this->actor, NA_SE_EV_VOLCANO - SFX_FLAG);
     } else if ((this->actor.xzDistToPlayer < 700.0f) && (Flags_GetSwitch(play, 0x37) != 0)) {
-        s16 scene = play->sceneNum;
+        s16 scene = play->sceneId;
 
-        if (((scene == SCENE_GANON_DEMO) || (scene == SCENE_GANON_FINAL) || (scene == SCENE_GANON_SONOGO) ||
-             (scene == SCENE_GANONTIKA_SONOGO)) &&
+        if (((scene == SCENE_GANON_BOSS) || (scene == SCENE_GANONS_TOWER_COLLAPSE_EXTERIOR) || (scene == SCENE_GANONS_TOWER_COLLAPSE_INTERIOR) ||
+             (scene == SCENE_INSIDE_GANONS_CASTLE_COLLAPSE)) &&
             (!this->collapseSpawnerInactive)) {
             maxRocks = 1;
             spawnerState = ENCOUNT2_ACTIVE_GANONS_TOWER;
@@ -329,7 +329,7 @@ void EnEncount2_ParticleUpdate(EnEncount2* this, PlayState* play) {
             Math_ApproachF(&particle->pos.z, targetPos.z, 0.3f, 30.0f);
             Math_ApproachF(&particle->moveDirection.y, -20.0f, 0.9f, 1.0f);
 
-            if (play->sceneNum != SCENE_SPOT16) {
+            if (play->sceneId != SCENE_DEATH_MOUNTAIN_TRAIL) {
                 if (particle->pos.y < (player->actor.floorHeight - 50.0f)) {
                     particle->isAlive = 0;
                 }

@@ -244,7 +244,7 @@ void EnBili_SetupStunned(EnBili* this) {
     this->actor.gravity = -1.0f;
     this->actor.speedXZ = 0.0f;
     Actor_SetColorFilter(&this->actor, 0, 0x96, 0x2000, 0x50);
-    Audio_PlayActorSound2(&this->actor, NA_SE_EN_GOMA_JR_FREEZE);
+    Actor_PlaySfx(&this->actor, NA_SE_EN_GOMA_JR_FREEZE);
     this->collider.base.atFlags &= ~AT_ON;
     this->actionFunc = EnBili_Stunned;
 }
@@ -399,7 +399,7 @@ void EnBili_Climb(EnBili* this, PlayState* play) {
     f32 curFrame = this->skelAnime.curFrame;
 
     if (Animation_OnFrame(&this->skelAnime, 9.0f)) {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_BIRI_JUMP);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_BIRI_JUMP);
     }
 
     if (curFrame > 9.0f) {
@@ -522,7 +522,7 @@ void EnBili_Stunned(EnBili* this, PlayState* play) {
     }
 
     if (this->actor.bgCheckFlags & 2) {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_DODO_M_GND);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_DODO_M_GND);
     }
 
     if (this->timer == 0) {
@@ -556,7 +556,7 @@ void EnBili_UpdateDamage(EnBili* this, PlayState* play) {
 
         if ((this->actor.colChkInfo.damageEffect != 0) || (this->actor.colChkInfo.damage != 0)) {
             if (Actor_ApplyDamage(&this->actor) == 0) {
-                Audio_PlayActorSound2(&this->actor, NA_SE_EN_BIRI_DEAD);
+                Actor_PlaySfx(&this->actor, NA_SE_EN_BIRI_DEAD);
                 Enemy_StartFinishingBlow(play, &this->actor);
                 this->actor.flags &= ~ACTOR_FLAG_TARGETABLE;
             }
@@ -614,7 +614,7 @@ void EnBili_Update(Actor* thisx, PlayState* play2) {
             if ((this->actionFunc == EnBili_FloatIdle) || (this->actionFunc == EnBili_SetNewHomeHeight) ||
                 (this->actionFunc == EnBili_ApproachPlayer) || (this->actionFunc == EnBili_Recoil)) {
                 if (this->playFlySound) {
-                    Audio_PlayActorSound2(&this->actor, NA_SE_EN_BIRI_FLY);
+                    Actor_PlaySfx(&this->actor, NA_SE_EN_BIRI_FLY);
                     this->playFlySound = false;
                 } else {
                     this->playFlySound = true;
@@ -622,9 +622,9 @@ void EnBili_Update(Actor* thisx, PlayState* play2) {
             }
         }
         if (this->actionFunc == EnBili_Recoil) {
-            func_8002D97C(&this->actor);
+            Actor_MoveXYZ(&this->actor);
         } else {
-            Actor_MoveForward(&this->actor);
+            Actor_MoveXZGravity(&this->actor);
         }
 
         Actor_UpdateBgCheckInfo(play, &this->actor, 5.0f, this->collider.dim.radius, this->collider.dim.height, 7);

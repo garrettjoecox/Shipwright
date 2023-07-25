@@ -93,7 +93,7 @@ void EnDodojr_Destroy(Actor* thisx, PlayState* play) {
 }
 
 void func_809F64D0(EnDodojr* this) {
-    Audio_PlayActorSound2(&this->actor, NA_SE_IT_BOMB_EXPLOSION);
+    Actor_PlaySfx(&this->actor, NA_SE_IT_BOMB_EXPLOSION);
     Actor_SetColorFilter(&this->actor, 0x4000, 200, 0, 8);
 }
 
@@ -148,7 +148,7 @@ s32 func_809F68B0(EnDodojr* this, PlayState* play) {
     }
 
     if (this->actor.bgCheckFlags & 1) {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_DODO_M_GND);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_DODO_M_GND);
         this->dustPos = this->actor.world.pos;
         func_809F6510(this, play, 10);
         this->actor.velocity.y = 10.0f / (4 - this->unk_1FC);
@@ -216,7 +216,7 @@ void func_809F6BBC(EnDodojr* this) {
 
 void func_809F6C24(EnDodojr* this) {
     Animation_Change(&this->skelAnime, &object_dodojr_Anim_000724, 1.0f, 8.0f, 12.0f, ANIMMODE_ONCE, 0.0f);
-    Audio_PlayActorSound2(&this->actor, NA_SE_EN_DODO_M_EAT);
+    Actor_PlaySfx(&this->actor, NA_SE_EN_DODO_M_EAT);
     this->actor.speedXZ = 0.0f;
     this->actor.velocity.x = 0.0f;
     this->actor.velocity.z = 0.0f;
@@ -317,7 +317,7 @@ s32 func_809F706C(EnDodojr* this) {
 }
 
 void func_809F709C(EnDodojr* this) {
-    Audio_PlayActorSound2(&this->actor, NA_SE_EN_DODO_M_DEAD);
+    Actor_PlaySfx(&this->actor, NA_SE_EN_DODO_M_DEAD);
     this->actor.flags &= ~ACTOR_FLAG_TARGETABLE;
     func_809F6A20(this);
     this->actionFunc = func_809F7AB8;
@@ -360,7 +360,7 @@ s32 func_809F70E8(EnDodojr* this, PlayState* play) {
 
         if ((this->actor.colChkInfo.damageEffect == 1) && (this->actionFunc != func_809F78EC) &&
             (this->actionFunc != func_809F786C)) {
-            Audio_PlayActorSound2(&this->actor, NA_SE_EN_GOMA_JR_FREEZE);
+            Actor_PlaySfx(&this->actor, NA_SE_EN_GOMA_JR_FREEZE);
             this->timer1 = 120;
             Actor_SetColorFilter(&this->actor, 0, 200, 0, 120);
             func_809F6A20(this);
@@ -401,7 +401,7 @@ void func_809F73AC(EnDodojr* this, PlayState* play) {
         if (!(dist >= 40.0f)) {
             Animation_Change(&this->skelAnime, &object_dodojr_Anim_000860, 1.8f, 0.0f, lastFrame, ANIMMODE_LOOP_INTERP,
                              -10.0f);
-            Audio_PlayActorSound2(&this->actor, NA_SE_EN_DODO_M_UP);
+            Actor_PlaySfx(&this->actor, NA_SE_EN_DODO_M_UP);
             this->actor.world.pos.y -= 60.0f;
             this->actor.flags |= ACTOR_FLAG_TARGETABLE;
             this->actor.world.rot.x -= 0x4000;
@@ -431,11 +431,11 @@ void func_809F74C4(EnDodojr* this, PlayState* play) {
 }
 
 void func_809F758C(EnDodojr* this, PlayState* play) {
-    func_8002D868(&this->actor);
+    Actor_UpdateVelocityXZGravity(&this->actor);
     func_809F6730(this, play, &this->actor.world.pos);
 
     if (DECR(this->timer4) == 0) {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_DODO_M_MOVE);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_DODO_M_MOVE);
         this->timer4 = 5;
     }
 
@@ -448,13 +448,13 @@ void func_809F758C(EnDodojr* this, PlayState* play) {
     func_809F6E54(this, play);
 
     if (func_809F706C(this) != 0) {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_DODO_M_CRY);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_DODO_M_CRY);
         func_809F6B38(this);
         this->actionFunc = func_809F799C;
     }
 
     if (this->actor.bgCheckFlags & 8) {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_DODO_M_DOWN);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_DODO_M_DOWN);
         func_809F6BBC(this);
         this->actionFunc = func_809F7A00;
     }
@@ -468,7 +468,7 @@ void func_809F768C(EnDodojr* this, PlayState* play) {
         bomb->timer++;
         this->bomb->world.pos = this->headPos;
     } else {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_DODO_K_DRINK);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_DODO_K_DRINK);
         Actor_Kill(this->bomb);
         this->timer3 = 24;
         this->unk_1FC = 0;
@@ -488,7 +488,7 @@ void func_809F773C(EnDodojr* this, PlayState* play) {
 void func_809F77AC(EnDodojr* this, PlayState* play) {
     this->rootScale = 1.2f;
     this->rootScale *= ((f32)this->actor.colorFilterTimer / 8);
-    func_8002D868(&this->actor);
+    Actor_UpdateVelocityXZGravity(&this->actor);
 
     if (func_809F68B0(this, play) != 0) {
         this->timer3 = 60;
@@ -503,7 +503,7 @@ void func_809F784C(EnDodojr* this, PlayState* play) {
 }
 
 void func_809F786C(EnDodojr* this, PlayState* play) {
-    func_8002D868(&this->actor);
+    Actor_UpdateVelocityXZGravity(&this->actor);
 
     if (func_809F68B0(this, play) != 0) {
         func_809F6AC4(this);
@@ -536,7 +536,7 @@ void func_809F78EC(EnDodojr* this, PlayState* play) {
 
 void func_809F799C(EnDodojr* this, PlayState* play) {
     this->actor.flags |= ACTOR_FLAG_PLAY_HIT_SFX;
-    func_8002D868(&this->actor);
+    Actor_UpdateVelocityXZGravity(&this->actor);
 
     if (func_809F68B0(this, play) != 0) {
         func_809F6994(this);
@@ -560,7 +560,7 @@ void func_809F7A00(EnDodojr* this, PlayState* play) {
 }
 
 void func_809F7AB8(EnDodojr* this, PlayState* play) {
-    func_8002D868(&this->actor);
+    Actor_UpdateVelocityXZGravity(&this->actor);
     Math_SmoothStepToS(&this->actor.shape.rot.y, 0, 4, 1000, 10);
     this->actor.world.rot.x = this->actor.shape.rot.x;
 
@@ -610,7 +610,7 @@ void EnDodojr_Update(Actor* thisx, PlayState* play) {
     EnDodojr* this = (EnDodojr*)thisx;
 
     SkelAnime_Update(&this->skelAnime);
-    Actor_MoveForward(&this->actor);
+    Actor_MoveXZGravity(&this->actor);
     func_809F70E8(this, play);
 
     if (this->actionFunc != func_809F73AC) {

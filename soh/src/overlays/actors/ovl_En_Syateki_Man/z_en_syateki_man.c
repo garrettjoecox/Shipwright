@@ -385,7 +385,7 @@ void EnSyatekiMan_EndGame(EnSyatekiMan* this, PlayState* play) {
                         }
                     }
                     if (!gSaveContext.n64ddFlag || this->getItemEntry.getItemId == GI_NONE) {
-                        func_8002F434(&this->actor, play, this->getItemId, 2000.0f, 1000.0f);
+                        Actor_OfferGetItem(&this->actor, play, this->getItemId, 2000.0f, 1000.0f);
                     } else {
                         GiveItemEntryFromActor(&this->actor, play, this->getItemEntry, 2000.0f, 1000.0f);
                     }
@@ -422,7 +422,7 @@ void EnSyatekiMan_GivePrize(EnSyatekiMan* this, PlayState* play) {
         this->actionFunc = EnSyatekiMan_FinishPrize;
     } else {
         if (!gSaveContext.n64ddFlag || this->getItemEntry.getItemId == GI_NONE) {
-            func_8002F434(&this->actor, play, this->getItemId, 2000.0f, 1000.0f);
+            Actor_OfferGetItem(&this->actor, play, this->getItemId, 2000.0f, 1000.0f);
         } else {
             GiveItemEntryFromActor(&this->actor, play, this->getItemEntry, 2000.0f, 1000.0f);
         }
@@ -502,7 +502,7 @@ void EnSyatekiMan_Update(Actor* thisx, PlayState* play) {
     this->blinkFunc(this);
     this->actor.focus.pos.y = 70.0f;
     Actor_SetFocus(&this->actor, 70.0f);
-    func_80038290(play, &this->actor, &this->headRot, &this->bodyRot, this->actor.focus.pos);
+    Actor_TrackPlayer(play, &this->actor, &this->headRot, &this->bodyRot, this->actor.focus.pos);
 }
 
 s32 EnSyatekiMan_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot,

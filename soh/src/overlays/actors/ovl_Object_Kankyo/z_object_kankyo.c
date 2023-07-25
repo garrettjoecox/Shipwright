@@ -214,7 +214,7 @@ void ObjectKankyo_Fairies(ObjectKankyo* this, PlayState* play) {
 
     player = GET_PLAYER(play);
 
-    if (play->sceneNum == SCENE_SPOT04 && gSaveContext.sceneSetupIndex == 7) {
+    if (play->sceneId == SCENE_KOKIRI_FOREST && gSaveContext.sceneLayer == 7) {
         dist = Math3D_Vec3f_DistXYZ(&this->prevEyePos, &play->view.eye);
 
         this->prevEyePos.x = play->view.eye.x;
@@ -233,7 +233,7 @@ void ObjectKankyo_Fairies(ObjectKankyo* this, PlayState* play) {
                 break;
 
             case 583:
-                func_800F4524(&D_801333D4, NA_SE_VO_NA_HELLO_2, 32);
+                func_800F4524(&gSfxDefaultPos, NA_SE_VO_NA_HELLO_2, 32);
                 break;
 
             case 763:
@@ -247,7 +247,7 @@ void ObjectKankyo_Fairies(ObjectKankyo* this, PlayState* play) {
     }
 
     if (play->envCtx.unk_EE[3] < 64 &&
-        (gSaveContext.entranceIndex != 0x00EE || gSaveContext.sceneSetupIndex != 4 || play->envCtx.unk_EE[3])) {
+        (gSaveContext.entranceIndex != 0x00EE || gSaveContext.sceneLayer != 4 || play->envCtx.unk_EE[3])) {
         play->envCtx.unk_EE[3] += 16;
     }
 
@@ -813,7 +813,7 @@ void ObjectKankyo_WaitForSunGraveSparkObject(ObjectKankyo* this, PlayState* play
 void ObjectKankyo_SunGraveSpark(ObjectKankyo* this, PlayState* play) {
     if (play->csCtx.state != 0) {
         if (play->csCtx.npcActions[1] != NULL && play->csCtx.npcActions[1]->action == 2) {
-            Audio_PlayActorSound2(&this->actor, NA_SE_EN_BIRI_SPARK - SFX_FLAG);
+            Actor_PlaySfx(&this->actor, NA_SE_EN_BIRI_SPARK - SFX_FLAG);
             if ((s16)this->effects[0].alpha + 20 > 255) {
                 this->effects[0].alpha = 255;
             } else {
@@ -916,7 +916,7 @@ void ObjectKankyo_Beams(ObjectKankyo* this, PlayState* play) {
         for (i = 0; i < 6; i++) {
             if (play->csCtx.npcActions[i + 1] != NULL && play->csCtx.npcActions[i + 1]->action == 2) {
                 if (this->effects[i].size == 0.1f) {
-                    func_800F3F3C(11);
+                    Audio_PlayCutsceneEffectsSequence(11);
                 }
                 Math_ApproachZeroF(&this->effects[i].size, 0.1f, 0.1f);
             }

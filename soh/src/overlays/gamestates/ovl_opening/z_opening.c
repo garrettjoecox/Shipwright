@@ -17,7 +17,7 @@ void Opening_SetupTitleScreen(OpeningContext* this) {
     gWalkSpeedToggle2 = 0;
     Sram_InitDebugSave();
     gSaveContext.cutsceneIndex = 0xFFF3;
-    gSaveContext.sceneSetupIndex = 7;
+    gSaveContext.sceneLayer = 7;
     SET_NEXT_GAMESTATE(&this->state, Play_Init, PlayState);
 }
 

@@ -237,7 +237,7 @@ u32 Quake_SetSpeed(s16 idx, s16 value) {
     return false;
 }
 
-u32 Quake_SetCountdown(s16 idx, s16 value) {
+u32 Quake_SetDuration(s16 idx, s16 value) {
     QuakeRequest* req = Quake_GetRequest(idx);
 
     if (req != NULL) {
@@ -257,7 +257,7 @@ s16 Quake_GetCountdown(s16 idx) {
     return 0;
 }
 
-u32 Quake_SetQuakeValues(s16 idx, s16 y, s16 x, s16 zoom, s16 rotZ) {
+u32 Quake_SetPerturbations(s16 idx, s16 y, s16 x, s16 zoom, s16 rotZ) {
     QuakeRequest* req = Quake_GetRequest(idx);
 
     if (req != NULL) {
@@ -293,7 +293,7 @@ void Quake_Init(void) {
     sQuakeRequestCount = 0;
 }
 
-s16 Quake_Add(Camera* cam, u32 callbackIdx) {
+s16 Quake_Request(Camera* cam, u32 callbackIdx) {
     return Quake_AddImpl(cam, callbackIdx)->randIdx;
 }
 

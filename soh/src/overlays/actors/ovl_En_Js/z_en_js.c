@@ -142,7 +142,7 @@ void func_80A89160(EnJs* this, PlayState* play) {
             GetItemEntry itemEntry = ItemTable_Retrieve(GI_BOMBCHUS_10);
             gSaveContext.pendingSale = itemEntry.itemId;
             gSaveContext.pendingSaleMod = itemEntry.modIndex;
-            func_8002F434(&this->actor, play, GI_BOMBCHUS_10, 10000.0f, 50.0f);
+            Actor_OfferGetItem(&this->actor, play, GI_BOMBCHUS_10, 10000.0f, 50.0f);
         }
     }
 }
@@ -185,7 +185,7 @@ void EnJs_Update(Actor* thisx, PlayState* play) {
 
     Collider_UpdateCylinder(&this->actor, &this->collider);
     CollisionCheck_SetOC(play, &play->colChkCtx, &this->collider.base);
-    Actor_MoveForward(&this->actor);
+    Actor_MoveXZGravity(&this->actor);
     Actor_UpdateBgCheckInfo(play, &this->actor, 0.0f, 0.0f, 0.0f, 4);
 
     if (this->actor.bgCheckFlags & 1) {
@@ -200,7 +200,7 @@ void EnJs_Update(Actor* thisx, PlayState* play) {
     }
     this->actionFunc(this, play);
     if (this->unk_284 & 1) {
-        func_80038290(play, &this->actor, &this->unk_278, &this->unk_27E, this->actor.focus.pos);
+        Actor_TrackPlayer(play, &this->actor, &this->unk_278, &this->unk_27E, this->actor.focus.pos);
     } else {
         Math_SmoothStepToS(&this->unk_278.x, 0, 6, 0x1838, 0x64);
         Math_SmoothStepToS(&this->unk_278.y, 0, 6, 0x1838, 0x64);

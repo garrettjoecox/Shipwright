@@ -142,15 +142,15 @@ u16 func_80AA1B58(EnMa2* this, PlayState* play) {
     if (LINK_IS_CHILD) {
         return 0;
     }
-    if (!Flags_GetEventChkInf(EVENTCHKINF_EPONA_OBTAINED) && (play->sceneNum == SCENE_MALON_STABLE) && IS_DAY &&
+    if (!Flags_GetEventChkInf(EVENTCHKINF_EPONA_OBTAINED) && (play->sceneId == SCENE_STABLE) && IS_DAY &&
         (this->actor.shape.rot.z == 5)) {
         return 1;
     }
-    if (!Flags_GetEventChkInf(EVENTCHKINF_EPONA_OBTAINED) && (play->sceneNum == SCENE_SPOT20) && IS_NIGHT &&
+    if (!Flags_GetEventChkInf(EVENTCHKINF_EPONA_OBTAINED) && (play->sceneId == SCENE_LON_LON_RANCH) && IS_NIGHT &&
         (this->actor.shape.rot.z == 6)) {
         return 2;
     }
-    if (!Flags_GetEventChkInf(EVENTCHKINF_EPONA_OBTAINED) || (play->sceneNum != SCENE_SPOT20)) {
+    if (!Flags_GetEventChkInf(EVENTCHKINF_EPONA_OBTAINED) || (play->sceneId != SCENE_LON_LON_RANCH)) {
         return 0;
     }
     if ((this->actor.shape.rot.z == 7) && IS_DAY) {
@@ -198,12 +198,12 @@ void func_80AA1DB4(EnMa2* this, PlayState* play) {
     if (this->skelAnime.animation == &gMalonAdultSingAnim) {
         if (this->interactInfo.talkState == NPC_TALK_STATE_IDLE) {
             if (this->unk_20A != 0) {
-                func_800F6584(0);
+                Audio_ToggleMalonSinging(0);
                 this->unk_20A = 0;
             }
         } else {
             if (this->unk_20A == 0) {
-                func_800F6584(1);
+                Audio_ToggleMalonSinging(1);
                 this->unk_20A = 1;
             }
         }
@@ -268,7 +268,7 @@ void func_80AA204C(EnMa2* this, PlayState* play) {
     if (player->stateFlags2 & 0x1000000) {
         player->unk_6A8 = &this->actor;
         player->stateFlags2 |= 0x2000000;
-        func_8010BD58(play, OCARINA_ACTION_CHECK_EPONA);
+        Message_StartOcarina(play, OCARINA_ACTION_CHECK_EPONA);
         this->actionFunc = func_80AA20E4;
     } else if (this->actor.xzDistToPlayer < 30.0f + (f32)this->collider.dim.radius) {
         player->stateFlags2 |= 0x800000;
@@ -282,7 +282,7 @@ void func_80AA20E4(EnMa2* this, PlayState* play) {
         this->actionFunc = func_80AA204C;
         play->msgCtx.ocarinaMode = OCARINA_MODE_04;
     } else if (play->msgCtx.ocarinaMode == OCARINA_MODE_03) {
-        Audio_PlaySoundGeneral(NA_SE_SY_CORRECT_CHIME, &D_801333D4, 4, &D_801333E0, &D_801333E0, &D_801333E8);
+        Audio_PlaySfxGeneral(NA_SE_SY_CORRECT_CHIME, &gSfxDefaultPos, 4, &gSfxDefaultFreqAndVolScale, &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
         this->unk_208 = 0x1E;
         Flags_SetInfTable(INFTABLE_8E);
         this->actionFunc = func_80AA21C8;
@@ -381,7 +381,7 @@ void EnMa2_Draw(Actor* thisx, PlayState* play) {
 
     camera = GET_ACTIVE_CAM(play);
     someFloat = Math_Vec3f_DistXZ(&this->actor.world.pos, &camera->eye);
-    func_800F6268(someFloat, NA_BGM_LONLON);
+    Audio_UpdateMalonSinging(someFloat, NA_BGM_LONLON);
     Gfx_SetupDL_25Opa(play->state.gfxCtx);
 
     gSPSegment(POLY_OPA_DISP++, 0x09, SEGMENTED_TO_VIRTUAL(sMouthTextures[this->mouthIndex]));

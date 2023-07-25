@@ -155,9 +155,9 @@ s16 func_809FDCDC(PlayState* play, Actor* actor) {
 }
 
 s32 func_809FDDB4(EnDu* this, PlayState* play) {
-    if (play->sceneNum == SCENE_SPOT18 && LINK_IS_CHILD) {
+    if (play->sceneId == SCENE_GORON_CITY && LINK_IS_CHILD) {
         return 1;
-    } else if (play->sceneNum == SCENE_HIDAN && !Flags_GetInfTable(INFTABLE_SPOKE_TO_DARUNIA_IN_FIRE_TEMPLE) && LINK_IS_ADULT) {
+    } else if (play->sceneId == SCENE_FIRE_TEMPLE && !Flags_GetInfTable(INFTABLE_SPOKE_TO_DARUNIA_IN_FIRE_TEMPLE) && LINK_IS_ADULT) {
         return 1;
     }
     return 0;
@@ -299,7 +299,7 @@ void EnDu_Init(Actor* thisx, PlayState* play) {
         play->csCtx.segment = SEGMENTED_TO_VIRTUAL(gGoronCityDarunia01Cs);
         gSaveContext.cutsceneTrigger = 1;
         EnDu_SetupAction(this, func_809FE890);
-    } else if (play->sceneNum == 4) {
+    } else if (play->sceneId == 4) {
         EnDu_SetupAction(this, func_809FE638);
     } else if (!LINK_IS_ADULT) {
         EnDu_SetupAction(this, func_809FE3C0);
@@ -322,7 +322,7 @@ void func_809FE3C0(EnDu* this, PlayState* play) {
     Player* player = GET_PLAYER(play);
 
     if (player->stateFlags2 & 0x1000000) {
-        func_8010BD88(play, OCARINA_ACTION_CHECK_SARIA);
+        Message_StartOcarinaSunsSongDisabled(play, OCARINA_ACTION_CHECK_SARIA);
         player->stateFlags2 |= 0x2000000;
         player->unk_6A8 = &this->actor;
         EnDu_SetupAction(this, func_809FE4A4);
@@ -352,7 +352,7 @@ void func_809FE4A4(EnDu* this, PlayState* play) {
         EnDu_SetupAction(this, func_809FE890);
         play->msgCtx.ocarinaMode = OCARINA_MODE_04;
     } else if (play->msgCtx.ocarinaMode == OCARINA_MODE_03) {
-        Audio_PlaySoundGeneral(NA_SE_SY_CORRECT_CHIME, &D_801333D4, 4, &D_801333E0, &D_801333E0, &D_801333E8);
+        Audio_PlaySfxGeneral(NA_SE_SY_CORRECT_CHIME, &gSfxDefaultPos, 4, &gSfxDefaultFreqAndVolScale, &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
         if (!gSaveContext.n64ddFlag) {
             play->csCtx.segment = SEGMENTED_TO_VIRTUAL(gGoronCityDaruniaCorrectCs);
             gSaveContext.cutsceneTrigger = 1;
@@ -414,16 +414,16 @@ void func_809FE798(EnDu* this, PlayState* play) {
     if (phi_v0 != 0) {
         switch (this->unk_1E2) {
             case 0x50:
-                Audio_PlayActorSound2(&this->actor, NA_SE_EV_CHAIN_KEY_UNLOCK_B);
+                Actor_PlaySfx(&this->actor, NA_SE_EV_CHAIN_KEY_UNLOCK_B);
                 break;
             case 0x3C:
-                Audio_PlayActorSound2(&this->actor, NA_SE_EV_SLIDE_DOOR_OPEN);
+                Actor_PlaySfx(&this->actor, NA_SE_EV_SLIDE_DOOR_OPEN);
                 break;
             case 0xF:
-                Audio_PlayActorSound2(&this->actor, NA_SE_EV_SLIDE_DOOR_CLOSE);
+                Actor_PlaySfx(&this->actor, NA_SE_EV_SLIDE_DOOR_CLOSE);
                 break;
             case 5:
-                Audio_PlayActorSound2(&this->actor, NA_SE_EV_STONE_BOUND);
+                Actor_PlaySfx(&this->actor, NA_SE_EV_STONE_BOUND);
                 break;
         }
         if (this->unk_1E2 >= 0x3D) {
@@ -549,9 +549,9 @@ void func_809FEC70(EnDu* this, PlayState* play) {
     } else {
         f32 xzRange = this->actor.xzDistToPlayer + 1.0f;
         if (!gSaveContext.n64ddFlag) {
-            func_8002F434(&this->actor, play, GI_BRACELET, xzRange, fabsf(this->actor.yDistToPlayer) + 1.0f);
+            Actor_OfferGetItem(&this->actor, play, GI_GORONS_BRACELET, xzRange, fabsf(this->actor.yDistToPlayer) + 1.0f);
         } else {
-            GetItemEntry getItemEntry = Randomizer_GetItemFromKnownCheck(RC_GC_DARUNIAS_JOY, GI_BRACELET);
+            GetItemEntry getItemEntry = Randomizer_GetItemFromKnownCheck(RC_GC_DARUNIAS_JOY, GI_GORONS_BRACELET);
             GiveItemEntryFromActor(&this->actor, play, getItemEntry, xzRange, fabsf(this->actor.yDistToPlayer) + 1.0f);
         }
     }
@@ -585,7 +585,7 @@ void EnDu_Update(Actor* thisx, PlayState* play) {
         this->actor.world.pos.y += this->actor.velocity.y;
         this->actor.world.pos.z += this->actor.velocity.z;
     } else {
-        func_8002D7EC(&this->actor);
+        Actor_UpdatePos(&this->actor);
     }
 
     Actor_UpdateBgCheckInfo(play, &this->actor, 0.0f, 0.0f, 0.0f, 4);

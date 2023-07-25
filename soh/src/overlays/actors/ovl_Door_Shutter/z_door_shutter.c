@@ -130,17 +130,17 @@ static InitChainEntry sInitChain[] = {
 };
 
 typedef struct {
-    s16 sceneNum;
+    s16 sceneId;
     u8 index;
 } ShutterSceneInfo;
 
 static ShutterSceneInfo sSceneInfo[] = {
-    { SCENE_YDAN, 0x02 },       { SCENE_DDAN, 0x03 },         { SCENE_DDAN_BOSS, 0x03 },
-    { SCENE_BDAN, 0x04 },       { SCENE_BMORI1, 0x05 },       { SCENE_HIDAN, 0x08 },
-    { SCENE_GANON, 0x09 },      { SCENE_GANON_BOSS, 0x09 },   { SCENE_JYASINZOU, 0x0A },
-    { SCENE_JYASINBOSS, 0x0A }, { SCENE_MIZUSIN, 0x0B },      { SCENE_HAKADAN, 0x0C },
-    { SCENE_HAKADANCH, 0x0C },  { SCENE_ICE_DOUKUTO, 0x0D },  { SCENE_MEN, 0x0E },
-    { SCENE_GANONTIKA, 0x0F },  { SCENE_HAKAANA_OUKE, 0x10 }, { -1, 0x07 },
+    { SCENE_DEKU_TREE, 0x02 },       { SCENE_DODONGOS_CAVERN, 0x03 },         { SCENE_DODONGOS_CAVERN_BOSS, 0x03 },
+    { SCENE_JABU_JABU, 0x04 },       { SCENE_FOREST_TEMPLE, 0x05 },       { SCENE_FIRE_TEMPLE, 0x08 },
+    { SCENE_GANONS_TOWER, 0x09 },      { SCENE_GANONDORF_BOSS, 0x09 },   { SCENE_SPIRIT_TEMPLE, 0x0A },
+    { SCENE_SPIRIT_TEMPLE_BOSS, 0x0A }, { SCENE_WATER_TEMPLE, 0x0B },      { SCENE_SHADOW_TEMPLE, 0x0C },
+    { SCENE_BOTTOM_OF_THE_WELL, 0x0C },  { SCENE_ICE_CAVERN, 0x0D },  { SCENE_GERUDO_TRAINING_GROUND, 0x0E },
+    { SCENE_INSIDE_GANONS_CASTLE, 0x0F },  { SCENE_ROYAL_FAMILYS_TOMB, 0x10 }, { -1, 0x07 },
 };
 
 typedef struct {
@@ -150,12 +150,12 @@ typedef struct {
 } BossDoorInfo;
 
 static BossDoorInfo D_80998288[] = {
-    { SCENE_HIDAN, SCENE_FIRE_BS, 0x01 },
-    { SCENE_MIZUSIN, SCENE_MIZUSIN_BS, 0x02 },
-    { SCENE_HAKADAN, SCENE_HAKADAN_BS, 0x03 },
-    { SCENE_GANON, SCENE_GANON_BOSS, 0x04 },
-    { SCENE_BMORI1, SCENE_MORIBOSSROOM, 0x05 },
-    { SCENE_JYASINZOU, SCENE_JYASINBOSS, 0x06 },
+    { SCENE_FIRE_TEMPLE, SCENE_FIRE_TEMPLE_BOSS, 0x01 },
+    { SCENE_WATER_TEMPLE, SCENE_WATER_TEMPLE_BOSS, 0x02 },
+    { SCENE_SHADOW_TEMPLE, SCENE_SHADOW_TEMPLE_BOSS, 0x03 },
+    { SCENE_GANONS_TOWER, SCENE_GANONDORF_BOSS, 0x04 },
+    { SCENE_FOREST_TEMPLE, SCENE_FOREST_TEMPLE_BOSS, 0x05 },
+    { SCENE_SPIRIT_TEMPLE, SCENE_SPIRIT_TEMPLE_BOSS, 0x06 },
     { -1, -1, 0x00 },
 };
 
@@ -235,7 +235,7 @@ void DoorShutter_Init(Actor* thisx, PlayState* play2) {
         ShutterSceneInfo* phi_v1;
 
         for (phi_v1 = &sSceneInfo[0], i = 0; i < ARRAY_COUNT(sSceneInfo) - 1; i++, phi_v1++) {
-            if (play->sceneNum == phi_v1->sceneNum) {
+            if (play->sceneId == phi_v1->sceneId) {
                 break;
             }
         }
@@ -244,7 +244,7 @@ void DoorShutter_Init(Actor* thisx, PlayState* play2) {
         BossDoorInfo* phi_v1_2;
 
         for (phi_v1_2 = &D_80998288[0], i = 0; i < ARRAY_COUNT(D_80998288) - 1; i++, phi_v1_2++) {
-            if (play->sceneNum == phi_v1_2->dungeonScene || play->sceneNum == phi_v1_2->bossScene) {
+            if (play->sceneId == phi_v1_2->dungeonScene || play->sceneId == phi_v1_2->bossScene) {
                 break;
             }
         }
@@ -300,7 +300,7 @@ void DoorShutter_SetupType(DoorShutter* this, PlayState* play) {
             if (this->doorType == SHUTTER_GOHMA_BLOCK) {
                 this->dyna.actor.velocity.y = 0.0f;
                 this->dyna.actor.gravity = -2.0f;
-                Audio_PlayActorSound2(&this->dyna.actor, NA_SE_EV_SLIDE_DOOR_CLOSE);
+                Actor_PlaySfx(&this->dyna.actor, NA_SE_EV_SLIDE_DOOR_CLOSE);
                 DoorShutter_SetupAction(this, func_809975C0);
             } else {
                 DoorShutter_SetupAction(this, func_80997744);
@@ -375,9 +375,9 @@ void func_80996B0C(DoorShutter* this, PlayState* play) {
             Flags_SetSwitch(play, this->dyna.actor.params & 0x3F);
             if (this->doorType != SHUTTER_BOSS) {
                 gSaveContext.inventory.dungeonKeys[gSaveContext.mapIndex]--;
-                Audio_PlayActorSound2(&this->dyna.actor, NA_SE_EV_CHAIN_KEY_UNLOCK);
+                Actor_PlaySfx(&this->dyna.actor, NA_SE_EV_CHAIN_KEY_UNLOCK);
             } else {
-                Audio_PlayActorSound2(&this->dyna.actor, NA_SE_EV_CHAIN_KEY_UNLOCK_B);
+                Actor_PlaySfx(&this->dyna.actor, NA_SE_EV_CHAIN_KEY_UNLOCK_B);
             }
         }
     } else {
@@ -388,7 +388,7 @@ void func_80996B0C(DoorShutter* this, PlayState* play) {
 
             if (this->unk_16E != 0) {
                 if (this->doorType == SHUTTER_BOSS) {
-                    if (!CHECK_DUNGEON_ITEM(DUNGEON_KEY_BOSS, gSaveContext.mapIndex)) {
+                    if (!CHECK_DUNGEON_ITEM(DUNGEON_BOSS_KEY, gSaveContext.mapIndex)) {
                         player->naviTextId = -0x204;
                         return;
                     }
@@ -424,7 +424,7 @@ void func_80996C60(DoorShutter* this, PlayState* play) {
 s32 func_80996D14(DoorShutter* this, PlayState* play) {
     if (this->unk_16C != 3) {
         if (this->dyna.actor.velocity.y == 0.0f) {
-            Audio_PlayActorSound2(&this->dyna.actor, NA_SE_EV_SLIDE_DOOR_OPEN);
+            Actor_PlaySfx(&this->dyna.actor, NA_SE_EV_SLIDE_DOOR_OPEN);
             func_80996C60(this, play);
         }
         Math_StepToF(&this->dyna.actor.velocity.y, 15.0f, 3.0f);
@@ -434,7 +434,7 @@ s32 func_80996D14(DoorShutter* this, PlayState* play) {
         }
     } else {
         if (this->unk_166 == 100) {
-            Audio_PlayActorSound2(&this->dyna.actor, NA_SE_EV_BUYODOOR_OPEN);
+            Actor_PlaySfx(&this->dyna.actor, NA_SE_EV_BUYODOOR_OPEN);
             func_80996C60(this, play);
         }
         if (Math_StepToS(&this->unk_166, 0, 10)) {
@@ -448,15 +448,15 @@ s32 func_80996E08(DoorShutter* this, PlayState* play, f32 arg2) {
     if (this->unk_170 == 1.0f - arg2) {
         if (this->unk_16C != 3) {
             if (arg2 == 1.0f) {
-                Audio_PlayActorSound2(&this->dyna.actor, NA_SE_EV_METALDOOR_CLOSE);
+                Actor_PlaySfx(&this->dyna.actor, NA_SE_EV_METALDOOR_CLOSE);
             } else {
-                Audio_PlayActorSound2(&this->dyna.actor, NA_SE_EV_METALDOOR_OPEN);
+                Actor_PlaySfx(&this->dyna.actor, NA_SE_EV_METALDOOR_OPEN);
             }
         } else {
             if (arg2 == 1.0f) {
-                Audio_PlayActorSound2(&this->dyna.actor, NA_SE_EV_BUYOSHUTTER_CLOSE);
+                Actor_PlaySfx(&this->dyna.actor, NA_SE_EV_BUYOSHUTTER_CLOSE);
             } else {
-                Audio_PlayActorSound2(&this->dyna.actor, NA_SE_EV_BUYOSHUTTER_OPEN);
+                Actor_PlaySfx(&this->dyna.actor, NA_SE_EV_BUYOSHUTTER_OPEN);
             }
         }
     }
@@ -475,7 +475,7 @@ void func_80996EE8(DoorShutter* this, PlayState* play) {
         } else if (func_809968D4(this, play)) {
             Player* player = GET_PLAYER(play);
             // Jabu navi text for switch doors is different
-            player->naviTextId = (play->sceneNum == SCENE_BDAN) ? -0x20B : -0x202;
+            player->naviTextId = (play->sceneId == SCENE_JABU_JABU) ? -0x20B : -0x202;
         }
     }
 }
@@ -495,13 +495,13 @@ void func_80997004(DoorShutter* this, PlayState* play) {
                 this->dyna.actor.velocity.y = 30.0f;
             }
             if (this->unk_16C != 3) {
-                Audio_PlayActorSound2(&this->dyna.actor, NA_SE_EV_SLIDE_DOOR_CLOSE);
+                Actor_PlaySfx(&this->dyna.actor, NA_SE_EV_SLIDE_DOOR_CLOSE);
                 DoorShutter_SetupAction(this, func_809973E8);
             } else {
-                Audio_PlayActorSound2(&this->dyna.actor, NA_SE_EV_BUYODOOR_CLOSE);
+                Actor_PlaySfx(&this->dyna.actor, NA_SE_EV_BUYODOOR_CLOSE);
                 if ((this->doorType == SHUTTER_FRONT_SWITCH || this->doorType == SHUTTER_FRONT_SWITCH_BACK_CLEAR) &&
                     !Flags_GetSwitch(play, this->dyna.actor.params & 0x3F)) {
-                    Audio_PlayActorSound2(&this->dyna.actor, NA_SE_EV_BUYOSHUTTER_CLOSE);
+                    Actor_PlaySfx(&this->dyna.actor, NA_SE_EV_BUYOSHUTTER_CLOSE);
                 }
                 DoorShutter_SetupAction(this, func_80997528);
             }
@@ -571,12 +571,12 @@ void func_809973E8(DoorShutter* this, PlayState* play) {
             Actor_SpawnFloorDustRing(play, &this->dyna.actor, &this->dyna.actor.world.pos, 45.0f, 10, 8.0f, 500,
                                      10, false);
         }
-        Audio_PlayActorSound2(&this->dyna.actor, NA_SE_EV_STONE_BOUND);
-        quakeId = Quake_Add(Play_GetCamera(play, 0), 3);
+        Actor_PlaySfx(&this->dyna.actor, NA_SE_EV_STONE_BOUND);
+        quakeId = Quake_Request(Play_GetCamera(play, 0), 3);
         Quake_SetSpeed(quakeId, -32536);
-        Quake_SetQuakeValues(quakeId, 2, 0, 0, 0);
-        Quake_SetCountdown(quakeId, 10);
-        func_800AA000(this->dyna.actor.xyzDistToPlayerSq, 0xB4, 0x14, 0x64);
+        Quake_SetPerturbations(quakeId, 2, 0, 0, 0);
+        Quake_SetDuration(quakeId, 10);
+        Rumble_Request(this->dyna.actor.xyzDistToPlayerSq, 0xB4, 0x14, 0x64);
         func_80997220(this, play);
     }
 }
@@ -595,7 +595,7 @@ void func_80997568(DoorShutter* this, PlayState* play) {
 }
 
 void func_809975C0(DoorShutter* this, PlayState* play) {
-    Actor_MoveForward(&this->dyna.actor);
+    Actor_MoveXZGravity(&this->dyna.actor);
     Actor_UpdateBgCheckInfo(play, &this->dyna.actor, 0.0f, 0.0f, 0.0f, 4);
     if (this->dyna.actor.bgCheckFlags & 1) {
         DoorShutter_SetupAction(this, func_809976B8);
@@ -603,7 +603,7 @@ void func_809975C0(DoorShutter* this, PlayState* play) {
             BossGoma* parent = (BossGoma*)this->dyna.actor.parent;
 
             this->unk_164 = 10;
-            Audio_PlayActorSound2(&this->dyna.actor, NA_SE_EV_STONE_BOUND);
+            Actor_PlaySfx(&this->dyna.actor, NA_SE_EV_STONE_BOUND);
             func_8099803C(play, 2, 10, parent->subCameraId);
             Actor_SpawnFloorDustRing(play, &this->dyna.actor, &this->dyna.actor.world.pos, 70.0f, 20, 8.0f, 500,
                                      10, true);
@@ -766,10 +766,10 @@ void DoorShutter_Draw(Actor* thisx, PlayState* play) {
 }
 
 void func_8099803C(PlayState* play, s16 y, s16 countdown, s16 camId) {
-    s16 quakeId = Quake_Add(Play_GetCamera(play, camId), 3);
+    s16 quakeId = Quake_Request(Play_GetCamera(play, camId), 3);
 
     func_800A9F6C(0.0f, 180, 20, 100);
     Quake_SetSpeed(quakeId, 20000);
-    Quake_SetQuakeValues(quakeId, y, 0, 0, 0);
-    Quake_SetCountdown(quakeId, countdown);
+    Quake_SetPerturbations(quakeId, y, 0, 0, 0);
+    Quake_SetDuration(quakeId, countdown);
 }

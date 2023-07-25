@@ -157,7 +157,7 @@ void EnNiw_Init(Actor* thisx, PlayState* play) {
     ActorShape_Init(&this->actor.shape, 0.0f, ActorShadow_DrawCircle, 25.0f);
     SkelAnime_InitFlex(play, &this->skelAnime, &gCuccoSkel, &gCuccoAnim, this->jointTable, this->morphTable, 16);
 
-    if (play->sceneNum == SCENE_SPOT01) {
+    if (play->sceneId == SCENE_KAKARIKO_VILLAGE) {
         for (i = 0; i < ARRAY_COUNT(sKakarikoPosList); i++) {
             if (fabsf(this->actor.world.pos.x - sKakarikoPosList[i].x) < 40.0f &&
                 fabsf(this->actor.world.pos.z - sKakarikoPosList[i].z) < 40.0f) {
@@ -228,7 +228,7 @@ void EnNiw_Init(Actor* thisx, PlayState* play) {
         case 0xD:
         case 0xE:
             Collider_SetCylinder(play, &this->collider, &this->actor, &sCylinderInit2);
-            if (play->sceneNum == SCENE_LINK_HOME && !Flags_GetEventChkInf(EVENTCHKINF_WON_COW_IN_MALONS_RACE)) {
+            if (play->sceneId == SCENE_LINKS_HOUSE && !Flags_GetEventChkInf(EVENTCHKINF_WON_COW_IN_MALONS_RACE)) {
                 Actor_Kill(&this->actor);
             }
             break;
@@ -458,7 +458,7 @@ void func_80AB6450(EnNiw* this, PlayState* play) {
         this->actionFunc = func_80AB7290;
     } else if (Actor_HasParent(&this->actor, play)) {
         this->actor.gravity = -2.0f;
-        Audio_PlayActorSound2(&this->actor, NA_SE_EV_CHICKEN_CRY_M);
+        Actor_PlaySfx(&this->actor, NA_SE_EV_CHICKEN_CRY_M);
         this->sfxTimer1 = 30;
         this->path = 0;
         this->timer4 = 30;
@@ -467,7 +467,7 @@ void func_80AB6450(EnNiw* this, PlayState* play) {
         this->actionFunc = func_80AB6BF8;
     } else {
         // GI_NONE in this case allows the player to lift the actor
-        func_8002F434(&this->actor, play, GI_NONE, 25.0f, 10.0f);
+        Actor_OfferGetItem(&this->actor, play, GI_NONE, 25.0f, 10.0f);
         func_80AB5BF8(this, play, 1);
     }
 }
@@ -480,7 +480,7 @@ void func_80AB6570(EnNiw* this, PlayState* play) {
 
     if (this->actor.params != 0xA) {
         if (Actor_HasParent(&this->actor, play)) {
-            Audio_PlayActorSound2(&this->actor, NA_SE_EV_CHICKEN_CRY_M);
+            Actor_PlaySfx(&this->actor, NA_SE_EV_CHICKEN_CRY_M);
             this->sfxTimer1 = 30;
             this->path = 0;
             this->timer4 = 30;
@@ -489,12 +489,12 @@ void func_80AB6570(EnNiw* this, PlayState* play) {
             this->actionFunc = func_80AB6BF8;
             return;
         }
-        func_8002F580(&this->actor, play);
+        Actor_OfferCarry(&this->actor, play);
     } else {
         if (this->path != 0) {
             this->unk_2A6 = 1;
             if (this->sfxTimer3 == 0) {
-                Audio_PlayActorSound2(&this->actor, NA_SE_EV_CHICKEN_CRY_M);
+                Actor_PlaySfx(&this->actor, NA_SE_EV_CHICKEN_CRY_M);
                 this->sfxTimer3 = 100;
             }
             this->unk_2A0 = Rand_ZeroFloat(1.99f);
@@ -601,7 +601,7 @@ void func_80AB6A38(EnNiw* this, PlayState* play) {
             this->unk_2FC = this->unk_300 = 0.0f;
         this->actionFunc = EnNiw_ResetAction;
     } else {
-        path = &play->setupPathList[pathIndex];
+        path = &play->pathList[pathIndex];
         pointPos = SEGMENTED_TO_VIRTUAL(path->points);
         pointPos += this->waypoint;
         pathDiffX = pointPos->x - this->actor.world.pos.x;
@@ -685,7 +685,7 @@ void func_80AB6D08(EnNiw* this, PlayState* play) {
     }
 
     if (Actor_HasParent(&this->actor, play)) {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EV_CHICKEN_CRY_M);
+        Actor_PlaySfx(&this->actor, NA_SE_EV_CHICKEN_CRY_M);
         this->sfxTimer1 = 30;
         this->path = 0;
         this->timer4 = 30;
@@ -694,7 +694,7 @@ void func_80AB6D08(EnNiw* this, PlayState* play) {
         this->actionFunc = func_80AB6BF8;
     } else {
         if (this->timer5 >= 6) {
-            func_8002F580(&this->actor, play);
+            Actor_OfferCarry(&this->actor, play);
         }
         func_80AB5BF8(this, play, 2);
     }
@@ -797,7 +797,7 @@ void func_80AB714C(EnNiw* this, PlayState* play) {
         this->unk_26C[1] = 0.0f;
         this->unk_26C[2] = 0.0f;
         this->timer1 = 10;
-        Audio_PlayActorSound2(&this->actor, NA_SE_EV_CHICKEN_CRY_M);
+        Actor_PlaySfx(&this->actor, NA_SE_EV_CHICKEN_CRY_M);
     }
     if (this->timer5 == 0) {
         this->timer7 = 10;
@@ -870,7 +870,7 @@ void func_80AB747C(EnNiw* this, PlayState* play) {
             this->unk_2A4--;
         }
         this->unk_2A6 = 1;
-        Audio_PlayActorSound2(&this->actor, NA_SE_EV_CHICKEN_CRY_M);
+        Actor_PlaySfx(&this->actor, NA_SE_EV_CHICKEN_CRY_M);
         this->timer6 = 100;
         this->path = 0;
         this->actionFunc = func_80AB7290;
@@ -973,12 +973,12 @@ void EnNiw_Update(Actor* thisx, PlayState* play) {
     thisx->shape.shadowScale = 15.0f;
     this->actionFunc(this, play);
     Actor_SetFocus(&this->actor, this->unk_304);
-    Actor_MoveForward(&this->actor);
+    Actor_MoveXZGravity(&this->actor);
 
-    if (this->actionFunc != func_80AB6EB4 && this->actionFunc != func_80AB6450 && play->sceneNum != SCENE_SPOT03) {
+    if (this->actionFunc != func_80AB6EB4 && this->actionFunc != func_80AB6450 && play->sceneId != SCENE_ZORAS_RIVER) {
         Actor_UpdateBgCheckInfo(play, &this->actor, 20.0f, 20.0f, 60.0f, 31);
     }
-    if (play->sceneNum == SCENE_SPOT03) {
+    if (play->sceneId == SCENE_ZORAS_RIVER) {
         Actor_UpdateBgCheckInfo(play, &this->actor, 20.0f, 20.0f, 60.0f, 29);
     }
     if (thisx->floorHeight <= BGCHECK_Y_MIN || thisx->floorHeight >= 32000.0f) {
@@ -1083,15 +1083,15 @@ void EnNiw_Update(Actor* thisx, PlayState* play) {
 
     if (this->sfxTimer2 == 0 && this->actionFunc == func_80AB6BF8) {
         this->sfxTimer2 = 7;
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_DEKU_WAKEUP);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_DEKU_WAKEUP);
     }
     if (this->sfxTimer1 == 0) {
         if (this->actionFunc != func_80AB6570) {
             this->sfxTimer1 = 30;
-            Audio_PlayActorSound2(&this->actor, NA_SE_EV_CHICKEN_CRY_A);
+            Actor_PlaySfx(&this->actor, NA_SE_EV_CHICKEN_CRY_A);
         } else {
             this->sfxTimer1 = 300;
-            Audio_PlayActorSound2(&this->actor, NA_SE_EV_CHICKEN_CRY_N);
+            Actor_PlaySfx(&this->actor, NA_SE_EV_CHICKEN_CRY_N);
         }
     }
     if (this->unk_2A8 == 0) {

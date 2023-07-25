@@ -55,7 +55,7 @@ void BgGjyoBridge_Init(Actor* thisx, PlayState* play) {
         this->actionFunc = func_808787A4;
     } else {
         this->dyna.actor.draw = NULL;
-        func_8003EBF8(play, &play->colCtx.dyna, this->dyna.bgId);
+        DynaPoly_DisableCollision(play, &play->colCtx.dyna, this->dyna.bgId);
         this->actionFunc = BgGjyoBridge_TriggerCutscene;
     }
 }
@@ -149,7 +149,7 @@ void BgGjyoBridge_SpawnBridge(BgGjyoBridge* this, PlayState* play) {
     if (gSaveContext.n64ddFlag || (play->csCtx.state != CS_STATE_IDLE) && (play->csCtx.npcActions[2] != NULL) &&
         (play->csCtx.npcActions[2]->action == 2)) {
         this->dyna.actor.draw = BgGjyoBridge_Draw;
-        func_8003EC50(play, &play->colCtx.dyna, this->dyna.bgId);
+        DynaPoly_EnableCollision(play, &play->colCtx.dyna, this->dyna.bgId);
         Flags_SetEventChkInf(EVENTCHKINF_RAINBOW_BRIDGE_BUILT);
     }
 }

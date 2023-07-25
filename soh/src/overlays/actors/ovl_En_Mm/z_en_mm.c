@@ -334,7 +334,7 @@ s32 func_80AADEF0(EnMm* this, PlayState* play) {
     s32 phi_a2;
     s32 phi_v1;
 
-    func_80AADE60(play->setupPathList, &waypointPos, this->path, this->waypoint);
+    func_80AADE60(play->pathList, &waypointPos, this->path, this->waypoint);
 
     xDiff = waypointPos.x - this->actor.world.pos.x;
     zDiff = waypointPos.z - this->actor.world.pos.z;
@@ -352,7 +352,7 @@ s32 func_80AADEF0(EnMm* this, PlayState* play) {
                 phi_a2 = 0;
                 break;
             case 1:
-                phi_a2 = EnMm_GetPointCount(play->setupPathList, this->path) - 1;
+                phi_a2 = EnMm_GetPointCount(play->pathList, this->path) - 1;
                 break;
             case 2:
                 phi_a2 = this->unk_1F0;
@@ -366,7 +366,7 @@ s32 func_80AADEF0(EnMm* this, PlayState* play) {
                 phi_v1 = 0;
                 break;
             case 1:
-                phi_v1 = EnMm_GetPointCount(play->setupPathList, this->path) - 1;
+                phi_v1 = EnMm_GetPointCount(play->pathList, this->path) - 1;
                 break;
             case 2:
                 phi_v1 = this->unk_1F0;
@@ -379,7 +379,7 @@ s32 func_80AADEF0(EnMm* this, PlayState* play) {
             this->waypoint = sPathInfo[this->unk_1E8].unk_08;
         }
 
-        func_80AADE60(play->setupPathList, &waypointPos, this->path, this->waypoint);
+        func_80AADE60(play->pathList, &waypointPos, this->path, this->waypoint);
 
         xDiff = waypointPos.x - this->actor.world.pos.x;
         zDiff = waypointPos.z - this->actor.world.pos.z;
@@ -391,7 +391,7 @@ s32 func_80AADEF0(EnMm* this, PlayState* play) {
     Math_SmoothStepToS(&this->actor.shape.rot.y, this->yawToWaypoint, 1, 2500, 0);
     this->actor.world.rot.y = this->actor.shape.rot.y;
     Math_SmoothStepToF(&this->actor.speedXZ, this->speedXZ, 0.6f, this->distToWaypoint, 0.0f);
-    Actor_MoveForward(&this->actor);
+    Actor_MoveXZGravity(&this->actor);
     Actor_UpdateBgCheckInfo(play, &this->actor, 0.0f, 0.0f, 0.0f, 4);
 
     return 0;
@@ -418,7 +418,7 @@ void func_80AAE294(EnMm* this, PlayState* play) {
 
         if (this->curAnimIndex == 0) {
             if (((s32)this->skelAnime.curFrame == 1) || ((s32)this->skelAnime.curFrame == 6)) {
-                Audio_PlayActorSound2(&this->actor, NA_SE_PL_WALK_GROUND);
+                Actor_PlaySfx(&this->actor, NA_SE_PL_WALK_GROUND);
             }
         }
 
@@ -426,7 +426,7 @@ void func_80AAE294(EnMm* this, PlayState* play) {
             if (((this->skelAnime.curFrame - this->skelAnime.playSpeed < 9.0f) && (this->skelAnime.curFrame >= 9.0f)) ||
                 ((this->skelAnime.curFrame - this->skelAnime.playSpeed < 19.0f) &&
                  (this->skelAnime.curFrame >= 19.0f))) {
-                Audio_PlayActorSound2(&this->actor, NA_SE_EN_MORIBLIN_WALK);
+                Actor_PlaySfx(&this->actor, NA_SE_EN_MORIBLIN_WALK);
             }
         }
 
@@ -491,7 +491,7 @@ void func_80AAE50C(EnMm* this, PlayState* play) {
 }
 
 void func_80AAE598(EnMm* this, PlayState* play) {
-    func_80038290(play, &this->actor, &this->unk_248, &this->unk_24E, this->actor.focus.pos);
+    Actor_TrackPlayer(play, &this->actor, &this->unk_248, &this->unk_24E, this->actor.focus.pos);
     SkelAnime_Update(&this->skelAnime);
 
     if ((func_80AADA70() != 0) && (this->unk_1E0 == 0)) {

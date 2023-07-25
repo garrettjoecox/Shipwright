@@ -113,7 +113,7 @@ void func_80A90EBC(EnKakasi3* this, PlayState* play, s32 arg) {
             this->unk_19A++;
             if (this->unk_1A4 == 0) {
                 this->unk_1A4 = 1;
-                Audio_PlayActorSound2(&this->actor, NA_SE_EV_KAKASHI_ROLL);
+                Actor_PlaySfx(&this->actor, NA_SE_EV_KAKASHI_ROLL);
             }
             break;
         case OCARINA_NOTE_F4:
@@ -146,7 +146,7 @@ void func_80A90EBC(EnKakasi3* this, PlayState* play, s32 arg) {
         this->actor.gravity = -1.0f;
         if (this->unk_19A == 8 && (this->actor.bgCheckFlags & 1)) {
             this->actor.velocity.y = 3.0f;
-            Audio_PlayActorSound2(&this->actor, NA_SE_IT_KAKASHI_JUMP);
+            Actor_PlaySfx(&this->actor, NA_SE_IT_KAKASHI_JUMP);
         }
         Math_ApproachF(&this->skelAnime.playSpeed, this->unk_1B8, 0.1f, 0.2f);
         Math_SmoothStepToS(&this->actor.shape.rot.x, this->unk_1AA, 0x5, 0x3E8, 0);
@@ -167,7 +167,7 @@ void func_80A90EBC(EnKakasi3* this, PlayState* play, s32 arg) {
         }
         currentFrame = this->skelAnime.curFrame;
         if (currentFrame == 11 || currentFrame == 17) {
-            Audio_PlayActorSound2(&this->actor, NA_SE_EV_KAKASHI_SWING);
+            Actor_PlaySfx(&this->actor, NA_SE_EV_KAKASHI_SWING);
         }
         SkelAnime_Update(&this->skelAnime);
     }
@@ -270,7 +270,7 @@ void func_80A91348(EnKakasi3* this, PlayState* play) {
 void func_80A915B8(EnKakasi3* this, PlayState* play) {
     if (Message_GetState(&play->msgCtx) == TEXT_STATE_EVENT && Message_ShouldAdvance(play)) {
         Message_CloseTextbox(play);
-        func_8010BD58(play, OCARINA_ACTION_SCARECROW_RECORDING);
+        Message_StartOcarina(play, OCARINA_ACTION_SCARECROW_RECORDING);
         this->actionFunc = func_80A91620;
     }
 }
@@ -313,7 +313,7 @@ void func_80A91760(EnKakasi3* this, PlayState* play) {
     SkelAnime_Update(&this->skelAnime);
     if (this->dialogState == Message_GetState(&play->msgCtx) && Message_ShouldAdvance(play)) {
         play->msgCtx.msgMode = MSGMODE_PAUSED;
-        func_8010BD58(play, OCARINA_ACTION_SCARECROW_PLAYBACK);
+        Message_StartOcarina(play, OCARINA_ACTION_SCARECROW_PLAYBACK);
         this->actionFunc = func_80A917FC;
         this->camId = OnePointCutscene_Init(play, 2280, -99, &this->actor, MAIN_CAM);
     }
@@ -334,7 +334,7 @@ void func_80A917FC(EnKakasi3* this, PlayState* play) {
 void func_80A9187C(EnKakasi3* this, PlayState* play) {
     if (Message_GetState(&play->msgCtx) == TEXT_STATE_EVENT && Message_ShouldAdvance(play)) {
         Message_CloseTextbox(play);
-        func_8010BD58(play, OCARINA_ACTION_CHECK_SCARECROW);
+        Message_StartOcarina(play, OCARINA_ACTION_CHECK_SCARECROW);
         this->actionFunc = func_80A918E4;
     }
 }
@@ -426,7 +426,7 @@ void EnKakasi3_Update(Actor* thisx, PlayState* play) {
 
     Actor_SetFocus(&this->actor, 60.0f);
     this->actionFunc(this, play);
-    Actor_MoveForward(&this->actor);
+    Actor_MoveXZGravity(&this->actor);
     Actor_UpdateBgCheckInfo(play, &this->actor, 50.0f, 50.0f, 100.0f, 28);
     Collider_UpdateCylinder(&this->actor, &this->collider);
     CollisionCheck_SetOC(play, &play->colChkCtx, &this->collider.base);

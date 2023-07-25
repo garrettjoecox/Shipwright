@@ -168,11 +168,11 @@ void EnHeishi1_Walk(EnHeishi1* this, PlayState* play) {
     SkelAnime_Update(&this->skelAnime);
 
     if (Animation_OnFrame(&this->skelAnime, 1.0f) || Animation_OnFrame(&this->skelAnime, 17.0f)) {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EV_KNIGHT_WALK);
+        Actor_PlaySfx(&this->actor, NA_SE_EV_KNIGHT_WALK);
     }
 
     if (!sHeishi1PlayerIsCaught) {
-        path = &play->setupPathList[this->path];
+        path = &play->pathList[this->path];
         pointPos = SEGMENTED_TO_VIRTUAL(path->points);
         pointPos += this->waypoint;
 
@@ -367,10 +367,10 @@ void EnHeishi1_Kick(EnHeishi1* this, PlayState* play) {
             if (!this->loadStarted) {
                 Flags_SetEventChkInf(EVENTCHKINF_CAUGHT_BY_CASTLE_GUARDS);
                 play->nextEntranceIndex = 0x4FA;
-                play->sceneLoadFlag = 0x14;
+                play->transitionTrigger = 0x14;
                 this->loadStarted = true;
                 sHeishi1PlayerIsCaught = false;
-                play->fadeTransition = 0x2E;
+                play->transitionType = 0x2E;
                 gSaveContext.nextTransitionType = 0x2E;
             }
         }

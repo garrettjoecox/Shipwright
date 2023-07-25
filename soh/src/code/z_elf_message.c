@@ -37,7 +37,7 @@ u32 ElfMessage_CheckCondition(ElfMessage* msg) {
             return ((msg->byte0 & 1) == 1) == ((flag & gSaveContext.eventChkInf[(msg->byte1 & 0xF0) >> 4]) != 0);
         case (ELF_MSG_CONDITION_DUNGEON_ITEM << 1):
             return ((msg->byte0 & 1) == 1) ==
-                   (CHECK_DUNGEON_ITEM(msg->byte1 - ITEM_KEY_BOSS, gSaveContext.mapIndex) != 0);
+                   (CHECK_DUNGEON_ITEM(msg->byte1 - ITEM_DUNGEON_BOSS_KEY, gSaveContext.mapIndex) != 0);
         case (ELF_MSG_CONDITION_ITEM << 1):
             return ((msg->byte0 & 1) == 1) == (msg->byte3 == INV_CONTENT(msg->byte1));
         case (ELF_MSG_CONDITION_OTHER << 1):
@@ -46,7 +46,7 @@ u32 ElfMessage_CheckCondition(ElfMessage* msg) {
                     return ((msg->byte0 & 1) == 1) == ((msg->byte1 & 0x0F) == CUR_UPG_VALUE(UPG_STRENGTH));
                 case (ELF_MSG_CONDITION_BOOTS << 4):
                     return ((msg->byte0 & 1) == 1) ==
-                           (((gBitFlags[msg->byte3 - ITEM_BOOTS_KOKIRI] << gEquipShifts[EQUIP_BOOTS]) &
+                           (((gBitFlags[msg->byte3 - ITEM_BOOTS_KOKIRI] << gEquipShifts[EQUIP_TYPE_BOOTS]) &
                              gSaveContext.inventory.equipment) != 0);
                 case (ELF_MSG_CONDITION_SONG << 4):
                     return ((msg->byte0 & 1) == 1) ==

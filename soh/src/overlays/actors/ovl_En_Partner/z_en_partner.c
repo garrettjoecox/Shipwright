@@ -195,7 +195,7 @@ void UseBow(Actor* thisx, PlayState* play, u8 started, u8 arrowType) {
     } else if (started == 0) {
         if (this->itemTimer <= 0) {
             if (AMMO(ITEM_BOW) > 0) {
-                if (arrowType >= 1 && !func_80087708(play, magicArrowCosts[arrowType], 0)) {
+                if (arrowType >= 1 && !Magic_RequestChange(play, magicArrowCosts[arrowType], 0)) {
                     func_80078884(NA_SE_SY_ERROR);
                     this->canMove = 1;
                     return;
@@ -279,7 +279,7 @@ void UseHammer(Actor* thisx, PlayState* play, u8 started) {
             Vec3f shockwavePos = this->actor.world.pos;
 
             func_808429B4(play, 27767, 7, 20);
-            func_8002F7DC(&this->actor, NA_SE_IT_HAMMER_HIT);
+            Player_PlaySfx(&this->actor, NA_SE_IT_HAMMER_HIT);
 
             EffectSsBlast_SpawnWhiteShockwave(play, &shockwavePos, &zeroVec, &zeroVec);
 
@@ -319,7 +319,7 @@ void UseDekuStick(Actor* thisx, PlayState* play, u8 started) {
 
     if (this->itemTimer <= 0) {
         if (started == 1) {
-            if (AMMO(ITEM_STICK) > 0) {
+            if (AMMO(ITEM_DEKU_STICK) > 0) {
                 func_808328EC(this, NA_SE_EV_FLAME_IGNITION);
             } else {
                 func_80078884(NA_SE_SY_ERROR);
@@ -327,7 +327,7 @@ void UseDekuStick(Actor* thisx, PlayState* play, u8 started) {
         }
 
         if (started == 2) {
-            if (AMMO(ITEM_STICK) > 0) {
+            if (AMMO(ITEM_DEKU_STICK) > 0) {
                 this->stickWeaponInfo.tip = this->actor.world.pos;
                 this->stickWeaponInfo.tip.y += 7.0f;
 
@@ -337,7 +337,7 @@ void UseDekuStick(Actor* thisx, PlayState* play, u8 started) {
                 CollisionCheck_SetAT(play, &play->colChkCtx, &this->collider.base);
 
                 if (this->damageTimer <= 0) {
-                    Inventory_ChangeAmmo(ITEM_STICK, -1);
+                    Inventory_ChangeAmmo(ITEM_DEKU_STICK, -1);
                     this->damageTimer = 20;
                 } else {
                     this->damageTimer--;
@@ -352,11 +352,11 @@ void UseNuts(Actor* thisx, PlayState* play, u8 started) {
 
     if (this->itemTimer <= 0) {
         if (started == 1) {
-            if (AMMO(ITEM_NUT) > 0) {
+            if (AMMO(ITEM_DEKU_NUT) > 0) {
                 this->itemTimer = 10;
                 Actor_Spawn(&play->actorCtx, play, ACTOR_EN_ARROW, this->actor.world.pos.x, this->actor.world.pos.y + 7,
                             this->actor.world.pos.z, 0x1000, this->actor.world.rot.y, 0, ARROW_NUT, false);
-                Inventory_ChangeAmmo(ITEM_NUT, -1);
+                Inventory_ChangeAmmo(ITEM_DEKU_NUT, -1);
             } else {
                 func_80078884(NA_SE_SY_ERROR);
             }
@@ -394,7 +394,7 @@ void UseOcarina(Actor* thisx, PlayState* play, u8 started) {
 
     if (this->itemTimer <= 0) {
         if (started == 1) {
-            Audio_PlaySoundTransposed(&this->actor.projectedPos, NA_SE_VO_NA_HELLO_2, -6);
+            Audio_PlaySfxTransposed(&this->actor.projectedPos, NA_SE_VO_NA_HELLO_2, -6);
         }
     }
 }
@@ -431,7 +431,7 @@ void UseBeans(Actor* thisx, PlayState* play, u8 started) {
 
     if (this->itemTimer <= 0) {
         if (started == 1) {
-            this->entry = ItemTable_Retrieve(GI_BEAN);
+            this->entry = ItemTable_Retrieve(GI_MAGIC_BEAN);
             if (play->actorCtx.titleCtx.alpha <= 0) {
                 if (gSaveContext.rupees >= 100 && GiveItemEntryWithoutActor(play, this->entry)) {
                     Rupees_ChangeBy(-100);
@@ -510,7 +510,7 @@ void UseItem(uint8_t usedItem, u8 started, Actor* thisx, PlayState* play) {
 
     if (this->usedItem != 0xFF && this->itemTimer <= 0) {
         switch (usedItem) {
-            case SLOT_STICK:
+            case SLOT_DEKU_STICK:
                 UseDekuStick(this, play, started);
                 break;
             case SLOT_BOMB:
@@ -519,7 +519,7 @@ void UseItem(uint8_t usedItem, u8 started, Actor* thisx, PlayState* play) {
             case SLOT_BOMBCHU:
                 UseBombchus(this, play, started);
                 break;
-            case SLOT_NUT:
+            case SLOT_DEKU_NUT:
                 UseNuts(this, play, started);
                 break;
             case SLOT_BOW:
@@ -558,10 +558,10 @@ void UseItem(uint8_t usedItem, u8 started, Actor* thisx, PlayState* play) {
             case SLOT_BOOMERANG:
                 UseBoomerang(this, play, started);
                 break;
-            case SLOT_LENS:
+            case SLOT_LENS_OF_TRUTH:
                 UseLens(this, play, started);
                 break;
-            case SLOT_BEAN:
+            case SLOT_MAGIC_BEAN:
                 UseBeans(this, play, started);
                 break;
         }
@@ -627,7 +627,7 @@ void EnPartner_Update(Actor* thisx, PlayState* play) {
     this->actor.gravity = this->yVelocity;
 
     if (this->canMove == 1) {
-        Actor_MoveForward(&this->actor);
+        Actor_MoveXZGravity(&this->actor);
         Actor_UpdateBgCheckInfo(play, &this->actor, 19.0f, 20.0f, 0.0f, 5);
     }
 
@@ -642,7 +642,7 @@ void EnPartner_Update(Actor* thisx, PlayState* play) {
             if (itemActor->id == ACTOR_EN_ITEM00) {
                 if (itemActor->params == ITEM00_RUPEE_GREEN || itemActor->params == ITEM00_RUPEE_BLUE ||
                     itemActor->params == ITEM00_RUPEE_RED || itemActor->params == ITEM00_RUPEE_PURPLE ||
-                    itemActor->params == ITEM00_RUPEE_ORANGE || itemActor->params == ITEM00_HEART ||
+                    itemActor->params == ITEM00_RUPEE_ORANGE || itemActor->params == ITEM00_RECOVERY_HEART ||
                     itemActor->params == ITEM00_BOMBS_A || itemActor->params == ITEM00_BOMBS_B ||
                     itemActor->params == ITEM00_ARROWS_SINGLE || itemActor->params == ITEM00_ARROWS_SMALL ||
                     itemActor->params == ITEM00_ARROWS_MEDIUM || itemActor->params == ITEM00_ARROWS_LARGE ||
@@ -736,7 +736,7 @@ void EnPartner_Update(Actor* thisx, PlayState* play) {
     }
 
     if (CHECK_BTN_ALL(sControlInput.press.button, BTN_Z) && this->canMove) {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EV_FAIRY_DASH);
+        Actor_PlaySfx(&this->actor, NA_SE_EV_FAIRY_DASH);
     }
 
     if (CHECK_BTN_ALL(sControlInput.cur.button, BTN_Z) && this->canMove) {

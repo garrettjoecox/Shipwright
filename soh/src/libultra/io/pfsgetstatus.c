@@ -1,7 +1,7 @@
 #include <libultraship/libultra.h>
 #include "global.h"
 
-OSPifRam gPifMempakBuf;
+OSPifRam __osPfsPifRam;
 
 s32 __osPfsGetStatus(OSMesgQueue* queue, s32 channel) {
     s32 ret = 0;
@@ -11,10 +11,10 @@ s32 __osPfsGetStatus(OSMesgQueue* queue, s32 channel) {
     __osPfsInodeCacheBank = 250;
 
     __osPfsRequestOneChannel(channel, CONT_CMD_REQUEST_STATUS);
-    ret = __osSiRawStartDma(OS_WRITE, &gPifMempakBuf);
+    ret = __osSiRawStartDma(OS_WRITE, &__osPfsPifRam);
     osRecvMesg(queue, &msg, OS_MESG_BLOCK);
 
-    ret = __osSiRawStartDma(OS_READ, &gPifMempakBuf);
+    ret = __osSiRawStartDma(OS_READ, &__osPfsPifRam);
     osRecvMesg(queue, &msg, OS_MESG_BLOCK);
 
     __osPfsGetOneChannelData(channel, &data);
@@ -33,10 +33,10 @@ void __osPfsRequestOneChannel(s32 channel, u8 poll) {
     __OSContRequestHeaderAligned req;
     s32 idx;
 
-    __osContLastPoll = CONT_CMD_END;
-    gPifMempakBuf.status = CONT_CMD_READ_BUTTON;
+    __osContLastCmd = CONT_CMD_END;
+    __osPfsPifRam.status = CONT_CMD_READ_BUTTON;
 
-    bufptr = (u8*)&gPifMempakBuf;
+    bufptr = (u8*)&__osPfsPifRam;
 
     req.txsize = 1;
     req.rxsize = 3;
@@ -55,7 +55,7 @@ void __osPfsRequestOneChannel(s32 channel, u8 poll) {
 }
 
 void __osPfsGetOneChannelData(s32 channel, OSContStatus* contData) {
-    u8* bufptr = (u8*)&gPifMempakBuf;
+    u8* bufptr = (u8*)&__osPfsPifRam;
     __OSContRequestHeaderAligned req;
     s32 idx;
 

@@ -76,13 +76,13 @@ u16 EnKz_GetTextNoMaskChild(PlayState* play, EnKz* this) {
         (!gSaveContext.n64ddFlag && CHECK_QUEST_ITEM(QUEST_ZORA_SAPPHIRE))) {
         // Allow turning in Ruto's letter even if you have already rescued her
         if (gSaveContext.n64ddFlag && !Flags_GetEventChkInf(EVENTCHKINF_KING_ZORA_MOVED)) {
-            player->exchangeItemId = EXCH_ITEM_LETTER_RUTO;
+            player->exchangeItemId = EXCH_ITEM_BOTTLE_RUTOS_LETTER;
         }
         return 0x402B;
     } else if (Flags_GetEventChkInf(EVENTCHKINF_KING_ZORA_MOVED)) {
         return 0x401C;
     } else {
-        player->exchangeItemId = EXCH_ITEM_LETTER_RUTO;
+        player->exchangeItemId = EXCH_ITEM_BOTTLE_RUTOS_LETTER;
         return 0x401A;
     }
 }
@@ -90,11 +90,11 @@ u16 EnKz_GetTextNoMaskChild(PlayState* play, EnKz* this) {
 u16 EnKz_GetTextNoMaskAdult(PlayState* play, EnKz* this) {
     Player* player = GET_PLAYER(play);
 
-    // this works because both ITEM_NONE and later trade items are > ITEM_FROG
-    if (INV_CONTENT(ITEM_TRADE_ADULT) >= ITEM_FROG) {
+    // this works because both ITEM_NONE and later trade items are > ITEM_EYEBALL_FROG
+    if (INV_CONTENT(ITEM_TRADE_ADULT) >= ITEM_EYEBALL_FROG) {
         if (!Flags_GetInfTable(INFTABLE_139)) {
             if (!gSaveContext.n64ddFlag) {
-                return CHECK_OWNED_EQUIP(EQUIP_TUNIC, 2) ? 0x401F : 0x4012;
+                return CHECK_OWNED_EQUIP(EQUIP_TYPE_TUNIC, 2) ? 0x401F : 0x4012;
             } else {
                 return 0x4012;
             }
@@ -145,12 +145,12 @@ s16 func_80A9C6C0(PlayState* play, Actor* thisx) {
         case TEXT_STATE_DONE_FADING:
             if (this->actor.textId != 0x4014) {
                 if (this->actor.textId == 0x401B && !this->sfxPlayed) {
-                    Audio_PlaySoundGeneral(NA_SE_SY_CORRECT_CHIME, &D_801333D4, 4, &D_801333E0, &D_801333E0,
-                                           &D_801333E8);
+                    Audio_PlaySfxGeneral(NA_SE_SY_CORRECT_CHIME, &gSfxDefaultPos, 4, &gSfxDefaultFreqAndVolScale, &gSfxDefaultFreqAndVolScale,
+                                           &gSfxDefaultReverb);
                     this->sfxPlayed = true;
                 }
             } else if (!this->sfxPlayed) {
-                Audio_PlaySoundGeneral(NA_SE_SY_TRE_BOX_APPEAR, &D_801333D4, 4, &D_801333E0, &D_801333E0, &D_801333E8);
+                Audio_PlaySfxGeneral(NA_SE_SY_TRE_BOX_APPEAR, &gSfxDefaultPos, 4, &gSfxDefaultFreqAndVolScale, &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
                 this->sfxPlayed = true;
             }
             break;
@@ -243,7 +243,7 @@ void func_80A9CB18(EnKz* this, PlayState* play) {
 
     if (func_80A9C95C(play, this, &this->interactInfo.talkState, 340.0f, EnKz_GetText, func_80A9C6C0)) {
         if (((gSaveContext.n64ddFlag && LINK_IS_CHILD) || this->actor.textId == 0x401A) && !Flags_GetEventChkInf(EVENTCHKINF_KING_ZORA_MOVED)) {
-            if (func_8002F368(play) == EXCH_ITEM_LETTER_RUTO) {
+            if (func_8002F368(play) == EXCH_ITEM_BOTTLE_RUTOS_LETTER) {
                 this->actor.textId = 0x401B;
                 this->sfxPlayed = false;
             } else {
@@ -271,7 +271,7 @@ void func_80A9CB18(EnKz* this, PlayState* play) {
                 player->actor.textId = this->actor.textId;
             } else {
                 if (!gSaveContext.n64ddFlag) {
-                    this->actor.textId = CHECK_OWNED_EQUIP(EQUIP_TUNIC, 2) ? 0x401F : 0x4012;
+                    this->actor.textId = CHECK_OWNED_EQUIP(EQUIP_TYPE_TUNIC, 2) ? 0x401F : 0x4012;
                 } else {
                     this->actor.textId = 0x4012;
                 }
@@ -292,7 +292,7 @@ s32 EnKz_FollowPath(EnKz* this, PlayState* play) {
         return 0;
     }
 
-    path = &play->setupPathList[(this->actor.params & 0xFF00) >> 8];
+    path = &play->pathList[(this->actor.params & 0xFF00) >> 8];
     pointPos = SEGMENTED_TO_VIRTUAL(path->points);
     pointPos += this->waypoint;
 
@@ -318,7 +318,7 @@ s32 EnKz_SetMovedPos(EnKz* this, PlayState* play) {
         return 0;
     }
 
-    path = &play->setupPathList[(this->actor.params & 0xFF00) >> 8];
+    path = &play->pathList[(this->actor.params & 0xFF00) >> 8];
     lastPointPos = SEGMENTED_TO_VIRTUAL(path->points);
     lastPointPos += path->count - 1;
 
@@ -431,14 +431,14 @@ void EnKz_Mweep(EnKz* this, PlayState* play) {
     Play_CameraSetAtEye(play, this->cutsceneCamera, &pos, &initPos);
     if ((EnKz_FollowPath(this, play) == 1) && (this->waypoint == 0)) {
         Animation_ChangeByInfo(&this->skelanime, sAnimationInfo, ENKZ_ANIM_1);
-        Inventory_ReplaceItem(play, ITEM_LETTER_RUTO, ITEM_BOTTLE);
+        Inventory_ReplaceItem(play, ITEM_BOTTLE_RUTOS_LETTER, ITEM_BOTTLE_EMPTY);
         EnKz_SetMovedPos(this, play);
         Flags_SetEventChkInf(EVENTCHKINF_KING_ZORA_MOVED);
         this->actor.speedXZ = 0.0;
         this->actionFunc = EnKz_StopMweep;
     }
     if (this->skelanime.curFrame == 13.0f) {
-        Audio_PlayActorSound2(&this->actor, NA_SE_VO_KZ_MOVE);
+        Actor_PlaySfx(&this->actor, NA_SE_VO_KZ_MOVE);
     }
 }
 
@@ -473,12 +473,12 @@ void EnKz_SetupGetItem(EnKz* this, PlayState* play) {
             getItemEntry = Randomizer_GetItemFromKnownCheck(RC_ZD_KING_ZORA_THAWED, GI_TUNIC_ZORA);
             getItemId = getItemEntry.getItemId;
         } else {
-            getItemId = this->isTrading ? GI_FROG : GI_TUNIC_ZORA;
+            getItemId = this->isTrading ? GI_EYEBALL_FROG : GI_TUNIC_ZORA;
         }
         yRange = fabsf(this->actor.yDistToPlayer) + 1.0f;
         xzRange = this->actor.xzDistToPlayer + 1.0f;
         if (!gSaveContext.n64ddFlag || getItemEntry.getItemId == GI_NONE) {
-            func_8002F434(&this->actor, play, getItemId, xzRange, yRange);
+            Actor_OfferGetItem(&this->actor, play, getItemId, xzRange, yRange);
         } else {
             GiveItemEntryFromActor(&this->actor, play, getItemEntry, xzRange, yRange);
         }
@@ -487,8 +487,8 @@ void EnKz_SetupGetItem(EnKz* this, PlayState* play) {
 
 void EnKz_StartTimer(EnKz* this, PlayState* play) {
     if ((Message_GetState(&play->msgCtx) == TEXT_STATE_DONE) && Message_ShouldAdvance(play)) {
-        if (INV_CONTENT(ITEM_TRADE_ADULT) == ITEM_FROG && !gSaveContext.n64ddFlag) {
-            func_80088AA0(180); // start timer2 with 3 minutes
+        if (INV_CONTENT(ITEM_TRADE_ADULT) == ITEM_EYEBALL_FROG && !gSaveContext.n64ddFlag) {
+            Interface_SetSubTimer(180); // start timer2 with 3 minutes
             gSaveContext.eventInf[1] &= ~1;
         }
         this->interactInfo.talkState = NPC_TALK_STATE_IDLE;
@@ -507,7 +507,7 @@ void EnKz_Update(Actor* thisx, PlayState* play) {
     CollisionCheck_SetOC(play, &play->colChkCtx, &this->collider.base);
     SkelAnime_Update(&this->skelanime);
     EnKz_UpdateEyes(this);
-    Actor_MoveForward(&this->actor);
+    Actor_MoveXZGravity(&this->actor);
     if (this->actionFunc != EnKz_StartTimer) {
         func_80A9CB18(this, play);
     }

@@ -150,10 +150,10 @@ void MapMark_DrawForDungeon(PlayState* play) {
                     rectTop = (markPoint->y + Y_Margins_Minimap_ic + 140 + CVarGetInteger("gMinimapPosY", 0));
                     if (CVarGetInteger("gMinimapPosType", 0) == 1) {//Anchor Left
                         if (CVarGetInteger("gMinimapUseMargins", 0) != 0) {X_Margins_Minimap_ic = Left_MC_Margin;};
-                        if (play->sceneNum == SCENE_YDAN || play->sceneNum == SCENE_DDAN || play->sceneNum == SCENE_BDAN || 
-                            play->sceneNum == SCENE_BMORI1 || play->sceneNum == SCENE_HIDAN || play->sceneNum == SCENE_MIZUSIN || 
-                            play->sceneNum == SCENE_JYASINZOU || play->sceneNum == SCENE_HAKADAN || play->sceneNum == SCENE_HAKADANCH || 
-                            play->sceneNum == SCENE_ICE_DOUKUTO) {
+                        if (play->sceneId == SCENE_DEKU_TREE || play->sceneId == SCENE_DODONGOS_CAVERN || play->sceneId == SCENE_JABU_JABU || 
+                            play->sceneId == SCENE_FOREST_TEMPLE || play->sceneId == SCENE_FIRE_TEMPLE || play->sceneId == SCENE_WATER_TEMPLE || 
+                            play->sceneId == SCENE_SPIRIT_TEMPLE || play->sceneId == SCENE_SHADOW_TEMPLE || play->sceneId == SCENE_BOTTOM_OF_THE_WELL || 
+                            play->sceneId == SCENE_ICE_CAVERN) {
                             rectLeft = OTRGetRectDimensionFromLeftEdge(markPointX+CVarGetInteger("gMinimapPosX", 0)+204+X_Margins_Minimap_ic);
                         } else {
                             rectLeft = OTRGetRectDimensionFromLeftEdge(markPointX+CVarGetInteger("gMinimapPosX", 0)+204+X_Margins_Minimap_ic);
@@ -191,22 +191,22 @@ void MapMark_DrawForDungeon(PlayState* play) {
 }
 
 void MapMark_Draw(PlayState* play) {
-    switch (play->sceneNum) {
-        case SCENE_YDAN:
-        case SCENE_DDAN:
-        case SCENE_BDAN:
-        case SCENE_BMORI1:
-        case SCENE_HIDAN:
-        case SCENE_MIZUSIN:
-        case SCENE_JYASINZOU:
-        case SCENE_HAKADAN:
-        case SCENE_HAKADANCH:
-        case SCENE_ICE_DOUKUTO:
-        case SCENE_YDAN_BOSS:
-        case SCENE_DDAN_BOSS:
-        case SCENE_BDAN_BOSS:
-        case SCENE_MORIBOSSROOM:
-        case SCENE_FIRE_BS:
+    switch (play->sceneId) {
+        case SCENE_DEKU_TREE:
+        case SCENE_DODONGOS_CAVERN:
+        case SCENE_JABU_JABU:
+        case SCENE_FOREST_TEMPLE:
+        case SCENE_FIRE_TEMPLE:
+        case SCENE_WATER_TEMPLE:
+        case SCENE_SPIRIT_TEMPLE:
+        case SCENE_SHADOW_TEMPLE:
+        case SCENE_BOTTOM_OF_THE_WELL:
+        case SCENE_ICE_CAVERN:
+        case SCENE_DEKU_TREE_BOSS:
+        case SCENE_DODONGOS_CAVERN_BOSS:
+        case SCENE_JABU_JABU_BOSS:
+        case SCENE_FOREST_TEMPLE_BOSS:
+        case SCENE_FIRE_TEMPLE_BOSS:
             MapMark_DrawForDungeon(play);
             break;
     }

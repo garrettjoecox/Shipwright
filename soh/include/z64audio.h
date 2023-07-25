@@ -9,7 +9,7 @@
 
 #define TATUMS_PER_BEAT 48
 
-#define IS_SEQUENCE_CHANNEL_VALID(ptr) ((uintptr_t)(ptr) != (uintptr_t)&gAudioContext.sequenceChannelNone)
+#define IS_SEQUENCE_CHANNEL_VALID(ptr) ((uintptr_t)(ptr) != (uintptr_t)&gAudioCtx.sequenceChannelNone)
 
 #define MAX_CHANNELS_PER_BANK 3
 
@@ -20,7 +20,7 @@
 
 #define AIBUF_LEN 0x580
 
-#define CALC_RESAMPLE_FREQ(sampleRate) ((float)sampleRate / (s32)gAudioContext.audioBufferParameters.frequency)
+#define CALC_RESAMPLE_FREQ(sampleRate) ((float)sampleRate / (s32)gAudioCtx.audioBufferParameters.frequency)
 
 //#define MAX_SEQUENCES 0x800
 extern size_t sequenceMapSize;

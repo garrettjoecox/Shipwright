@@ -52,8 +52,8 @@ void GameOver_Update(PlayState* play) {
             // restore "temporary B" to the B Button if not a sword item
             if (gSaveContext.equips.buttonItems[0] != ITEM_SWORD_KOKIRI &&
                 gSaveContext.equips.buttonItems[0] != ITEM_SWORD_MASTER &&
-                gSaveContext.equips.buttonItems[0] != ITEM_SWORD_BGS &&
-                gSaveContext.equips.buttonItems[0] != ITEM_SWORD_KNIFE) {
+                gSaveContext.equips.buttonItems[0] != ITEM_SWORD_BIGGORON &&
+                gSaveContext.equips.buttonItems[0] != ITEM_GIANTS_KNIFE) {
 
                 if (gSaveContext.buttonStatus[0] != BTN_ENABLED) {
                     gSaveContext.equips.buttonItems[0] = gSaveContext.buttonStatus[0];
@@ -81,7 +81,7 @@ void GameOver_Update(PlayState* play) {
             v91 = VREG(91);
             v92 = VREG(92);
 
-            func_800AA000(0.0f, ((v90 > 0x64) ? 0xFF : (v90 * 0xFF) / 0x64), (CLAMP_MAX(v91 * 3, 0xFF)),
+            Rumble_Request(0.0f, ((v90 > 0x64) ? 0xFF : (v90 * 0xFF) / 0x64), (CLAMP_MAX(v91 * 3, 0xFF)),
                           ((v92 > 0x64) ? 0xFF : (v92 * 0xFF) / 0x64));
 
             gameOverCtx->state = GAMEOVER_DEATH_WAIT_GROUND;
@@ -104,7 +104,7 @@ void GameOver_Update(PlayState* play) {
             gameOverCtx->state++;
             gGameOverTimer = 0;
             Environment_InitGameOverLights(play);
-            ShrinkWindow_SetVal(0x20);
+            Letterbox_SetSizeTarget(0x20);
             return;
 
         case GAMEOVER_REVIVE_RUMBLE:
@@ -115,7 +115,7 @@ void GameOver_Update(PlayState* play) {
             v91 = VREG(91);
             v92 = VREG(92);
 
-            func_800AA000(0.0f, ((v90 > 0x64) ? 0xFF : (v90 * 0xFF) / 0x64), (CLAMP_MAX(v91 * 3, 0xFF)),
+            Rumble_Request(0.0f, ((v90 > 0x64) ? 0xFF : (v90 * 0xFF) / 0x64), (CLAMP_MAX(v91 * 3, 0xFF)),
                           ((v92 > 0x64) ? 0xFF : (v92 * 0xFF) / 0x64));
             break;
 

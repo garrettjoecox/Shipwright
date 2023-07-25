@@ -96,18 +96,18 @@ void EnToryo_Init(Actor* thisx, PlayState* play) {
     EnToryo* this = (EnToryo*)thisx;
     s32 pad;
 
-    switch (play->sceneNum) {
-        case SCENE_SPOT09:
+    switch (play->sceneId) {
+        case SCENE_GERUDO_VALLEY:
             if (LINK_AGE_IN_YEARS == YEARS_ADULT) {
                 this->stateFlags |= 1;
             }
             break;
-        case SCENE_SPOT01:
+        case SCENE_KAKARIKO_VILLAGE:
             if ((LINK_AGE_IN_YEARS == YEARS_CHILD) && IS_DAY) {
                 this->stateFlags |= 2;
             }
             break;
-        case SCENE_KAKARIKO:
+        case SCENE_KAKARIKO_CENTER_GUEST_HOUSE:
             if ((LINK_AGE_IN_YEARS == YEARS_CHILD) && IS_NIGHT) {
                 this->stateFlags |= 4;
             }
@@ -315,8 +315,8 @@ void func_80B20768(EnToryo* this, PlayState* play) {
             this->actor.parent = NULL;
             this->unk_1E4 = 5;
         } else {
-            s32 itemId = GI_SWORD_BROKEN;
-            func_8002F434(&this->actor, play, itemId, 100.0f, 10.0f);
+            s32 itemId = GI_BROKEN_GORONS_SWORD;
+            Actor_OfferGetItem(&this->actor, play, itemId, 100.0f, 10.0f);
         }
         return;
     }

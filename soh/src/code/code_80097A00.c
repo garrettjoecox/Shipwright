@@ -171,9 +171,9 @@ void* gItemIcons[] = {
 
 // Used to map item IDs to inventory slots
 u8 gItemSlots[] = {
-    SLOT_STICK,       SLOT_NUT,          SLOT_BOMB,        SLOT_BOW,         SLOT_ARROW_FIRE,  SLOT_DINS_FIRE,
+    SLOT_DEKU_STICK,       SLOT_DEKU_NUT,          SLOT_BOMB,        SLOT_BOW,         SLOT_ARROW_FIRE,  SLOT_DINS_FIRE,
     SLOT_SLINGSHOT,   SLOT_OCARINA,      SLOT_OCARINA,     SLOT_BOMBCHU,     SLOT_HOOKSHOT,    SLOT_HOOKSHOT,
-    SLOT_ARROW_ICE,   SLOT_FARORES_WIND, SLOT_BOOMERANG,   SLOT_LENS,        SLOT_BEAN,        SLOT_HAMMER,
+    SLOT_ARROW_ICE,   SLOT_FARORES_WIND, SLOT_BOOMERANG,   SLOT_LENS_OF_TRUTH,        SLOT_MAGIC_BEAN,        SLOT_HAMMER,
     SLOT_ARROW_LIGHT, SLOT_NAYRUS_LOVE,  SLOT_BOTTLE_1,    SLOT_BOTTLE_1,    SLOT_BOTTLE_1,    SLOT_BOTTLE_1,
     SLOT_BOTTLE_1,    SLOT_BOTTLE_1,     SLOT_BOTTLE_1,    SLOT_BOTTLE_1,    SLOT_BOTTLE_1,    SLOT_BOTTLE_1,
     SLOT_BOTTLE_1,    SLOT_BOTTLE_1,     SLOT_BOTTLE_1,    SLOT_TRADE_CHILD, SLOT_TRADE_CHILD, SLOT_TRADE_CHILD,
@@ -202,11 +202,11 @@ u8 Inventory_DeleteEquipment(PlayState* play, s16 equipment) {
         gSaveContext.equips.equipment &= gEquipNegMasks[equipment];
         gSaveContext.inventory.equipment ^= gBitFlags[sp26 - 1] << gEquipShifts[equipment];
 
-        if (equipment == EQUIP_TUNIC) {
+        if (equipment == EQUIP_TYPE_TUNIC) {
             gSaveContext.equips.equipment |= 0x0100;
         }
 
-        if (equipment == EQUIP_SWORD) {
+        if (equipment == EQUIP_TYPE_SWORD) {
             gSaveContext.equips.buttonItems[0] = ITEM_NONE;
             gSaveContext.infTable[29] = 1;
         }

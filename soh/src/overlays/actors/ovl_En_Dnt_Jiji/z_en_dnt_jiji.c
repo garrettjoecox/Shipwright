@@ -132,7 +132,7 @@ void EnDntJiji_SetupUp(EnDntJiji* this, PlayState* play) {
     this->endFrame = (f32)Animation_GetLastFrame(&gDntJijiUpAnim);
     Animation_Change(&this->skelAnime, &gDntJijiUpAnim, 1.0f, 0.0f, this->endFrame, ANIMMODE_ONCE, -10.0f);
     EffectSsHahen_SpawnBurst(play, &this->actor.world.pos, 6.0f, 0, 15, 5, 20, HAHEN_OBJECT_DEFAULT, 10, NULL);
-    Audio_PlayActorSound2(&this->actor, NA_SE_EN_NUTS_UP);
+    Actor_PlaySfx(&this->actor, NA_SE_EN_NUTS_UP);
     this->actionFunc = EnDntJiji_Up;
 }
 
@@ -148,7 +148,7 @@ void EnDntJiji_SetupUnburrow(EnDntJiji* this, PlayState* play) {
     this->endFrame = (f32)Animation_GetLastFrame(&gDntJijiUnburrowAnim);
     Animation_Change(&this->skelAnime, &gDntJijiUnburrowAnim, 1.0f, 0.0f, this->endFrame, ANIMMODE_ONCE, -10.0f);
     EffectSsHahen_SpawnBurst(play, &this->actor.world.pos, 6.0f, 0, 15, 5, 20, HAHEN_OBJECT_DEFAULT, 10, NULL);
-    Audio_PlayActorSound2(&this->actor, NA_SE_EN_NUTS_UP);
+    Actor_PlaySfx(&this->actor, NA_SE_EN_NUTS_UP);
     this->actionFunc = EnDntJiji_Unburrow;
 }
 
@@ -181,17 +181,17 @@ void EnDntJiji_Walk(EnDntJiji* this, PlayState* play) {
     Math_ApproachF(&this->actor.speedXZ, 1.0f, 0.2f, 0.4f);
     if (this->sfxTimer == 0) {
         this->sfxTimer = 5;
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_NUTS_WALK);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_NUTS_WALK);
     }
     if ((this->actor.bgCheckFlags & 8) && (this->actor.bgCheckFlags & 1)) {
         this->actor.velocity.y = 9.0f;
         this->actor.speedXZ = 3.0f;
     }
     if (this->actor.xzDistToPlayer < 100.0f) {
-        if (CUR_UPG_VALUE(UPG_STICKS) == 1) {
-            this->getItemId = GI_STICK_UPGRADE_20;
+        if (CUR_UPG_VALUE(UPG_DEKU_STICKS) == 1) {
+            this->getItemId = GI_DEKU_STICK_UPGRADE_20;
         } else {
-            this->getItemId = GI_STICK_UPGRADE_30;
+            this->getItemId = GI_DEKU_STICK_UPGRADE_30;
         }
         this->actor.textId = 0x104D;
         Message_StartTextbox(play, this->actor.textId, NULL);
@@ -205,8 +205,8 @@ void EnDntJiji_SetupBurrow(EnDntJiji* this, PlayState* play) {
     this->endFrame = (f32)Animation_GetLastFrame(&gDntJijiBurrowAnim);
     Animation_Change(&this->skelAnime, &gDntJijiBurrowAnim, 1.0f, 0.0f, this->endFrame, ANIMMODE_ONCE, -10.0f);
     EffectSsHahen_SpawnBurst(play, &this->actor.world.pos, 6.0f, 0, 15, 5, 20, HAHEN_OBJECT_DEFAULT, 10, NULL);
-    Audio_PlayActorSound2(&this->actor, NA_SE_EN_NUTS_UP);
-    Audio_PlayActorSound2(&this->actor, NA_SE_EN_NUTS_DOWN);
+    Actor_PlaySfx(&this->actor, NA_SE_EN_NUTS_UP);
+    Actor_PlaySfx(&this->actor, NA_SE_EN_NUTS_DOWN);
     this->actionFunc = EnDntJiji_Burrow;
 }
 
@@ -218,12 +218,12 @@ void EnDntJiji_SetupCower(EnDntJiji* this, PlayState* play) {
     this->endFrame = (f32)Animation_GetLastFrame(&gDntJijiCowerAnim);
     Animation_Change(&this->skelAnime, &gDntJijiCowerAnim, 1.0f, 0.0f, this->endFrame, ANIMMODE_ONCE, -10.0f);
     EffectSsHahen_SpawnBurst(play, &this->actor.world.pos, 3.0f, 0, 9, 3, 10, HAHEN_OBJECT_DEFAULT, 10, NULL);
-    Audio_PlayActorSound2(&this->actor, NA_SE_EN_NUTS_UP);
+    Actor_PlaySfx(&this->actor, NA_SE_EN_NUTS_UP);
 
-    if ((CUR_UPG_VALUE(UPG_NUTS) == 1) || (CUR_UPG_VALUE(UPG_NUTS) == 0)) {
-        this->getItemId = GI_NUT_UPGRADE_30;
+    if ((CUR_UPG_VALUE(UPG_DEKU_NUTS) == 1) || (CUR_UPG_VALUE(UPG_DEKU_NUTS) == 0)) {
+        this->getItemId = GI_DEKU_NUT_UPGRADE_30;
     } else {
-        this->getItemId = GI_NUT_UPGRADE_40;
+        this->getItemId = GI_DEKU_NUT_UPGRADE_40;
     }
     this->actor.flags |= ACTOR_FLAG_TARGETABLE;
     this->actor.textId = 0x10DB;
@@ -259,7 +259,7 @@ void EnDntJiji_Talk(EnDntJiji* this, PlayState* play) {
         Message_CloseTextbox(play);
         func_8002DF54(play, NULL, 7);
         this->actor.parent = NULL;
-        func_8002F434(&this->actor, play, this->getItemId, 400.0f, 200.0f);
+        Actor_OfferGetItem(&this->actor, play, this->getItemId, 400.0f, 200.0f);
         this->actionFunc = EnDntJiji_SetupGivePrize;
     }
 }
@@ -269,14 +269,14 @@ void EnDntJiji_SetupGivePrize(EnDntJiji* this, PlayState* play) {
     if (Actor_HasParent(&this->actor, play)) {
         this->actionFunc = EnDntJiji_GivePrize;
     } else {
-        func_8002F434(&this->actor, play, this->getItemId, 400.0f, 200.0f);
+        Actor_OfferGetItem(&this->actor, play, this->getItemId, 400.0f, 200.0f);
     }
 }
 
 void EnDntJiji_GivePrize(EnDntJiji* this, PlayState* play) {
     SkelAnime_Update(&this->skelAnime);
     if ((Message_GetState(&play->msgCtx) == TEXT_STATE_DONE) && Message_ShouldAdvance(play)) {
-        if ((this->getItemId == GI_NUT_UPGRADE_30) || (this->getItemId == GI_NUT_UPGRADE_40)) {
+        if ((this->getItemId == GI_DEKU_NUT_UPGRADE_30) || (this->getItemId == GI_DEKU_NUT_UPGRADE_40)) {
             // "nut"
             osSyncPrintf("実 \n");
             osSyncPrintf("実 \n");
@@ -353,7 +353,7 @@ void EnDntJiji_Return(EnDntJiji* this, PlayState* play) {
     }
     if (this->sfxTimer == 0) {
         this->sfxTimer = 3;
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_NUTS_WALK);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_NUTS_WALK);
     }
     if ((fabsf(dx) < 5.0f) && (fabsf(dz) < 5.0f)) {
         this->actor.world.pos.x = this->flowerPos.x;
@@ -421,7 +421,7 @@ void EnDntJiji_Update(Actor* thisx, PlayState* play) {
         }
     }
     this->actionFunc(this, play);
-    Actor_MoveForward(&this->actor);
+    Actor_MoveXZGravity(&this->actor);
     Actor_UpdateBgCheckInfo(play, &this->actor, 20.0f, 20.0f, 60.0f, 0x1D);
     Collider_UpdateCylinder(&this->actor, &this->collider);
     if (this->isSolid != 0) {

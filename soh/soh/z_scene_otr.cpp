@@ -181,7 +181,7 @@ bool Scene_CommandObjectList(PlayState* play, LUS::ISceneCommand* cmd) {
 
         if (!alreadyIncluded) {
             play->objectCtx.status[play->objectCtx.num++].id = cmdObj->objects[i];
-            func_80031A28(play, &play->actorCtx);
+            Actor_KillAllWithMissingObject(play, &play->actorCtx);
         }
     }
 
@@ -194,7 +194,7 @@ bool Scene_CommandObjectList(PlayState* play, LUS::ISceneCommand* cmd) {
                 status2++;
             }
             play->objectCtx.num = i;
-            func_80031A28(play, &play->actorCtx);
+            Actor_KillAllWithMissingObject(play, &play->actorCtx);
 
             continue;
         }
@@ -225,7 +225,7 @@ bool Scene_CommandLightList(PlayState* play, LUS::ISceneCommand* cmd) {
 bool Scene_CommandPathList(PlayState* play, LUS::ISceneCommand* cmd) {
     // LUS::SetPathways* cmdPath = static_pointer_cast<LUS::SetPathways>(cmd);
     LUS::SetPathways* cmdPath = (LUS::SetPathways*)cmd;
-    play->setupPathList = (Path*)(cmdPath->GetPointer()[0]);
+    play->pathList = (Path*)(cmdPath->GetPointer()[0]);
 
     return false;
 }
@@ -288,7 +288,7 @@ bool Scene_CommandTimeSettings(PlayState* play, LUS::ISceneCommand* cmd) {
     }
 
     if (gSaveContext.sunsSongState == SUNSSONG_INACTIVE) {
-        gTimeIncrement = play->envCtx.timeIncrement;
+        gTimeSpeed = play->envCtx.timeIncrement;
     }
 
     play->envCtx.sunPos.x = -(Math_SinS(((void)0, gSaveContext.dayTime) - 0x8000) * 120.0f) * 25.0f;
@@ -367,11 +367,11 @@ bool Scene_CommandAlternateHeaderList(PlayState* play, LUS::ISceneCommand* cmd) 
 
     // osSyncPrintf("\n[ZU]sceneset age    =[%X]", ((void)0, gSaveContext.linkAge));
     // osSyncPrintf("\n[ZU]sceneset time   =[%X]", ((void)0, gSaveContext.cutsceneIndex));
-    // osSyncPrintf("\n[ZU]sceneset counter=[%X]", ((void)0, gSaveContext.sceneSetupIndex));
+    // osSyncPrintf("\n[ZU]sceneset counter=[%X]", ((void)0, gSaveContext.sceneLayer));
 
-    if (gSaveContext.sceneSetupIndex != 0) {
+    if (gSaveContext.sceneLayer != 0) {
         LUS::Scene* desiredHeader =
-            std::static_pointer_cast<LUS::Scene>(cmdHeaders->headers[gSaveContext.sceneSetupIndex - 1]).get();
+            std::static_pointer_cast<LUS::Scene>(cmdHeaders->headers[gSaveContext.sceneLayer - 1]).get();
 
         if (desiredHeader != nullptr) {
             OTRScene_ExecuteCommands(play, desiredHeader);
@@ -380,9 +380,9 @@ bool Scene_CommandAlternateHeaderList(PlayState* play, LUS::ISceneCommand* cmd) 
             // "Coughh! There is no specified dataaaaa!"
             osSyncPrintf("\nげぼはっ！ 指定されたデータがないでええっす！");
 
-            if (gSaveContext.sceneSetupIndex == 3) {
+            if (gSaveContext.sceneLayer == 3) {
                 LUS::Scene* desiredHeader =
-                    std::static_pointer_cast<LUS::Scene>(cmdHeaders->headers[gSaveContext.sceneSetupIndex - 2]).get();
+                    std::static_pointer_cast<LUS::Scene>(cmdHeaders->headers[gSaveContext.sceneLayer - 2]).get();
 
                 // "Using adult day data there!"
                 osSyncPrintf("\nそこで、大人の昼データを使用するでええっす！！");
@@ -415,14 +415,14 @@ bool Scene_CommandMiscSettings(PlayState* play, LUS::ISceneCommand* cmd) {
     YREG(15) = cmdCam->settings.cameraMovement;
     gSaveContext.worldMapArea = cmdCam->settings.worldMapArea;
 
-    if ((play->sceneNum == SCENE_SHOP1) || (play->sceneNum == SCENE_SYATEKIJYOU)) {
+    if ((play->sceneId == SCENE_BAZAAR) || (play->sceneId == SCENE_SHOOTING_GALLERY)) {
         if (LINK_AGE_IN_YEARS == YEARS_ADULT) {
             gSaveContext.worldMapArea = 1;
         }
     }
 
-    if (((play->sceneNum >= SCENE_SPOT00) && (play->sceneNum <= SCENE_GANON_TOU)) ||
-        ((play->sceneNum >= SCENE_ENTRA) && (play->sceneNum <= SCENE_SHRINE_R))) {
+    if (((play->sceneId >= SCENE_HYRULE_FIELD) && (play->sceneId <= SCENE_OUTSIDE_GANONS_CASTLE)) ||
+        ((play->sceneId >= SCENE_MARKET_ENTRANCE_DAY) && (play->sceneId <= SCENE_TEMPLE_OF_TIME_EXTERIOR_RUINS))) {
         if (gSaveContext.cutsceneIndex < 0xFFF0) {
             gSaveContext.worldMapAreaData |= gBitFlags[gSaveContext.worldMapArea];
             osSyncPrintf("０００  ａｒｅａ＿ａｒｒｉｖａｌ＝%x (%d)\n", gSaveContext.worldMapAreaData,

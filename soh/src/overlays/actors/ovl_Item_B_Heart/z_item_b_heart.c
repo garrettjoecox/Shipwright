@@ -60,9 +60,9 @@ void ItemBHeart_Update(Actor* thisx, PlayState* play) {
         Actor_Kill(&this->actor);
     } else {
         if (!gSaveContext.n64ddFlag) {
-            func_8002F434(&this->actor, play, GI_HEART_CONTAINER_2, 30.0f, 40.0f);
+            Actor_OfferGetItem(&this->actor, play, GI_HEART_CONTAINER_2, 30.0f, 40.0f);
         } else {
-            GetItemEntry getItemEntry = Randomizer_GetItemFromActor(this->actor.id, play->sceneNum, this->actor.params, GI_HEART_CONTAINER_2);
+            GetItemEntry getItemEntry = Randomizer_GetItemFromActor(this->actor.id, play->sceneId, this->actor.params, GI_HEART_CONTAINER_2);
             GiveItemEntryFromActor(&this->actor, play, getItemEntry, 30.0f, 40.0f);
         }
     }
@@ -100,7 +100,7 @@ void ItemBHeart_Draw(Actor* thisx, PlayState* play) {
 
     if (gSaveContext.n64ddFlag) {
         GetItemEntry_Draw(play, Randomizer_GetItemFromActor(this->actor.id, 
-            play->sceneNum,this->actor.params, GI_HEART_CONTAINER_2));
+            play->sceneId,this->actor.params, GI_HEART_CONTAINER_2));
     } else {
         if (flag) {
             Gfx_SetupDL_25Xlu(play->state.gfxCtx);

@@ -49,11 +49,11 @@ const ActorInit En_Door_InitVars = {
  * Controls which object and display lists to use in a given scene
  */
 static EnDoorInfo sDoorInfo[] = {
-    { SCENE_HIDAN, 1, OBJECT_HIDAN_OBJECTS },
-    { SCENE_MIZUSIN, 2, OBJECT_MIZU_OBJECTS },
-    { SCENE_HAKADAN, 3, OBJECT_HAKA_DOOR },
-    { SCENE_HAKADANCH, 3, OBJECT_HAKA_DOOR },
-    { SCENE_BMORI1, 0, OBJECT_GAMEPLAY_KEEP }, // Hacky fix, but behavior same as console.
+    { SCENE_FIRE_TEMPLE, 1, OBJECT_HIDAN_OBJECTS },
+    { SCENE_WATER_TEMPLE, 2, OBJECT_MIZU_OBJECTS },
+    { SCENE_SHADOW_TEMPLE, 3, OBJECT_HAKA_DOOR },
+    { SCENE_BOTTOM_OF_THE_WELL, 3, OBJECT_HAKA_DOOR },
+    { SCENE_FOREST_TEMPLE, 0, OBJECT_GAMEPLAY_KEEP }, // Hacky fix, but behavior same as console.
     // KEEP objects should remain last and in this order
     { -1, 0, OBJECT_GAMEPLAY_KEEP },
     { -1, 4, OBJECT_GAMEPLAY_FIELD_KEEP },
@@ -91,7 +91,7 @@ void EnDoor_Init(Actor* thisx, PlayState* play2) {
     Actor_ProcessInitChain(&this->actor, sInitChain);
     SkelAnime_Init(play, &this->skelAnime, &gDoorSkel, &gDoorAdultOpeningLeftAnim, this->jointTable, this->morphTable, 5);
     for (i = 0; i < ARRAY_COUNT(sDoorInfo) - 2; i++, objectInfo++) {
-        if (play->sceneNum == objectInfo->sceneNum) {
+        if (play->sceneId == objectInfo->sceneId) {
             break;
         }
     }
@@ -202,7 +202,7 @@ void EnDoor_Idle(EnDoor* this, PlayState* play) {
         if (this->lockTimer != 0) {
             gSaveContext.inventory.dungeonKeys[gSaveContext.mapIndex]--;
             Flags_SetSwitch(play, this->actor.params & 0x3F);
-            Audio_PlayActorSound2(&this->actor, NA_SE_EV_CHAIN_KEY_UNLOCK);
+            Actor_PlaySfx(&this->actor, NA_SE_EV_CHAIN_KEY_UNLOCK);
         }
     } else if (!Player_InCsMode(play)) {
         if (fabsf(playerPosRelToDoor.y) < 20.0f && fabsf(playerPosRelToDoor.x) < 20.0f &&
@@ -275,9 +275,9 @@ void EnDoor_Open(EnDoor* this, PlayState* play) {
             this->actionFunc = EnDoor_Idle;
             this->playerIsOpening = 0;
         } else if (Animation_OnFrame(&this->skelAnime, sDoorAnimOpenFrames[this->animStyle])) {
-            Audio_PlayActorSound2(&this->actor,
-                                  (play->sceneNum == SCENE_HAKADAN || play->sceneNum == SCENE_HAKADANCH ||
-                                   play->sceneNum == SCENE_HIDAN)
+            Actor_PlaySfx(&this->actor,
+                                  (play->sceneId == SCENE_SHADOW_TEMPLE || play->sceneId == SCENE_BOTTOM_OF_THE_WELL ||
+                                   play->sceneId == SCENE_FIRE_TEMPLE)
                                       ? NA_SE_EV_IRON_DOOR_OPEN
                                       : NA_SE_OC_DOOR_OPEN);
             if (this->skelAnime.playSpeed < 1.5f) {
@@ -287,9 +287,9 @@ void EnDoor_Open(EnDoor* this, PlayState* play) {
                 }
             }
         } else if (Animation_OnFrame(&this->skelAnime, sDoorAnimCloseFrames[this->animStyle])) {
-            Audio_PlayActorSound2(&this->actor,
-                                  (play->sceneNum == SCENE_HAKADAN || play->sceneNum == SCENE_HAKADANCH ||
-                                   play->sceneNum == SCENE_HIDAN)
+            Actor_PlaySfx(&this->actor,
+                                  (play->sceneId == SCENE_SHADOW_TEMPLE || play->sceneId == SCENE_BOTTOM_OF_THE_WELL ||
+                                   play->sceneId == SCENE_FIRE_TEMPLE)
                                       ? NA_SE_EV_IRON_DOOR_CLOSE
                                       : NA_SE_EV_DOOR_CLOSE);
         }

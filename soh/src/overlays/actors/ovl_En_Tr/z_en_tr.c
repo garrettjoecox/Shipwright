@@ -129,9 +129,9 @@ void EnTr_Destroy(Actor* thisx, PlayState* play) {
 void EnTr_CrySpellcast(EnTr* this, PlayState* play) {
     if (this->timer == 11) {
         // Both cry in the title screen cutscene, but only Kotake in the in-game cutscene
-        if ((this->actor.params != TR_KOUME) || (gSaveContext.sceneSetupIndex == 6)) {
-            Audio_PlaySoundGeneral(NA_SE_EN_TWINROBA_SHOOT_VOICE, &D_801333D4, 4, &D_801333E0, &D_801333E0,
-                                   &D_801333E8);
+        if ((this->actor.params != TR_KOUME) || (gSaveContext.sceneLayer == 6)) {
+            Audio_PlaySfxGeneral(NA_SE_EN_TWINROBA_SHOOT_VOICE, &gSfxDefaultPos, 4, &gSfxDefaultFreqAndVolScale, &gSfxDefaultFreqAndVolScale,
+                                   &gSfxDefaultReverb);
         }
     }
 
@@ -155,7 +155,7 @@ void EnTr_ChooseAction2(EnTr* this, PlayState* play) {
                     Actor_SetScale(&this->actor, 0.01f);
                     EnTr_SetupAction(this, EnTr_ShrinkVanish);
                     this->timer = 24;
-                    Audio_PlayActorSound2(&this->actor, NA_SE_EN_PO_DEAD2);
+                    Actor_PlaySfx(&this->actor, NA_SE_EN_PO_DEAD2);
                     break;
 
                 case 6:
@@ -167,7 +167,7 @@ void EnTr_ChooseAction2(EnTr* this, PlayState* play) {
                     Actor_SpawnAsChild(&play->actorCtx, &this->actor, play, ACTOR_DEMO_6K,
                                        this->actor.world.pos.x, this->actor.world.pos.y, this->actor.world.pos.z, 0, 0,
                                        0, this->actor.params + 9);
-                    Audio_PlayActorSound2(&this->actor, NA_SE_EN_FANTOM_MASIC1);
+                    Actor_PlaySfx(&this->actor, NA_SE_EN_FANTOM_MASIC1);
                     break;
 
                 default:
@@ -266,7 +266,7 @@ void EnTr_ShrinkVanish(EnTr* this, PlayState* play) {
     }
 
     if (this->timer == 4) {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_BUBLE_DOWN);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_BUBLE_DOWN);
     }
 
     if (this->timer > 0) {
@@ -302,7 +302,7 @@ void EnTr_WaitToReappear(EnTr* this, PlayState* play) {
         if ((play->csCtx.npcActions[this->actionIndex] != NULL) &&
             ((play->csCtx.npcActions[this->actionIndex]->action == 3) ||
              (play->csCtx.npcActions[this->actionIndex]->action == 5))) {
-            Audio_PlayActorSound2(&this->actor, NA_SE_EN_TWINROBA_TRANSFORM);
+            Actor_PlaySfx(&this->actor, NA_SE_EN_TWINROBA_TRANSFORM);
             this->timer = 34;
             EnTr_SetStartPosRot(this, play, this->actionIndex);
             EnTr_SetupAction(this, EnTr_Reappear);
@@ -387,9 +387,9 @@ void EnTr_Update(Actor* thisx, PlayState* play) {
         if (this->animation != NULL) {
             if ((this->animation == &object_tr_Anim_0035CC) || (this->animation == &object_tr_Anim_0013CC)) {
                 if (this->actor.params != TR_KOUME) {
-                    Audio_PlayActorSound2(&this->actor, NA_SE_EN_TWINROBA_LAUGH2);
+                    Actor_PlaySfx(&this->actor, NA_SE_EN_TWINROBA_LAUGH2);
                 } else {
-                    Audio_PlayActorSound2(&this->actor, NA_SE_EN_TWINROBA_LAUGH);
+                    Actor_PlaySfx(&this->actor, NA_SE_EN_TWINROBA_LAUGH);
                 }
                 Animation_PlayLoop(&this->skelAnime, this->animation);
             } else if (this->animation == &object_tr_Anim_0049C8) {
@@ -493,7 +493,7 @@ void func_80B24038(EnTr* this, PlayState* play, s32 actionIndex) {
     Math_StepToF(&this->actor.velocity.x, endPos.x, 1.0f);
     Math_StepToF(&this->actor.velocity.y, endPos.y, 1.0f);
     Math_StepToF(&this->actor.velocity.z, endPos.z, 1.0f);
-    func_8002D7EC(&this->actor);
+    Actor_UpdatePos(&this->actor);
 }
 
 void EnTr_UpdateRotation(EnTr* this, PlayState* play, s32 actionIndex) {

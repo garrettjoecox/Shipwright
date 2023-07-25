@@ -32,7 +32,7 @@ void DemoGt_PlayExplosion2Sfx(PlayState* play, Vec3f* pos) {
 }
 
 void DemoGt_Rumble(PlayState* play) {
-    func_800AA000(0.0f, 0x32, 0xA, 5);
+    Rumble_Request(0.0f, 0x32, 0xA, 5);
 }
 
 void DemoGt_SpawnDust(PlayState* play, Vec3f* pos, Vec3f* velocity, Vec3f* accel, f32 scale, s16 scaleStep,
@@ -438,7 +438,7 @@ void func_8097ED64(DemoGt* this, PlayState* play, s32 actionIdx) {
 u8 func_8097ED94() {
     if (kREG(2) != 0) {
         return true;
-    } else if (gSaveContext.sceneSetupIndex < 4) {
+    } else if (gSaveContext.sceneLayer < 4) {
         return false;
     } else {
         return true;
@@ -487,7 +487,7 @@ void func_8097EF00(DemoGt* this, PlayState* play) {
     u16 frames = play->csCtx.frames;
 
     if (frames == 527) {
-        func_800F3F3C(13);
+        Audio_PlayCutsceneEffectsSequence(13);
     }
 }
 

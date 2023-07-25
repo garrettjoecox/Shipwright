@@ -5,12 +5,12 @@ OSThread gMainThread;
 u8 sMainStack[0x900];
 StackEntry sMainStackInfo;
 OSMesg sPiMgrCmdBuff[50];
-OSMesgQueue gPiMgrCmdQ;
+OSMesgQueue gPiMgrCmdQueue;
 OSViMode gViConfigMode;
-u8 D_80013960;
+u8 gViConfigModeType;
 
 s8 D_80009430 = 1;
-vu8 gViConfigUseDefault = 1;
+vu8 gViConfigBlack = 1;
 u8 gViConfigAdditionalScanLines = 0;
 u32 gViConfigFeatures = OS_VI_DITHER_FILTER_ON | OS_VI_GAMMA_OFF;
 f32 gViConfigXScale = 1.0;
@@ -57,17 +57,17 @@ void Idle_ThreadEntry(void* arg) {
 
     switch (osTvType) {
         case OS_TV_NTSC:
-            D_80013960 = 2;
+            gViConfigModeType = 2;
             gViConfigMode = osViModeNtscLan1;
             break;
 
         case OS_TV_MPAL:
-            D_80013960 = 0x1E;
+            gViConfigModeType = 0x1E;
             gViConfigMode = osViModeMpalLan1;
             break;
 
         case OS_TV_PAL:
-            D_80013960 = 0x2C;
+            gViConfigModeType = 0x2C;
             gViConfigMode = osViModeFpalLan1;
             gViConfigYScale = 0.833f;
             break;
@@ -78,7 +78,7 @@ void Idle_ThreadEntry(void* arg) {
     ViConfig_UpdateVi(1);
     osViBlack(1);
     osViSwapBuffer(0x803DA80); //! @bug Invalid vram address (probably intended to be 0x803DA800)
-    osCreatePiManager(OS_PRIORITY_PIMGR, &gPiMgrCmdQ, sPiMgrCmdBuff, 50);
+    osCreatePiManager(OS_PRIORITY_PIMGR, &gPiMgrCmdQueue, sPiMgrCmdBuff, 50);
     StackCheck_Init(&sMainStackInfo, sMainStack, sMainStack + sizeof(sMainStack), 0, 0x400, "main");
     osCreateThread(&gMainThread, 3, Main_ThreadEntry, arg, sMainStack + sizeof(sMainStack), Z_PRIORITY_MAIN);
     osStartThread(&gMainThread);

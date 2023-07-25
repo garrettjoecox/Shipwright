@@ -2,11 +2,11 @@
 #include <textures/do_action_static/do_action_static.h>
 #include <assert.h>
 
-void func_80110990(PlayState* play) {
+void Interface_Destroy(PlayState* play) {
     Map_Destroy(play);
 }
 
-void func_801109B0(PlayState* play) {
+void Interface_Init(PlayState* play) {
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
     u32 parameterSize;
     u8 temp;
@@ -117,7 +117,7 @@ void func_801109B0(PlayState* play) {
 
     osSyncPrintf("ＰＡＲＡＭＥＴＥＲ領域＝%x\n", parameterSize + 0x5300); // "Parameter Area = %x"
 
-    HealthMeter_Init(play);
+    Health_InitMeter(play);
     Map_Init(play);
 
     interfaceCtx->unk_23C = interfaceCtx->unk_242 = 0;

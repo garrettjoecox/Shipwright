@@ -234,7 +234,7 @@ s32 Camera_BGCheckInfo(Camera* camera, Vec3f* from, CamColChk* to) {
 
         toNewPos = to->pos;
         toNewPos.y += 5.0f;
-        floorPolyY = BgCheck_CameraRaycastFloor2(colCtx, &floorPoly, &floorBgId, &toNewPos);
+        floorPolyY = BgCheck_CameraRaycastDown2(colCtx, &floorPoly, &floorBgId, &toNewPos);
 
         if ((to->pos.y - floorPolyY) > 5.0f) {
             // if the y distance from the check point to the floor is more than 5 units
@@ -294,7 +294,7 @@ s32 func_80043F94(Camera* camera, Vec3f* from, CamColChk* to) {
         to->norm.z = -fromToNorm.z;
         toNewPos = to->pos;
         toNewPos.y += 5.0f;
-        floorY = BgCheck_CameraRaycastFloor2(colCtx, &floorPoly, &bgId, &toNewPos);
+        floorY = BgCheck_CameraRaycastDown2(colCtx, &floorPoly, &bgId, &toNewPos);
         if ((to->pos.y - floorY) > 5.0f) {
             // to is not on the ground or below it.
             to->pos.x += to->norm.x;
@@ -419,7 +419,7 @@ f32 Camera_GetFloorYLayer(Camera* camera, Vec3f* norm, Vec3f* pos, s32* bgId) {
     s32 i;
 
     for (i = 3; i > 0; i--) {
-        floorY = BgCheck_CameraRaycastFloor2(colCtx, &floorPoly, bgId, pos);
+        floorY = BgCheck_CameraRaycastDown2(colCtx, &floorPoly, bgId, pos);
         if (floorY == BGCHECK_Y_MIN ||
             (camera->playerGroundY < floorY && !(COLPOLY_GET_NORMAL(floorPoly->normal.y) > 0.5f))) {
             // no floor, or player is below the floor and floor is not considered steep
@@ -428,7 +428,7 @@ f32 Camera_GetFloorYLayer(Camera* camera, Vec3f* norm, Vec3f* pos, s32* bgId) {
             norm->z = 0.0f;
             floorY = BGCHECK_Y_MIN;
             break;
-        } else if (func_80041D4C(colCtx, floorPoly, *bgId) == 1) {
+        } else if (SurfaceType_GetFloorType(colCtx, floorPoly, *bgId) == 1) {
             // floor is not solid, check below that floor.
             pos->y = floorY - 10.0f;
             continue;
@@ -528,8 +528,8 @@ s32 Camera_GetWaterBoxDataIdx(Camera* camera, f32* waterY) {
         return -1;
     }
 
-    ret = WaterBox_GetCamDataIndex(&camera->play->colCtx, waterBox);
-    if ((ret <= 0) || (WaterBox_GetCameraSType(&camera->play->colCtx, waterBox) <= 0)) {
+    ret = WaterBox_GetBgCamIndex(&camera->play->colCtx, waterBox);
+    if ((ret <= 0) || (WaterBox_GetBgCamSetting(&camera->play->colCtx, waterBox) <= 0)) {
         // no camera data idx, or no CameraSettingType
         return -2;
     }
@@ -562,7 +562,7 @@ f32 Camera_GetWaterSurface(Camera* camera, Vec3f* chkPos, s32* envProp) {
         return BGCHECK_Y_MIN;
     }
 
-    *envProp = WaterBox_GetLightSettingIndex(&camera->play->colCtx, waterBox);
+    *envProp = WaterBox_GetLightIndex(&camera->play->colCtx, waterBox);
     return waterY;
 }
 
@@ -775,7 +775,7 @@ void Camera_UpdateInterface(s16 flags) {
         if (flags & SHRINKWIN_CURVAL) {
             ShrinkWindow_SetCurrentVal(sCameraShrinkWindowVal);
         } else {
-            ShrinkWindow_SetVal(sCameraShrinkWindowVal);
+            Letterbox_SetSizeTarget(sCameraShrinkWindowVal);
         }
     }
 
@@ -786,7 +786,7 @@ void Camera_UpdateInterface(s16 flags) {
         }
         if (interfaceAlpha != sCameraInterfaceAlpha) {
             sCameraInterfaceAlpha = interfaceAlpha;
-            Interface_ChangeAlpha(sCameraInterfaceAlpha);
+            Interface_ChangeHudVisibilityMode(sCameraInterfaceAlpha);
         }
     }
 }
@@ -3082,7 +3082,7 @@ s32 Camera_Battle1(Camera* camera) {
     }
     anim->roll += (((OREG(36) * camera->speedRatio) * (1.0f - distRatio)) - anim->roll) * PCT(OREG(37));
     camera->roll = DEGF_TO_BINANG(anim->roll);
-    camera->fov = Camera_LERPCeilF((player->swordState != 0       ? 0.8f
+    camera->fov = Camera_LERPCeilF((player->meleeWeaponState != 0       ? 0.8f
                                     : gSaveContext.health <= 0x10 ? 0.8f
                                                                   : 1.0f) *
                                        (fov - ((fov * 0.05f) * distRatio)),
@@ -3775,7 +3775,7 @@ s32 Camera_KeepOn4(Camera* camera) {
     OLib_Vec3fDiffToVecSphGeo(&spA8, at, eyeNext);
     D_8015BD50 = playerPosRot->pos;
     D_8015BD50.y += playerHeight;
-    temp_f0_2 = BgCheck_CameraRaycastFloor2(&camera->play->colCtx, &spC0, &i, &D_8015BD50);
+    temp_f0_2 = BgCheck_CameraRaycastDown2(&camera->play->colCtx, &spC0, &i, &D_8015BD50);
     if (temp_f0_2 > (keep4->unk_00 + D_8015BD50.y)) {
         D_8015BD50.y = temp_f0_2 + 10.0f;
     } else {
@@ -3892,7 +3892,7 @@ s32 Camera_KeepOn4(Camera* camera) {
             if (camera->prevCamDataIdx < 0) {
                 Camera_ChangeSettingFlags(camera, camera->prevSetting, 2);
             } else {
-                Camera_ChangeDataIdx(camera, camera->prevCamDataIdx);
+                Camera_ChangeBgCamIndex(camera, camera->prevCamDataIdx);
                 camera->prevCamDataIdx = -1;
             }
         }
@@ -5053,7 +5053,7 @@ s32 Camera_Unique5(Camera* camera) {
 
 /**
  * This function doesn't really update much.
- * Eye/at positions are updated via Camera_SetParam
+ * Eye/at positions are updated via Camera_SetViewParam
  */
 s32 Camera_Unique6(Camera* camera) {
     Unique6* uniq6 = (Unique6*)camera->paramData;
@@ -5927,7 +5927,7 @@ s32 Camera_Demo3(Camera* camera) {
             if (camera->prevCamDataIdx < 0) {
                 Camera_ChangeSettingFlags(camera, camera->prevSetting, 2);
             } else {
-                Camera_ChangeDataIdx(camera, camera->prevCamDataIdx);
+                Camera_ChangeBgCamIndex(camera, camera->prevCamDataIdx);
                 camera->prevCamDataIdx = -1;
             }
             sCameraInterfaceFlags = 0;
@@ -6630,7 +6630,7 @@ s32 Camera_Special7(Camera* camera) {
 
     yOffset = Player_GetHeight(camera->player);
     if (camera->animState == 0) {
-        if (camera->play->sceneNum == SCENE_JYASINZOU) {
+        if (camera->play->sceneId == SCENE_SPIRIT_TEMPLE) {
             // Spirit Temple
             spec7->idx = 3;
         } else if (playerPosRot->pos.x < 1500.0f) {
@@ -7055,7 +7055,7 @@ void func_80057FC4(Camera* camera) {
 void Camera_Stub80058140(Camera* camera) {
 }
 
-void Camera_InitPlayerSettings(Camera* camera, Player* player) {
+void Camera_InitDataUsingPlayer(Camera* camera, Player* player) {
     PosRot playerPosShape;
     VecSph eyeNextAtOffset;
     s32 bgId;
@@ -7156,7 +7156,7 @@ void Camera_PrintSettings(Camera* camera) {
     char sp48[8];
     s32 i;
 
-    if ((OREG(0) & 1) && (camera->play->activeCamera == camera->thisIdx) && !gDbgCamEnabled) {
+    if ((OREG(0) & 1) && (camera->play->activeCamera == camera->thisIdx) && !gDebugCamEnabled) {
         for (i = 0; i < NUM_CAMS; i++) {
             if (camera->play->cameraPtrs[i] == NULL) {
                 sp58[i] = '-';
@@ -7277,7 +7277,7 @@ s32 Camera_UpdateWater(Camera* camera) {
             if (camera->playerGroundY != camera->playerPosRot.pos.y) {
                 prevBgId = camera->bgCheckId;
                 camera->bgCheckId = BGCHECK_SCENE;
-                Camera_ChangeDataIdx(camera, waterCamIdx);
+                Camera_ChangeBgCamIndex(camera, waterCamIdx);
                 *waterPrevCamSetting = camera->setting;
                 camera->bgCheckId = prevBgId;
             }
@@ -7291,7 +7291,7 @@ s32 Camera_UpdateWater(Camera* camera) {
                 func_80057FC4(camera);
                 camera->camDataIdx = -1;
             } else {
-                Camera_ChangeDataIdx(camera, camera->waterPrevCamIdx);
+                Camera_ChangeBgCamIndex(camera, camera->waterPrevCamIdx);
             }
             camera->bgCheckId = prevBgId;
         }
@@ -7315,17 +7315,17 @@ s32 Camera_UpdateWater(Camera* camera) {
         }
 
         if ((*quakeId == -1) || (Quake_GetCountdown(*quakeId) == 0xA)) {
-            if (*quakeId = newQuakeId = Quake_Add(camera, 5U), newQuakeId != 0) {
+            if (*quakeId = newQuakeId = Quake_Request(camera, 5U), newQuakeId != 0) {
                 Quake_SetSpeed(*quakeId, 550);
-                Quake_SetQuakeValues(*quakeId, 1, 1, 180, 0);
-                Quake_SetCountdown(*quakeId, 1000);
+                Quake_SetPerturbations(*quakeId, 1, 1, 180, 0);
+                Quake_SetDuration(*quakeId, 1000);
             }
         }
 
         if (camera->waterDistortionTimer > 0) {
             camera->waterDistortionTimer--;
             camera->distortionFlags |= DISTORTION_UNDERWATER_STRONG;
-        } else if (camera->play->sceneNum == SCENE_TURIBORI) {
+        } else if (camera->play->sceneId == SCENE_FISHING_POND) {
             camera->distortionFlags |= DISTORTION_UNDERWATER_FISHING;
         } else {
             camera->distortionFlags |= DISTORTION_UNDERWATER_WEAK;
@@ -7358,7 +7358,7 @@ s32 Camera_UpdateHotRoom(Camera* camera) {
 s32 Camera_DbgChangeMode(Camera* camera) {
     s32 changeDir = 0;
 
-    if (!gDbgCamEnabled && camera->play->activeCamera == MAIN_CAM) {
+    if (!gDebugCamEnabled && camera->play->activeCamera == MAIN_CAM) {
         if (CHECK_BTN_ALL(D_8015BD7C->state.input[2].press.button, BTN_CUP)) {
             osSyncPrintf("attention sound URGENCY\n");
             func_80078884(NA_SE_SY_ATTENTION_URGENCY);
@@ -7556,7 +7556,7 @@ Vec3s Camera_Update(Camera* camera) {
             if (camera->nextCamDataIdx != -1 && (fabsf(curPlayerPosRot.pos.y - playerGroundY) < 2.0f) &&
                 (!(camera->unk_14C & 0x200) || (player->currentBoots == PLAYER_BOOTS_IRON))) {
                 camera->bgCheckId = camera->nextBGCheckId;
-                Camera_ChangeDataIdx(camera, camera->nextCamDataIdx);
+                Camera_ChangeBgCamIndex(camera, camera->nextCamDataIdx);
                 camera->nextCamDataIdx = -1;
             }
         }
@@ -7619,8 +7619,8 @@ Vec3s Camera_Update(Camera* camera) {
 
     // enable/disable debug cam
     if (CVarGetInteger("gDebugEnabled", 0) && CHECK_BTN_ALL(D_8015BD7C->state.input[2].press.button, BTN_START)) {
-        gDbgCamEnabled ^= 1;
-        if (gDbgCamEnabled) {
+        gDebugCamEnabled ^= 1;
+        if (gDebugCamEnabled) {
             DbgCamera_Enable(&D_8015BD80, camera);
         } else if (camera->play->csCtx.state != CS_STATE_IDLE) {
             func_80064534(camera->play, &camera->play->csCtx);
@@ -7628,7 +7628,7 @@ Vec3s Camera_Update(Camera* camera) {
     }
 
     // Debug cam update
-    if (gDbgCamEnabled) {
+    if (gDebugCamEnabled) {
         camera->play->view.fovy = D_8015BD80.fov;
         DbCamera_Update(&D_8015BD80, camera);
         func_800AA358(&camera->play->view, &D_8015BD80.eye, &D_8015BD80.at, &D_8015BD80.unk_1C);
@@ -7676,7 +7676,7 @@ Vec3s Camera_Update(Camera* camera) {
 
     Camera_UpdateDistortion(camera);
 
-    if ((camera->play->sceneNum == SCENE_SPOT00) && (camera->fov < 59.0f)) {
+    if ((camera->play->sceneId == SCENE_HYRULE_FIELD) && (camera->fov < 59.0f)) {
         View_SetScale(&camera->play->view, 0.79f);
     } else {
         View_SetScale(&camera->play->view, 1.0f);
@@ -7919,7 +7919,7 @@ s16 Camera_ChangeSettingFlags(Camera* camera, s16 setting, s16 flags) {
         }
     }
     if (((setting == CAM_SET_MEADOW_BIRDS_EYE) || (setting == CAM_SET_MEADOW_UNUSED)) && LINK_IS_ADULT &&
-        (camera->play->sceneNum == SCENE_SPOT05)) {
+        (camera->play->sceneId == SCENE_SACRED_FOREST_MEADOW)) {
         camera->unk_14A |= 0x10;
         return -5;
     }
@@ -7975,7 +7975,7 @@ s32 Camera_ChangeSetting(Camera* camera, s16 setting) {
     return Camera_ChangeSettingFlags(camera, setting, 0);
 }
 
-s32 Camera_ChangeDataIdx(Camera* camera, s32 camDataIdx) {
+s32 Camera_ChangeBgCamIndex(Camera* camera, s32 camDataIdx) {
     s16 newCameraSetting;
     s16 settingChangeSuccessful;
 
@@ -8003,7 +8003,7 @@ s32 Camera_ChangeDataIdx(Camera* camera, s32 camDataIdx) {
 }
 
 Vec3s* Camera_GetInputDir(Vec3s* dst, Camera* camera) {
-    if (gDbgCamEnabled) {
+    if (gDebugCamEnabled) {
         *dst = D_8015BD80.sub.unk_104A;
         return dst;
     } else {
@@ -8027,7 +8027,7 @@ s16 Camera_GetInputDirYaw(Camera* camera) {
 }
 
 Vec3s* Camera_GetCamDir(Vec3s* dst, Camera* camera) {
-    if (gDbgCamEnabled) {
+    if (gDebugCamEnabled) {
         *dst = D_8015BD80.sub.unk_104A;
         return dst;
     } else {
@@ -8050,20 +8050,20 @@ s16 Camera_GetCamDirYaw(Camera* camera) {
     return camDir.y;
 }
 
-s32 Camera_AddQuake(Camera* camera, s32 arg1, s16 y, s32 countdown) {
+s32 Camera_RequestQuake(Camera* camera, s32 arg1, s16 y, s32 countdown) {
     s16 quakeIdx;
 
-    quakeIdx = Quake_Add(camera, 3);
+    quakeIdx = Quake_Request(camera, 3);
     if (quakeIdx == 0) {
         return 0;
     }
     Quake_SetSpeed(quakeIdx, 0x61A8);
-    Quake_SetQuakeValues(quakeIdx, y, 0, 0, 0);
-    Quake_SetCountdown(quakeIdx, countdown);
+    Quake_SetPerturbations(quakeIdx, y, 0, 0, 0);
+    Quake_SetDuration(quakeIdx, countdown);
     return 1;
 }
 
-s32 Camera_SetParam(Camera* camera, s32 param, void* value) {
+s32 Camera_SetViewParam(Camera* camera, s32 param, void* value) {
     s32 pad[3];
 
     if (value != NULL) {
@@ -8110,7 +8110,7 @@ s32 Camera_UnsetParam(Camera* camera, s16 param) {
     return true;
 }
 
-s32 func_8005AC48(Camera* camera, s16 arg1) {
+s32 Camera_OverwriteStateFlags(Camera* camera, s16 arg1) {
     camera->unk_14C = arg1;
     return true;
 }
@@ -8143,12 +8143,12 @@ s32 Camera_SetCSParams(Camera* camera, CutsceneCameraPoint* atPoints, CutsceneCa
     return 1;
 }
 
-s16 func_8005ACFC(Camera* camera, s16 arg1) {
+s16 Camera_SetStateFlag(Camera* camera, s16 arg1) {
     camera->unk_14C |= arg1;
     return camera->unk_14C;
 }
 
-s16 func_8005AD1C(Camera* camera, s16 arg1) {
+s16 Camera_UnsetStateFlag(Camera* camera, s16 arg1) {
     camera->unk_14C &= ~arg1;
     return camera->unk_14C;
 }
@@ -8221,10 +8221,10 @@ s32 Camera_Copy(Camera* dstCamera, Camera* srcCamera) {
 }
 
 s32 Camera_GetDbgCamEnabled() {
-    return gDbgCamEnabled;
+    return gDebugCamEnabled;
 }
 
-Vec3f* Camera_GetSkyboxOffset(Vec3f* dst, Camera* camera) {
+Vec3f* Camera_GetQuakeOffset(Vec3f* dst, Camera* camera) {
     *dst = camera->skyboxOffset;
     return dst;
 }

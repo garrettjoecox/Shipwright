@@ -3,7 +3,7 @@
 #include <assert.h>
 
 s32 func_8006CFC0(s32 scene) {
-    s32 validScenes[] = { SCENE_SPOT00, SCENE_SPOT06, SCENE_SPOT09, SCENE_SPOT12, SCENE_SPOT20 };
+    s32 validScenes[] = { SCENE_HYRULE_FIELD, SCENE_LAKE_HYLIA, SCENE_GERUDO_VALLEY, SCENE_GERUDOS_FORTRESS, SCENE_LON_LON_RANCH };
     s32 i;
 
     for (i = 0; i < ARRAY_COUNT(validScenes); i++) {
@@ -16,7 +16,7 @@ s32 func_8006CFC0(s32 scene) {
 }
 
 void func_8006D074(PlayState* play) {
-    gSaveContext.horseData.scene = SCENE_SPOT00;
+    gSaveContext.horseData.scene = SCENE_HYRULE_FIELD;
     gSaveContext.horseData.pos.x = -1840;
     gSaveContext.horseData.pos.y = 72;
     gSaveContext.horseData.pos.z = 5497;
@@ -24,8 +24,8 @@ void func_8006D074(PlayState* play) {
 }
 
 void func_8006D0AC(PlayState* play) {
-    if (gSaveContext.horseData.scene == SCENE_SPOT06) {
-        gSaveContext.horseData.scene = SCENE_SPOT06;
+    if (gSaveContext.horseData.scene == SCENE_LAKE_HYLIA) {
+        gSaveContext.horseData.scene = SCENE_LAKE_HYLIA;
         gSaveContext.horseData.pos.x = -2065;
         gSaveContext.horseData.pos.y = -863;
         gSaveContext.horseData.pos.z = 1839;
@@ -43,9 +43,9 @@ typedef struct {
 void func_8006D0EC(PlayState* play, Player* player) {
     s32 i;
     HorseSpawn horseSpawns[] = {
-        { SCENE_SPOT00, -460, 100, 6640, 0, 2 }, { SCENE_SPOT06, -1929, -1025, 768, 0, 2 },
-        { SCENE_SPOT09, 2566, -259, 767, 0, 2 }, { SCENE_SPOT12, -328, 10, 953, 0, 2 },
-        { SCENE_SPOT20, 928, 0, -2280, 0, 2 },
+        { SCENE_HYRULE_FIELD, -460, 100, 6640, 0, 2 }, { SCENE_LAKE_HYLIA, -1929, -1025, 768, 0, 2 },
+        { SCENE_GERUDO_VALLEY, 2566, -259, 767, 0, 2 }, { SCENE_GERUDOS_FORTRESS, -328, 10, 953, 0, 2 },
+        { SCENE_LON_LON_RANCH, 928, 0, -2280, 0, 2 },
     };
 
     if ((AREG(6) != 0) && (Flags_GetEventChkInf(EVENTCHKINF_EPONA_OBTAINED) || (DREG(1) != 0))) {
@@ -57,12 +57,12 @@ void func_8006D0EC(PlayState* play, Player* player) {
 
         Actor_MountHorse(play, player, player->rideActor);
         func_8002DE74(play, player);
-        gSaveContext.horseData.scene = play->sceneNum;
+        gSaveContext.horseData.scene = play->sceneId;
 
-        if (play->sceneNum == SCENE_SPOT12) {
+        if (play->sceneId == SCENE_GERUDOS_FORTRESS) {
             player->rideActor->room = -1;
         }
-    } else if ((play->sceneNum == SCENE_SPOT12) && (gSaveContext.minigameState == 3)) {
+    } else if ((play->sceneId == SCENE_GERUDOS_FORTRESS) && (gSaveContext.minigameState == 3)) {
         Actor* horseActor;
         gSaveContext.minigameState = 0;
         horseActor =
@@ -72,7 +72,7 @@ void func_8006D0EC(PlayState* play, Player* player) {
         Actor* horseActor =
             Actor_Spawn(&play->actorCtx, play, ACTOR_EN_HORSE, -25.0f, 0.0f, -1600.0f, 0, -0x4000, 0, 1, true);
         assert(horseActor != NULL);
-    } else if ((play->sceneNum == gSaveContext.horseData.scene) &&
+    } else if ((play->sceneId == gSaveContext.horseData.scene) &&
                (((Flags_GetEventChkInf(EVENTCHKINF_EPONA_OBTAINED) != 0) && (!gSaveContext.n64ddFlag ||
                (gSaveContext.n64ddFlag && CHECK_QUEST_ITEM(QUEST_SONG_EPONA) &&
                (INV_CONTENT(ITEM_OCARINA_FAIRY) != ITEM_NONE)))) || DREG(1) != 0)) {
@@ -85,7 +85,7 @@ void func_8006D0EC(PlayState* play, Player* player) {
                                             gSaveContext.horseData.pos.x, gSaveContext.horseData.pos.y,
                                             gSaveContext.horseData.pos.z, 0, gSaveContext.horseData.angle, 0, 1, true);
             assert(horseActor != NULL);
-            if (play->sceneNum == SCENE_SPOT12) {
+            if (play->sceneId == SCENE_GERUDOS_FORTRESS) {
                 horseActor->room = -1;
             }
         } else {
@@ -95,19 +95,19 @@ void func_8006D0EC(PlayState* play, Player* player) {
             osSyncPrintf(VT_RST);
             func_8006D074(play);
         }
-    } else if ((play->sceneNum == SCENE_SPOT20) && !Flags_GetEventChkInf(EVENTCHKINF_EPONA_OBTAINED) && (DREG(1) == 0)) {
+    } else if ((play->sceneId == SCENE_LON_LON_RANCH) && !Flags_GetEventChkInf(EVENTCHKINF_EPONA_OBTAINED) && (DREG(1) == 0)) {
         Actor* horseActor =
             Actor_Spawn(&play->actorCtx, play, ACTOR_EN_HORSE, 0.0f, 0.0f, -500.0f, 0, 0, 0, 1, true);
         assert(horseActor != NULL);
     } else if (Flags_GetEventChkInf(EVENTCHKINF_EPONA_OBTAINED) || (DREG(1) != 0)) {
         for (i = 0; i < ARRAY_COUNT(horseSpawns); i++) {
             HorseSpawn* horseSpawn = &horseSpawns[i];
-            if (horseSpawn->scene == play->sceneNum) {
+            if (horseSpawn->scene == play->sceneId) {
                 Actor* horseActor =
                     Actor_Spawn(&play->actorCtx, play, ACTOR_EN_HORSE, horseSpawn->pos.x, horseSpawn->pos.y,
                                 horseSpawn->pos.z, 0, horseSpawn->angle, 0, horseSpawn->type, true);
                 assert(horseActor != NULL);
-                if (play->sceneNum == SCENE_SPOT12) {
+                if (play->sceneId == SCENE_GERUDOS_FORTRESS) {
                     horseActor->room = -1;
                 }
 
@@ -115,7 +115,7 @@ void func_8006D0EC(PlayState* play, Player* player) {
             }
         }
     } else if (!Flags_GetEventChkInf(EVENTCHKINF_EPONA_OBTAINED)) {
-        if ((DREG(1) == 0) && (play->sceneNum == SCENE_SOUKO) && !IS_DAY) {
+        if ((DREG(1) == 0) && (play->sceneId == SCENE_LON_LON_BUILDINGS) && !IS_DAY) {
             Actor_Spawn(&play->actorCtx, play, ACTOR_EN_HORSE, 0.0f, 0.0f, -60.0f, 0, 0x7360, 0, 1, true);
         }
     }
@@ -160,8 +160,8 @@ void func_8006D684(PlayState* play, Player* player) {
 
         Actor_MountHorse(play, player, player->rideActor);
         func_8002DE74(play, player);
-        gSaveContext.horseData.scene = play->sceneNum;
-    } else if ((play->sceneNum == SCENE_SPOT20) && ((gSaveContext.eventInf[0] & 0xF) == 6) &&
+        gSaveContext.horseData.scene = play->sceneId;
+    } else if ((play->sceneId == SCENE_LON_LON_RANCH) && ((gSaveContext.eventInf[0] & 0xF) == 6) &&
                (Flags_GetEventChkInf(EVENTCHKINF_EPONA_OBTAINED) == 0) && (DREG(1) == 0)) {
         player->rideActor =
             Actor_Spawn(&play->actorCtx, play, ACTOR_EN_HORSE, 894.0f, 0.0f, -2084.0f, 0, -0x7FFF, 0, 5, true);
@@ -169,9 +169,9 @@ void func_8006D684(PlayState* play, Player* player) {
 
         Actor_MountHorse(play, player, player->rideActor);
         func_8002DE74(play, player);
-        gSaveContext.horseData.scene = play->sceneNum;
+        gSaveContext.horseData.scene = play->sceneId;
 
-        if (play->sceneNum == SCENE_SPOT12) {
+        if (play->sceneId == SCENE_GERUDOS_FORTRESS) {
             player->rideActor->room = -1;
         }
     } else {
@@ -183,10 +183,10 @@ void func_8006D684(PlayState* play, Player* player) {
         };
 
         for (i = 0; i < ARRAY_COUNT(D_8011F9B8); i++) {
-            if ((play->sceneNum == D_8011F9B8[i].scene) &&
+            if ((play->sceneId == D_8011F9B8[i].scene) &&
                 (((void)0, gSaveContext.cutsceneIndex) == D_8011F9B8[i].cutsceneIndex)) {
                 if (D_8011F9B8[i].type == 7) {
-                    if ((play->sceneNum == 99) && (((void)0, gSaveContext.cutsceneIndex) == 0xFFF1)) {
+                    if ((play->sceneId == 99) && (((void)0, gSaveContext.cutsceneIndex) == 0xFFF1)) {
                         D_8011F9B8[i].pos.x = player->actor.world.pos.x;
                         D_8011F9B8[i].pos.y = player->actor.world.pos.y;
                         D_8011F9B8[i].pos.z = player->actor.world.pos.z;
@@ -247,12 +247,12 @@ void func_8006DC68(PlayState* play, Player* player) {
             func_8006D074(play);
         }
 
-        if (func_8006CFC0(play->sceneNum)) {
-            if ((gSaveContext.sceneSetupIndex > 3) ||
+        if (func_8006CFC0(play->sceneId)) {
+            if ((gSaveContext.sceneLayer > 3) ||
                 ((gSaveContext.entranceIndex == 0x028A || gSaveContext.entranceIndex == 0x028E ||
                   gSaveContext.entranceIndex == 0x0292 || gSaveContext.entranceIndex == 0x0476) &&
                  (gSaveContext.respawnFlag == 0)) ||
-                ((play->sceneNum == SCENE_SPOT20) && ((gSaveContext.eventInf[0] & 0xF) == 6) &&
+                ((play->sceneId == SCENE_LON_LON_RANCH) && ((gSaveContext.eventInf[0] & 0xF) == 6) &&
                  !Flags_GetEventChkInf(EVENTCHKINF_EPONA_OBTAINED) && (DREG(1) == 0))) {
                 func_8006D684(play, player);
             } else {

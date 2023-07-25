@@ -431,7 +431,7 @@ void BossGanondrof_Paintings(BossGanondrof* this, PlayState* play) {
         this->colliderBody.dim.radius = 20;
         this->colliderBody.dim.height = 60;
         this->colliderBody.dim.yShift = -33;
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_FANTOM_LAUGH);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_FANTOM_LAUGH);
         this->actor.naviEnemyId = 0x1A;
     } else {
         horse->bossGndSignal = FHG_NO_SIGNAL;
@@ -473,12 +473,12 @@ void BossGanondrof_Neutral(BossGanondrof* this, PlayState* play) {
                         this->flyMode = GND_FLY_CHARGE;
                         this->timers[0] = 60;
                         this->fwork[GND_FLOAT_SPEED] = 0.0f;
-                        Audio_PlayActorSound2(thisx, NA_SE_EN_FANTOM_LAUGH);
+                        Actor_PlaySfx(thisx, NA_SE_EN_FANTOM_LAUGH);
                     } else {
                         this->flyMode = GND_FLY_VOLLEY;
                         this->timers[0] = 60;
                         this->fwork[GND_FLOAT_SPEED] = 0.0f;
-                        Audio_PlayActorSound2(thisx, NA_SE_EN_FANTOM_LAUGH);
+                        Actor_PlaySfx(thisx, NA_SE_EN_FANTOM_LAUGH);
                     }
                 } else if ((rand01 < 0.5f) || (this->work[GND_THROW_COUNT] < 5)) {
                     BossGanondrof_SetupThrow(this, play);
@@ -486,7 +486,7 @@ void BossGanondrof_Neutral(BossGanondrof* this, PlayState* play) {
                     this->flyMode = GND_FLY_VOLLEY;
                     this->timers[0] = 60;
                     this->fwork[GND_FLOAT_SPEED] = 0.0f;
-                    Audio_PlayActorSound2(thisx, NA_SE_EN_FANTOM_LAUGH);
+                    Actor_PlaySfx(thisx, NA_SE_EN_FANTOM_LAUGH);
                 }
             }
 
@@ -582,7 +582,7 @@ void BossGanondrof_Neutral(BossGanondrof* this, PlayState* play) {
         BossGanondrof_SetupBlock(this, play);
     }
 
-    Audio_PlayActorSound2(thisx, NA_SE_EN_FANTOM_FLOAT - SFX_FLAG);
+    Actor_PlaySfx(thisx, NA_SE_EN_FANTOM_FLOAT - SFX_FLAG);
 }
 
 void BossGanondrof_SetupThrow(BossGanondrof* this, PlayState* play) {
@@ -607,7 +607,7 @@ void BossGanondrof_SetupThrow(BossGanondrof* this, PlayState* play) {
                        this->spearTip.y, this->spearTip.z, lightTime, FHGFIRE_LIGHT_GREEN, 0, FHGFIRE_SPEAR_LIGHT);
     this->actor.child = &horseTemp->actor;
     this->work[GND_THROW_COUNT]++;
-    Audio_PlayActorSound2(&this->actor, NA_SE_EN_FANTOM_STICK);
+    Actor_PlaySfx(&this->actor, NA_SE_EN_FANTOM_STICK);
 }
 
 void BossGanondrof_Throw(BossGanondrof* this, PlayState* play) {
@@ -626,12 +626,12 @@ void BossGanondrof_Throw(BossGanondrof* this, PlayState* play) {
 
     if (Animation_OnFrame(&this->skelAnime, this->work[GND_THROW_FRAME])) {
         if (this->flyMode <= GND_FLY_NEUTRAL) {
-            Audio_PlayActorSound2(&this->actor, NA_SE_EN_FANTOM_MASIC2);
+            Actor_PlaySfx(&this->actor, NA_SE_EN_FANTOM_MASIC2);
         } else {
-            Audio_PlayActorSound2(&this->actor, NA_SE_EN_FANTOM_MASIC1);
+            Actor_PlaySfx(&this->actor, NA_SE_EN_FANTOM_MASIC1);
         }
 
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_FANTOM_VOICE);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_FANTOM_VOICE);
     }
 
     if (Animation_OnFrame(&this->skelAnime, this->work[GND_THROW_FRAME])) {
@@ -662,7 +662,7 @@ void BossGanondrof_SetupReturn(BossGanondrof* this, PlayState* play) {
 void BossGanondrof_Return(BossGanondrof* this, PlayState* play) {
     SkelAnime_Update(&this->skelAnime);
     if (Animation_OnFrame(&this->skelAnime, 5.0f)) {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_FANTOM_VOICE);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_FANTOM_VOICE);
         osSyncPrintf("VOISE               2  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
         osSyncPrintf("VOISE               2  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
     }
@@ -714,7 +714,7 @@ void BossGanondrof_Stunned(BossGanondrof* this, PlayState* play) {
         this->actor.velocity.y = 0.0f;
         this->actor.gravity = 0.0f;
         if (Animation_OnFrame(&this->skelAnime, this->fwork[GND_END_FRAME])) {
-            Audio_PlayActorSound2(&this->actor, NA_SE_EN_FANTOM_DAMAGE2);
+            Actor_PlaySfx(&this->actor, NA_SE_EN_FANTOM_DAMAGE2);
         }
 
         this->actor.flags |= ACTOR_FLAG_DRAGGED_BY_HOOKSHOT;
@@ -730,7 +730,7 @@ void BossGanondrof_Stunned(BossGanondrof* this, PlayState* play) {
         this->actor.gravity = 0.0f;
     }
 
-    Actor_MoveForward(&this->actor);
+    Actor_MoveXZGravity(&this->actor);
 }
 
 void BossGanondrof_SetupBlock(BossGanondrof* this, PlayState* play) {
@@ -738,7 +738,7 @@ void BossGanondrof_SetupBlock(BossGanondrof* this, PlayState* play) {
     Animation_MorphToLoop(&this->skelAnime, &gPhantomGanonBlockAnim, -3.0f);
     this->actionFunc = BossGanondrof_Block;
     this->timers[0] = 10;
-    Audio_PlayActorSound2(&this->actor, NA_SE_EN_FANTOM_STICK);
+    Actor_PlaySfx(&this->actor, NA_SE_EN_FANTOM_STICK);
 }
 
 void BossGanondrof_Block(BossGanondrof* this, PlayState* play) {
@@ -776,11 +776,11 @@ void BossGanondrof_Charge(BossGanondrof* this, PlayState* play) {
     switch (this->work[GND_ACTION_STATE]) {
         case CHARGE_WINDUP:
             if (this->timers[0] == 218) {
-                Audio_PlayActorSound2(thisx, NA_SE_EN_FANTOM_STICK);
+                Actor_PlaySfx(thisx, NA_SE_EN_FANTOM_STICK);
             }
 
             if (this->timers[0] == 19) {
-                Audio_PlayActorSound2(thisx, NA_SE_EN_FANTOM_ATTACK);
+                Actor_PlaySfx(thisx, NA_SE_EN_FANTOM_ATTACK);
             }
 
             thisx->world.pos.x += thisx->velocity.x;
@@ -816,8 +816,8 @@ void BossGanondrof_Charge(BossGanondrof* this, PlayState* play) {
                     Math_FAtan2F(vecToLink.y, sqrtf(SQ(vecToLink.x) + SQ(vecToLink.z))) * (0x8000 / M_PI);
             }
 
-            func_8002D908(thisx);
-            func_8002D7EC(thisx);
+            Actor_UpdateVelocityXYZ(thisx);
+            Actor_UpdatePos(thisx);
             Math_ApproachF(&thisx->speedXZ, 10.0f, 1.0f, 0.5f);
             if ((sqrtf(SQ(dxCenter) + SQ(dzCenter)) > 280.0f) || (thisx->xyzDistToPlayerSq < SQ(100.0f))) {
                 this->work[GND_ACTION_STATE] = CHARGE_FINISH;
@@ -826,7 +826,7 @@ void BossGanondrof_Charge(BossGanondrof* this, PlayState* play) {
             break;
         case CHARGE_FINISH:
             thisx->gravity = 0.2f;
-            Actor_MoveForward(thisx);
+            Actor_MoveXZGravity(thisx);
             osSyncPrintf("YP %f @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n", thisx->world.pos.y);
             if (thisx->world.pos.y < 5.0f) {
                 thisx->world.pos.y = 5.0f;
@@ -898,7 +898,7 @@ void BossGanondrof_SetupDeath(BossGanondrof* this, PlayState* play) {
     this->fwork[GND_END_FRAME] = Animation_GetLastFrame(&gPhantomGanonDeathBlowAnim);
     this->actionFunc = BossGanondrof_Death;
     Audio_QueueSeqCmd(0x1 << 28 | SEQ_PLAYER_BGM_MAIN << 24 | 0x100FF);
-    Audio_PlayActorSound2(&this->actor, NA_SE_EN_FANTOM_DEAD);
+    Actor_PlaySfx(&this->actor, NA_SE_EN_FANTOM_DEAD);
     this->deathState = DEATH_START;
     this->actor.flags &= ~ACTOR_FLAG_TARGETABLE;
     this->work[GND_VARIANCE_TIMER] = 0;
@@ -919,7 +919,7 @@ void BossGanondrof_Death(BossGanondrof* this, PlayState* play) {
     this->work[GND_DEATH_SFX_TIMER]++;
     if (((60 < this->work[GND_DEATH_SFX_TIMER]) && (this->work[GND_DEATH_SFX_TIMER] < 500)) ||
         ((501 < this->work[GND_DEATH_SFX_TIMER]) && (this->work[GND_DEATH_SFX_TIMER] < 620))) {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_GOMA_LAST - SFX_FLAG);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_GOMA_LAST - SFX_FLAG);
     }
 
     switch (this->deathState) {
@@ -973,7 +973,7 @@ void BossGanondrof_Death(BossGanondrof* this, PlayState* play) {
                         this->actor.world.pos.z = GND_BOSSROOM_CENTER_Z;
                         this->actor.shape.rot.y = 0;
                         this->work[GND_BODY_DECAY_INDEX] = 0;
-                        Audio_PlayActorSound2(&this->actor, NA_SE_EN_FANTOM_LAST);
+                        Actor_PlaySfx(&this->actor, NA_SE_EN_FANTOM_LAST);
 
                         // Move Player out of the center of the room
                         player->actor.world.pos.x = GND_BOSSROOM_CENTER_X - 200.0f;
@@ -1048,7 +1048,7 @@ void BossGanondrof_Death(BossGanondrof* this, PlayState* play) {
                 this->actor.world.pos.z = GND_BOSSROOM_CENTER_Z;
                 this->actor.shape.rot.y = 0;
                 this->work[GND_BODY_DECAY_INDEX] = 0;
-                Audio_PlayActorSound2(&this->actor, NA_SE_EN_FANTOM_LAST);
+                Actor_PlaySfx(&this->actor, NA_SE_EN_FANTOM_LAST);
             }
 
             holdCamera = true;
@@ -1227,7 +1227,7 @@ void BossGanondrof_CollisionCheck(BossGanondrof* this, PlayState* play) {
             }
             if (this->flyMode != GND_FLY_PAINTING) {
                 if (acHit && (this->actionFunc != BossGanondrof_Stunned) && (hurtbox->toucher.dmgFlags & 0x0001F8A4)) {
-                    Audio_PlayActorSound2(&this->actor, NA_SE_PL_WALK_GROUND - SFX_FLAG);
+                    Actor_PlaySfx(&this->actor, NA_SE_PL_WALK_GROUND - SFX_FLAG);
                     osSyncPrintf("hit != 0 \n");
                 } else if (this->actionFunc != BossGanondrof_Charge) {
                     if (this->returnCount == 0) {
@@ -1256,15 +1256,15 @@ void BossGanondrof_CollisionCheck(BossGanondrof* this, PlayState* play) {
                     }
                     this->work[GND_INVINC_TIMER] = 10;
                     horse->hitTimer = 20;
-                    Audio_PlayActorSound2(&this->actor, NA_SE_EN_FANTOM_DAMAGE);
+                    Actor_PlaySfx(&this->actor, NA_SE_EN_FANTOM_DAMAGE);
                 } else {
-                    Audio_PlayActorSound2(&this->actor, NA_SE_PL_WALK_GROUND - SFX_FLAG);
+                    Actor_PlaySfx(&this->actor, NA_SE_PL_WALK_GROUND - SFX_FLAG);
                 }
             } else if (acHit && (hurtbox->toucher.dmgFlags & 0x0001F8A4)) {
                 this->work[GND_INVINC_TIMER] = 10;
                 this->actor.colChkInfo.health -= 2;
                 horse->hitTimer = 20;
-                Audio_PlayActorSound2(&this->actor, NA_SE_EN_FANTOM_DAMAGE);
+                Actor_PlaySfx(&this->actor, NA_SE_EN_FANTOM_DAMAGE);
             }
             this->returnCount = 0;
         }

@@ -208,19 +208,19 @@ void EnArrow_Shoot(EnArrow* this, PlayState* play) {
 
         switch (this->actor.params) {
             case ARROW_SEED:
-                func_8002F7DC(&player->actor, NA_SE_IT_SLING_SHOT);
+                Player_PlaySfx(&player->actor, NA_SE_IT_SLING_SHOT);
                 break;
 
             case ARROW_NORMAL_LIT:
             case ARROW_NORMAL_HORSE:
             case ARROW_NORMAL:
-                func_8002F7DC(&player->actor, NA_SE_IT_ARROW_SHOT);
+                Player_PlaySfx(&player->actor, NA_SE_IT_ARROW_SHOT);
                 break;
 
             case ARROW_FIRE:
             case ARROW_ICE:
             case ARROW_LIGHT:
-                func_8002F7DC(&player->actor, NA_SE_IT_MAGIC_ARROW_SHOT);
+                Player_PlaySfx(&player->actor, NA_SE_IT_MAGIC_ARROW_SHOT);
                 break;
         }
 
@@ -228,11 +228,11 @@ void EnArrow_Shoot(EnArrow* this, PlayState* play) {
         Math_Vec3f_Copy(&this->unk_210, &this->actor.world.pos);
 
         if (this->actor.params >= ARROW_SEED) {
-            func_8002D9A4(&this->actor, 80.0f);
+            Actor_SetProjectileSpeed(&this->actor, 80.0f);
             this->timer = 15;
             this->actor.shape.rot.x = this->actor.shape.rot.y = this->actor.shape.rot.z = 0;
         } else {
-            func_8002D9A4(&this->actor, 150.0f);
+            Actor_SetProjectileSpeed(&this->actor, 150.0f);
             this->timer = 12;
         }
     }
@@ -352,7 +352,7 @@ void EnArrow_Fly(EnArrow* this, PlayState* play) {
                     }
 
                     func_809B3CEC(play, this);
-                    Audio_PlayActorSound2(&this->actor, NA_SE_IT_ARROW_STICK_CRE);
+                    Actor_PlaySfx(&this->actor, NA_SE_IT_ARROW_STICK_CRE);
                 }
             } else if (this->touchedPoly) {
                 EnArrow_SetupAction(this, func_809B45E0);
@@ -364,13 +364,13 @@ void EnArrow_Fly(EnArrow* this, PlayState* play) {
                     this->timer = 20;
                 }
 
-                Audio_PlayActorSound2(&this->actor, NA_SE_IT_ARROW_STICK_OBJ);
+                Actor_PlaySfx(&this->actor, NA_SE_IT_ARROW_STICK_OBJ);
                 this->hitFlags |= 1;
             }
         }
     } else {
         Math_Vec3f_Copy(&this->unk_210, &this->actor.world.pos);
-        Actor_MoveForward(&this->actor);
+        Actor_MoveXZGravity(&this->actor);
 
         if ((this->touchedPoly =
                  BgCheck_ProjectileLineTest(&play->colCtx, &this->actor.prevPos, &this->actor.world.pos, &hitPoint,
@@ -422,7 +422,7 @@ void func_809B45E0(EnArrow* this, PlayState* play) {
 
 void func_809B4640(EnArrow* this, PlayState* play) {
     SkelAnime_Update(&this->skelAnime);
-    Actor_MoveForward(&this->actor);
+    Actor_MoveXZGravity(&this->actor);
 
     if (DECR(this->timer) == 0) {
         Actor_Kill(&this->actor);

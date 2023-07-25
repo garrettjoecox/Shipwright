@@ -122,7 +122,7 @@ void EnCow_Init(Actor* thisx, PlayState* play) {
             Collider_SetCylinder(play, &this->colliders[1], &this->actor, &sCylinderInit);
             func_809DEE9C(this);
             this->actionFunc = func_809DF96C;
-            if (play->sceneNum == SCENE_LINK_HOME) {
+            if (play->sceneId == SCENE_LINKS_HOUSE) {
                 if (!LINK_IS_ADULT && !CVarGetInteger("gCowOfTime", 0)) {
                     Actor_Kill(&this->actor);
                     return;
@@ -223,18 +223,18 @@ void EnCow_MoveForRandomizer(EnCow* this, PlayState* play) {
     }
 
     // Move left cow in lon lon tower
-    if (play->sceneNum == SCENE_SOUKO && this->actor.world.pos.x == -108 && this->actor.world.pos.z == -65) {
+    if (play->sceneId == SCENE_LON_LON_BUILDINGS && this->actor.world.pos.x == -108 && this->actor.world.pos.z == -65) {
         this->actor.world.pos.x = -229.0f;
         this->actor.world.pos.z = 157.0f;
         this->actor.shape.rot.y = 15783.0f;
     // Move right cow in lon lon stable
-    } else if (play->sceneNum == SCENE_MALON_STABLE && this->actor.world.pos.x == -3 && this->actor.world.pos.z == -254) {
+    } else if (play->sceneId == SCENE_STABLE && this->actor.world.pos.x == -3 && this->actor.world.pos.z == -254) {
         this->actor.world.pos.x += 119.0f;
     }
 }
 
 void EnCow_SetCowMilked(EnCow* this, PlayState* play) {
-    CowIdentity cowIdentity = Randomizer_IdentifyCow(play->sceneNum, this->actor.world.pos.x, this->actor.world.pos.z);
+    CowIdentity cowIdentity = Randomizer_IdentifyCow(play->sceneId, this->actor.world.pos.x, this->actor.world.pos.z);
     Player* player = GET_PLAYER(play);
     player->pendingFlag.flagID = cowIdentity.randomizerInf;
     player->pendingFlag.flagType = FLAG_RANDOMIZER_INF;
@@ -245,7 +245,7 @@ void func_809DF778(EnCow* this, PlayState* play) {
         this->actor.parent = NULL;
         this->actionFunc = func_809DF730;
     } else {
-        func_8002F434(&this->actor, play, GI_MILK, 10000.0f, 100.0f);
+        Actor_OfferGetItem(&this->actor, play, GI_MILK, 10000.0f, 100.0f);
     }
 }
 
@@ -254,7 +254,7 @@ void func_809DF7D8(EnCow* this, PlayState* play) {
         this->actor.flags &= ~ACTOR_FLAG_WILL_TALK;
         Message_CloseTextbox(play);
         this->actionFunc = func_809DF778;
-        func_8002F434(&this->actor, play, GI_MILK, 10000.0f, 100.0f);
+        Actor_OfferGetItem(&this->actor, play, GI_MILK, 10000.0f, 100.0f);
     }
 }
 
@@ -282,13 +282,13 @@ void func_809DF8FC(EnCow* this, PlayState* play) {
 }
 
 bool EnCow_HasBeenMilked(EnCow* this, PlayState* play) {
-    CowIdentity cowIdentity = Randomizer_IdentifyCow(play->sceneNum, this->actor.world.pos.x, this->actor.world.pos.z);
+    CowIdentity cowIdentity = Randomizer_IdentifyCow(play->sceneId, this->actor.world.pos.x, this->actor.world.pos.z);
     return Flags_GetRandomizerInf(cowIdentity.randomizerInf);
 }
 
 void EnCow_GivePlayerRandomizedItem(EnCow* this, PlayState* play) {
     if (!EnCow_HasBeenMilked(this, play)) {
-        CowIdentity cowIdentity = Randomizer_IdentifyCow(play->sceneNum, this->actor.world.pos.x, this->actor.world.pos.z);
+        CowIdentity cowIdentity = Randomizer_IdentifyCow(play->sceneId, this->actor.world.pos.x, this->actor.world.pos.z);
         GetItemEntry itemEntry = Randomizer_GetItemFromKnownCheck(cowIdentity.randomizerCheck, GI_MILK);
         GiveItemEntryFromActor(&this->actor, play, itemEntry, 10000.0f, 100.0f);
     } else {
@@ -363,11 +363,11 @@ void EnCow_Update(Actor* thisx, PlayState* play2) {
 
     CollisionCheck_SetOC(play, &play->colChkCtx, &this->colliders[0].base);
     CollisionCheck_SetOC(play, &play->colChkCtx, &this->colliders[1].base);
-    Actor_MoveForward(thisx);
+    Actor_MoveXZGravity(thisx);
     Actor_UpdateBgCheckInfo(play, thisx, 0.0f, 0.0f, 0.0f, 4);
     if (SkelAnime_Update(&this->skelAnime) != 0) {
         if (this->skelAnime.animation == &gCowBodyChewAnim) {
-            Audio_PlayActorSound2(thisx, NA_SE_EV_COW_CRY);
+            Actor_PlaySfx(thisx, NA_SE_EV_COW_CRY);
             Animation_Change(&this->skelAnime, &gCowBodyMoveHeadAnim, 1.0f, 0.0f,
                              Animation_GetLastFrame(&gCowBodyMoveHeadAnim), ANIMMODE_ONCE, 1.0f);
         } else {

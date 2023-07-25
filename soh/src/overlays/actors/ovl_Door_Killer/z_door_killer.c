@@ -113,15 +113,15 @@ void DoorKiller_Init(Actor* thisx, PlayState* play2) {
     */
 
     // For SoH where all objects are loaded, hardcode the index to match the current map.
-    switch (play->sceneNum) {
-        case SCENE_HIDAN:
+    switch (play->sceneId) {
+        case SCENE_FIRE_TEMPLE:
             this->textureEntryIndex = 0;
             break;
-        case SCENE_MIZUSIN:
+        case SCENE_WATER_TEMPLE:
             this->textureEntryIndex = 1;
             break;
-        case SCENE_HAKADAN:
-        case SCENE_HAKADANCH:
+        case SCENE_SHADOW_TEMPLE:
+        case SCENE_BOTTOM_OF_THE_WELL:
             this->textureEntryIndex = 2;
             break;
         default:
@@ -245,7 +245,7 @@ void DoorKiller_FallAsRubble(DoorKiller* this, PlayState* play) {
     } else {
         Actor_Kill(&this->actor);
     }
-    func_8002D7EC(&this->actor);
+    Actor_UpdatePos(&this->actor);
 }
 
 s32 DoorKiller_IsHit(Actor* thisx, PlayState* play) {
@@ -376,13 +376,13 @@ void DoorKiller_FallOver(DoorKiller* this, PlayState* play) {
             (playerPosRelToDoor.z < 100.0f) && (playerPosRelToDoor.z > 0.0f)) {
             this->hasHitPlayerOrGround |= 1;
             func_8002F6D4(play, &this->actor, 6.0f, this->actor.yawTowardsPlayer, 6.0f, 16);
-            Audio_PlayActorSound2(&this->actor, NA_SE_EN_KDOOR_HIT);
-            func_8002F7DC(&player->actor, NA_SE_PL_BODY_HIT);
+            Actor_PlaySfx(&this->actor, NA_SE_EN_KDOOR_HIT);
+            Player_PlaySfx(&player->actor, NA_SE_PL_BODY_HIT);
         }
     }
     if (!(this->hasHitPlayerOrGround & 1) && (this->timer == 2)) {
         this->hasHitPlayerOrGround |= 1;
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_KDOOR_HIT_GND);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_KDOOR_HIT_GND);
     }
 }
 
@@ -394,7 +394,7 @@ void DoorKiller_Wobble(DoorKiller* this, PlayState* play) {
     s32 i;
 
     if ((this->timer == 16) || (this->timer == 8)) {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_KDOOR_WAVE);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_KDOOR_WAVE);
     }
 
     if (this->timer > 0) {

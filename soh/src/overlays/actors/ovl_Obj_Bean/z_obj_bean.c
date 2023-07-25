@@ -227,13 +227,13 @@ void ObjBean_SetDrawMode(ObjBean* this, u8 drawFlag) {
 }
 
 void ObjBean_SetupPathCount(ObjBean* this, PlayState* play) {
-    this->pathCount = play->setupPathList[(this->dyna.actor.params >> 8) & 0x1F].count - 1;
+    this->pathCount = play->pathList[(this->dyna.actor.params >> 8) & 0x1F].count - 1;
     this->currentPointIndex = 0;
     this->nextPointIndex = 1;
 }
 
 void ObjBean_SetupPath(ObjBean* this, PlayState* play) {
-    Path* path = &play->setupPathList[(this->dyna.actor.params >> 8) & 0x1F];
+    Path* path = &play->pathList[(this->dyna.actor.params >> 8) & 0x1F];
     Math_Vec3s_ToVec3f(&this->pathPoints, SEGMENTED_TO_VIRTUAL(path->points));
 }
 
@@ -251,7 +251,7 @@ void ObjBean_FollowPath(ObjBean* this, PlayState* play) {
     f32 mag;
 
     Math_StepToF(&this->dyna.actor.speedXZ, sBeanSpeeds[this->unk_1F6].velocity, sBeanSpeeds[this->unk_1F6].accel);
-    path = &play->setupPathList[(this->dyna.actor.params >> 8) & 0x1F];
+    path = &play->pathList[(this->dyna.actor.params >> 8) & 0x1F];
     nextPathPoint = &((Vec3s*)SEGMENTED_TO_VIRTUAL(path->points))[this->nextPointIndex];
 
     Math_Vec3s_ToVec3f(&pathPointsFloat, nextPathPoint);
@@ -482,7 +482,7 @@ void ObjBean_Init(Actor* thisx, PlayState* play) {
                 Actor_Kill(&this->dyna.actor);
                 return;
             }
-            if (play->setupPathList[path].count < 3) {
+            if (play->pathList[path].count < 3) {
                 osSyncPrintf(VT_COL(RED, WHITE));
                 // "Incorrect number of path data"
                 osSyncPrintf("パスデータ数が不正(%s %d)(arg_data %xH)\n", __FILE__, __LINE__,
@@ -540,12 +540,12 @@ void ObjBean_SetupWaitForBean(ObjBean* this) {
 
 void ObjBean_WaitForBean(ObjBean* this, PlayState* play) {
     if (Actor_ProcessTalkRequest(&this->dyna.actor, play)) {
-        if (func_8002F368(play) == EXCH_ITEM_BEAN) {
+        if (func_8002F368(play) == EXCH_ITEM_MAGIC_BEAN) {
             func_80B8FE00(this);
             Flags_SetSwitch(play, this->dyna.actor.params & 0x3F);
         }
     } else {
-        func_8002F298(&this->dyna.actor, play, 40.0f, EXCH_ITEM_BEAN);
+        func_8002F298(&this->dyna.actor, play, 40.0f, EXCH_ITEM_MAGIC_BEAN);
     }
 }
 
@@ -705,7 +705,7 @@ void ObjBean_GrowWaterPhase3(ObjBean* this, PlayState* play) {
                 Item_DropCollectible(play, &itemDropPos, ITEM00_FLEXIBLE);
             }
             this->stateFlags |= BEAN_STATE_BEEN_WATERED;
-            Audio_PlayActorSound2(&this->dyna.actor, NA_SE_EV_BUTTERFRY_TO_FAIRY);
+            Actor_PlaySfx(&this->dyna.actor, NA_SE_EV_BUTTERFRY_TO_FAIRY);
             func_80078884(NA_SE_SY_TRE_BOX_APPEAR);
         }
     } else if (this->timer <= 0) {
@@ -752,9 +752,9 @@ void ObjBean_SetupWaitForPlayer(ObjBean* this) {
 }
 
 void ObjBean_WaitForPlayer(ObjBean* this, PlayState* play) {
-    if (func_8004356C(&this->dyna)) { // Player is standing on
+    if (DynaPolyActor_IsPlayerOnTop(&this->dyna)) { // Player is standing on
         ObjBean_SetupFly(this);
-        if (play->sceneNum == SCENE_SPOT10) { // Lost woods
+        if (play->sceneId == SCENE_LOST_WOODS) { // Lost woods
             Camera_ChangeSetting(play->cameraPtrs[MAIN_CAM], CAM_SET_BEAN_LOST_WOODS);
         } else {
             Camera_ChangeSetting(play->cameraPtrs[MAIN_CAM], CAM_SET_BEAN_GENERIC);
@@ -786,11 +786,11 @@ void ObjBean_Fly(ObjBean* this, PlayState* play) {
             Camera_ChangeSetting(camera, CAM_SET_NORMAL0);
         }
 
-    } else if (func_8004356C(&this->dyna) != 0) { // Player is on top
+    } else if (DynaPolyActor_IsPlayerOnTop(&this->dyna) != 0) { // Player is on top
 
         func_8002F974(&this->dyna.actor, NA_SE_PL_PLANT_MOVE - SFX_FLAG);
 
-        if (play->sceneNum == SCENE_SPOT10) {
+        if (play->sceneId == SCENE_LOST_WOODS) {
             Camera_ChangeSetting(play->cameraPtrs[MAIN_CAM], CAM_SET_BEAN_LOST_WOODS);
         } else {
             Camera_ChangeSetting(play->cameraPtrs[MAIN_CAM], CAM_SET_BEAN_GENERIC);
@@ -824,7 +824,7 @@ void func_80B908EC(ObjBean* this) {
 }
 
 void func_80B90918(ObjBean* this, PlayState* play) {
-    if (!func_8004356C(&this->dyna)) {
+    if (!DynaPolyActor_IsPlayerOnTop(&this->dyna)) {
         ObjBean_SetupPathCount(this, play);
         ObjBean_SetupPath(this, play);
         ObjBean_Move(this);
@@ -858,9 +858,9 @@ void func_80B90A34(ObjBean* this, PlayState* play) {
 
     func_80B8EE24(this);
     if (trampled) {
-        func_8003EC50(play, &play->colCtx.dyna, this->dyna.bgId);
+        DynaPoly_EnableCollision(play, &play->colCtx.dyna, this->dyna.bgId);
     } else {
-        func_8003EC50(play, &play->colCtx.dyna, this->dyna.bgId);
+        DynaPoly_EnableCollision(play, &play->colCtx.dyna, this->dyna.bgId);
     }
     if ((this->timer <= 0) && (!trampled)) {
         func_80B8EBC8(this);
@@ -896,7 +896,7 @@ void ObjBean_Update(Actor* thisx, PlayState* play) {
             osSyncPrintf("馬と豆の木リフト衝突！！！\n");
             osSyncPrintf(VT_RST);
             ObjBean_Break(this, play);
-            func_8003EBF8(play, &play->colCtx.dyna, this->dyna.bgId);
+            DynaPoly_DisableCollision(play, &play->colCtx.dyna, this->dyna.bgId);
             func_80B908EC(this);
         }
     } else {
@@ -904,7 +904,7 @@ void ObjBean_Update(Actor* thisx, PlayState* play) {
     }
     Actor_SetFocus(&this->dyna.actor, 6.0f);
     if (this->stateFlags & BEAN_STATE_DYNAPOLY_SET) {
-        if (func_8004356C(&this->dyna)) {
+        if (DynaPolyActor_IsPlayerOnTop(&this->dyna)) {
             this->stateFlags |= BEAN_STATE_PLAYER_ON_TOP;
         } else {
             this->stateFlags &= ~BEAN_STATE_PLAYER_ON_TOP;

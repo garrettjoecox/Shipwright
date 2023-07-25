@@ -200,7 +200,7 @@ void BgHakaTubo_DropCollectible(BgHakaTubo* this, PlayState* play) {
                 collectibleParams = -1;
             }
             else {
-                collectibleParams = ITEM00_HEART;
+                collectibleParams = ITEM00_RECOVERY_HEART;
             }
             func_80078884(NA_SE_SY_TRE_BOX_APPEAR);
         } else {

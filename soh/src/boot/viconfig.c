@@ -34,11 +34,11 @@ void ViConfig_UpdateVi(u32 mode) {
         }
     }
 
-    gViConfigUseDefault = mode;
+    gViConfigBlack = mode;
 }
 
 void ViConfig_UpdateBlack(void) {
-    if (gViConfigUseDefault != 0) {
+    if (gViConfigBlack != 0) {
         osViBlack(1);
     } else {
         osViBlack(0);

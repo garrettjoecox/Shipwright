@@ -34,7 +34,7 @@ void ObjRoomtimer_Init(Actor* thisx, PlayState* play) {
 
     // Shabom room in Jabu Jabu has a lengthened timer in Enemy Randomizer. Flag doesn't match what the game
     // expects. Instead set it back to the same flag as what it would be in vanilla.
-    if (CVarGetInteger("gRandomizedEnemies", 0) && play->sceneNum == SCENE_BDAN && play->roomCtx.curRoom.num == 12) {
+    if (CVarGetInteger("gRandomizedEnemies", 0) && play->sceneId == SCENE_JABU_JABU && play->roomCtx.curRoom.num == 12) {
         this->switchFlag = 30;
     } else {
         this->switchFlag = (params >> 10) & 0x3F;
@@ -63,7 +63,7 @@ void ObjRoomtimer_Destroy(Actor* thisx, PlayState* play) {
 
 void func_80B9D054(ObjRoomtimer* this, PlayState* play) {
     if (this->actor.params != 0x3FF) {
-        func_80088B34(this->actor.params);
+        Interface_SetTimer(this->actor.params);
     }
 
     Actor_ChangeCategory(play, &play->actorCtx, &this->actor, ACTORCAT_PROP);
@@ -81,7 +81,7 @@ void func_80B9D0B0(ObjRoomtimer* this, PlayState* play) {
         Actor_Kill(&this->actor);
     } else {
         if ((this->actor.params != 0x3FF) && (gSaveContext.timer1Value == 0)) {
-            Audio_PlaySoundGeneral(NA_SE_OC_ABYSS, &D_801333D4, 4, &D_801333E0, &D_801333E0, &D_801333E8);
+            Audio_PlaySfxGeneral(NA_SE_OC_ABYSS, &gSfxDefaultPos, 4, &gSfxDefaultFreqAndVolScale, &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
             Play_TriggerVoidOut(play);
             Actor_Kill(&this->actor);
         }

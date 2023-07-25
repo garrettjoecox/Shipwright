@@ -268,7 +268,7 @@ void func_80AF2AB4(EnRu2* this, PlayState* play) {
     Player* player;
     s16 temp;
 
-    if ((gSaveContext.chamberCutsceneNum == 2) && (gSaveContext.sceneSetupIndex < 4)) {
+    if ((gSaveContext.chamberCutsceneNum == 2) && (gSaveContext.sceneLayer < 4)) {
         player = GET_PLAYER(play);
         this->action = 1;
         play->csCtx.segment = &D_80AF411C;

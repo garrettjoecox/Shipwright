@@ -130,19 +130,19 @@ void EnDaikuKakariko_Init(Actor* thisx, PlayState* play) {
     s32 pad;
 
     if (LINK_AGE_IN_YEARS == YEARS_CHILD) {
-        switch (play->sceneNum) {
-            case SCENE_SPOT01:
+        switch (play->sceneId) {
+            case SCENE_KAKARIKO_VILLAGE:
                 if (IS_DAY) {
                     this->flags |= 1;
                     this->flags |= initFlags[this->actor.params & 3];
                 }
                 break;
-            case SCENE_KAKARIKO:
+            case SCENE_KAKARIKO_CENTER_GUEST_HOUSE:
                 if (IS_NIGHT) {
                     this->flags |= 2;
                 }
                 break;
-            case SCENE_DRAG:
+            case SCENE_POTION_SHOP_KAKARIKO:
                 this->flags |= 4;
                 break;
         }
@@ -363,7 +363,7 @@ void EnDaikuKakariko_Run(EnDaikuKakariko* this, PlayState* play) {
     s32 run;
 
     do {
-        path = &play->setupPathList[(this->actor.params >> 8) & 0xFF];
+        path = &play->pathList[(this->actor.params >> 8) & 0xFF];
         pathPos = &((Vec3s*)SEGMENTED_TO_VIRTUAL(path->points))[this->waypoint];
         xDist = pathPos->x - this->actor.world.pos.x;
         zDist = pathPos->z - this->actor.world.pos.z;
@@ -432,7 +432,7 @@ void EnDaikuKakariko_Run(EnDaikuKakariko* this, PlayState* play) {
         Math_SmoothStepToF(&this->actor.speedXZ, this->runSpeed, 0.8f, runDist, 0.0f);
     }
 
-    Actor_MoveForward(&this->actor);
+    Actor_MoveXZGravity(&this->actor);
 
     if (this->flags & 0x40) {
         Actor_UpdateBgCheckInfo(play, &this->actor, 0.0f, 0.0f, 0.0f, 4);
@@ -462,7 +462,7 @@ void EnDaikuKakariko_Update(Actor* thisx, PlayState* play) {
 
     if (this->currentAnimIndex == 3) {
         if (((s32)this->skelAnime.curFrame == 6) || ((s32)this->skelAnime.curFrame == 15)) {
-            Audio_PlayActorSound2(&this->actor, NA_SE_EN_MORIBLIN_WALK);
+            Actor_PlaySfx(&this->actor, NA_SE_EN_MORIBLIN_WALK);
         }
     }
 

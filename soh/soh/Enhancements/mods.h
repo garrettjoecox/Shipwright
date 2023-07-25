@@ -7,8 +7,8 @@
 extern "C" {
 #endif
 
-void UpdateDirtPathFixState(int32_t sceneNum);
-void UpdateMirrorModeState(int32_t sceneNum);
+void UpdateDirtPathFixState(int32_t sceneId);
+void UpdateMirrorModeState(int32_t sceneId);
 void InitMods();
 
 #ifdef __cplusplus

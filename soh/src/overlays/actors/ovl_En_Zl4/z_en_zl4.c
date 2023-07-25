@@ -233,7 +233,7 @@ void GivePlayerRandoRewardZeldaChild(EnZl4* zelda, PlayState* play, RandomizerCh
         Flags_SetTreasure(play, 0x1E);
     } else if (!Flags_GetTreasure(play, 0x1E) && !Randomizer_GetSettingValue(RSK_SKIP_CHILD_ZELDA) && Actor_TextboxIsClosing(&zelda->actor, play) &&
                (play->msgCtx.textId == 0x703C || play->msgCtx.textId == 0x703D)) {
-        GetItemEntry getItemEntry = Randomizer_GetItemFromKnownCheck(check, GI_LETTER_ZELDA);
+        GetItemEntry getItemEntry = Randomizer_GetItemFromKnownCheck(check, GI_ZELDAS_LETTER);
         GiveItemEntryFromActor(&zelda->actor, play, getItemEntry, 10000.0f, 100.0f);
     } else if (Flags_GetTreasure(play, 0x1E) && !Player_InBlockingCsMode(play, GET_PLAYER(play))) {
         gSaveContext.unk_13EE = 0x32;
@@ -347,8 +347,8 @@ s32 EnZl4_SetupFromLegendCs(EnZl4* this, PlayState* play) {
     player->linearVelocity = playerx->speedXZ = 0.0f;
 
     EnZl4_SetCsCameraMove(play, 5);
-    ShrinkWindow_SetVal(0x20);
-    Interface_ChangeAlpha(2);
+    Letterbox_SetSizeTarget(0x20);
+    Interface_ChangeHudVisibilityMode(2);
     this->talkTimer2 = 0;
     return true;
 }
@@ -395,7 +395,7 @@ void EnZl4_Init(Actor* thisx, PlayState* play) {
         return;
     }
 
-    if (gSaveContext.sceneSetupIndex >= 4) {
+    if (gSaveContext.sceneLayer >= 4) {
         Animation_ChangeByInfo(&this->skelAnime, sAnimationInfo, ZL4_ANIM_0);
         this->actionFunc = EnZl4_TheEnd;
     } else if (Flags_GetEventChkInf(EVENTCHKINF_OBTAINED_ZELDAS_LETTER)) {
@@ -474,7 +474,7 @@ s32 EnZl4_CsMeetPlayer(EnZl4* this, PlayState* play) {
     switch (this->talkState) {
         case 0:
             if (this->skelAnime.curFrame == 50.0f) {
-                Audio_PlayActorSound2(&this->actor, NA_SE_VO_Z0_MEET);
+                Actor_PlaySfx(&this->actor, NA_SE_VO_Z0_MEET);
             }
             if (!EnZl4_SetNextAnim(this, ZL4_ANIM_4)) {
                 break;
@@ -578,7 +578,7 @@ s32 EnZl4_CsAskStone(EnZl4* this, PlayState* play) {
             break;
         case 4:
             if (this->skelAnime.curFrame == 16.0f) {
-                Audio_PlayActorSound2(&this->actor, NA_SE_VO_Z0_QUESTION);
+                Actor_PlaySfx(&this->actor, NA_SE_VO_Z0_QUESTION);
             }
             if (EnZl4_SetNextAnim(this, ZL4_ANIM_10)) {
                 this->talkState++;
@@ -623,7 +623,7 @@ s32 EnZl4_CsAskStone(EnZl4* this, PlayState* play) {
             break;
         case 7:
             if (this->skelAnime.curFrame == 17.0f) {
-                Audio_PlayActorSound2(&this->actor, NA_SE_VO_Z0_SMILE_0);
+                Actor_PlaySfx(&this->actor, NA_SE_VO_Z0_SMILE_0);
             }
             if (EnZl4_SetNextAnim(this, ZL4_ANIM_29)) {
                 this->talkState++;
@@ -761,7 +761,7 @@ s32 EnZl4_CsAskName(EnZl4* this, PlayState* play) {
             break;
         case 12:
             if (this->skelAnime.curFrame == 5.0f) {
-                Audio_PlayActorSound2(&this->actor, NA_SE_VO_Z0_SIGH_0);
+                Actor_PlaySfx(&this->actor, NA_SE_VO_Z0_SIGH_0);
             }
             if (EnZl4_SetNextAnim(this, ZL4_ANIM_12)) {
                 this->talkState++;
@@ -800,8 +800,8 @@ s32 EnZl4_CsAskName(EnZl4* this, PlayState* play) {
                 play->msgCtx.msgMode = MSGMODE_PAUSED;
                 play->nextEntranceIndex = 0xA0;
                 gSaveContext.nextCutsceneIndex = 0xFFF7;
-                play->sceneLoadFlag = 0x14;
-                play->fadeTransition = 3;
+                play->transitionTrigger = 0x14;
+                play->transitionType = 3;
             }
             break;
     }
@@ -854,7 +854,7 @@ s32 EnZl4_CsTellLegend(EnZl4* this, PlayState* play) {
                 this->mouthExpression = ZL4_MOUTH_SURPRISED;
                 Message_StartTextbox(play, 0x7038, NULL);
                 this->talkState++;
-                Audio_PlayActorSound2(&this->actor, NA_SE_VO_Z0_HURRY);
+                Actor_PlaySfx(&this->actor, NA_SE_VO_Z0_HURRY);
             }
             break;
         case 5:
@@ -939,7 +939,7 @@ s32 EnZl4_CsLookWindow(EnZl4* this, PlayState* play) {
                     play->csCtx.state = CS_STATE_UNSKIPPABLE_INIT;
                 }
             } else {
-                func_800AA000(0.0f, 0xA0, 0xA, 0x28);
+                Rumble_Request(0.0f, 0xA0, 0xA, 0x28);
                 func_8002DF54(play, &this->actor, 1);
                 Animation_ChangeByInfo(&this->skelAnime, sAnimationInfo, ZL4_ANIM_30);
                 EnZl4_SetCsCameraAngle(play, 11);
@@ -1127,7 +1127,7 @@ s32 EnZl4_CsMakePlan(EnZl4* this, PlayState* play) {
                 Camera_ChangeSetting(GET_ACTIVE_CAM(play), 1);
                 this->talkState = 7;
                 play->talkWithPlayer(play, &this->actor);
-                func_8002F434(&this->actor, play, GI_LETTER_ZELDA, fabsf(this->actor.xzDistToPlayer) + 1.0f,
+                Actor_OfferGetItem(&this->actor, play, GI_ZELDAS_LETTER, fabsf(this->actor.xzDistToPlayer) + 1.0f,
                               fabsf(this->actor.yDistToPlayer) + 1.0f);
                 play->msgCtx.stateTimer = 4;
                 play->msgCtx.msgMode = MSGMODE_TEXT_CLOSING;
@@ -1138,7 +1138,7 @@ s32 EnZl4_CsMakePlan(EnZl4* this, PlayState* play) {
                 Animation_ChangeByInfo(&this->skelAnime, sAnimationInfo, ZL4_ANIM_0);
                 this->talkState++;
             } else {
-                func_8002F434(&this->actor, play, GI_LETTER_ZELDA, fabsf(this->actor.xzDistToPlayer) + 1.0f,
+                Actor_OfferGetItem(&this->actor, play, GI_ZELDAS_LETTER, fabsf(this->actor.xzDistToPlayer) + 1.0f,
                               fabsf(this->actor.yDistToPlayer) + 1.0f);
             }
             // no break here is required for matching
@@ -1163,8 +1163,8 @@ void EnZl4_Cutscene(EnZl4* this, PlayState* play) {
             this->mouthExpression = ZL4_MOUTH_SURPRISED;
             Audio_PlayFanfare(NA_BGM_APPEAR);
             EnZl4_SetCsCameraAngle(play, 0);
-            Interface_ChangeAlpha(2);
-            ShrinkWindow_SetVal(0x20);
+            Interface_ChangeHudVisibilityMode(2);
+            Letterbox_SetSizeTarget(0x20);
             this->talkState = 0;
             this->csState++;
             break;

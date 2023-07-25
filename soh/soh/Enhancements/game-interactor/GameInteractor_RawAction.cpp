@@ -96,7 +96,7 @@ void GameInteractor::RawAction::SetWeatherStorm(bool active) {
 void GameInteractor::RawAction::ForceEquipBoots(int8_t boots) {
     Player* player = GET_PLAYER(gPlayState);
     player->currentBoots = boots;
-    Inventory_ChangeEquipment(EQUIP_BOOTS, boots + 1);
+    Inventory_ChangeEquipment(EQUIP_TYPE_BOOTS, boots + 1);
     Player_SetBootData(gPlayState, player);
 }
 
@@ -149,24 +149,24 @@ void GameInteractor::RawAction::GiveOrTakeShield(int32_t shield) {
                 break;
         }
 
-        gSaveContext.inventory.equipment &= ~(gBitFlags[shield - ITEM_SHIELD_DEKU] << gEquipShifts[EQUIP_SHIELD]);
+        gSaveContext.inventory.equipment &= ~(gBitFlags[shield - ITEM_SHIELD_DEKU] << gEquipShifts[EQUIP_TYPE_SHIELD]);
 
         if (player->currentShield == shieldToCheck) {
             player->currentShield = PLAYER_SHIELD_NONE;
-            Inventory_ChangeEquipment(EQUIP_SHIELD, PLAYER_SHIELD_NONE);
+            Inventory_ChangeEquipment(EQUIP_TYPE_SHIELD, PLAYER_SHIELD_NONE);
         }
     } else {
         Item_Give(gPlayState, shield);
         if (player->currentShield == PLAYER_SHIELD_NONE) {
             if (LINK_IS_CHILD && shield == ITEM_SHIELD_DEKU) {
                 player->currentShield = PLAYER_SHIELD_DEKU;
-                Inventory_ChangeEquipment(EQUIP_SHIELD, PLAYER_SHIELD_DEKU);
+                Inventory_ChangeEquipment(EQUIP_TYPE_SHIELD, PLAYER_SHIELD_DEKU);
             } else if (LINK_IS_ADULT && shield == ITEM_SHIELD_MIRROR) {
                 player->currentShield = PLAYER_SHIELD_MIRROR;
-                Inventory_ChangeEquipment(EQUIP_SHIELD, PLAYER_SHIELD_MIRROR);
+                Inventory_ChangeEquipment(EQUIP_TYPE_SHIELD, PLAYER_SHIELD_MIRROR);
             } else if (shield == ITEM_SHIELD_HYLIAN) {
                 player->currentShield = PLAYER_SHIELD_HYLIAN;
-                Inventory_ChangeEquipment(EQUIP_SHIELD, PLAYER_SHIELD_HYLIAN);
+                Inventory_ChangeEquipment(EQUIP_TYPE_SHIELD, PLAYER_SHIELD_HYLIAN);
             }
         }
     }
@@ -199,10 +199,10 @@ void GameInteractor::RawAction::UpdateActor(void* refActor) {
 }
 
 void GameInteractor::RawAction::TeleportPlayer(int32_t nextEntrance) {
-    Audio_PlaySoundGeneral(NA_SE_EN_GANON_LAUGH, &D_801333D4, 4, &D_801333E0, &D_801333E0, &D_801333E8);
+    Audio_PlaySfxGeneral(NA_SE_EN_GANON_LAUGH, &gSfxDefaultPos, 4, &gSfxDefaultFreqAndVolScale, &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
     gPlayState->nextEntranceIndex = nextEntrance;
-    gPlayState->sceneLoadFlag = 0x14;
-    gPlayState->fadeTransition = 2;
+    gPlayState->transitionTrigger = 0x14;
+    gPlayState->transitionType = 2;
     gSaveContext.nextTransitionType = 2;
 }
 
@@ -408,13 +408,13 @@ GameInteractionEffectQueryResult GameInteractor::RawAction::SpawnEnemyWithOffset
         return GameInteractionEffectQueryResult::TemporarilyNotPossible;
     }
 
-    int16_t sceneNum = gPlayState->sceneNum;
+    int16_t sceneId = gPlayState->sceneId;
     int16_t roomNum = gPlayState->roomCtx.curRoom.num;
     Player* player = GET_PLAYER(gPlayState);
 
     // Disallow enemy spawns in the painting Poe rooms in Forest Temple.
     // Killing a spawned enemy before the Poe can softlock the rooms entirely.
-    if (sceneNum == SCENE_BMORI1 && (roomNum == 12 || roomNum == 13 || roomNum == 16)) {
+    if (sceneId == SCENE_FOREST_TEMPLE && (roomNum == 12 || roomNum == 13 || roomNum == 16)) {
         return GameInteractionEffectQueryResult::NotPossible;
     }
 
@@ -430,8 +430,8 @@ GameInteractionEffectQueryResult GameInteractor::RawAction::SpawnEnemyWithOffset
         // Don't allow Arwings in certain areas because they cause issues.
         // Locations: King dodongo room, Morpha room, Twinrova room, Ganondorf room, Fishing pond, Ganon's room
         // TODO: Swap this to disabling the option in CC options menu instead.
-        if (sceneNum == SCENE_DDAN_BOSS || sceneNum == SCENE_MIZUSIN_BS || sceneNum == SCENE_JYASINBOSS ||
-            sceneNum == SCENE_GANON_BOSS || sceneNum == SCENE_TURIBORI || sceneNum == SCENE_GANON_DEMO) {
+        if (sceneId == SCENE_DODONGOS_CAVERN_BOSS || sceneId == SCENE_WATER_TEMPLE_BOSS || sceneId == SCENE_SPIRIT_TEMPLE_BOSS ||
+            sceneId == SCENE_GANONDORF_BOSS || sceneId == SCENE_FISHING_POND || sceneId == SCENE_GANON_BOSS) {
             return GameInteractionEffectQueryResult::NotPossible;
         }
     }
@@ -450,7 +450,7 @@ GameInteractionEffectQueryResult GameInteractor::RawAction::SpawnEnemyWithOffset
     pos.x = player->actor.world.pos.x + posXOffset;
     pos.y = player->actor.world.pos.y + 50;
     pos.z = player->actor.world.pos.z + posZOffset;
-    raycastResult = BgCheck_AnyRaycastFloor1(&gPlayState->colCtx, &poly, &pos);
+    raycastResult = BgCheck_AnyRaycastDown1(&gPlayState->colCtx, &poly, &pos);
 
     // If ground is found below actor, move actor to that height.
     // If not it's likely out of bounds, so make it temporarily not possible and try again later.

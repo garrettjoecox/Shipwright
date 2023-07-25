@@ -183,7 +183,7 @@ void func_80A55BD4(EnHeishi3* this, PlayState* play) {
 
     SkelAnime_Update(&this->skelAnime);
     if (Animation_OnFrame(&this->skelAnime, 1.0f) || Animation_OnFrame(&this->skelAnime, 17.0f)) {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EV_KNIGHT_WALK);
+        Actor_PlaySfx(&this->actor, NA_SE_EV_KNIGHT_WALK);
     }
     if (this->caughtTimer == 0) {
         this->actionFunc = EnHeishi3_ResetAnimationToIdle;
@@ -207,9 +207,9 @@ void func_80A55D00(EnHeishi3* this, PlayState* play) {
         (this->respawnFlag == 0)) {
         Flags_SetEventChkInf(EVENTCHKINF_CAUGHT_BY_CASTLE_GUARDS);
         play->nextEntranceIndex = 0x47E; // Hyrule Castle from Guard Capture (outside)
-        play->sceneLoadFlag = 0x14;
+        play->transitionTrigger = 0x14;
         this->respawnFlag = 1;
-        play->fadeTransition = 0x2E;
+        play->transitionType = 0x2E;
         gSaveContext.nextTransitionType = 0x2E;
     }
 }
@@ -225,7 +225,7 @@ void EnHeishi3_Update(Actor* thisx, PlayState* play) {
     }
     this->actionFunc(this, play);
     this->actor.shape.rot = this->actor.world.rot;
-    Actor_MoveForward(&this->actor);
+    Actor_MoveXZGravity(&this->actor);
     Actor_UpdateBgCheckInfo(play, &this->actor, 20.0f, 20.0f, 50.0f, 0x1C);
     Collider_UpdateCylinder(&this->actor, &this->collider);
     CollisionCheck_SetOC(play, &play->colChkCtx, &this->collider.base);

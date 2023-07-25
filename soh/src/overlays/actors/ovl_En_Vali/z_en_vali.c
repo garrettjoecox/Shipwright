@@ -270,7 +270,7 @@ void EnVali_SetupStunned(EnVali* this) {
     this->actor.velocity.y = 0.0f;
     Actor_SetColorFilter(&this->actor, 0, 255, 0x2000, 80);
     this->bodyCollider.info.bumper.effect = 0;
-    Audio_PlayActorSound2(&this->actor, NA_SE_EN_GOMA_JR_FREEZE);
+    Actor_PlaySfx(&this->actor, NA_SE_EN_GOMA_JR_FREEZE);
     this->actor.velocity.y = 1.0f;
     this->actionFunc = EnVali_Stunned;
 }
@@ -327,7 +327,7 @@ void EnVali_DropAppear(EnVali* this, PlayState* play) {
     this->actor.velocity.y = CLAMP_MAX(this->actor.velocity.y, 40.0f);
 
     if (Math_StepToF(&this->actor.world.pos.y, this->actor.floorHeight, this->actor.velocity.y)) {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_DODO_M_GND);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_DODO_M_GND);
         EnVali_SetupFloatIdle(this);
     }
 }
@@ -350,10 +350,10 @@ void EnVali_FloatIdle(EnVali* this, PlayState* play) {
         this->actor.shape.rot.y += 0x800;
 
         if (((this->slingshotReactionTimer % 6) == 0) && (curFrame > 15) && (curFrame <= 55)) {
-            Audio_PlayActorSound2(&this->actor, NA_SE_EN_BARI_ROLL);
+            Actor_PlaySfx(&this->actor, NA_SE_EN_BARI_ROLL);
         }
     } else if ((curFrame == 16) || (curFrame == 30) || (curFrame == 42) || (curFrame == 55)) {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_BARI_ROLL);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_BARI_ROLL);
     }
 
     curFrame = ((curFrame > 40) ? (80 - curFrame) : curFrame);
@@ -452,7 +452,7 @@ void EnVali_Stunned(EnVali* this, PlayState* play) {
     if (this->actor.velocity.y != 0.0f) {
         if (Math_StepToF(&this->actor.world.pos.y, this->actor.floorHeight, this->actor.velocity.y)) {
             this->actor.velocity.y = 0.0f;
-            Audio_PlayActorSound2(&this->actor, NA_SE_EN_DODO_M_GND);
+            Actor_PlaySfx(&this->actor, NA_SE_EN_DODO_M_GND);
         } else {
             this->actor.velocity.y += 1.0f;
         }
@@ -511,12 +511,12 @@ void EnVali_UpdateDamage(EnVali* this, PlayState* play) {
 
         if ((this->actor.colChkInfo.damageEffect != BARI_DMGEFF_NONE) || (this->actor.colChkInfo.damage != 0)) {
             if (Actor_ApplyDamage(&this->actor) == 0) {
-                Audio_PlayActorSound2(&this->actor, NA_SE_EN_BARI_DEAD);
+                Actor_PlaySfx(&this->actor, NA_SE_EN_BARI_DEAD);
                 Enemy_StartFinishingBlow(play, &this->actor);
                 this->actor.flags &= ~ACTOR_FLAG_TARGETABLE;
             } else if ((this->actor.colChkInfo.damageEffect != BARI_DMGEFF_STUN) &&
                        (this->actor.colChkInfo.damageEffect != BARI_DMGEFF_SLINGSHOT)) {
-                Audio_PlayActorSound2(&this->actor, NA_SE_EN_BARI_DAMAGE);
+                Actor_PlaySfx(&this->actor, NA_SE_EN_BARI_DAMAGE);
             }
 
             if (this->actor.colChkInfo.damageEffect == BARI_DMGEFF_STUN) {

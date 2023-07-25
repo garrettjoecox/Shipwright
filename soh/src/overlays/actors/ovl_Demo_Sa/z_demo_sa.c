@@ -251,7 +251,7 @@ void func_8098E960(DemoSa* this, PlayState* play) {
     s32 pad[2];
     Player* player;
 
-    if ((gSaveContext.chamberCutsceneNum == 0) && (gSaveContext.sceneSetupIndex < 4)) {
+    if ((gSaveContext.chamberCutsceneNum == 0) && (gSaveContext.sceneLayer < 4)) {
         player = GET_PLAYER(play);
         if (!gSaveContext.isBossRush) {
             this->action = 1;

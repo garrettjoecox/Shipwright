@@ -97,7 +97,7 @@ bool Randomizer_ObtainedMalonHCReward() {
 u16 EnMa1_GetText(PlayState* play, Actor* thisx) {
     // Special case for Malon Hyrule Castle Text. Placing it here at the beginning
     // has the added benefit of circumventing mask text if wearing bunny hood.
-    if (gSaveContext.n64ddFlag && play->sceneNum == SCENE_SPOT15) {
+    if (gSaveContext.n64ddFlag && play->sceneId == SCENE_HYRULE_CASTLE) {
         return Randomizer_ObtainedMalonHCReward() ? 0x2044 : 0x2043;
     }
     u16 faceReaction = Text_GetFaceReaction(play, 0x17);
@@ -194,18 +194,18 @@ s16 func_80AA0778(PlayState* play, Actor* thisx) {
 }
 
 s32 func_80AA08C4(EnMa1* this, PlayState* play) {
-    if ((this->actor.shape.rot.z == 3) && (gSaveContext.sceneSetupIndex == 5)) {
+    if ((this->actor.shape.rot.z == 3) && (gSaveContext.sceneLayer == 5)) {
         return 1;
     }
     if (!LINK_IS_CHILD) {
         return 0;
     }
     // Causes Malon to appear in the market if you haven't met her yet.
-    if (((play->sceneNum == SCENE_MARKET_NIGHT) || (play->sceneNum == SCENE_MARKET_DAY)) &&
+    if (((play->sceneId == SCENE_MARKET_NIGHT) || (play->sceneId == SCENE_MARKET_DAY)) &&
         !Flags_GetEventChkInf(EVENTCHKINF_TALON_RETURNED_FROM_CASTLE) && !Flags_GetInfTable(INFTABLE_ENTERED_HYRULE_CASTLE)) {
         return 1;
     }
-    if ((play->sceneNum == SCENE_SPOT15) &&  // if we're at hyrule castle
+    if ((play->sceneId == SCENE_HYRULE_CASTLE) &&  // if we're at hyrule castle
         (!Flags_GetEventChkInf(EVENTCHKINF_TALON_RETURNED_FROM_CASTLE) || // and talon hasn't left
          (gSaveContext.n64ddFlag &&
           !Randomizer_ObtainedMalonHCReward()))) { // or we're rando'd and haven't gotten malon's HC check
@@ -217,11 +217,11 @@ s32 func_80AA08C4(EnMa1* this, PlayState* play) {
         }
     }
     // Malon asleep in her bed if Talon has left Hyrule Castle and it is nighttime.
-    if ((play->sceneNum == SCENE_SOUKO) && IS_NIGHT && (Flags_GetEventChkInf(EVENTCHKINF_TALON_RETURNED_FROM_CASTLE))) {
+    if ((play->sceneId == SCENE_LON_LON_BUILDINGS) && IS_NIGHT && (Flags_GetEventChkInf(EVENTCHKINF_TALON_RETURNED_FROM_CASTLE))) {
         return 1;
     }
     // Don't spawn Malon if none of the above are true and we are not in Lon Lon Ranch.
-    if (play->sceneNum != SCENE_SPOT20) {
+    if (play->sceneId != SCENE_LON_LON_RANCH) {
         return 0;
     }
     // If we've gotten this far, we're in Lon Lon Ranch. Spawn Malon if it is daytime, Talon has left Hyrule Castle, and
@@ -271,12 +271,12 @@ void func_80AA0B74(EnMa1* this) {
         if (this->interactInfo.talkState == NPC_TALK_STATE_IDLE) {
             if (this->unk_1E0 != 0) {
                 this->unk_1E0 = 0;
-                func_800F6584(0);
+                Audio_ToggleMalonSinging(0);
             }
         } else {
             if (this->unk_1E0 == 0) {
                 this->unk_1E0 = 1;
-                func_800F6584(1);
+                Audio_ToggleMalonSinging(1);
             }
         }
     }
@@ -349,7 +349,7 @@ void func_80AA0D88(EnMa1* this, PlayState* play) {
     // We want to Kill Malon's Actor outside of randomizer when Talon is freed. In Randomizer we don't kill Malon's
     // Actor here, otherwise if we wake up Talon first and then get her check she will spontaneously
     // disappear.
-    if ((play->sceneNum == SCENE_SPOT15) && (!gSaveContext.n64ddFlag && Flags_GetEventChkInf(EVENTCHKINF_TALON_RETURNED_FROM_CASTLE))) {
+    if ((play->sceneId == SCENE_HYRULE_CASTLE) && (!gSaveContext.n64ddFlag && Flags_GetEventChkInf(EVENTCHKINF_TALON_RETURNED_FROM_CASTLE))) {
         Actor_Kill(&this->actor);
     // We want Malon to give the Weird Egg Check (see function below) in the following situations:
     // 1. Talon as not left Hyrule Castle (Vanilla) OR
@@ -370,7 +370,7 @@ void func_80AA0EA0(EnMa1* this, PlayState* play) {
         this->actionFunc = func_80AA0EFC;
     } else {
         if (!gSaveContext.n64ddFlag) {
-            func_8002F434(&this->actor, play, GI_WEIRD_EGG, 120.0f, 10.0f);
+            Actor_OfferGetItem(&this->actor, play, GI_WEIRD_EGG, 120.0f, 10.0f);
         } else {
             GetItemEntry getItemEntry = Randomizer_GetItemFromKnownCheck(RC_HC_MALON_EGG, GI_WEIRD_EGG);
             GiveItemEntryFromActor(&this->actor, play, getItemEntry, 120.0f, 10.0f);
@@ -437,7 +437,7 @@ void func_80AA0F44(EnMa1* this, PlayState* play) {
         // If rando'ed, a textbox is closing, it's malon's 'my mom wrote this song' text, AND we do have an ocarina
         // in our inventory. This allows us to grant the check when talking to malon with the ocarina in our inventory.
         if (gSaveContext.n64ddFlag && (Actor_TextboxIsClosing(&this->actor, play) && play->msgCtx.textId == 0x2049) &&
-            (INV_CONTENT(ITEM_OCARINA_FAIRY) != ITEM_NONE || INV_CONTENT(ITEM_OCARINA_TIME) != ITEM_NONE)) {
+            (INV_CONTENT(ITEM_OCARINA_FAIRY) != ITEM_NONE || INV_CONTENT(ITEM_OCARINA_OF_TIME) != ITEM_NONE)) {
             this->actionFunc = EnMa1_WaitForSongGive;
         }
     }
@@ -446,8 +446,8 @@ void func_80AA0F44(EnMa1* this, PlayState* play) {
 void func_80AA106C(EnMa1* this, PlayState* play) {
     GET_PLAYER(play)->stateFlags2 |= 0x800000;
     if (this->interactInfo.talkState == NPC_TALK_STATE_ACTION) {
-        Audio_OcaSetInstrument(2);
-        func_8010BD58(play, OCARINA_ACTION_TEACH_EPONA);
+        AudioOcarina_SetInstrument(2);
+        Message_StartOcarina(play, OCARINA_ACTION_TEACH_EPONA);
         this->actor.flags &= ~ACTOR_FLAG_WILL_TALK;
         this->actionFunc = func_80AA10EC;
     }
@@ -456,7 +456,7 @@ void func_80AA106C(EnMa1* this, PlayState* play) {
 void func_80AA10EC(EnMa1* this, PlayState* play) {
     GET_PLAYER(play)->stateFlags2 |= 0x800000;
     if (Message_GetState(&play->msgCtx) == TEXT_STATE_SONG_DEMO_DONE) {
-        func_8010BD58(play, OCARINA_ACTION_PLAYBACK_EPONA);
+        Message_StartOcarina(play, OCARINA_ACTION_PLAYBACK_EPONA);
         this->actionFunc = func_80AA1150;
     }
 }
@@ -492,8 +492,8 @@ void func_80AA1150(EnMa1* this, PlayState* play) {
         if (!gSaveContext.n64ddFlag) {
             play->nextEntranceIndex = 0x157;
             gSaveContext.nextCutsceneIndex = 0xFFF1;
-            play->fadeTransition = 42;
-            play->sceneLoadFlag = 0x14;
+            play->transitionType = 42;
+            play->transitionTrigger = 0x14;
             this->actionFunc = EnMa1_DoNothing;
         } else {
             // When rando'ed, skip the cutscene, play the chime, reset some flags,
@@ -567,7 +567,7 @@ void EnMa1_Draw(Actor* thisx, PlayState* play) {
 
     camera = GET_ACTIVE_CAM(play);
     distFromCamera = Math_Vec3f_DistXZ(&this->actor.world.pos, &camera->eye);
-    func_800F6268(distFromCamera, NA_BGM_LONLON);
+    Audio_UpdateMalonSinging(distFromCamera, NA_BGM_LONLON);
     Gfx_SetupDL_25Opa(play->state.gfxCtx);
 
     gSPSegment(POLY_OPA_DISP++, 0x09, SEGMENTED_TO_VIRTUAL(sMouthTextures[this->mouthIndex]));

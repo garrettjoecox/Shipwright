@@ -95,7 +95,7 @@ void EnDs_GiveOddPotion(EnDs* this, PlayState* play) {
         gSaveContext.timer2State = 0;
     } else {
         u32 itemId = GI_ODD_POTION;
-        func_8002F434(&this->actor, play, itemId, 10000.0f, 50.0f);
+        Actor_OfferGetItem(&this->actor, play, itemId, 10000.0f, 50.0f);
     }
 }
 
@@ -104,7 +104,7 @@ void EnDs_TalkAfterBrewOddPotion(EnDs* this, PlayState* play) {
         Message_CloseTextbox(play);
         this->actionFunc = EnDs_GiveOddPotion;
         u32 itemId = GI_ODD_POTION;
-        func_8002F434(&this->actor, play, itemId, 10000.0f, 50.0f);
+        Actor_OfferGetItem(&this->actor, play, itemId, 10000.0f, 50.0f);
     }
 }
 
@@ -188,10 +188,10 @@ void EnDs_GiveBluePotion(EnDs* this, PlayState* play) {
         if (gSaveContext.n64ddFlag && Randomizer_GetSettingValue(RSK_SHUFFLE_MERCHANTS) != RO_SHUFFLE_MERCHANTS_OFF &&
             (Randomizer_GetSettingValue(RSK_SHUFFLE_ADULT_TRADE) || INV_CONTENT(ITEM_CLAIM_CHECK) == ITEM_CLAIM_CHECK) &&
             !Flags_GetRandomizerInf(RAND_INF_MERCHANTS_GRANNYS_SHOP)) {
-            GetItemEntry entry = Randomizer_GetItemFromKnownCheck(RC_KAK_GRANNYS_SHOP, GI_POTION_BLUE);
+            GetItemEntry entry = Randomizer_GetItemFromKnownCheck(RC_KAK_GRANNYS_SHOP, GI_BOTTLE_POTION_BLUE);
             GiveItemEntryFromActor(&this->actor, play, entry, 10000.0f, 50.0f);
         } else {
-            func_8002F434(&this->actor, play, GI_POTION_BLUE, 10000.0f, 50.0f);
+            Actor_OfferGetItem(&this->actor, play, GI_BOTTLE_POTION_BLUE, 10000.0f, 50.0f);
         }
     }
 }
@@ -216,11 +216,11 @@ void EnDs_OfferBluePotion(EnDs* this, PlayState* play) {
                         if (gSaveContext.n64ddFlag && Randomizer_GetSettingValue(RSK_SHUFFLE_MERCHANTS) != RO_SHUFFLE_MERCHANTS_OFF &&
                             (Randomizer_GetSettingValue(RSK_SHUFFLE_ADULT_TRADE) || INV_CONTENT(ITEM_CLAIM_CHECK) == ITEM_CLAIM_CHECK) &&
                             !Flags_GetRandomizerInf(RAND_INF_MERCHANTS_GRANNYS_SHOP)) {
-                            itemEntry = Randomizer_GetItemFromKnownCheck(RC_KAK_GRANNYS_SHOP, GI_POTION_BLUE);
+                            itemEntry = Randomizer_GetItemFromKnownCheck(RC_KAK_GRANNYS_SHOP, GI_BOTTLE_POTION_BLUE);
                             GiveItemEntryFromActor(&this->actor, play, itemEntry, 10000.0f, 50.0f);
                         } else {
-                            itemEntry = ItemTable_Retrieve(GI_POTION_BLUE);
-                            func_8002F434(&this->actor, play, GI_POTION_BLUE, 10000.0f, 50.0f);
+                            itemEntry = ItemTable_Retrieve(GI_BOTTLE_POTION_BLUE);
+                            Actor_OfferGetItem(&this->actor, play, GI_BOTTLE_POTION_BLUE, 10000.0f, 50.0f);
                         }
 
                         gSaveContext.pendingSale = itemEntry.itemId;
@@ -242,7 +242,7 @@ void EnDs_Wait(EnDs* this, PlayState* play) {
 
     if (Actor_ProcessTalkRequest(&this->actor, play)) {
         if (func_8002F368(play) == EXCH_ITEM_ODD_MUSHROOM) {
-            Audio_PlaySoundGeneral(NA_SE_SY_TRE_BOX_APPEAR, &D_801333D4, 4, &D_801333E0, &D_801333E0, &D_801333E8);
+            Audio_PlaySfxGeneral(NA_SE_SY_TRE_BOX_APPEAR, &gSfxDefaultPos, 4, &gSfxDefaultFreqAndVolScale, &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
             player->actor.textId = 0x504A;
             this->actionFunc = EnDs_OfferOddPotion;
         } else if ((gSaveContext.n64ddFlag && Randomizer_GetSettingValue(RSK_SHUFFLE_ADULT_TRADE) == RO_GENERIC_OFF) ||
@@ -278,7 +278,7 @@ void EnDs_Update(Actor* thisx, PlayState* play) {
     this->actionFunc(this, play);
 
     if (this->unk_1E8 & 1) {
-        func_80038290(play, &this->actor, &this->unk_1D8, &this->unk_1DE, this->actor.focus.pos);
+        Actor_TrackPlayer(play, &this->actor, &this->unk_1D8, &this->unk_1DE, this->actor.focus.pos);
     } else {
         Math_SmoothStepToS(&this->unk_1D8.x, 0, 6, 0x1838, 100);
         Math_SmoothStepToS(&this->unk_1D8.y, 0, 6, 0x1838, 100);

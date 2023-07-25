@@ -90,27 +90,27 @@ static char* D_809F0424[] = {
     "緑のくすり売り          ", "デクの棒持てる数を増やす", "デクの実持てる数を増やす",
 };
 
-static DnsItemEntry D_809F0450 = { 20, 5, GI_NUTS_5_2, func_809EF5A4, func_809EFA28 };
+static DnsItemEntry D_809F0450 = { 20, 5, GI_DEKU_NUTS_5_2, func_809EF5A4, func_809EFA28 };
 
-static DnsItemEntry D_809F0460 = { 15, 1, GI_STICKS_1, func_809EF658, func_809EF9F8 };
+static DnsItemEntry D_809F0460 = { 15, 1, GI_DEKU_STICKS_1, func_809EF658, func_809EF9F8 };
 
 static DnsItemEntry D_809F0470 = { 10, 1, GI_HEART_PIECE, func_809EF70C, func_809EFA58 };
 
-static DnsItemEntry D_809F0480 = { 40, 30, GI_SEEDS_30, func_809EF73C, func_809EF9F8 };
+static DnsItemEntry D_809F0480 = { 40, 30, GI_DEKU_SEEDS_30, func_809EF73C, func_809EF9F8 };
 
 static DnsItemEntry D_809F0490 = { 50, 1, GI_SHIELD_DEKU, func_809EF800, func_809EF9F8 };
 
 static DnsItemEntry D_809F04A0 = { 40, 5, GI_BOMBS_5, func_809EF854, func_809EFA9C };
 
-static DnsItemEntry D_809F04B0 = { 70, 20, GI_ARROWS_LARGE, func_809EF8F4, func_809EFACC };
+static DnsItemEntry D_809F04B0 = { 70, 20, GI_ARROWS_30, func_809EF8F4, func_809EFACC };
 
-static DnsItemEntry D_809F04C0 = { 40, 1, GI_POTION_RED, func_809EF9A4, func_809EF9F8 };
+static DnsItemEntry D_809F04C0 = { 40, 1, GI_BOTTLE_POTION_RED, func_809EF9A4, func_809EF9F8 };
 
-static DnsItemEntry D_809F04D0 = { 40, 1, GI_POTION_GREEN, func_809EF9A4, func_809EF9F8 };
+static DnsItemEntry D_809F04D0 = { 40, 1, GI_BOTTLE_POTION_GREEN, func_809EF9A4, func_809EF9F8 };
 
-static DnsItemEntry D_809F04E0 = { 40, 1, GI_STICK_UPGRADE_20, func_809EF70C, func_809EFAFC };
+static DnsItemEntry D_809F04E0 = { 40, 1, GI_DEKU_STICK_UPGRADE_20, func_809EF70C, func_809EFAFC };
 
-static DnsItemEntry D_809F04F0 = { 40, 1, GI_NUT_UPGRADE_30, func_809EF70C, func_809EFB40 };
+static DnsItemEntry D_809F04F0 = { 40, 1, GI_DEKU_NUT_UPGRADE_30, func_809EF70C, func_809EFB40 };
 
 static DnsItemEntry* sItemEntries[] = {
     &D_809F0450, &D_809F0460, &D_809F0470, &D_809F0480, &D_809F0490, &D_809F04A0,
@@ -170,7 +170,7 @@ void EnDns_Init(Actor* thisx, PlayState* play) {
     if (gSaveContext.n64ddFlag) {
         // Ugly, but the best way we can identify which grotto we are in, same method 3DRando uses, but we'll need to account for entrance rando
         s16 respawnData = gSaveContext.respawn[RESPAWN_MODE_RETURN].data & ((1 << 8) - 1);
-        this->scrubIdentity = Randomizer_IdentifyScrub(play->sceneNum, this->actor.params, respawnData);
+        this->scrubIdentity = Randomizer_IdentifyScrub(play->sceneId, this->actor.params, respawnData);
 
         if ((Randomizer_GetSettingValue(RSK_SHUFFLE_SCRUBS) == RO_SCRUBS_AFFORDABLE ||
              Randomizer_GetSettingValue(RSK_SHUFFLE_SCRUBS) == RO_SCRUBS_RANDOM) &&
@@ -223,26 +223,26 @@ u32 EnDns_RandomizerPurchaseableCheck(EnDns* this) {
 }
 
 u32 func_809EF5A4(EnDns* this) {
-    if ((CUR_CAPACITY(UPG_NUTS) != 0) && (AMMO(ITEM_NUT) >= CUR_CAPACITY(UPG_NUTS))) {
+    if ((CUR_CAPACITY(UPG_DEKU_NUTS) != 0) && (AMMO(ITEM_DEKU_NUT) >= CUR_CAPACITY(UPG_DEKU_NUTS))) {
         return 1;
     }
     if (gSaveContext.rupees < this->dnsItemEntry->itemPrice) {
         return 0;
     }
-    if (Item_CheckObtainability(ITEM_NUT) == ITEM_NONE) {
+    if (Item_CheckObtainability(ITEM_DEKU_NUT) == ITEM_NONE) {
         return 2;
     }
     return 4;
 }
 
 u32 func_809EF658(EnDns* this) {
-    if ((CUR_CAPACITY(UPG_STICKS) != 0) && (AMMO(ITEM_STICK) >= CUR_CAPACITY(UPG_STICKS))) {
+    if ((CUR_CAPACITY(UPG_DEKU_STICKS) != 0) && (AMMO(ITEM_DEKU_STICK) >= CUR_CAPACITY(UPG_DEKU_STICKS))) {
         return 1;
     }
     if (gSaveContext.rupees < this->dnsItemEntry->itemPrice) {
         return 0;
     }
-    if (Item_CheckObtainability(ITEM_STICK) == ITEM_NONE) {
+    if (Item_CheckObtainability(ITEM_DEKU_STICK) == ITEM_NONE) {
         return 2;
     }
     return 4;
@@ -265,7 +265,7 @@ u32 func_809EF73C(EnDns* this) {
     if (gSaveContext.rupees < this->dnsItemEntry->itemPrice) {
         return 0;
     }
-    if (Item_CheckObtainability(ITEM_SEEDS) == ITEM_NONE) {
+    if (Item_CheckObtainability(ITEM_DEKU_SEEDS) == ITEM_NONE) {
         return 2;
     }
     return 4;
@@ -413,16 +413,16 @@ void func_809EFDD0(EnDns* this, PlayState* play) {
     u16 pendingGetItemId;
     if (!gSaveContext.n64ddFlag || !this->scrubIdentity.isShuffled) {
         if (this->actor.params == 0x9) {
-            if (CUR_UPG_VALUE(UPG_STICKS) < 2) {
-                pendingGetItemId = GI_STICK_UPGRADE_20;
+            if (CUR_UPG_VALUE(UPG_DEKU_STICKS) < 2) {
+                pendingGetItemId = GI_DEKU_STICK_UPGRADE_20;
             } else {
-                pendingGetItemId = GI_STICK_UPGRADE_30;
+                pendingGetItemId = GI_DEKU_STICK_UPGRADE_30;
             }
         } else if (this->actor.params == 0xA) {
-            if (CUR_UPG_VALUE(UPG_NUTS) < 2) {
-                pendingGetItemId = GI_NUT_UPGRADE_30;
+            if (CUR_UPG_VALUE(UPG_DEKU_NUTS) < 2) {
+                pendingGetItemId = GI_DEKU_NUT_UPGRADE_30;
             } else {
-                pendingGetItemId = GI_NUT_UPGRADE_40;
+                pendingGetItemId = GI_DEKU_NUT_UPGRADE_40;
             }
         } else {
             pendingGetItemId = this->dnsItemEntry->getItemId;
@@ -430,7 +430,7 @@ void func_809EFDD0(EnDns* this, PlayState* play) {
         GetItemEntry itemEntry = ItemTable_Retrieve(pendingGetItemId);
         gSaveContext.pendingSale = itemEntry.itemId;
         gSaveContext.pendingSaleMod = itemEntry.modIndex;
-        func_8002F434(&this->actor, play, pendingGetItemId, 130.0f, 100.0f);
+        Actor_OfferGetItem(&this->actor, play, pendingGetItemId, 130.0f, 100.0f);
     } else {
         GetItemEntry itemEntry = Randomizer_GetItemFromKnownCheck(this->scrubIdentity.randomizerCheck, this->scrubIdentity.getItemId);
         gSaveContext.pendingSale = itemEntry.itemId;
@@ -491,7 +491,7 @@ void EnDns_SetupBurrow(EnDns* this, PlayState* play) {
     f32 frameCount = Animation_GetLastFrame(&gBusinessScrubAnim_4404);
 
     if (this->skelAnime.curFrame == frameCount) {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_AKINDONUTS_HIDE);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_AKINDONUTS_HIDE);
         this->actionFunc = EnDns_Burrow;
         this->standOnGround = 0;
         this->yInitPos = this->actor.world.pos.y;
@@ -518,7 +518,7 @@ void EnDns_Burrow(EnDns* this, PlayState* play) {
             initPos.y = this->yInitPos;
             initPos.z = this->actor.world.pos.z;
             for (i = 0; i < 3; i++) {
-                Item_DropCollectible(play, &initPos, ITEM00_HEART);
+                Item_DropCollectible(play, &initPos, ITEM00_RECOVERY_HEART);
             }
         }
         Actor_Kill(&this->actor);
@@ -537,7 +537,7 @@ void EnDns_Update(Actor* thisx, PlayState* play) {
     Actor_SetFocus(&this->actor, 60.0f);
     Actor_SetScale(&this->actor, 0.01f);
     SkelAnime_Update(&this->skelAnime);
-    Actor_MoveForward(&this->actor);
+    Actor_MoveXZGravity(&this->actor);
     this->actionFunc(this, play);
     if (this->standOnGround) {
         Actor_UpdateBgCheckInfo(play, &this->actor, 20.0f, 20.0f, 20.0f, 4);

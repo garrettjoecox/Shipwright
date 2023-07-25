@@ -284,7 +284,7 @@ f32 EnTk_Step(EnTk* this, PlayState* play) {
     s32 i;
 
     if (this->skelAnime.curFrame == 0.0f || this->skelAnime.curFrame == 25.0f) {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_MORIBLIN_WALK);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_MORIBLIN_WALK);
     }
 
     if (this->skelAnime.animation != &gDampeWalkAnim) {
@@ -315,7 +315,7 @@ s32 EnTk_Orient(EnTk* this, PlayState* play) {
         return 1;
     }
 
-    path = &play->setupPathList[0];
+    path = &play->pathList[0];
     point = SEGMENTED_TO_VIRTUAL(path->points);
     point += this->currentWaypoint;
 
@@ -503,11 +503,11 @@ void EnTk_Init(Actor* thisx, PlayState* play) {
     CollisionCheck_SetInfo2(&this->actor.colChkInfo, NULL, &sColChkInfoInit);
 
     if (CVarGetInteger("gDampeAllNight", 0)) {
-        if (!!LINK_IS_ADULT || play->sceneNum != SCENE_SPOT02) {
+        if (!!LINK_IS_ADULT || play->sceneId != SCENE_GRAVEYARD) {
             Actor_Kill(&this->actor);
             return;
         }
-    } else if (gSaveContext.dayTime <= 0xC000 || gSaveContext.dayTime >= 0xE000 || !!LINK_IS_ADULT || play->sceneNum != SCENE_SPOT02) {
+    } else if (gSaveContext.dayTime <= 0xC000 || gSaveContext.dayTime >= 0xE000 || !!LINK_IS_ADULT || play->sceneId != SCENE_GRAVEYARD) {
         Actor_Kill(&this->actor);
         return;
     }
@@ -606,7 +606,7 @@ void EnTk_Dig(EnTk* this, PlayState* play) {
 
     if (this->skelAnime.curFrame == 32.0f) {
         /* What's gonna come out? */
-        Audio_PlayActorSound2(&this->actor, NA_SE_EV_DIG_UP);
+        Actor_PlaySfx(&this->actor, NA_SE_EV_DIG_UP);
 
         this->rewardTimer = 0;
 
@@ -678,13 +678,13 @@ void EnTk_Dig(EnTk* this, PlayState* play) {
         /* Play a reward sound shortly after digging */
         if (!(gSaveContext.n64ddFlag || CVarGetInteger("gDampeWin", 0)) && this->validDigHere == 0) {
             /* Bad dig spot */
-            Audio_PlayActorSound2(&this->actor, NA_SE_SY_ERROR);
+            Actor_PlaySfx(&this->actor, NA_SE_SY_ERROR);
         } else if (this->currentReward == 4) {
             /* Heart piece */
-            Audio_PlaySoundGeneral(NA_SE_SY_CORRECT_CHIME, &D_801333D4, 4, &D_801333E0, &D_801333E0, &D_801333E8);
+            Audio_PlaySfxGeneral(NA_SE_SY_CORRECT_CHIME, &gSfxDefaultPos, 4, &gSfxDefaultFreqAndVolScale, &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
         } else {
             /* Rupee */
-            Audio_PlayActorSound2(&this->actor, NA_SE_SY_TRE_BOX_APPEAR);
+            Actor_PlaySfx(&this->actor, NA_SE_SY_TRE_BOX_APPEAR);
         }
     }
     this->rewardTimer++;
@@ -714,7 +714,7 @@ void EnTk_Update(Actor* thisx, PlayState* play) {
 
     SkelAnime_Update(&this->skelAnime);
 
-    Actor_MoveForward(&this->actor);
+    Actor_MoveXZGravity(&this->actor);
 
     Actor_UpdateBgCheckInfo(play, &this->actor, 40.0f, 10.0f, 0.0f, 5);
 

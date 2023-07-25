@@ -651,7 +651,7 @@ void EnZo_Submerged(EnZo* this, PlayState* play) {
 
 void EnZo_Surface(EnZo* this, PlayState* play) {
     if (this->actor.yDistToWater < 54.0f) {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EV_OUT_OF_WATER);
+        Actor_PlaySfx(&this->actor, NA_SE_EV_OUT_OF_WATER);
         EnZo_SpawnSplashes(this);
         Animation_ChangeByInfo(&this->skelAnime, sAnimationInfo, ENZO_ANIM_3);
         this->actor.flags |= ACTOR_FLAG_TARGETABLE;
@@ -702,7 +702,7 @@ void EnZo_TreadWater(EnZo* this, PlayState* play) {
 
 void EnZo_Dive(EnZo* this, PlayState* play) {
     if (Animation_OnFrame(&this->skelAnime, this->skelAnime.endFrame)) {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EV_DIVE_WATER);
+        Actor_PlaySfx(&this->actor, NA_SE_EV_DIVE_WATER);
         EnZo_SpawnSplashes(this);
         this->actor.flags &= ~ACTOR_FLAG_TARGETABLE;
         this->actor.velocity.y = -4.0f;
@@ -736,7 +736,7 @@ void EnZo_Update(Actor* thisx, PlayState* play) {
         EnZo_Blink(this);
     }
 
-    Actor_MoveForward(thisx);
+    Actor_MoveXZGravity(thisx);
     Actor_UpdateBgCheckInfo(play, thisx, this->collider.dim.radius, this->collider.dim.height * 0.25f, 0.0f, 5);
     this->actionFunc(this, play);
     EnZo_Dialog(this, play);

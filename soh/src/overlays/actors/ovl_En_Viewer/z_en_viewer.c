@@ -201,12 +201,12 @@ void EnViewer_UpdateImpl(EnViewer* this, PlayState* play) {
     s32 animationEnded;
 
     if (type == ENVIEWER_TYPE_2_ZELDA) {
-        if (gSaveContext.sceneSetupIndex == 5) {
+        if (gSaveContext.sceneLayer == 5) {
             csFrames = play->csCtx.frames;
             if (csFrames == 792) {
-                Audio_PlayActorSound2(&this->actor, NA_SE_VO_Z0_SURPRISE);
+                Actor_PlaySfx(&this->actor, NA_SE_VO_Z0_SURPRISE);
             } else if (csFrames == 845) {
-                Audio_PlayActorSound2(&this->actor, NA_SE_VO_Z0_THROW);
+                Actor_PlaySfx(&this->actor, NA_SE_VO_Z0_THROW);
             }
         }
     } else if (type == ENVIEWER_TYPE_7_GANONDORF) {
@@ -215,7 +215,7 @@ void EnViewer_UpdateImpl(EnViewer* this, PlayState* play) {
         this->actor.uncullZoneScale = 10000.0f;
         this->actor.uncullZoneDownward = 10000.0f;
     } else if (type == ENVIEWER_TYPE_3_GANONDORF) {
-        if (gSaveContext.sceneSetupIndex == 4) {
+        if (gSaveContext.sceneLayer == 4) {
             switch (play->csCtx.frames) {
                 case 20:
                 case 59:
@@ -228,13 +228,13 @@ void EnViewer_UpdateImpl(EnViewer* this, PlayState* play) {
                 case 380:
                 case 409:
                 case 438:
-                    Audio_PlaySoundGeneral(NA_SE_SY_DEMO_CUT, &D_801333D4, 4, &D_801333E0, &D_801333E0, &D_801333E8);
+                    Audio_PlaySfxGeneral(NA_SE_SY_DEMO_CUT, &gSfxDefaultPos, 4, &gSfxDefaultFreqAndVolScale, &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
                     break;
             }
         }
-        if (gSaveContext.sceneSetupIndex == 5) {
+        if (gSaveContext.sceneLayer == 5) {
             if (play->csCtx.frames == 1508) {
-                Audio_PlayActorSound2(&this->actor, NA_SE_EN_FANTOM_ST_LAUGH);
+                Actor_PlaySfx(&this->actor, NA_SE_EN_FANTOM_ST_LAUGH);
             }
             if (play->csCtx.frames == 1545) {
                 Actor_SpawnAsChild(&play->actorCtx, &this->actor, play, ACTOR_DEMO_6K, 32.0f, 101.0f, 1226.0f,
@@ -245,29 +245,29 @@ void EnViewer_UpdateImpl(EnViewer* this, PlayState* play) {
             Audio_QueueSeqCmd(SEQ_PLAYER_FANFARE << 24 | NA_BGM_OPENING_GANON);
         }
         if (play->csCtx.frames == 960) {
-            Audio_PlaySoundGeneral(NA_SE_EV_HORSE_GROAN, &this->actor.projectedPos, 4, &D_801333E0, &D_801333E0,
-                                   &D_801333E8);
+            Audio_PlaySfxGeneral(NA_SE_EV_HORSE_GROAN, &this->actor.projectedPos, 4, &gSfxDefaultFreqAndVolScale, &gSfxDefaultFreqAndVolScale,
+                                   &gSfxDefaultReverb);
         }
     } else if (type == ENVIEWER_TYPE_6_HORSE_GANONDORF) {
-        if (gSaveContext.sceneSetupIndex == 5 || gSaveContext.sceneSetupIndex == 10) {
-            Audio_PlayActorSound2(&this->actor, NA_SE_EV_HORSE_RUN_LEVEL - SFX_FLAG);
+        if (gSaveContext.sceneLayer == 5 || gSaveContext.sceneLayer == 10) {
+            Actor_PlaySfx(&this->actor, NA_SE_EV_HORSE_RUN_LEVEL - SFX_FLAG);
         }
     } else if (type == ENVIEWER_TYPE_4_HORSE_GANONDORF) {
         s16 curFrame = this->skin.skelAnime.curFrame;
 
         if (this->skin.skelAnime.animation == &gHorseGanonRearingAnim) {
             if (curFrame == 8) {
-                Audio_PlayActorSound2(&this->actor, NA_SE_EV_GANON_HORSE_NEIGH);
+                Actor_PlaySfx(&this->actor, NA_SE_EV_GANON_HORSE_NEIGH);
             }
             if (curFrame == 30) {
-                Audio_PlayActorSound2(&this->actor, NA_SE_EV_HORSE_LAND2);
+                Actor_PlaySfx(&this->actor, NA_SE_EV_HORSE_LAND2);
             }
         } else if (this->skin.skelAnime.animation == &gHorseGanonIdleAnim) {
             if (curFrame == 25) {
-                Audio_PlayActorSound2(&this->actor, NA_SE_EV_HORSE_SANDDUST);
+                Actor_PlaySfx(&this->actor, NA_SE_EV_HORSE_SANDDUST);
             }
         } else if (this->skin.skelAnime.animation == &gHorseGanonGallopingAnim) {
-            Audio_PlayActorSound2(&this->actor, NA_SE_EV_HORSE_RUN_LEVEL - SFX_FLAG);
+            Actor_PlaySfx(&this->actor, NA_SE_EV_HORSE_RUN_LEVEL - SFX_FLAG);
         }
     }
 
@@ -276,7 +276,7 @@ void EnViewer_UpdateImpl(EnViewer* this, PlayState* play) {
     }
 
     EnViewer_UpdatePosition(this, play);
-    Actor_MoveForward(&this->actor); // has no effect, speed/velocity and gravity are 0
+    Actor_MoveXZGravity(&this->actor); // has no effect, speed/velocity and gravity are 0
 
     animationEnded = SkelAnime_Update(&this->skin.skelAnime);
     if (type == ENVIEWER_TYPE_3_GANONDORF || type == ENVIEWER_TYPE_4_HORSE_GANONDORF) {
@@ -338,7 +338,7 @@ void EnViewer_UpdateImpl(EnViewer* this, PlayState* play) {
                         break;
                     case 6:
                         if (play->csCtx.npcActions[1]->action == 12) {
-                            Audio_PlayActorSound2(&this->actor, NA_SE_EN_GANON_VOICE_DEMO);
+                            Actor_PlaySfx(&this->actor, NA_SE_EN_GANON_VOICE_DEMO);
                             Animation_PlayLoopSetSpeed(&this->skin.skelAnime, &gYoungGanondorfHorsebackRideAnim, 3.0f);
                             this->state++;
                         }
@@ -353,7 +353,7 @@ void EnViewer_UpdateImpl(EnViewer* this, PlayState* play) {
             }
         }
     } else if (type == ENVIEWER_TYPE_1_IMPA) {
-        if (gSaveContext.sceneSetupIndex == 5) {
+        if (gSaveContext.sceneLayer == 5) {
             if (play->csCtx.frames == 845) {
                 Actor_SpawnAsChild(&play->actorCtx, &this->actor, play, ACTOR_ITEM_OCARINA, 4.0f, 81.0f,
                                    2600.0f, 0, 0, 0, 0);
@@ -383,7 +383,7 @@ void EnViewer_UpdateImpl(EnViewer* this, PlayState* play) {
                 break;
         }
     } else if (type == ENVIEWER_TYPE_2_ZELDA) {
-        if (play->sceneNum == SCENE_SPOT00) { // Hyrule Field
+        if (play->sceneId == SCENE_HYRULE_FIELD) { // Hyrule Field
             switch (this->state) {
                 case 0:
                     if (play->csCtx.state != CS_STATE_IDLE) {
@@ -432,7 +432,7 @@ void EnViewer_UpdateImpl(EnViewer* this, PlayState* play) {
             case 0:
                 if (play->csCtx.state != CS_STATE_IDLE && play->csCtx.npcActions[1] != NULL &&
                     play->csCtx.npcActions[1]->action == 7) {
-                    Audio_PlaySoundGeneral(NA_SE_EN_GANON_LAUGH, &D_801333D4, 4, &D_801333E0, &D_801333E0, &D_801333E8);
+                    Audio_PlaySfxGeneral(NA_SE_EN_GANON_LAUGH, &gSfxDefaultPos, 4, &gSfxDefaultFreqAndVolScale, &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
                     Animation_MorphToPlayOnce(&this->skin.skelAnime, &gYoungGanondorfLaughStartAnim, -5.0f);
                     this->state++;
                 }
@@ -488,7 +488,7 @@ void EnViewer_Update(Actor* thisx, PlayState* play) {
 
 s32 EnViewer_Ganondorf3OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot,
                                         void* thisx) {
-    if (gSaveContext.sceneSetupIndex == 4) {
+    if (gSaveContext.sceneLayer == 4) {
         if (play->csCtx.frames >= 400) {
             if (limbIndex == 5) {
                 *dList = gYoungGanondorfOpenLeftHandDL;
@@ -532,7 +532,7 @@ void EnViewer_DrawGanondorf(EnViewer* this, PlayState* play) {
     type = this->actor.params >> 8;
     if (type == ENVIEWER_TYPE_3_GANONDORF || type == ENVIEWER_TYPE_5_GANONDORF || type == ENVIEWER_TYPE_7_GANONDORF ||
         type == ENVIEWER_TYPE_8_GANONDORF) {
-        if (gSaveContext.sceneSetupIndex != 4) {
+        if (gSaveContext.sceneLayer != 4) {
             frames = 149;
         }
 
@@ -584,7 +584,7 @@ void EnViewer_DrawHorse(EnViewer* this, PlayState* play) {
 
 s32 EnViewer_ZeldaOverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot,
                                    void* thisx) {
-    if (play->sceneNum == SCENE_SPOT00) { // Hyrule Field
+    if (play->sceneId == SCENE_HYRULE_FIELD) { // Hyrule Field
         if (limbIndex == 2) {
             *dList = gChildZeldaCutsceneDressDL;
         }
@@ -610,7 +610,7 @@ s32 EnViewer_ZeldaOverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, 
 void EnViewer_ZeldaPostLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, void* thisx) {
     s32 pad;
 
-    if (play->sceneNum == SCENE_TOKINOMA) {
+    if (play->sceneId == SCENE_TEMPLE_OF_TIME) {
         if (limbIndex == 16) {
             OPEN_DISPS(play->state.gfxCtx);
             gSPDisplayList(POLY_OPA_DISP++, gChildZeldaOcarinaOfTimeDL);
@@ -621,7 +621,7 @@ void EnViewer_ZeldaPostLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec
 
 void EnViewer_DrawZelda(EnViewer* this, PlayState* play) {
     OPEN_DISPS(play->state.gfxCtx);
-    if (play->sceneNum == SCENE_SPOT00) { // Hyrule Field
+    if (play->sceneId == SCENE_HYRULE_FIELD) { // Hyrule Field
         if (play->csCtx.frames < 771) {
             gSPSegment(POLY_OPA_DISP++, 0x08, SEGMENTED_TO_VIRTUAL(gChildZeldaEyeInTex));
             gSPSegment(POLY_OPA_DISP++, 0x09, SEGMENTED_TO_VIRTUAL(gChildZeldaEyeOutTex));
@@ -645,7 +645,7 @@ void EnViewer_DrawZelda(EnViewer* this, PlayState* play) {
             gSPSegment(POLY_OPA_DISP++, 0x09, SEGMENTED_TO_VIRTUAL(gChildZeldaEyeOutTex));
         }
 
-        if (gSaveContext.sceneSetupIndex == 6) {
+        if (gSaveContext.sceneLayer == 6) {
             gSPSegment(POLY_OPA_DISP++, 0x0A, SEGMENTED_TO_VIRTUAL(gChildZeldaMouthSurprisedTex));
         } else {
             if (play->csCtx.frames < 758) {
@@ -727,10 +727,10 @@ void EnViewer_UpdatePosition(EnViewer* this, PlayState* play) {
             if (type == ENVIEWER_TYPE_0_HORSE_ZELDA) {
                 if (!sHorseSfxPlayed) {
                     sHorseSfxPlayed = true;
-                    Audio_PlaySoundGeneral(NA_SE_EV_HORSE_NEIGH, &this->actor.projectedPos, 4, &D_801333E0, &D_801333E0,
-                                           &D_801333E8);
+                    Audio_PlaySfxGeneral(NA_SE_EV_HORSE_NEIGH, &this->actor.projectedPos, 4, &gSfxDefaultFreqAndVolScale, &gSfxDefaultFreqAndVolScale,
+                                           &gSfxDefaultReverb);
                 }
-                Audio_PlayActorSound2(&this->actor, NA_SE_EV_HORSE_RUN_LEVEL - SFX_FLAG);
+                Actor_PlaySfx(&this->actor, NA_SE_EV_HORSE_RUN_LEVEL - SFX_FLAG);
             }
 
             startPos.x = play->csCtx.npcActions[0]->startPos.x;
@@ -777,7 +777,7 @@ void EnViewer_UpdatePosition(EnViewer* this, PlayState* play) {
             }
         }
         if (type == ENVIEWER_TYPE_5_GANONDORF) {
-            Audio_PlaySoundGeneral(NA_SE_EV_BURNING - SFX_FLAG, &D_801333D4, 4, &D_801333E0, &D_801333E0, &D_801333E8);
+            Audio_PlaySfxGeneral(NA_SE_EV_BURNING - SFX_FLAG, &gSfxDefaultPos, 4, &gSfxDefaultFreqAndVolScale, &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
             EnViewer_DrawFireEffects(this, play);
         }
     }

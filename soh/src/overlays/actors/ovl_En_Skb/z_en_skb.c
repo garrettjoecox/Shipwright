@@ -205,7 +205,7 @@ void func_80AFCDF8(EnSkb* this) {
     Animation_PlayOnceSetSpeed(&this->skelAnime, &gStalchildUncurlingAnim, 1.0f);
     this->unk_280 = 0;
     this->actor.flags &= ~ACTOR_FLAG_TARGETABLE;
-    Audio_PlayActorSound2(&this->actor, NA_SE_EN_RIVA_APPEAR);
+    Actor_PlaySfx(&this->actor, NA_SE_EN_RIVA_APPEAR);
     EnSkb_SetupAction(this, func_80AFCE5C);
 }
 
@@ -233,7 +233,7 @@ void func_80AFCF48(EnSkb* this) {
     this->unk_281 = 0;
     this->actor.flags &= ~ACTOR_FLAG_TARGETABLE;
     this->actor.speedXZ = 0.0f;
-    Audio_PlayActorSound2(&this->actor, NA_SE_EN_AKINDONUTS_HIDE);
+    Actor_PlaySfx(&this->actor, NA_SE_EN_AKINDONUTS_HIDE);
     EnSkb_SetupAction(this, func_80AFCFF0);
 }
 
@@ -285,7 +285,7 @@ void EnSkb_Advance(EnSkb* this, PlayState* play) {
         if (((prevKeyFrame < 9) && (((s32)playSpeed + thisKeyFrame) >= 8)) ||
             !((prevKeyFrame >= 16) || (((s32)playSpeed + thisKeyFrame) < 15))) {
 
-            Audio_PlayActorSound2(&this->actor, NA_SE_EN_STALKID_WALK);
+            Actor_PlaySfx(&this->actor, NA_SE_EN_STALKID_WALK);
         }
     }
     // Don't despawn stallchildren during daytime or when a stalchildren walks too far away from his "home" when enemy randomizer is enabled.
@@ -311,7 +311,7 @@ void EnSkb_SetupAttack(EnSkb* this, PlayState* play) {
 
     frameData = this->skelAnime.curFrame;
     if (frameData == 3) {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_STALKID_ATTACK);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_STALKID_ATTACK);
         this->unk_281 = 1;
     } else if (frameData == 6) {
         this->unk_281 = 0;
@@ -343,7 +343,7 @@ void EnSkb_SetupStunned(EnSkb* this) {
     if (this->actor.bgCheckFlags & 1) {
         this->actor.speedXZ = 0.0f;
     }
-    Audio_PlayActorSound2(&this->actor, NA_SE_EN_GOMA_JR_FREEZE);
+    Actor_PlaySfx(&this->actor, NA_SE_EN_GOMA_JR_FREEZE);
     this->unk_281 = 0;
     this->unk_280 = 6;
     EnSkb_SetupAction(this, func_80AFD59C);
@@ -373,7 +373,7 @@ void func_80AFD644(EnSkb* this) {
         this->actor.speedXZ = -4.0f;
     }
     this->actor.world.rot.y = this->actor.yawTowardsPlayer;
-    Audio_PlayActorSound2(&this->actor, NA_SE_EN_STALKID_DAMAGE);
+    Actor_PlaySfx(&this->actor, NA_SE_EN_STALKID_DAMAGE);
     this->unk_280 = 2;
     EnSkb_SetupAction(this, func_80AFD6CC);
 }
@@ -500,7 +500,7 @@ void EnSkb_Update(Actor* thisx, PlayState* play) {
     s32 pad;
 
     func_80AFD968(this, play);
-    Actor_MoveForward(&this->actor);
+    Actor_MoveXZGravity(&this->actor);
     Actor_UpdateBgCheckInfo(play, &this->actor, 15.0f, 30.0f, 60.0f, 0x1D);
     this->actionFunc(this, play);
     this->actor.focus.pos = this->actor.world.pos;

@@ -189,9 +189,9 @@ void EnGoma_SetupFlee(EnGoma* this) {
     this->actionTimer = 20;
 
     if (this->actor.params < 6) {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_GOMA_BJR_DAM2);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_GOMA_BJR_DAM2);
     } else {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_GOMA_JR_DAM2);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_GOMA_JR_DAM2);
     }
 }
 
@@ -218,9 +218,9 @@ void EnGoma_EggFallToGround(EnGoma* this, PlayState* play) {
         case 0:
             if (this->actor.bgCheckFlags & 1) { // floor
                 if (this->actor.params < 6) {
-                    Audio_PlayActorSound2(&this->actor, NA_SE_EN_GOMA_BJR_EGG1);
+                    Actor_PlaySfx(&this->actor, NA_SE_EN_GOMA_BJR_EGG1);
                 } else {
-                    Audio_PlayActorSound2(&this->actor, NA_SE_EN_GOMA_EGG1);
+                    Actor_PlaySfx(&this->actor, NA_SE_EN_GOMA_EGG1);
                 }
 
                 if (this->actor.params > 5) {
@@ -335,9 +335,9 @@ void EnGoma_SetupHurt(EnGoma* this, PlayState* play) {
     this->actor.speedXZ = 20.0f;
     this->actor.world.rot.y = this->actor.yawTowardsPlayer + 0x8000;
     if (this->actor.params < 6) {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_GOMA_BJR_DAM1);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_GOMA_BJR_DAM1);
     } else {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_GOMA_JR_DAM1);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_GOMA_JR_DAM1);
     }
 }
 
@@ -364,9 +364,9 @@ void EnGoma_SetupDie(EnGoma* this) {
     this->actionTimer = 30;
 
     if (this->actor.params < 6) {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_GOMA_BJR_DEAD);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_GOMA_BJR_DEAD);
     } else {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_GOMA_JR_DEAD);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_GOMA_JR_DEAD);
     }
 
     this->invincibilityTimer = 100;
@@ -382,9 +382,9 @@ void EnGoma_Die(EnGoma* this, PlayState* play) {
 
     if (this->actionTimer == 17) {
         if (this->actor.params < 6) {
-            Audio_PlayActorSound2(&this->actor, NA_SE_EN_GOMA_BJR_LAND);
+            Actor_PlaySfx(&this->actor, NA_SE_EN_GOMA_BJR_LAND);
         } else {
-            Audio_PlayActorSound2(&this->actor, NA_SE_EN_GOMA_JR_LAND);
+            Actor_PlaySfx(&this->actor, NA_SE_EN_GOMA_JR_LAND);
         }
     }
 
@@ -422,7 +422,7 @@ void EnGoma_Dead(EnGoma* this, PlayState* play) {
 
             parent->childrenGohmaState[this->actor.params] = -1;
         }
-        Audio_PlaySoundGeneral(NA_SE_EN_EXTINCT, &this->actor.projectedPos, 4, &D_801333E0, &D_801333E0, &D_801333E8);
+        Audio_PlaySfxGeneral(NA_SE_EN_EXTINCT, &this->actor.projectedPos, 4, &gSfxDefaultFreqAndVolScale, &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
         Actor_Kill(&this->actor);
         Item_DropCollectibleRandom(play, NULL, &this->actor.world.pos, 0x30);
     }
@@ -494,9 +494,9 @@ void EnGoma_SetupJump(EnGoma* this) {
     this->actor.velocity.y = 8.0f;
 
     if (this->actor.params < 6) {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_GOMA_BJR_CRY);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_GOMA_BJR_CRY);
     } else {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_GOMA_JR_CRY);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_GOMA_JR_CRY);
     }
 }
 
@@ -508,9 +508,9 @@ void EnGoma_Jump(EnGoma* this, PlayState* play) {
     if (this->actor.velocity.y <= 0.0f && (this->actor.bgCheckFlags & 1)) {
         EnGoma_SetupLand(this);
         if (this->actor.params < 6) {
-            Audio_PlayActorSound2(&this->actor, NA_SE_EN_GOMA_BJR_LAND2);
+            Actor_PlaySfx(&this->actor, NA_SE_EN_GOMA_BJR_LAND2);
         } else {
-            Audio_PlayActorSound2(&this->actor, NA_SE_EN_GOMA_JR_LAND2);
+            Actor_PlaySfx(&this->actor, NA_SE_EN_GOMA_JR_LAND2);
         }
     }
     this->visualState = 0;
@@ -532,9 +532,9 @@ void EnGoma_ChasePlayer(EnGoma* this, PlayState* play) {
 
     if (Animation_OnFrame(&this->skelanime, 1.0f) || Animation_OnFrame(&this->skelanime, 5.0f)) {
         if (this->actor.params < 6) {
-            Audio_PlayActorSound2(&this->actor, NA_SE_EN_GOMA_BJR_WALK);
+            Actor_PlaySfx(&this->actor, NA_SE_EN_GOMA_BJR_WALK);
         } else {
-            Audio_PlayActorSound2(&this->actor, NA_SE_EN_GOMA_JR_WALK);
+            Actor_PlaySfx(&this->actor, NA_SE_EN_GOMA_JR_WALK);
         }
     }
 
@@ -557,9 +557,9 @@ void EnGoma_SetupStunned(EnGoma* this, PlayState* play) {
     this->actionTimer = (s16)Rand_ZeroFloat(15.0f) + 3;
 
     if (this->actor.params < 6) {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_GOMA_BJR_FREEZE);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_GOMA_BJR_FREEZE);
     } else {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_GOMA_JR_FREEZE);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_GOMA_JR_FREEZE);
     }
 }
 
@@ -712,7 +712,7 @@ void EnGoma_Update(Actor* thisx, PlayState* play) {
     }
 
     this->actionFunc(this, play);
-    Actor_MoveForward(&this->actor);
+    Actor_MoveXZGravity(&this->actor);
     this->actor.world.pos.x = this->actor.world.pos.x + this->shieldKnockbackVel.x;
     this->actor.world.pos.z = this->actor.world.pos.z + this->shieldKnockbackVel.z;
     Math_ApproachZeroF(&this->shieldKnockbackVel.x, 1.0f, 3.0f);
@@ -730,7 +730,7 @@ void EnGoma_Update(Actor* thisx, PlayState* play) {
         EnGoma_LookAtPlayer(this, play);
         EnGoma_UpdateEyeEnvColor(this);
         this->visualState = 1;
-        if (player->swordState != 0) {
+        if (player->meleeWeaponState != 0) {
             this->colCyl2.dim.radius = 35;
             this->colCyl2.dim.height = 35;
             this->colCyl2.dim.yShift = 0;

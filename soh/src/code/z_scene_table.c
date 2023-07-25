@@ -956,7 +956,7 @@ Gfx sDefaultDisplayList[] = {
 };
 
 // Computes next entrance index based on age and day time to set the fade out transition
-void func_800994A0(PlayState* play) {
+void Scene_SetTransitionForNextEntrance(PlayState* play) {
     s16 computedEntranceIndex;
 
     if (!IS_DAY) {
@@ -973,7 +973,7 @@ void func_800994A0(PlayState* play) {
         }
     }
 
-    play->fadeTransition = gEntranceTable[computedEntranceIndex].field & 0x7F; // Fade out
+    play->transitionType = gEntranceTable[computedEntranceIndex].field & 0x7F; // Fade out
 }
 
 // Scene Draw Config 0
@@ -1136,14 +1136,14 @@ void func_80099BD8(PlayState* play) {
 
     CLOSE_DISPS(play->state.gfxCtx);
 
-    if (gSaveContext.sceneSetupIndex == 5) {
+    if (gSaveContext.sceneLayer == 5) {
         gCustomLensFlareOn = true;
         gCustomLensFlarePos.x = -20.0f;
         gCustomLensFlarePos.y = 1220.0f;
         gCustomLensFlarePos.z = -684.0f;
         gLensFlareScale = 10;
         gLensFlareColorIntensity = 8.0f;
-        gLensFlareScreenFillAlpha = 200;
+        gLensFlareGlareStrength = 200;
     }
 }
 
@@ -1275,7 +1275,7 @@ void func_8009AE30(PlayState* play) {
 
     gameplayFrames = play->gameplayFrames;
 
-    if (play->sceneNum == SCENE_HAKADAN_BS) {
+    if (play->sceneId == SCENE_SHADOW_TEMPLE_BOSS) {
         gSPSegment(POLY_OPA_DISP++, 0x08,
                    Gfx_TwoTexScroll(play->state.gfxCtx, 0, (gameplayFrames * 2) % 128, 0, 32, 32, 1,
                                     (gameplayFrames * 2) % 128, 0, 32, 32));
@@ -1443,7 +1443,7 @@ void func_8009BAA4(PlayState* play) {
                Gfx_TwoTexScroll(play->state.gfxCtx, 0, 127 - gameplayFrames % 128, (gameplayFrames * 3) % 128, 32,
                                 32, 1, gameplayFrames % 128, (gameplayFrames * 3) % 128, 32, 32));
 
-    if (play->sceneNum == SCENE_HAIRAL_NIWA) {
+    if (play->sceneId == SCENE_CASTLE_COURTYARD_GUARDS_DAY) {
         gSPSegment(POLY_XLU_DISP++, 0x09,
                    Gfx_TexScroll(play->state.gfxCtx, 0, (gameplayFrames * 10) % 256, 32, 64));
     }
@@ -1468,7 +1468,7 @@ void func_8009BC44(PlayState* play) {
 
     gameplayFrames = play->gameplayFrames;
 
-    if (play->sceneNum == SCENE_GANON_TOU) {
+    if (play->sceneId == SCENE_OUTSIDE_GANONS_CASTLE) {
         gSPSegment(POLY_XLU_DISP++, 0x09,
                    Gfx_TexScroll(play->state.gfxCtx, 0, (gameplayFrames * 1) % 256, 64, 64));
         gSPSegment(POLY_XLU_DISP++, 0x08,
@@ -1499,17 +1499,17 @@ void func_8009BEEC(PlayState* play) {
     s32 var;
 
     if (play->gameplayFrames % 128 == 13) {
-        var = Quake_Add(GET_ACTIVE_CAM(play), 2);
+        var = Quake_Request(GET_ACTIVE_CAM(play), 2);
         Quake_SetSpeed(var, 10000);
-        Quake_SetQuakeValues(var, 4, 0, 0, 0);
-        Quake_SetCountdown(var, 127);
+        Quake_SetPerturbations(var, 4, 0, 0, 0);
+        Quake_SetDuration(var, 127);
     }
 
     if ((play->gameplayFrames % 64 == 0) && (Rand_ZeroOne() > 0.6f)) {
-        var = Quake_Add(GET_ACTIVE_CAM(play), 3);
+        var = Quake_Request(GET_ACTIVE_CAM(play), 3);
         Quake_SetSpeed(var, 32000.0f + (Rand_ZeroOne() * 3000.0f));
-        Quake_SetQuakeValues(var, 10.0f - (Rand_ZeroOne() * 9.0f), 0, 0, 0);
-        Quake_SetCountdown(var, 48.0f - (Rand_ZeroOne() * 15.0f));
+        Quake_SetPerturbations(var, 10.0f - (Rand_ZeroOne() * 9.0f), 0, 0, 0);
+        Quake_SetDuration(var, 48.0f - (Rand_ZeroOne() * 15.0f));
     }
 }
 
@@ -1546,8 +1546,8 @@ void func_8009C0AC(PlayState* play) {
     CLOSE_DISPS(play->state.gfxCtx);
 
     if (Flags_GetSwitch(play, 0x37)) {
-        if ((play->sceneNum == SCENE_GANON_DEMO) || (play->sceneNum == SCENE_GANON_FINAL) ||
-            (play->sceneNum == SCENE_GANON_SONOGO) || (play->sceneNum == SCENE_GANONTIKA_SONOGO)) {
+        if ((play->sceneId == SCENE_GANON_BOSS) || (play->sceneId == SCENE_GANONS_TOWER_COLLAPSE_EXTERIOR) ||
+            (play->sceneId == SCENE_GANONS_TOWER_COLLAPSE_INTERIOR) || (play->sceneId == SCENE_INSIDE_GANONS_CASTLE_COLLAPSE)) {
             func_8009BEEC(play);
         }
     }
@@ -2025,11 +2025,11 @@ void func_8009E0B8(PlayState* play) {
     gDPPipeSync(POLY_XLU_DISP++);
     gDPSetEnvColor(POLY_XLU_DISP++, 128, 128, 128, 128);
 
-    if (gSaveContext.sceneSetupIndex == 4) {
+    if (gSaveContext.sceneLayer == 4) {
         spA3 = 255 - (u8)play->roomCtx.unk_74[0];
-    } else if (gSaveContext.sceneSetupIndex == 6) {
+    } else if (gSaveContext.sceneLayer == 6) {
         spA0 = play->roomCtx.unk_74[0] + 500;
-    } else if (((gSaveContext.sceneSetupIndex < 4) || LINK_IS_ADULT) && (Flags_GetEventChkInf(EVENTCHKINF_OBTAINED_KOKIRI_EMERALD_DEKU_TREE_DEAD))) {
+    } else if (((gSaveContext.sceneLayer < 4) || LINK_IS_ADULT) && (Flags_GetEventChkInf(EVENTCHKINF_OBTAINED_KOKIRI_EMERALD_DEKU_TREE_DEAD))) {
         spA0 = 2150;
     }
 
@@ -2057,7 +2057,7 @@ void func_8009E54C(PlayState* play) {
 
     OPEN_DISPS(play->state.gfxCtx);
 
-    if ((gSaveContext.sceneSetupIndex > 3) || (LINK_IS_ADULT && !Flags_GetEventChkInf(EVENTCHKINF_RAISED_LAKE_HYLIA_WATER))) {
+    if ((gSaveContext.sceneLayer > 3) || (LINK_IS_ADULT && !Flags_GetEventChkInf(EVENTCHKINF_RAISED_LAKE_HYLIA_WATER))) {
         play->roomCtx.unk_74[0] = 87;
     }
 
@@ -2191,7 +2191,7 @@ void func_8009EE44(PlayState* play) {
 	bool playerHasCojiro = INV_CONTENT(ITEM_COJIRO) == ITEM_COJIRO;
     if ((play->roomCtx.unk_74[0] == 0) && playerHasCojiro) {
         if (play->roomCtx.unk_74[1] == 50) {
-            func_8002F7DC(&GET_PLAYER(play)->actor, NA_SE_EV_CHICKEN_CRY_M);
+            Player_PlaySfx(&GET_PLAYER(play)->actor, NA_SE_EV_CHICKEN_CRY_M);
             play->roomCtx.unk_74[0] = 1;
         }
         play->roomCtx.unk_74[1]++;
@@ -2440,7 +2440,7 @@ void func_8009FE58(PlayState* play) {
     OPEN_DISPS(play->state.gfxCtx);
 
     gameplayFrames = play->gameplayFrames;
-    if (play->sceneNum == SCENE_BDAN) {
+    if (play->sceneId == SCENE_JABU_JABU) {
         gSPSegment(POLY_OPA_DISP++, 0x08,
                    Gfx_TwoTexScroll(play->state.gfxCtx, 0, gameplayFrames % 128, (gameplayFrames * 2) % 128, 32,
                                     32, 1, 127 - gameplayFrames % 128, (gameplayFrames * 2) % 128, 32, 32));

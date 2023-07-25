@@ -93,7 +93,7 @@ void EnDog_PlayWalkSFX(EnDog* this) {
 
     if (this->skelAnime.animation == walk) {
         if ((this->skelAnime.curFrame == 1.0f) || (this->skelAnime.curFrame == 7.0f)) {
-            Audio_PlayActorSound2(&this->actor, NA_SE_EV_CHIBI_WALK);
+            Actor_PlaySfx(&this->actor, NA_SE_EV_CHIBI_WALK);
         }
     }
 }
@@ -103,7 +103,7 @@ void EnDog_PlayRunSFX(EnDog* this) {
 
     if (this->skelAnime.animation == run) {
         if ((this->skelAnime.curFrame == 2.0f) || (this->skelAnime.curFrame == 4.0f)) {
-            Audio_PlayActorSound2(&this->actor, NA_SE_EV_CHIBI_WALK);
+            Actor_PlaySfx(&this->actor, NA_SE_EV_CHIBI_WALK);
         }
     }
 }
@@ -113,7 +113,7 @@ void EnDog_PlayBarkSFX(EnDog* this) {
 
     if (this->skelAnime.animation == bark) {
         if ((this->skelAnime.curFrame == 13.0f) || (this->skelAnime.curFrame == 19.0f)) {
-            Audio_PlayActorSound2(&this->actor, NA_SE_EV_SMALL_DOG_BARK);
+            Actor_PlaySfx(&this->actor, NA_SE_EV_SMALL_DOG_BARK);
         }
     }
 }
@@ -182,7 +182,7 @@ s8 EnDog_CanFollow(EnDog* this, PlayState* play) {
         return 2;
     }
 
-    if (play->sceneNum == SCENE_MARKET_DAY) {
+    if (play->sceneId == SCENE_MARKET_DAY) {
         return 0;
     }
 
@@ -267,13 +267,13 @@ void EnDog_Init(Actor* thisx, PlayState* play) {
     this->actor.gravity = -1.0f;
     this->path = Path_GetByIndex(play, (this->actor.params & 0x00F0) >> 4, 0xF);
 
-    switch (play->sceneNum) {
+    switch (play->sceneId) {
         case SCENE_MARKET_NIGHT:
             if ((!gSaveContext.dogIsLost) && (((this->actor.params & 0x0F00) >> 8) == 1)) {
                 Actor_Kill(&this->actor);
             }
             break;
-        case SCENE_IMPA: // Richard's Home
+        case SCENE_DOG_LADY_HOUSE: // Richard's Home
             if (!(this->actor.params & 0x8000)) {
                 if (!gSaveContext.dogIsLost) {
                     this->nextBehavior = DOG_SIT;
@@ -483,7 +483,7 @@ void EnDog_Update(Actor* thisx, PlayState* play) {
     SkelAnime_Update(&this->skelAnime);
     Actor_UpdateBgCheckInfo(play, &this->actor, this->collider.dim.radius, this->collider.dim.height * 0.5f, 0.0f,
                             5);
-    Actor_MoveForward(&this->actor);
+    Actor_MoveXZGravity(&this->actor);
     this->actionFunc(this, play);
     Collider_UpdateCylinder(&this->actor, &this->collider);
     CollisionCheck_SetOC(play, &play->colChkCtx, &this->collider.base);

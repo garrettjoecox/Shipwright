@@ -405,7 +405,7 @@ void EnDodongo_SetupStunned(EnDodongo* this) {
     if (this->damageEffect == 0xF) {
         this->iceTimer = 36;
     }
-    Audio_PlayActorSound2(&this->actor, NA_SE_EN_GOMA_JR_FREEZE);
+    Actor_PlaySfx(&this->actor, NA_SE_EN_GOMA_JR_FREEZE);
     EnDodongo_SetupAction(this, EnDodongo_Stunned);
 }
 
@@ -432,10 +432,10 @@ void EnDodongo_BreatheFire(EnDodongo* this, PlayState* play) {
     s16 fireFrame;
 
     if ((s32)this->skelAnime.curFrame == 24) {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_DODO_J_CRY);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_DODO_J_CRY);
     }
     if ((29.0f <= this->skelAnime.curFrame) && (this->skelAnime.curFrame <= 43.0f)) {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_DODO_J_FIRE - SFX_FLAG);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_DODO_J_FIRE - SFX_FLAG);
         fireFrame = this->skelAnime.curFrame - 29.0f;
         pos = this->actor.world.pos;
         pos.y += 35.0f;
@@ -443,7 +443,7 @@ void EnDodongo_BreatheFire(EnDodongo* this, PlayState* play) {
         EnDodongo_ShiftVecRadial(this->actor.world.rot.y, 2.5f, &accel);
         EffectSsDFire_SpawnFixedScale(play, &pos, &velocity, &accel, 255 - (fireFrame * 10), fireFrame + 3);
     } else if ((2.0f <= this->skelAnime.curFrame) && (this->skelAnime.curFrame <= 20.0f)) {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_DODO_J_BREATH - SFX_FLAG);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_DODO_J_BREATH - SFX_FLAG);
     }
     if (SkelAnime_Update(&this->skelAnime)) {
         EnDodongo_SetupEndBreatheFire(this);
@@ -472,7 +472,7 @@ void EnDodongo_SwallowBomb(EnDodongo* this, PlayState* play) {
     }
 
     if ((s32)this->skelAnime.curFrame == 28) {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_DODO_J_EAT);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_DODO_J_EAT);
         if (this->actor.child != NULL) {
             Actor_Kill(this->actor.child);
             this->actor.child = NULL;
@@ -498,7 +498,7 @@ void EnDodongo_SwallowBomb(EnDodongo* this, PlayState* play) {
                     func_8002836C(play, &pos, &deathFireVel, &deathFireAccel, &this->bombSmokePrimColor,
                                   &this->bombSmokeEnvColor, 400, 10, 10);
                 }
-                Audio_PlayActorSound2(&this->actor, NA_SE_IT_BOMB_EXPLOSION);
+                Actor_PlaySfx(&this->actor, NA_SE_IT_BOMB_EXPLOSION);
                 Actor_SetColorFilter(&this->actor, 0x4000, 0x78, 0, 8);
             }
         }
@@ -551,13 +551,13 @@ void EnDodongo_Walk(EnDodongo* this, PlayState* play) {
     SkelAnime_Update(&this->skelAnime);
     if ((s32)this->skelAnime.curFrame < 21) {
         if (!this->rightFootStep) {
-            Audio_PlayActorSound2(&this->actor, NA_SE_EN_DODO_J_WALK);
+            Actor_PlaySfx(&this->actor, NA_SE_EN_DODO_J_WALK);
             Actor_SpawnFloorDustRing(play, &this->actor, &this->leftFootPos, 10.0f, 3, 2.0f, 200, 15, false);
             this->rightFootStep = true;
         }
     } else {
         if (this->rightFootStep) {
-            Audio_PlayActorSound2(&this->actor, NA_SE_EN_DODO_J_WALK);
+            Actor_PlaySfx(&this->actor, NA_SE_EN_DODO_J_WALK);
             Actor_SpawnFloorDustRing(play, &this->actor, &this->rightFootPos, 10.0f, 3, 2.0f, 200, 15, false);
             this->rightFootStep = false;
         }
@@ -595,7 +595,7 @@ void EnDodongo_Walk(EnDodongo* this, PlayState* play) {
 
 void EnDodongo_SetupSweepTail(EnDodongo* this) {
     Animation_MorphToPlayOnce(&this->skelAnime, &gDodongoDamageAnim, -4.0f);
-    Audio_PlayActorSound2(&this->actor, NA_SE_EN_DODO_J_DAMAGE);
+    Actor_PlaySfx(&this->actor, NA_SE_EN_DODO_J_DAMAGE);
     this->actionState = DODONGO_SWEEP_TAIL;
     this->timer = 0;
     this->actor.speedXZ = 0.0f;
@@ -627,7 +627,7 @@ void EnDodongo_SweepTail(EnDodongo* this, PlayState* play) {
             } else {
                 animation = &gDodongoSweepTailRightAnim;
             }
-            Audio_PlayActorSound2(&this->actor, NA_SE_EN_DODO_J_TAIL);
+            Actor_PlaySfx(&this->actor, NA_SE_EN_DODO_J_TAIL);
             Animation_PlayOnceSetSpeed(&this->skelAnime, animation, 2.0f);
             this->timer = 18;
             this->colliderBody.base.atFlags = this->sphElements[1].info.toucherFlags =
@@ -653,7 +653,7 @@ void EnDodongo_SweepTail(EnDodongo* this, PlayState* play) {
             Player* player = GET_PLAYER(play);
 
             if (this->colliderBody.base.at == &player->actor) {
-                Audio_PlayActorSound2(&player->actor, NA_SE_PL_BODY_HIT);
+                Actor_PlaySfx(&player->actor, NA_SE_PL_BODY_HIT);
             }
         }
         CollisionCheck_SetAT(play, &play->colChkCtx, &this->colliderBody.base);
@@ -663,7 +663,7 @@ void EnDodongo_SweepTail(EnDodongo* this, PlayState* play) {
 void EnDodongo_SetupDeath(EnDodongo* this, PlayState* play) {
     Animation_MorphToPlayOnce(&this->skelAnime, &gDodongoDieAnim, -8.0f);
     this->timer = 0;
-    Audio_PlayActorSound2(&this->actor, NA_SE_EN_DODO_J_DEAD);
+    Actor_PlaySfx(&this->actor, NA_SE_EN_DODO_J_DEAD);
     this->actionState = DODONGO_DEATH;
     this->actor.flags &= ~ACTOR_FLAG_TARGETABLE;
     this->actor.speedXZ = 0.0f;
@@ -690,7 +690,7 @@ void EnDodongo_Death(EnDodongo* this, PlayState* play) {
             }
         }
     } else if ((s32)this->skelAnime.curFrame == 52) {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_RIZA_DOWN);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_RIZA_DOWN);
     }
     if (this->timer != 0) {
         this->timer--;
@@ -771,10 +771,10 @@ void EnDodongo_Update(Actor* thisx, PlayState* play) {
     EnDodongo_CollisionCheck(this, play);
     if (this->actor.colChkInfo.damageEffect != 0xE) {
         this->actionFunc(this, play);
-        Actor_MoveForward(&this->actor);
+        Actor_MoveXZGravity(&this->actor);
         Actor_UpdateBgCheckInfo(play, &this->actor, 75.0f, 60.0f, 70.0f, 0x1D);
         if (this->actor.bgCheckFlags & 2) {
-            Audio_PlayActorSound2(&this->actor, NA_SE_EN_RIZA_DOWN);
+            Actor_PlaySfx(&this->actor, NA_SE_EN_RIZA_DOWN);
         }
     }
     CollisionCheck_SetOC(play, &play->colChkCtx, &this->colliderBody.base);

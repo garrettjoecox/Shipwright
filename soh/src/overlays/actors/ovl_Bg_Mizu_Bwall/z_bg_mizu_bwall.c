@@ -185,7 +185,7 @@ void BgMizuBwall_Init(Actor* thisx, PlayState* play) {
     switch ((u16)this->dyna.actor.params & 0xF) {
         case MIZUBWALL_FLOOR:
             if (Flags_GetSwitch(play, ((u16)this->dyna.actor.params >> 8) & 0x3F)) {
-                func_8003EBF8(play, &play->colCtx.dyna, this->dyna.bgId);
+                DynaPoly_DisableCollision(play, &play->colCtx.dyna, this->dyna.bgId);
                 this->dList = NULL;
                 this->actionFunc = BgMizuBwall_DoNothing;
             } else {
@@ -220,7 +220,7 @@ void BgMizuBwall_Init(Actor* thisx, PlayState* play) {
             break;
         case MIZUBWALL_RUTO_ROOM:
             if (Flags_GetSwitch(play, ((u16)this->dyna.actor.params >> 8) & 0x3F)) {
-                func_8003EBF8(play, &play->colCtx.dyna, this->dyna.bgId);
+                DynaPoly_DisableCollision(play, &play->colCtx.dyna, this->dyna.bgId);
                 this->dList = NULL;
                 this->actionFunc = BgMizuBwall_DoNothing;
             } else {
@@ -256,7 +256,7 @@ void BgMizuBwall_Init(Actor* thisx, PlayState* play) {
             break;
         case MIZUBWALL_UNUSED:
             if (Flags_GetSwitch(play, ((u16)this->dyna.actor.params >> 8) & 0x3F)) {
-                func_8003EBF8(play, &play->colCtx.dyna, this->dyna.bgId);
+                DynaPoly_DisableCollision(play, &play->colCtx.dyna, this->dyna.bgId);
                 this->dList = NULL;
                 this->actionFunc = BgMizuBwall_DoNothing;
             } else {
@@ -294,7 +294,7 @@ void BgMizuBwall_Init(Actor* thisx, PlayState* play) {
             break;
         case MIZUBWALL_STINGER_ROOM_1:
             if (Flags_GetSwitch(play, ((u16)this->dyna.actor.params >> 8) & 0x3F)) {
-                func_8003EBF8(play, &play->colCtx.dyna, this->dyna.bgId);
+                DynaPoly_DisableCollision(play, &play->colCtx.dyna, this->dyna.bgId);
                 this->dList = NULL;
                 this->actionFunc = BgMizuBwall_DoNothing;
             } else {
@@ -332,7 +332,7 @@ void BgMizuBwall_Init(Actor* thisx, PlayState* play) {
             break;
         case MIZUBWALL_STINGER_ROOM_2:
             if (Flags_GetSwitch(play, ((u16)this->dyna.actor.params >> 8) & 0x3F)) {
-                func_8003EBF8(play, &play->colCtx.dyna, this->dyna.bgId);
+                DynaPoly_DisableCollision(play, &play->colCtx.dyna, this->dyna.bgId);
                 this->dList = NULL;
                 this->actionFunc = BgMizuBwall_DoNothing;
             } else {
@@ -471,11 +471,11 @@ void BgMizuBwall_Idle(BgMizuBwall* this, PlayState* play) {
         this->collider.base.acFlags &= ~AC_HIT;
         Flags_SetSwitch(play, ((u16)this->dyna.actor.params >> 8) & 0x3F);
         this->breakTimer = 1;
-        func_8003EBF8(play, &play->colCtx.dyna, this->dyna.bgId);
+        DynaPoly_DisableCollision(play, &play->colCtx.dyna, this->dyna.bgId);
         this->dList = NULL;
         BgMizuBwall_SpawnDebris(this, play);
-        Audio_PlayActorSound2(&this->dyna.actor, NA_SE_EV_WALL_BROKEN);
-        Audio_PlaySoundGeneral(NA_SE_SY_CORRECT_CHIME, &D_801333D4, 4, &D_801333E0, &D_801333E0, &D_801333E8);
+        Actor_PlaySfx(&this->dyna.actor, NA_SE_EV_WALL_BROKEN);
+        Audio_PlaySfxGeneral(NA_SE_SY_CORRECT_CHIME, &gSfxDefaultPos, 4, &gSfxDefaultFreqAndVolScale, &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
         this->actionFunc = BgMizuBwall_Break;
     } else if (this->dyna.actor.xzDistToPlayer < 600.0f) {
         CollisionCheck_SetAC(play, &play->colChkCtx, &this->collider.base);

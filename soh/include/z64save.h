@@ -80,7 +80,7 @@ typedef struct {
     /*      */ u32 pauseTimer;
     /*      */ u32 sceneTimer;
     /*      */ u32 roomTimer;
-    /*      */ s16 sceneNum;
+    /*      */ s16 sceneId;
     /*      */ s8 roomNum;
     /*      */ bool gameComplete;
     /*      */ u32 itemTimestamp[0];
@@ -193,7 +193,7 @@ typedef struct {
     /* 0x004A */ ItemEquips adultEquips;
     /* 0x0054 */ u32 unk_54; // this may be incorrect, currently used for alignment
     /* 0x0058 */ char unk_58[0x0E];
-    /* 0x0066 */ s16 savedSceneNum; // Upstream TODO: sceneId
+    /* 0x0066 */ s16 savedSceneId; // Upstream TODO: sceneId
     /* 0x0068 */ ItemEquips equips;
     /* 0x0074 */ Inventory inventory;
     /* 0x00D4 */ SavedSceneFlags sceneFlags[124];
@@ -219,7 +219,7 @@ typedef struct {
     /* 0x1354 */ s32 fileNum; // "file_no"
     /* 0x1358 */ char unk_1358[0x0004];
     /* 0x135C */ s32 gameMode;
-    /* 0x1360 */ s32 sceneSetupIndex; // "counter" // Upstream TODO: sceneLayer
+    /* 0x1360 */ s32 sceneLayer; // "counter" // Upstream TODO: sceneLayer
     /* 0x1364 */ s32 respawnFlag; // "restart_flag"
     /* 0x1368 */ RespawnData respawn[RESPAWN_MODE_MAX]; // "restart_data"
     /* 0x13BC */ f32 entranceSpeed;

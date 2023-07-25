@@ -250,7 +250,7 @@ void BossFd2_Emerge(BossFd2* this, PlayState* play) {
                 bossFd->faceExposed = 0;
                 bossFd->holePosition.x = this->actor.world.pos.x;
                 bossFd->holePosition.z = this->actor.world.pos.z;
-                func_80033E1C(play, 1, 0x32, 0x5000);
+                Actor_RequestQuakeWithSpeed(play, 1, 0x32, 0x5000);
                 this->work[FD2_ACTION_STATE] = 1;
                 this->work[FD2_HOLE_COUNTER]++;
                 this->actor.world.pos.y = -200.0f;
@@ -284,7 +284,7 @@ void BossFd2_Emerge(BossFd2* this, PlayState* play) {
                     this->skelAnime.playSpeed = 1.0f;
                     this->fwork[FD2_END_FRAME] = Animation_GetLastFrame(&gHoleVolvagiaEmergeAnim);
                     this->work[FD2_ACTION_STATE] = 2;
-                    Audio_PlayActorSound2(&this->actor, NA_SE_EN_VALVAISA_ROAR);
+                    Actor_PlaySfx(&this->actor, NA_SE_EN_VALVAISA_ROAR);
                     this->actor.shape.rot.y = this->actor.yawTowardsPlayer;
                     this->timers[0] = 15;
                     this->actor.world.pos.y = 150.0f;
@@ -302,7 +302,7 @@ void BossFd2_Emerge(BossFd2* this, PlayState* play) {
             Math_ApproachS(&this->actor.shape.rot.y, this->actor.yawTowardsPlayer, 3, 0x7D0);
             if ((this->timers[0] == 1) && (this->actor.xzDistToPlayer < 120.0f)) {
                 func_8002F6D4(play, &this->actor, 3.0f, this->actor.yawTowardsPlayer, 2.0f, 0x20);
-                Audio_PlayActorSound2(&player->actor, NA_SE_PL_BODY_HIT);
+                Actor_PlaySfx(&player->actor, NA_SE_PL_BODY_HIT);
             }
             if (Animation_OnFrame(&this->skelAnime, this->fwork[FD2_END_FRAME])) {
                 BossFd2_SetupIdle(this, play);
@@ -420,7 +420,7 @@ void BossFd2_BreatheFire(BossFd2* this, PlayState* play) {
         if (this->skelAnime.curFrame == 25.0f) {
             play->envCtx.unk_D8 = 0.0f;
         }
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_VALVAISA_FIRE - SFX_FLAG);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_VALVAISA_FIRE - SFX_FLAG);
         if (this->skelAnime.curFrame > 50) {
             breathOpacity = (70.0f - this->skelAnime.curFrame) * 12.0f;
         } else {
@@ -510,8 +510,8 @@ void BossFd2_SetupClawSwipe(BossFd2* this, PlayState* play) {
 void BossFd2_ClawSwipe(BossFd2* this, PlayState* play) {
     SkelAnime_Update(&this->skelAnime);
     if (Animation_OnFrame(&this->skelAnime, 5.0f)) {
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_VALVAISA_ROAR);
-        Audio_PlayActorSound2(&this->actor, NA_SE_EN_VALVAISA_SW_NAIL);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_VALVAISA_ROAR);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_VALVAISA_SW_NAIL);
     }
     if (Animation_OnFrame(&this->skelAnime, this->fwork[FD2_END_FRAME])) {
         BossFd2_SetupBurrow(this, play);
@@ -535,7 +535,7 @@ void BossFd2_Vulnerable(BossFd2* this, PlayState* play) {
     switch (this->work[FD2_ACTION_STATE]) {
         case 0:
             if (Animation_OnFrame(&this->skelAnime, 13.0f)) {
-                Audio_PlayActorSound2(&this->actor, NA_SE_EN_VALVAISA_MAHI2);
+                Actor_PlaySfx(&this->actor, NA_SE_EN_VALVAISA_MAHI2);
             }
             if (Animation_OnFrame(&this->skelAnime, this->fwork[FD2_END_FRAME] - 3.0f)) {
                 for (i = 0; i < 25; i++) {
@@ -556,7 +556,7 @@ void BossFd2_Vulnerable(BossFd2* this, PlayState* play) {
                     BossFd2_SpawnDust(bossFd->effects, &spawnPos, &spawnVel, &spawnAccel,
                                       Rand_ZeroFloat(100.0f) + 300.0f);
                 }
-                Audio_PlayActorSound2(&this->actor, NA_SE_EN_VALVAISA_LAND);
+                Actor_PlaySfx(&this->actor, NA_SE_EN_VALVAISA_LAND);
             }
             if (Animation_OnFrame(&this->skelAnime, this->fwork[FD2_END_FRAME])) {
                 Animation_MorphToLoop(&this->skelAnime, &gHoleVolvagiaVulnerableAnim, -5.0f);
@@ -566,7 +566,7 @@ void BossFd2_Vulnerable(BossFd2* this, PlayState* play) {
             break;
         case 1:
             if ((this->work[FD2_VAR_TIMER] & 0xF) == 0xF) {
-                Audio_PlayActorSound2(&this->actor, NA_SE_EN_VALVAISA_KNOCKOUT);
+                Actor_PlaySfx(&this->actor, NA_SE_EN_VALVAISA_KNOCKOUT);
             }
             if (this->timers[0] == 0) {
                 BossFd2_SetupBurrow(this, play);
@@ -595,7 +595,7 @@ void BossFd2_Damaged(BossFd2* this, PlayState* play) {
         }
     } else if (this->work[FD2_ACTION_STATE] == 1) {
         if (Animation_OnFrame(&this->skelAnime, 6.0f)) {
-            Audio_PlayActorSound2(&this->actor, NA_SE_EN_VALVAISA_DAMAGE2);
+            Actor_PlaySfx(&this->actor, NA_SE_EN_VALVAISA_DAMAGE2);
         }
         if (Animation_OnFrame(&this->skelAnime, 20.0f)) {
             bossFd->timers[4] = 30;
@@ -696,7 +696,7 @@ void BossFd2_Death(BossFd2* this, PlayState* play) {
                     Audio_StopSfxById(NA_SE_EN_VALVAISA_DEAD);
                 }
 
-                Audio_PlayActorSound2(&this->actor, NA_SE_EN_VALVAISA_DAMAGE2);
+                Actor_PlaySfx(&this->actor, NA_SE_EN_VALVAISA_DAMAGE2);
             }
             Math_ApproachF(&this->skelAnime.playSpeed, retreatSpeed, 1.0f, 1.0f);
             Matrix_RotateY(((this->actor.yawTowardsPlayer / (f32)0x8000) * M_PI) + 0.2f, MTXMODE_NEW);
@@ -826,7 +826,7 @@ void BossFd2_CollisionCheck(BossFd2* this, PlayState* play) {
         for (i = 0; i < ARRAY_COUNT(this->elements); i++) {
             if (this->collider.elements[i].info.toucherFlags & TOUCH_HIT) {
                 this->collider.elements[i].info.toucherFlags &= ~TOUCH_HIT;
-                Audio_PlayActorSound2(&player->actor, NA_SE_PL_BODY_HIT);
+                Actor_PlaySfx(&player->actor, NA_SE_PL_BODY_HIT);
             }
         }
     }
@@ -852,7 +852,7 @@ void BossFd2_CollisionCheck(BossFd2* this, PlayState* play) {
                 BossFd2_SetupVulnerable(this, play);
                 this->work[FD2_INVINC_TIMER] = 30;
                 this->work[FD2_DAMAGE_FLASH_TIMER] = 5;
-                Audio_PlayActorSound2(&this->actor, NA_SE_EN_VALVAISA_MAHI1);
+                Actor_PlaySfx(&this->actor, NA_SE_EN_VALVAISA_MAHI1);
                 for (i = 0; i < 30; i++) {
                     Vec3f debrisVel = { 0.0f, 0.0f, 0.0f };
                     Vec3f debrisAccel = { 0.0f, -1.0f, 0.0f };
@@ -896,13 +896,13 @@ void BossFd2_CollisionCheck(BossFd2* this, PlayState* play) {
                 this->work[FD2_DAMAGE_FLASH_TIMER] = 10;
                 this->work[FD2_INVINC_TIMER] = 30000;
                 Audio_QueueSeqCmd(0x1 << 28 | SEQ_PLAYER_BGM_MAIN << 24 | 0x100FF);
-                Audio_PlayActorSound2(&this->actor, NA_SE_EN_VALVAISA_DEAD);
+                Actor_PlaySfx(&this->actor, NA_SE_EN_VALVAISA_DEAD);
                 Enemy_StartFinishingBlow(play, &this->actor);
             } else if (damage) {
                 BossFd2_SetupDamaged(this, play);
                 this->work[FD2_DAMAGE_FLASH_TIMER] = 10;
                 this->work[FD2_INVINC_TIMER] = 100;
-                Audio_PlayActorSound2(&this->actor, NA_SE_EN_VALVAISA_DAMAGE1);
+                Actor_PlaySfx(&this->actor, NA_SE_EN_VALVAISA_DAMAGE1);
             }
             if (damage) {
                 for (i = 0; i < 30; i++) {

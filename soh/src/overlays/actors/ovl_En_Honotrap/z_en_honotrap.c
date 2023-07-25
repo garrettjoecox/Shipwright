@@ -200,7 +200,7 @@ void EnHonotrap_InitFlame(Actor* thisx, PlayState* play) {
     this->targetPos.y += 10.0f;
     this->flameScroll = Rand_ZeroOne() * 511.0f;
     EnHonotrap_SetupFlame(this);
-    Audio_PlayActorSound2(&this->actor, NA_SE_EV_FLAME_IGNITION);
+    Actor_PlaySfx(&this->actor, NA_SE_EV_FLAME_IGNITION);
     if (this->actor.params == HONOTRAP_FLAME_DROP) {
         this->actor.room = -1;
         this->collider.cyl.dim.radius = 12;
@@ -249,7 +249,7 @@ void EnHonotrap_SetupEyeOpen(EnHonotrap* this) {
     this->actionFunc = EnHonotrap_EyeOpen;
     Actor_SetColorFilter(&this->actor, 0x4000, 0xFF, 0, 0x28);
     this->timer = 30;
-    Audio_PlayActorSound2(&this->actor, NA_SE_EV_RED_EYE);
+    Actor_PlaySfx(&this->actor, NA_SE_EV_RED_EYE);
 }
 
 void EnHonotrap_EyeOpen(EnHonotrap* this, PlayState* play) {
@@ -413,12 +413,12 @@ void EnHonotrap_FlameChase(EnHonotrap* this, PlayState* play) {
     Math_ScaledStepToS(&this->actor.world.rot.y, this->actor.yawTowardsPlayer, 0x300);
     Math_StepToF(&this->actor.speedXZ, 3.0f, 0.1f);
     this->actor.gravity = (-this->actor.yDistToPlayer < 10.0f) ? 0.08f : -0.08f;
-    func_8002D868(&this->actor);
+    Actor_UpdateVelocityXZGravity(&this->actor);
     if (this->actor.velocity.y > 1.0f) {
         this->actor.velocity.y = 1.0f;
     }
     this->actor.velocity.y *= 0.95f;
-    func_8002D7EC(&this->actor);
+    Actor_UpdatePos(&this->actor);
     Actor_UpdateBgCheckInfo(play, &this->actor, 7.0f, 10.0f, 0.0f, 0x1D);
     if (this->collider.cyl.base.atFlags & AT_BOUNCED) {
         Player* player = GET_PLAYER(play);
@@ -447,7 +447,7 @@ void EnHonotrap_FlameVanish(EnHonotrap* this, PlayState* play) {
     s32 ready = Math_StepToF(&this->actor.scale.x, 0.0001f, 0.00015f);
 
     this->actor.scale.z = this->actor.scale.y = this->actor.scale.x;
-    Actor_MoveForward(&this->actor);
+    Actor_MoveXZGravity(&this->actor);
     Actor_UpdateBgCheckInfo(play, &this->actor, 7.0f, 10.0f, 0.0f, 0x1D);
     if (ready) {
         Actor_Kill(&this->actor);
@@ -472,7 +472,7 @@ void EnHonotrap_Update(Actor* thisx, PlayState* play) {
         this->bobPhase += 0x640;
         this->actor.shape.yOffset = (Math_SinS(this->bobPhase) * 1000.0f) + 600.0f;
         Actor_SetFocus(&this->actor, 5.0f);
-        Audio_PlayActorSound2(&this->actor, NA_SE_EV_BURN_OUT - SFX_FLAG);
+        Actor_PlaySfx(&this->actor, NA_SE_EV_BURN_OUT - SFX_FLAG);
     }
     this->actionFunc(this, play);
     if (this->actor.params == HONOTRAP_EYE) {

@@ -187,7 +187,7 @@ void func_80AFB950(EnSi* this, PlayState* play) {
 void EnSi_Update(Actor* thisx, PlayState* play) {
     EnSi* this = (EnSi*)thisx;
 
-    Actor_MoveForward(&this->actor);
+    Actor_MoveXZGravity(&this->actor);
     Actor_UpdateBgCheckInfo(play, &this->actor, 0.0f, 0.0f, 0.0f, 4);
     this->actionFunc(this, play);
     Actor_SetFocus(&this->actor, 16.0f);
@@ -202,7 +202,7 @@ void EnSi_Draw(Actor* thisx, PlayState* play) {
         if (!gSaveContext.n64ddFlag) {
             GetItem_Draw(play, GID_SKULL_TOKEN_2);
         } else {
-            getItem = Randomizer_GetItemFromActor(this->actor.id, play->sceneNum, this->actor.params, GI_SKULL_TOKEN);
+            getItem = Randomizer_GetItemFromActor(this->actor.id, play->sceneId, this->actor.params, GI_SKULL_TOKEN);
             EnItem00_CustomItemsParticles(&this->actor, play, getItem);
             if (getItem.itemId != ITEM_SKULL_TOKEN) {
                 f32 mtxScale = 1.5f;
@@ -216,7 +216,7 @@ void EnSi_Draw(Actor* thisx, PlayState* play) {
 void Randomizer_UpdateSkullReward(EnSi* this, PlayState* play) {
     Player* player = GET_PLAYER(play);
 
-    getItem = Randomizer_GetItemFromActor(this->actor.id, play->sceneNum, this->actor.params, GI_SKULL_TOKEN);
+    getItem = Randomizer_GetItemFromActor(this->actor.id, play->sceneId, this->actor.params, GI_SKULL_TOKEN);
     getItemId = getItem.getItemId;
     if (getItemId == RG_ICE_TRAP) {
         textId = 0xF8;
@@ -232,7 +232,7 @@ void Randomizer_GiveSkullReward(EnSi* this, PlayState* play) {
 
     if (getItem.modIndex == MOD_NONE) {
         // RANDOTOD: Move this into Item_Give() or some other more central location
-        if (getItem.getItemId == GI_SWORD_BGS) {
+        if (getItem.getItemId == GI_SWORD_BIGGORON) {
             gSaveContext.bgsFlag = true;
         }
         Item_Give(play, giveItemId);

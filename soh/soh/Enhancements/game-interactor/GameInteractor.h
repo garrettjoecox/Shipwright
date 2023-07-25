@@ -146,8 +146,8 @@ public:
     DEFINE_HOOK(OnGameFrameUpdate, void());
     DEFINE_HOOK(OnItemReceive, void(GetItemEntry itemEntry));
     DEFINE_HOOK(OnSaleEnd, void(GetItemEntry itemEntry));
-    DEFINE_HOOK(OnTransitionEnd, void(int16_t sceneNum));
-    DEFINE_HOOK(OnSceneInit, void(int16_t sceneNum));
+    DEFINE_HOOK(OnTransitionEnd, void(int16_t sceneId));
+    DEFINE_HOOK(OnSceneInit, void(int16_t sceneId));
     DEFINE_HOOK(OnSceneSpawnActors, void());
     DEFINE_HOOK(OnPlayerUpdate, void());
     DEFINE_HOOK(OnOcarinaSongAction, void());

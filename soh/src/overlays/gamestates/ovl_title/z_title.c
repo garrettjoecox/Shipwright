@@ -246,7 +246,7 @@ void Title_Main(GameState* thisx) {
         this->state.running = false;
 
         if (CVarGetInteger("gSkipLogoTitle", 0))
-            SET_NEXT_GAMESTATE(&this->state, FileChoose_Init, FileChooseContext);
+            SET_NEXT_GAMESTATE(&this->state, FileSelect_Init, FileChooseContext);
         else
             SET_NEXT_GAMESTATE(&this->state, Opening_Init, OpeningContext);
     }
@@ -271,7 +271,7 @@ void Title_Init(GameState* thisx) {
     //ResourceMgr_LoadDirectory("nintendo_rogo_static*");
 
     // Disable vismono
-    D_801614B0.a = 0;
+    gVisMonoColor.a = 0;
     R_UPDATE_RATE = 1;
     Matrix_Init(&this->state);
     View_Init(&this->view, this->state.gfxCtx);

@@ -19,12 +19,12 @@ LUS::IResource* OTRPlay_LoadFile(PlayState* play, const char* fileName)
     return res.get();
 }
 
-extern "C" void OTRPlay_SpawnScene(PlayState* play, s32 sceneNum, s32 spawn) {
-    SceneTableEntry* scene = &gSceneTable[sceneNum];
+extern "C" void OTRPlay_SpawnScene(PlayState* play, s32 sceneId, s32 spawn) {
+    SceneTableEntry* scene = &gSceneTable[sceneId];
 
     scene->unk_13 = 0;
     play->loadedScene = scene;
-    play->sceneNum = sceneNum;
+    play->sceneId = sceneId;
     play->sceneConfig = scene->config;
 
     //osSyncPrintf("\nSCENE SIZE %fK\n", (scene->sceneFile.vromEnd - scene->sceneFile.vromStart) / 1024.0f);
@@ -65,7 +65,7 @@ void OTRPlay_InitScene(PlayState* play, s32 spawn) {
     play->setupEntranceList = nullptr;
     play->setupExitList = nullptr;
     play->cUpElfMsgs = nullptr;
-    play->setupPathList = nullptr;
+    play->pathList = nullptr;
     play->numSetupActors = 0;
     Object_InitBank(play, &play->objectCtx);
     LightContext_Init(play, &play->lightCtx);
@@ -76,7 +76,7 @@ void OTRPlay_InitScene(PlayState* play, s32 spawn) {
     OTRScene_ExecuteCommands(play, (LUS::Scene*)play->sceneSegment);
     Play_InitEnvironment(play, play->skyboxId);
     // Unpause the timer for Boss Rush when the scene loaded isn't the Chamber of Sages.
-    if (gSaveContext.isBossRush && play->sceneNum != SCENE_KENJYANOMA) {
+    if (gSaveContext.isBossRush && play->sceneId != SCENE_CHAMBER_OF_THE_SAGES) {
         gSaveContext.isBossRushPaused = 0;
     }
     /* auto data = static_cast<LUS::Vertex*>(LUS::Context::GetInstance()
@@ -86,7 +86,7 @@ void OTRPlay_InitScene(PlayState* play, s32 spawn) {
 
     auto data2 = ResourceMgr_LoadVtxByCRC(0x68d4ea06044e228f);*/
     
-    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnSceneInit>(play->sceneNum);
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnSceneInit>(play->sceneId);
 
     volatile int a = 0;
 }

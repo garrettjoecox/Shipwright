@@ -141,7 +141,7 @@ void func_80A6E5EC(EnHs* this, PlayState* play) {
 void func_80A6E630(EnHs* this, PlayState* play) {
     if ((Message_GetState(&play->msgCtx) == TEXT_STATE_DONE) && Message_ShouldAdvance(play)) {
         if (!gSaveContext.n64ddFlag) {
-            func_80088AA0(180);
+            Interface_SetSubTimer(180);
         }
         func_80A6E3A0(this, func_80A6E6B0);
         gSaveContext.eventInf[1] &= ~1;
@@ -172,7 +172,7 @@ void func_80A6E740(EnHs* this, PlayState* play) {
         func_80A6E3A0(this, func_80A6E630);
     } else {
         s32 itemId = GI_ODD_MUSHROOM;
-        func_8002F434(&this->actor, play, itemId, 10000.0f, 50.0f);
+        Actor_OfferGetItem(&this->actor, play, itemId, 10000.0f, 50.0f);
     }
 
     this->unk_2A8 |= 1;
@@ -184,7 +184,7 @@ void func_80A6E7BC(EnHs* this, PlayState* play) {
             case 0:
                 func_80A6E3A0(this, func_80A6E740);
                 s32 itemId = GI_ODD_MUSHROOM;
-                func_8002F434(&this->actor, play, itemId, 10000.0f, 50.0f);
+                Actor_OfferGetItem(&this->actor, play, itemId, 10000.0f, 50.0f);
                 break;
             case 1:
                 Message_ContinueTextbox(play, 0x10B4);
@@ -212,7 +212,7 @@ void func_80A6E8CC(EnHs* this, PlayState* play) {
     if (this->unk_2AA > 0) {
         this->unk_2AA--;
         if (this->unk_2AA == 0) {
-            func_8002F7DC(&player->actor, NA_SE_EV_CHICKEN_CRY_M);
+            Player_PlaySfx(&player->actor, NA_SE_EV_CHICKEN_CRY_M);
         }
     }
 
@@ -250,7 +250,7 @@ void EnHs_Update(Actor* thisx, PlayState* play) {
 
     Collider_UpdateCylinder(thisx, &this->collider);
     CollisionCheck_SetOC(play, &play->colChkCtx, &this->collider.base);
-    Actor_MoveForward(&this->actor);
+    Actor_MoveXZGravity(&this->actor);
     Actor_UpdateBgCheckInfo(play, &this->actor, 0.0f, 0.0f, 0.0f, 4);
     if (SkelAnime_Update(&this->skelAnime)) {
         this->skelAnime.curFrame = 0.0f;
@@ -259,7 +259,7 @@ void EnHs_Update(Actor* thisx, PlayState* play) {
     this->actionFunc(this, play);
 
     if (this->unk_2A8 & 1) {
-        func_80038290(play, &this->actor, &this->unk_29C, &this->unk_2A2, this->actor.focus.pos);
+        Actor_TrackPlayer(play, &this->actor, &this->unk_29C, &this->unk_2A2, this->actor.focus.pos);
         this->unk_2A8 &= ~1;
     } else {
         Math_SmoothStepToS(&this->unk_29C.x, 12800, 6, 6200, 100);

@@ -69,7 +69,7 @@ void func_8087B7E8(BgHaka* this, PlayState* play) {
     Player* player = GET_PLAYER(play);
 
     if (this->dyna.unk_150 != 0.0f) {
-        if (play->sceneNum == SCENE_SPOT02 && !LINK_IS_ADULT && IS_DAY && !CVarGetInteger("gDayGravePull", 0)) {
+        if (play->sceneId == SCENE_GRAVEYARD && !LINK_IS_ADULT && IS_DAY && !CVarGetInteger("gDayGravePull", 0)) {
             this->dyna.unk_150 = 0.0f;
             player->stateFlags2 &= ~0x10;
             if (!Play_InCsMode(play)) {
@@ -78,7 +78,7 @@ void func_8087B7E8(BgHaka* this, PlayState* play) {
                 this->actionFunc = func_8087BAE4;
             }
         } else if (0.0f < this->dyna.unk_150 ||
-                   (play->sceneNum == SCENE_SPOT06 && !LINK_IS_ADULT && !Flags_GetSwitch(play, 0x23))) {
+                   (play->sceneId == SCENE_LAKE_HYLIA && !LINK_IS_ADULT && !Flags_GetSwitch(play, 0x23))) {
             this->dyna.unk_150 = 0.0f;
             player->stateFlags2 &= ~0x10;
         } else {
@@ -116,14 +116,14 @@ void func_8087B938(BgHaka* this, PlayState* play) {
 
         if (this->dyna.actor.params == 1) {
             func_80078884(NA_SE_SY_CORRECT_CHIME);
-        } else if (!IS_DAY && play->sceneNum == SCENE_SPOT02) {
+        } else if (!IS_DAY && play->sceneId == SCENE_GRAVEYARD) {
             Actor_Spawn(&play->actorCtx, play, ACTOR_EN_POH, this->dyna.actor.home.pos.x,
                         this->dyna.actor.home.pos.y, this->dyna.actor.home.pos.z, 0, this->dyna.actor.shape.rot.y, 0,
                         1, true);
         }
 
         // un tss un tss
-        if (play->sceneNum == SCENE_SPOT02 && allPulled) {
+        if (play->sceneId == SCENE_GRAVEYARD && allPulled) {
             func_80078884(NA_SE_SY_CORRECT_CHIME);
             func_800F5ACC(NA_BGM_STAFF_2);
             Actor* actor2 = play->actorCtx.actorLists[ACTORCAT_BG].head;
@@ -196,10 +196,10 @@ void BgHaka_Draw(Actor* thisx, PlayState* play) {
         play->envCtx.adjLight1Color[0] = newColor.r;
         play->envCtx.adjLight1Color[1] = newColor.g;
         play->envCtx.adjLight1Color[2] = newColor.b;
-        D_801614B0.r = newColor.r;
-        D_801614B0.g = newColor.g;
-        D_801614B0.b = newColor.b;
-        D_801614B0.a = 255;
+        gVisMonoColor.r = newColor.r;
+        gVisMonoColor.g = newColor.g;
+        gVisMonoColor.b = newColor.b;
+        gVisMonoColor.a = 255;
         gDPSetGrayscaleColor(POLY_OPA_DISP++, newColor.r, newColor.g, newColor.b, 255);
         gSPGrayscale(POLY_OPA_DISP++, true);
     }

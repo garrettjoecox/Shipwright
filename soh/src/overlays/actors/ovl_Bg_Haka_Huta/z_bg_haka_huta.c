@@ -179,10 +179,10 @@ void func_8087D720(BgHakaHuta* this, PlayState* play) {
     this->counter++;
     if (this->counter == 6) {
         this->actionFunc = BgHakaHuta_DoNothing;
-        quakeIndex = Quake_Add(GET_ACTIVE_CAM(play), 3);
+        quakeIndex = Quake_Request(GET_ACTIVE_CAM(play), 3);
         Quake_SetSpeed(quakeIndex, 0x7530);
-        Quake_SetQuakeValues(quakeIndex, 4, 0, 0, 0);
-        Quake_SetCountdown(quakeIndex, 2);
+        Quake_SetPerturbations(quakeIndex, 4, 0, 0, 0);
+        Quake_SetDuration(quakeIndex, 2);
     } else if (this->counter == 0) {
         this->counter = 6;
         this->actionFunc = BgHakaHuta_DoNothing;

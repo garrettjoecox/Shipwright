@@ -224,7 +224,7 @@ void EnAnubice_Idle(EnAnubice* this, PlayState* play) {
     if (this->actor.shape.yOffset > -2.0f) {
         this->actor.shape.yOffset = 0.0f;
 
-        if (player->swordState != 0) {
+        if (player->meleeWeaponState != 0) {
             this->actionFunc = EnAnubice_SetupShootFireball;
         } else if (this->isLinkOutOfRange) {
             this->actor.velocity.y = 0.0f;
@@ -376,7 +376,7 @@ void EnAnubice_Update(Actor* thisx, PlayState* play) {
                 Actor_ChangeCategory(play, &play->actorCtx, &this->actor, ACTORCAT_PROP);
                 this->actor.flags &= ~ACTOR_FLAG_TARGETABLE;
                 Enemy_StartFinishingBlow(play, &this->actor);
-                Audio_PlayActorSound2(&this->actor, NA_SE_EN_ANUBIS_DEAD);
+                Actor_PlaySfx(&this->actor, NA_SE_EN_ANUBIS_DEAD);
                 this->actionFunc = EnAnubice_SetupDie;
                 return;
             }
@@ -388,7 +388,7 @@ void EnAnubice_Update(Actor* thisx, PlayState* play) {
                 Actor_ChangeCategory(play, &play->actorCtx, &this->actor, ACTORCAT_PROP);
                 this->actor.flags &= ~ACTOR_FLAG_TARGETABLE;
                 Enemy_StartFinishingBlow(play, &this->actor);
-                Audio_PlayActorSound2(&this->actor, NA_SE_EN_ANUBIS_DEAD);
+                Actor_PlaySfx(&this->actor, NA_SE_EN_ANUBIS_DEAD);
                 this->actionFunc = EnAnubice_SetupDie;
                 return;
             }
@@ -412,7 +412,7 @@ void EnAnubice_Update(Actor* thisx, PlayState* play) {
                 this->knockbackRecoveryVelocity.x = -sp3C.x;
                 this->knockbackRecoveryVelocity.z = -sp3C.z;
 
-                Audio_PlayActorSound2(&this->actor, NA_SE_EN_NUTS_CUTBODY);
+                Actor_PlaySfx(&this->actor, NA_SE_EN_NUTS_CUTBODY);
             }
         }
 
@@ -445,7 +445,7 @@ void EnAnubice_Update(Actor* thisx, PlayState* play) {
     this->actionFunc(this, play);
 
     this->actor.velocity.y += this->actor.gravity;
-    func_8002D7EC(&this->actor);
+    Actor_UpdatePos(&this->actor);
 
     if (!this->isLinkOutOfRange) {
         Actor_UpdateBgCheckInfo(play, &this->actor, 5.0f, 5.0f, 10.0f, 0x1D);

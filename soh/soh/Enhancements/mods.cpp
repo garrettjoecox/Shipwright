@@ -13,7 +13,7 @@ extern "C" {
 extern SaveContext gSaveContext;
 extern PlayState* gPlayState;
 
-uint32_t ResourceMgr_IsSceneMasterQuest(s16 sceneNum);
+uint32_t ResourceMgr_IsSceneMasterQuest(s16 sceneId);
 }
 bool performDelayedSave = false;
 bool performSave = false;
@@ -21,8 +21,8 @@ bool performSave = false;
 // TODO: When there's more uses of something like this, create a new GI::RawAction?
 void ReloadSceneTogglingLinkAge() {
     gPlayState->nextEntranceIndex = gSaveContext.entranceIndex;
-    gPlayState->sceneLoadFlag = 0x14;
-    gPlayState->fadeTransition = 11;
+    gPlayState->transitionTrigger = 0x14;
+    gPlayState->transitionType = 11;
     gSaveContext.nextTransitionType = 11;
     gPlayState->linkAgeOnLoad ^= 1; // toggle linkAgeOnLoad
 }
@@ -51,13 +51,13 @@ void RegisterInfiniteAmmo() {
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnGameFrameUpdate>([]() {
         if (CVarGetInteger("gInfiniteAmmo", 0) != 0) {
             // Deku Sticks
-            if (AMMO(ITEM_STICK) < CUR_CAPACITY(UPG_STICKS)) {
-                AMMO(ITEM_STICK) = CUR_CAPACITY(UPG_STICKS);
+            if (AMMO(ITEM_DEKU_STICK) < CUR_CAPACITY(UPG_DEKU_STICKS)) {
+                AMMO(ITEM_DEKU_STICK) = CUR_CAPACITY(UPG_DEKU_STICKS);
             }
 
             // Deku Nuts
-            if (AMMO(ITEM_NUT) < CUR_CAPACITY(UPG_NUTS)) {
-                AMMO(ITEM_NUT) = CUR_CAPACITY(UPG_NUTS);
+            if (AMMO(ITEM_DEKU_NUT) < CUR_CAPACITY(UPG_DEKU_NUTS)) {
+                AMMO(ITEM_DEKU_NUT) = CUR_CAPACITY(UPG_DEKU_NUTS);
             }
 
             // Bombs
@@ -122,7 +122,7 @@ void RegisterInfiniteISG() {
 
         if (CVarGetInteger("gEzISG", 0) != 0) {
             Player* player = GET_PLAYER(gPlayState);
-            player->swordState = 1;
+            player->meleeWeaponState = 1;
         }
     });
 }
@@ -174,7 +174,7 @@ void RegisterSwitchAge() {
             warped = true;
         }
 
-        if (warped && gPlayState->sceneLoadFlag != 0x0014 &&
+        if (warped && gPlayState->transitionTrigger != 0x0014 &&
             gSaveContext.nextTransitionType == 255) {
             GET_PLAYER(gPlayState)->actor.shape.rot.y = playerYaw;
             GET_PLAYER(gPlayState)->actor.world.pos = playerPos;
@@ -203,8 +203,8 @@ void RegisterOcarinaTimeTravel() {
         Actor* nearbyOcarinaSpot = Actor_FindNearby(gPlayState, player, ACTOR_EN_OKARINA_TAG, ACTORCAT_PROP, 120.0f);
         Actor* nearbyDoorOfTime = Actor_FindNearby(gPlayState, player, ACTOR_DOOR_TOKI, ACTORCAT_BG, 500.0f);
         Actor* nearbyFrogs = Actor_FindNearby(gPlayState, player, ACTOR_EN_FR, ACTORCAT_NPC, 300.0f);
-        uint8_t hasMasterSword = (gBitFlags[ITEM_SWORD_MASTER - ITEM_SWORD_KOKIRI] << gEquipShifts[EQUIP_SWORD]) & gSaveContext.inventory.equipment;
-        uint8_t hasOcarinaOfTime = (INV_CONTENT(ITEM_OCARINA_TIME) == ITEM_OCARINA_TIME);
+        uint8_t hasMasterSword = (gBitFlags[ITEM_SWORD_MASTER - ITEM_SWORD_KOKIRI] << gEquipShifts[EQUIP_TYPE_SWORD]) & gSaveContext.inventory.equipment;
+        uint8_t hasOcarinaOfTime = (INV_CONTENT(ITEM_OCARINA_OF_TIME) == ITEM_OCARINA_OF_TIME);
         // If TimeTravel + Player have the Ocarina of Time + Have Master Sword + is in proper range
         // TODO: Once Swordless Adult is fixed: Remove the Master Sword check
         if (((CVarGetInteger("gTimeTravel", 0) == 1 && hasOcarinaOfTime) || CVarGetInteger("gTimeTravel", 0) == 2) && hasMasterSword &&
@@ -230,7 +230,7 @@ void AutoSave(GetItemEntry itemEntry) {
     // Don't autosave during the Ganon fight when picking up the Master Sword
     // Don't autosave in grottos since resuming from grottos breaks the game.
     if ((CVarGetInteger("gAutosave", AUTOSAVE_OFF) != AUTOSAVE_OFF) && (gPlayState != NULL) && (gSaveContext.pendingSale == ITEM_NONE) &&
-        (gPlayState->gameplayFrames > 60 && gSaveContext.cutsceneIndex < 0xFFF0) && (gPlayState->sceneNum != SCENE_GANON_DEMO)) {
+        (gPlayState->gameplayFrames > 60 && gSaveContext.cutsceneIndex < 0xFFF0) && (gPlayState->sceneId != SCENE_GANON_BOSS)) {
         if (((CVarGetInteger("gAutosave", AUTOSAVE_OFF) == AUTOSAVE_LOCATION_AND_ALL_ITEMS) || (CVarGetInteger("gAutosave", AUTOSAVE_OFF) == AUTOSAVE_ALL_ITEMS)) && (item != ITEM_NONE)) {
             // Autosave for all items
             performSave = true;
@@ -239,37 +239,37 @@ void AutoSave(GetItemEntry itemEntry) {
             // Autosave for major items
             if (itemEntry.modIndex == 0) {
                 switch (item) {
-                    case ITEM_STICK:
-                    case ITEM_NUT:
+                    case ITEM_DEKU_STICK:
+                    case ITEM_DEKU_NUT:
                     case ITEM_BOMB:
                     case ITEM_BOW:
-                    case ITEM_SEEDS:
+                    case ITEM_DEKU_SEEDS:
                     case ITEM_FISHING_POLE:
-                    case ITEM_MAGIC_SMALL:
-                    case ITEM_MAGIC_LARGE:
+                    case ITEM_MAGIC_JAR_SMALL:
+                    case ITEM_MAGIC_JAR_BIG:
                     case ITEM_INVALID_4:
                     case ITEM_INVALID_5:
                     case ITEM_INVALID_6:
                     case ITEM_INVALID_7:
-                    case ITEM_HEART:
+                    case ITEM_RECOVERY_HEART:
                     case ITEM_RUPEE_GREEN:
                     case ITEM_RUPEE_BLUE:
                     case ITEM_RUPEE_RED:
                     case ITEM_RUPEE_PURPLE:
                     case ITEM_RUPEE_GOLD:
                     case ITEM_INVALID_8:
-                    case ITEM_STICKS_5:
-                    case ITEM_STICKS_10:
-                    case ITEM_NUTS_5:
-                    case ITEM_NUTS_10:
+                    case ITEM_DEKU_STICKS_5:
+                    case ITEM_DEKU_STICKS_10:
+                    case ITEM_DEKU_NUTS_5:
+                    case ITEM_DEKU_NUTS_10:
                     case ITEM_BOMBS_5:
                     case ITEM_BOMBS_10:
                     case ITEM_BOMBS_20:
                     case ITEM_BOMBS_30:
-                    case ITEM_ARROWS_SMALL:
-                    case ITEM_ARROWS_MEDIUM:
-                    case ITEM_ARROWS_LARGE:
-                    case ITEM_SEEDS_30:
+                    case ITEM_ARROWS_5:
+                    case ITEM_ARROWS_10:
+                    case ITEM_ARROWS_30:
+                    case ITEM_DEKU_SEEDS_30:
                     case ITEM_NONE:
                         break;
                     case ITEM_BOMBCHU:
@@ -291,8 +291,8 @@ void AutoSave(GetItemEntry itemEntry) {
                    CVarGetInteger("gAutosave", AUTOSAVE_OFF) == AUTOSAVE_LOCATION) {
             performSave = true;
         }
-        if ((gPlayState->sceneNum == SCENE_YOUSEI_IZUMI_TATE) || (gPlayState->sceneNum == SCENE_KAKUSIANA) ||
-                (gPlayState->sceneNum == SCENE_KENJYANOMA)) {
+        if ((gPlayState->sceneId == SCENE_FAIRYS_FOUNTAIN) || (gPlayState->sceneId == SCENE_GROTTOS) ||
+                (gPlayState->sceneId == SCENE_CHAMBER_OF_THE_SAGES)) {
             if (CVarGetInteger("gAutosave", AUTOSAVE_OFF) == AUTOSAVE_LOCATION_AND_MAJOR_ITEMS ||
                 CVarGetInteger("gAutosave", AUTOSAVE_OFF) == AUTOSAVE_LOCATION_AND_ALL_ITEMS ||
                 CVarGetInteger("gAutosave", AUTOSAVE_OFF) == AUTOSAVE_LOCATION) {
@@ -316,7 +316,7 @@ void AutoSave(GetItemEntry itemEntry) {
 void RegisterAutoSave() {
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnItemReceive>([](GetItemEntry itemEntry) { AutoSave(itemEntry); });
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSaleEnd>([](GetItemEntry itemEntry) { AutoSave(itemEntry); });
-    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnTransitionEnd>([](int32_t sceneNum) { AutoSave(GET_ITEM_NONE); });
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnTransitionEnd>([](int32_t sceneId) { AutoSave(GET_ITEM_NONE); });
 }
 
 void RegisterRupeeDash() {
@@ -362,7 +362,7 @@ void RegisterShadowTag() {
         shouldSpawn = true;
         delayTimer = 60;
     });
-    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSceneInit>([](int16_t sceneNum) {
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSceneInit>([](int16_t sceneId) {
         shouldSpawn = true;
         delayTimer = 60;
     });
@@ -387,15 +387,15 @@ void RegisterDaytimeGoldSkultullas() {
         // Actor values copied from the night time scene actor list
         static const DayTimeGoldSkulltulasList dayTimeGoldSkulltulas = {
             // Graveyard
-            { SCENE_SPOT02, 1, true, { { ACTOR_EN_SW, { 156, 315, 795 }, { 16384, -32768, 0 }, -20096 } } },
+            { SCENE_GRAVEYARD, 1, true, { { ACTOR_EN_SW, { 156, 315, 795 }, { 16384, -32768, 0 }, -20096 } } },
             // ZF
-            { SCENE_SPOT08, 0, true, { { ACTOR_EN_SW, { -1891, 187, 1911 }, { 16384, 18022, 0 }, -19964 } } },
+            { SCENE_ZORAS_FOUNTAIN, 0, true, { { ACTOR_EN_SW, { -1891, 187, 1911 }, { 16384, 18022, 0 }, -19964 } } },
             // GF
-            { SCENE_SPOT12, 0, false, { { ACTOR_EN_SW, { 1598, 999, -2008 }, { 16384, -16384, 0 }, -19198 } } },
-            { SCENE_SPOT12, 1, false, { { ACTOR_EN_SW, { 3377, 1734, -4935 }, { 16384, 0, 0 }, -19199 } } },
+            { SCENE_GERUDOS_FORTRESS, 0, false, { { ACTOR_EN_SW, { 1598, 999, -2008 }, { 16384, -16384, 0 }, -19198 } } },
+            { SCENE_GERUDOS_FORTRESS, 1, false, { { ACTOR_EN_SW, { 3377, 1734, -4935 }, { 16384, 0, 0 }, -19199 } } },
             // Kak
-            { SCENE_SPOT01, 0, false, { { ACTOR_EN_SW, { -18, 540, 1800 }, { 0, -32768, 0 }, -20160 } } },
-            { SCENE_SPOT01,
+            { SCENE_KAKARIKO_VILLAGE, 0, false, { { ACTOR_EN_SW, { -18, 540, 1800 }, { 0, -32768, 0 }, -20160 } } },
+            { SCENE_KAKARIKO_VILLAGE,
               0,
               true,
               { { ACTOR_EN_SW, { -465, 377, -888 }, { 0, 28217, 0 }, -20222 },
@@ -403,7 +403,7 @@ void RegisterDaytimeGoldSkultullas() {
                 { ACTOR_EN_SW, { 324, 270, 905 }, { 16384, 0, 0 }, -20216 },
                 { ACTOR_EN_SW, { -602, 120, 1120 }, { 16384, 0, 0 }, -20208 } } },
             // LLR
-            { SCENE_SPOT20,
+            { SCENE_LON_LON_RANCH,
               0,
               true,
               { { ACTOR_EN_SW, { -2344, 180, 672 }, { 16384, 22938, 0 }, -29695 },
@@ -412,7 +412,7 @@ void RegisterDaytimeGoldSkultullas() {
         };
 
         for (const auto& dayTimeGS : dayTimeGoldSkulltulas) {
-            if (IS_DAY && dayTimeGS.forChild == LINK_IS_CHILD && dayTimeGS.scene == gPlayState->sceneNum &&
+            if (IS_DAY && dayTimeGS.forChild == LINK_IS_CHILD && dayTimeGS.scene == gPlayState->sceneId &&
                 dayTimeGS.room == gPlayState->roomCtx.curRoom.num) {
                 for (const auto& actorEntry : dayTimeGS.actorEntries) {
                     Actor_Spawn(&gPlayState->actorCtx, gPlayState, actorEntry.id, actorEntry.pos.x, actorEntry.pos.y,
@@ -486,11 +486,11 @@ void RegisterBonkDamage() {
     });
 }
 
-void UpdateDirtPathFixState(int32_t sceneNum) {
-    switch (sceneNum) {
-        case SCENE_SPOT00:
-        case SCENE_SPOT04:
-        case SCENE_SPOT15:
+void UpdateDirtPathFixState(int32_t sceneId) {
+    switch (sceneId) {
+        case SCENE_HYRULE_FIELD:
+        case SCENE_KOKIRI_FOREST:
+        case SCENE_HYRULE_CASTLE:
             CVarSetInteger("gZFightingMode", CVarGetInteger("gSceneSpecificDirtPathFix", ZFIGHT_FIX_DISABLED));
             return;
         default:
@@ -499,22 +499,22 @@ void UpdateDirtPathFixState(int32_t sceneNum) {
 }
 
 void RegisterMenuPathFix() {
-    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnTransitionEnd>([](int32_t sceneNum) {
-        UpdateDirtPathFixState(sceneNum);
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnTransitionEnd>([](int32_t sceneId) {
+        UpdateDirtPathFixState(sceneId);
     });
 }
 
-void UpdateMirrorModeState(int32_t sceneNum) {
+void UpdateMirrorModeState(int32_t sceneId) {
     static bool prevMirroredWorld = false;
     bool nextMirroredWorld = false;
 
     int16_t mirroredMode = CVarGetInteger("gMirroredWorldMode", MIRRORED_WORLD_OFF);
-    int16_t inDungeon = (sceneNum >= SCENE_YDAN && sceneNum <= SCENE_GANONTIKA_SONOGO && sceneNum != SCENE_GERUDOWAY) ||
-                        (sceneNum >= SCENE_YDAN_BOSS && sceneNum <= SCENE_GANON_FINAL) ||
-                        (sceneNum == SCENE_GANON_DEMO);
+    int16_t inDungeon = (sceneId >= SCENE_DEKU_TREE && sceneId <= SCENE_INSIDE_GANONS_CASTLE_COLLAPSE && sceneId != SCENE_THIEVES_HIDEOUT) ||
+                        (sceneId >= SCENE_DEKU_TREE_BOSS && sceneId <= SCENE_GANONS_TOWER_COLLAPSE_EXTERIOR) ||
+                        (sceneId == SCENE_GANON_BOSS);
 
     if (mirroredMode == MIRRORED_WORLD_RANDOM_SEEDED || mirroredMode == MIRRORED_WORLD_DUNGEONS_RANDOM_SEEDED) {
-        uint32_t seed = sceneNum + (gSaveContext.n64ddFlag ? (gSaveContext.seedIcons[0] + gSaveContext.seedIcons[1] +
+        uint32_t seed = sceneId + (gSaveContext.n64ddFlag ? (gSaveContext.seedIcons[0] + gSaveContext.seedIcons[1] +
                         gSaveContext.seedIcons[2] + gSaveContext.seedIcons[3] + gSaveContext.seedIcons[4]) : gSaveContext.sohStats.fileCreatedAt);
         Random_Init(seed);
     }
@@ -526,8 +526,8 @@ void UpdateMirrorModeState(int32_t sceneNum) {
         ((mirroredMode == MIRRORED_WORLD_RANDOM || mirroredMode == MIRRORED_WORLD_RANDOM_SEEDED) && randomMirror) ||
         // Dungeon modes
         (inDungeon && (mirroredMode == MIRRORED_WORLD_DUNGEONS_All ||
-         (mirroredMode == MIRRORED_WORLD_DUNGEONS_VANILLA && !ResourceMgr_IsSceneMasterQuest(sceneNum)) ||
-         (mirroredMode == MIRRORED_WORLD_DUNGEONS_MQ && ResourceMgr_IsSceneMasterQuest(sceneNum)) ||
+         (mirroredMode == MIRRORED_WORLD_DUNGEONS_VANILLA && !ResourceMgr_IsSceneMasterQuest(sceneId)) ||
+         (mirroredMode == MIRRORED_WORLD_DUNGEONS_MQ && ResourceMgr_IsSceneMasterQuest(sceneId)) ||
          ((mirroredMode == MIRRORED_WORLD_DUNGEONS_RANDOM || mirroredMode == MIRRORED_WORLD_DUNGEONS_RANDOM_SEEDED) && randomMirror)))
     ) {
         nextMirroredWorld = true;
@@ -543,8 +543,8 @@ void UpdateMirrorModeState(int32_t sceneNum) {
 }
 
 void RegisterMirrorModeHandler() {
-    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSceneInit>([](int32_t sceneNum) {
-        UpdateMirrorModeState(sceneNum);
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSceneInit>([](int32_t sceneId) {
+        UpdateMirrorModeState(sceneId);
     });
 }
 

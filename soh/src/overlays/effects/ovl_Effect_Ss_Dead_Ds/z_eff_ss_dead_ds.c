@@ -76,7 +76,7 @@ void EffectSsDeadDs_Draw(PlayState* play, u32 index, EffectSs* this) {
             Matrix_Put(&mf);
         } else {
             pos.y++;
-            temp = BgCheck_EntityRaycastFloor1(&play->colCtx, &floorPoly, &pos);
+            temp = BgCheck_EntityRaycastDown1(&play->colCtx, &floorPoly, &pos);
 
             if (floorPoly != NULL) {
                 func_80038A28(floorPoly, this->pos.x, temp + 1.5f, this->pos.z, &mf);

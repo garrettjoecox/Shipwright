@@ -81,8 +81,8 @@ static u8 sItemDropIds[] = {
     ITEM00_RUPEE_BLUE,
     ITEM00_RUPEE_GREEN,
     ITEM00_MAGIC_SMALL,
-    ITEM00_HEART,
-    ITEM00_HEART,
+    ITEM00_RECOVERY_HEART,
+    ITEM00_RECOVERY_HEART,
     0xFF,
     ITEM00_MAGIC_SMALL,
     ITEM00_FLEXIBLE,
@@ -94,9 +94,9 @@ static u8 sItemDropIds[] = {
     ITEM00_MAGIC_SMALL,
     ITEM00_RUPEE_GREEN,
     ITEM00_RUPEE_BLUE,
-    ITEM00_HEART,
+    ITEM00_RECOVERY_HEART,
     0xFF,
-    ITEM00_HEART,
+    ITEM00_RECOVERY_HEART,
     0xFF,
     ITEM00_FLEXIBLE,
     0xFF,
@@ -110,10 +110,10 @@ static u8 sItemDropIds[] = {
     ITEM00_RUPEE_GREEN,
     ITEM00_MAGIC_SMALL,
     0xFF,
-    ITEM00_HEART,
+    ITEM00_RECOVERY_HEART,
     0xFF,
     0xFF,
-    ITEM00_HEART,
+    ITEM00_RECOVERY_HEART,
     0xFF,
     ITEM00_SEEDS,
     ITEM00_SEEDS,
@@ -129,8 +129,8 @@ static u8 sItemDropIds[] = {
     ITEM00_SEEDS,
     ITEM00_SEEDS,
     ITEM00_NUTS,
-    ITEM00_HEART,
-    ITEM00_HEART,
+    ITEM00_RECOVERY_HEART,
+    ITEM00_RECOVERY_HEART,
     ITEM00_SEEDS,
     0xFF,
     ITEM00_FLEXIBLE,
@@ -146,11 +146,11 @@ static u8 sItemDropIds[] = {
     ITEM00_BOMBS_A,
     0xFF,
     0xFF,
-    ITEM00_HEART,
+    ITEM00_RECOVERY_HEART,
     0xFF,
     0xFF,
-    ITEM00_HEART,
-    ITEM00_HEART,
+    ITEM00_RECOVERY_HEART,
+    ITEM00_RECOVERY_HEART,
     0xFF,
     0xFF,
     ITEM00_MAGIC_SMALL,
@@ -161,10 +161,10 @@ static u8 sItemDropIds[] = {
     ITEM00_RUPEE_BLUE,
     0xFF,
     0xFF,
-    ITEM00_HEART,
+    ITEM00_RECOVERY_HEART,
     0xFF,
     0xFF,
-    ITEM00_HEART,
+    ITEM00_RECOVERY_HEART,
     ITEM00_FLEXIBLE,
     ITEM00_SEEDS,
     ITEM00_SEEDS,
@@ -175,7 +175,7 @@ static u8 sItemDropIds[] = {
     0xFF,
     ITEM00_RUPEE_GREEN,
     0xFF,
-    ITEM00_HEART,
+    ITEM00_RECOVERY_HEART,
     0xFF,
     0xFF,
     ITEM00_BOMBS_A,
@@ -191,7 +191,7 @@ static u8 sItemDropIds[] = {
     ITEM00_RUPEE_BLUE,
     0xFF,
     ITEM00_RUPEE_GREEN,
-    ITEM00_HEART,
+    ITEM00_RECOVERY_HEART,
     ITEM00_FLEXIBLE,
     ITEM00_BOMBS_A,
     ITEM00_ARROWS_SMALL,
@@ -250,22 +250,22 @@ static u8 sItemDropIds[] = {
     ITEM00_BOMBS_A,
     0xFF,
     ITEM00_BOMBS_A,
-    ITEM00_HEART,
-    ITEM00_HEART,
-    ITEM00_HEART,
-    ITEM00_HEART,
-    ITEM00_HEART,
-    ITEM00_HEART,
-    ITEM00_HEART,
-    ITEM00_HEART,
-    ITEM00_HEART,
-    ITEM00_HEART,
-    ITEM00_HEART,
-    ITEM00_HEART,
-    ITEM00_HEART,
-    ITEM00_HEART,
-    ITEM00_HEART,
-    ITEM00_HEART,
+    ITEM00_RECOVERY_HEART,
+    ITEM00_RECOVERY_HEART,
+    ITEM00_RECOVERY_HEART,
+    ITEM00_RECOVERY_HEART,
+    ITEM00_RECOVERY_HEART,
+    ITEM00_RECOVERY_HEART,
+    ITEM00_RECOVERY_HEART,
+    ITEM00_RECOVERY_HEART,
+    ITEM00_RECOVERY_HEART,
+    ITEM00_RECOVERY_HEART,
+    ITEM00_RECOVERY_HEART,
+    ITEM00_RECOVERY_HEART,
+    ITEM00_RECOVERY_HEART,
+    ITEM00_RECOVERY_HEART,
+    ITEM00_RECOVERY_HEART,
+    ITEM00_RECOVERY_HEART,
     ITEM00_RUPEE_RED,
     ITEM00_RUPEE_BLUE,
     ITEM00_RUPEE_BLUE,
@@ -296,22 +296,22 @@ static u8 sItemDropIds[] = {
     ITEM00_NUTS,
     0xFF,
     ITEM00_NUTS,
-    ITEM00_HEART,
+    ITEM00_RECOVERY_HEART,
     ITEM00_SEEDS,
-    ITEM00_HEART,
+    ITEM00_RECOVERY_HEART,
     0xFF,
     ITEM00_SEEDS,
     0xFF,
-    ITEM00_HEART,
+    ITEM00_RECOVERY_HEART,
     0xFF,
     0xFF,
-    ITEM00_HEART,
-    ITEM00_HEART,
+    ITEM00_RECOVERY_HEART,
+    ITEM00_RECOVERY_HEART,
     0xFF,
     0xFF,
-    ITEM00_HEART,
+    ITEM00_RECOVERY_HEART,
     0xFF,
-    ITEM00_HEART,
+    ITEM00_RECOVERY_HEART,
     ITEM00_SEEDS,
     ITEM00_FLEXIBLE,
 };
@@ -379,7 +379,7 @@ void EnItem00_Init(Actor* thisx, PlayState* play) {
         case ITEM00_HEART_PIECE:
             this->unk_158 = 0;
             break;
-        case ITEM00_HEART:
+        case ITEM00_RECOVERY_HEART:
             break;
         case ITEM00_HEART_CONTAINER:
             yOffset = 430.0f;
@@ -440,7 +440,7 @@ void EnItem00_Init(Actor* thisx, PlayState* play) {
     this->actor.focus.pos = this->actor.world.pos;
     this->getItemId = GI_NONE;
     RandomizerCheck randoCheck =
-        Randomizer_GetCheckFromActor(this->actor.id, play->sceneNum, this->ogParams);
+        Randomizer_GetCheckFromActor(this->actor.id, play->sceneId, this->ogParams);
 
     if (gSaveContext.n64ddFlag && randoCheck != RC_UNKNOWN_CHECK) {
         this->randoGiEntry =
@@ -477,8 +477,8 @@ void EnItem00_Init(Actor* thisx, PlayState* play) {
         case ITEM00_RUPEE_ORANGE:
             Item_Give(play, ITEM_RUPEE_GOLD);
             break;
-        case ITEM00_HEART:
-            Item_Give(play, ITEM_HEART);
+        case ITEM00_RECOVERY_HEART:
+            Item_Give(play, ITEM_RECOVERY_HEART);
             break;
         case ITEM00_FLEXIBLE:
             Health_ChangeBy(play, 0x70);
@@ -491,31 +491,31 @@ void EnItem00_Init(Actor* thisx, PlayState* play) {
             Item_Give(play, ITEM_BOW);
             break;
         case ITEM00_ARROWS_SMALL:
-            Item_Give(play, ITEM_ARROWS_SMALL);
+            Item_Give(play, ITEM_ARROWS_5);
             break;
         case ITEM00_ARROWS_MEDIUM:
-            Item_Give(play, ITEM_ARROWS_MEDIUM);
+            Item_Give(play, ITEM_ARROWS_10);
             break;
         case ITEM00_ARROWS_LARGE:
-            Item_Give(play, ITEM_ARROWS_LARGE);
+            Item_Give(play, ITEM_ARROWS_30);
             break;
         case ITEM00_MAGIC_LARGE:
-            getItemId = GI_MAGIC_SMALL;
+            getItemId = GI_MAGIC_JAR_SMALL;
             break;
         case ITEM00_MAGIC_SMALL:
-            getItemId = GI_MAGIC_LARGE;
+            getItemId = GI_MAGIC_JAR_LARGE;
             break;
         case ITEM00_SMALL_KEY:
-            Item_Give(play, ITEM_KEY_SMALL);
+            Item_Give(play, ITEM_SMALL_KEY);
             break;
         case ITEM00_SEEDS:
-            getItemId = GI_SEEDS_5;
+            getItemId = GI_DEKU_SEEDS_5;
             break;
         case ITEM00_NUTS:
-            getItemId = GI_NUTS_5;
+            getItemId = GI_DEKU_NUTS_5;
             break;
         case ITEM00_STICK:
-            getItemId = GI_STICKS_1;
+            getItemId = GI_DEKU_STICKS_1;
             break;
         case ITEM00_HEART_PIECE:
         case ITEM00_HEART_CONTAINER:
@@ -533,7 +533,7 @@ void EnItem00_Init(Actor* thisx, PlayState* play) {
     if (!Actor_HasParent(&this->actor, play)) {
         if (getItemId != GI_NONE) {
             if (!gSaveContext.n64ddFlag || this->randoGiEntry.getItemId == GI_NONE) {
-                func_8002F554(&this->actor, play, getItemId);
+                Actor_OfferGetItemNearby(&this->actor, play, getItemId);
             } else {
                 GiveItemEntryFromActorWithFixedRange(&this->actor, play, this->randoGiEntry);
             }
@@ -553,7 +553,7 @@ void EnItem00_Destroy(Actor* thisx, PlayState* play) {
 void func_8001DFC8(EnItem00* this, PlayState* play) {
 
     if (!CVarGetInteger("gNewDrops", 0)){
-        if ((this->actor.params <= ITEM00_RUPEE_RED) || ((this->actor.params == ITEM00_HEART) && (this->unk_15A < 0)) ||
+        if ((this->actor.params <= ITEM00_RUPEE_RED) || ((this->actor.params == ITEM00_RECOVERY_HEART) && (this->unk_15A < 0)) ||
             (this->actor.params == ITEM00_HEART_PIECE)) {
             this->actor.shape.rot.y += 960;
         } else {
@@ -644,7 +644,7 @@ void func_8001E304(EnItem00* this, PlayState* play) {
 
     this->unk_15A++;
 
-    if (this->actor.params == ITEM00_HEART) {
+    if (this->actor.params == ITEM00_RECOVERY_HEART) {
         if (this->actor.velocity.y < 0.0f) {
             this->actor.speedXZ = 0.0f;
             this->actor.gravity = -0.4f;
@@ -698,7 +698,7 @@ void func_8001E5C8(EnItem00* this, PlayState* play) {
     if (this->getItemId != GI_NONE) {
         if (!Actor_HasParent(&this->actor, play)) {
             if (!gSaveContext.n64ddFlag) {
-                func_8002F434(&this->actor, play, this->getItemId, 50.0f, 80.0f);
+                Actor_OfferGetItem(&this->actor, play, this->getItemId, 50.0f, 80.0f);
             } else {
                 GiveItemEntryFromActor(&this->actor, play, this->randoGiEntry, 50.0f, 80.0f);
             }
@@ -717,7 +717,7 @@ void func_8001E5C8(EnItem00* this, PlayState* play) {
 
     if (this->actor.params <= ITEM00_RUPEE_RED && !CVarGetInteger("gNewDrops", 0)) {
         this->actor.shape.rot.y += 960;
-    } else if (this->actor.params == ITEM00_HEART && !CVarGetInteger("gNewDrops", 0)) {
+    } else if (this->actor.params == ITEM00_RECOVERY_HEART && !CVarGetInteger("gNewDrops", 0)) {
         this->actor.shape.rot.y = 0;
     }
 
@@ -749,7 +749,7 @@ void EnItem00_Update(Actor* thisx, PlayState* play) {
             (this->actor.params == ITEM00_ARROWS_LARGE) || (this->actor.params == ITEM00_BOMBS_A) || 
             (this->actor.params == ITEM00_BOMBS_B) || (this->actor.params == ITEM00_NUTS) || 
             (this->actor.params == ITEM00_MAGIC_SMALL) || (this->actor.params == ITEM00_SEEDS) ||  
-            (this->actor.params == ITEM00_MAGIC_LARGE) || (this->actor.params == ITEM00_HEART) || 
+            (this->actor.params == ITEM00_MAGIC_LARGE) || (this->actor.params == ITEM00_RECOVERY_HEART) || 
             (this->actor.params == ITEM00_BOMBS_SPECIAL) || this->actor.params == ITEM00_HEART_PIECE ||
             (this->actor.params == ITEM00_BOMBCHU)) {
             this->actor.shape.rot.y += 960;
@@ -799,7 +799,7 @@ void EnItem00_Update(Actor* thisx, PlayState* play) {
 
         } else {
             sp3A = 1;
-            Actor_MoveForward(&this->actor);
+            Actor_MoveXZGravity(&this->actor);
         }
 
         if (sp3A || D_80157D94[0]) {
@@ -853,13 +853,13 @@ void EnItem00_Update(Actor* thisx, PlayState* play) {
             Item_Give(play, ITEM_RUPEE_GOLD);
             break;
         case ITEM00_STICK:
-            getItemId = GI_STICKS_1;
+            getItemId = GI_DEKU_STICKS_1;
             break;
         case ITEM00_NUTS:
-            getItemId = GI_NUTS_5;
+            getItemId = GI_DEKU_NUTS_5;
             break;
-        case ITEM00_HEART:
-            Item_Give(play, ITEM_HEART);
+        case ITEM00_RECOVERY_HEART:
+            Item_Give(play, ITEM_RECOVERY_HEART);
             break;
         case ITEM00_FLEXIBLE:
             Health_ChangeBy(play, 0x70);
@@ -872,19 +872,19 @@ void EnItem00_Update(Actor* thisx, PlayState* play) {
             Item_Give(play, ITEM_BOW);
             break;
         case ITEM00_ARROWS_SMALL:
-            Item_Give(play, ITEM_ARROWS_SMALL);
+            Item_Give(play, ITEM_ARROWS_5);
             break;
         case ITEM00_ARROWS_MEDIUM:
-            Item_Give(play, ITEM_ARROWS_MEDIUM);
+            Item_Give(play, ITEM_ARROWS_10);
             break;
         case ITEM00_ARROWS_LARGE:
-            Item_Give(play, ITEM_ARROWS_LARGE);
+            Item_Give(play, ITEM_ARROWS_30);
             break;
         case ITEM00_SEEDS:
-            getItemId = GI_SEEDS_5;
+            getItemId = GI_DEKU_SEEDS_5;
             break;
         case ITEM00_SMALL_KEY:
-            getItemId = GI_KEY_SMALL;
+            getItemId = GI_SMALL_KEY;
             break;
         case ITEM00_HEART_PIECE:
             getItemId = GI_HEART_PIECE;
@@ -893,10 +893,10 @@ void EnItem00_Update(Actor* thisx, PlayState* play) {
             getItemId = GI_HEART_CONTAINER;
             break;
         case ITEM00_MAGIC_LARGE:
-            getItemId = GI_MAGIC_LARGE;
+            getItemId = GI_MAGIC_JAR_LARGE;
             break;
         case ITEM00_MAGIC_SMALL:
-            getItemId = GI_MAGIC_SMALL;
+            getItemId = GI_MAGIC_JAR_SMALL;
             break;
         case ITEM00_SHIELD_DEKU:
             getItemId = GI_SHIELD_DEKU;
@@ -921,7 +921,7 @@ void EnItem00_Update(Actor* thisx, PlayState* play) {
 
     if ((getItemId != GI_NONE) && !Actor_HasParent(&this->actor, play)) {
         if (!gSaveContext.n64ddFlag || this->randoGiEntry.getItemId == GI_NONE) {
-            func_8002F554(&this->actor, play, getItemId);
+            Actor_OfferGetItemNearby(&this->actor, play, getItemId);
         } else {
             getItemId = this->randoGiEntry.getItemId;
             GiveItemEntryFromActorWithFixedRange(&this->actor, play, this->randoGiEntry);
@@ -944,7 +944,7 @@ void EnItem00_Update(Actor* thisx, PlayState* play) {
     }
 
     if ((*params <= ITEM00_RUPEE_RED) || (*params == ITEM00_RUPEE_ORANGE)) {
-        Audio_PlaySoundGeneral(NA_SE_SY_GET_RUPY, &D_801333D4, 4, &D_801333E0, &D_801333E0, &D_801333E8);
+        Audio_PlaySfxGeneral(NA_SE_SY_GET_RUPY, &gSfxDefaultPos, 4, &gSfxDefaultFreqAndVolScale, &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
     } else if (getItemId != GI_NONE) {
         if (Actor_HasParent(&this->actor, play)) {
             Flags_SetCollectible(play, this->collectibleFlag);
@@ -952,7 +952,7 @@ void EnItem00_Update(Actor* thisx, PlayState* play) {
         }
         return;
     } else {
-        Audio_PlaySoundGeneral(NA_SE_SY_GET_ITEM, &D_801333D4, 4, &D_801333E0, &D_801333E0, &D_801333E8);
+        Audio_PlaySfxGeneral(NA_SE_SY_GET_ITEM, &gSfxDefaultPos, 4, &gSfxDefaultFreqAndVolScale, &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
     }
 
     Flags_SetCollectible(play, this->collectibleFlag);
@@ -1066,14 +1066,14 @@ void EnItem00_Draw(Actor* thisx, PlayState* play) {
             case ITEM00_HEART_CONTAINER:
                 EnItem00_DrawHeartContainer(this, play);
                 break;
-            case ITEM00_HEART:
+            case ITEM00_RECOVERY_HEART:
                 if (CVarGetInteger("gNewDrops", 0)) {
                     this->actor.home.rot.z = Rand_CenteredFloat(65535.0f);
                     this->actor.shape.yOffset = 25.0f;
                     this->actor.shape.shadowScale = 0.3f;
                     Actor_SetScale(&this->actor, 0.3f);
                     this->scale = 0.3f;
-                    GetItem_Draw(play, GID_HEART);
+                    GetItem_Draw(play, GID_RECOVERY_HEART);
                     mtxScale = 16.0f;
                     Matrix_Scale(mtxScale, mtxScale, mtxScale, MTXMODE_APPLY);
                     break;
@@ -1089,7 +1089,7 @@ void EnItem00_Draw(Actor* thisx, PlayState* play) {
                         } else {
                             mtxScale = 16.0f;
                             Matrix_Scale(mtxScale, mtxScale, mtxScale, MTXMODE_APPLY);
-                            GetItem_Draw(play, GID_HEART);
+                            GetItem_Draw(play, GID_RECOVERY_HEART);
                         }
                         break;
                     }
@@ -1131,7 +1131,7 @@ void EnItem00_Draw(Actor* thisx, PlayState* play) {
                     this->actor.shape.yOffset = 50.0f;
                     this->actor.world.rot.x = 0x4000;
                     this->actor.shape.shadowScale = 0.3f;
-                    GetItem_Draw(play, GID_ARROWS_SMALL);
+                    GetItem_Draw(play, GID_ARROWS_5);
                     break;
                 }
             case ITEM00_ARROWS_SMALL:
@@ -1141,7 +1141,7 @@ void EnItem00_Draw(Actor* thisx, PlayState* play) {
                     this->actor.shape.yOffset = 50.0f;
                     this->actor.world.rot.x = 0x4000;
                     this->actor.shape.shadowScale = 0.3f;
-                    GetItem_Draw(play, GID_ARROWS_SMALL);
+                    GetItem_Draw(play, GID_ARROWS_5);
                     break;
                 }
             case ITEM00_ARROWS_MEDIUM:
@@ -1151,7 +1151,7 @@ void EnItem00_Draw(Actor* thisx, PlayState* play) {
                     this->actor.shape.yOffset = 50.0f;
                     this->actor.world.rot.x = 0x4000;
                     this->actor.shape.shadowScale = 0.3f;
-                    GetItem_Draw(play, GID_ARROWS_MEDIUM);
+                    GetItem_Draw(play, GID_ARROWS_10);
                     break;
                 }
             case ITEM00_ARROWS_LARGE:
@@ -1161,7 +1161,7 @@ void EnItem00_Draw(Actor* thisx, PlayState* play) {
                     this->actor.shape.yOffset = 50.0f;
                     this->actor.world.rot.x = 0x4000;
                     this->actor.shape.shadowScale = 0.3f;
-                    GetItem_Draw(play, GID_ARROWS_LARGE);
+                    GetItem_Draw(play, GID_ARROWS_30);
                     break;
                 }
             case ITEM00_NUTS:
@@ -1171,7 +1171,7 @@ void EnItem00_Draw(Actor* thisx, PlayState* play) {
                     this->actor.shape.yOffset = 50.0f;
                     this->actor.world.rot.x = 0x4000;
                     this->actor.shape.shadowScale = 0.3f;
-                    GetItem_Draw(play, GID_NUTS);
+                    GetItem_Draw(play, GID_DEKU_NUTS);
                     break;
                 }
             case ITEM00_STICK:
@@ -1181,7 +1181,7 @@ void EnItem00_Draw(Actor* thisx, PlayState* play) {
                     this->actor.shape.yOffset = 50.0f;
                     this->actor.world.rot.x = 0x4000;
                     this->actor.shape.shadowScale = 0.3f;
-                    GetItem_Draw(play, GID_STICK);
+                    GetItem_Draw(play, GID_DEKU_STICK);
                     break;
                 }
             case ITEM00_MAGIC_LARGE:
@@ -1191,7 +1191,7 @@ void EnItem00_Draw(Actor* thisx, PlayState* play) {
                     this->actor.shape.yOffset = 50.0f;
                     this->actor.world.rot.x = 0x4000;
                     this->actor.shape.shadowScale = 0.3f;
-                    GetItem_Draw(play, GID_MAGIC_LARGE);
+                    GetItem_Draw(play, GID_MAGIC_JAR_LARGE);
                     break;
                 }
             case ITEM00_MAGIC_SMALL:
@@ -1201,7 +1201,7 @@ void EnItem00_Draw(Actor* thisx, PlayState* play) {
                     this->actor.shape.yOffset = 50.0f;
                     this->actor.shape.shadowScale = 0.3f;
                     this->actor.world.rot.x = 0x4000;
-                    GetItem_Draw(play, GID_MAGIC_SMALL);
+                    GetItem_Draw(play, GID_MAGIC_JAR_SMALL);
                     break;
                 }
             case ITEM00_SEEDS:
@@ -1211,7 +1211,7 @@ void EnItem00_Draw(Actor* thisx, PlayState* play) {
                     this->actor.shape.yOffset = 50.0f;
                     this->actor.shape.shadowScale = 0.3f;
                     this->actor.world.rot.x = 0x4000;
-                    GetItem_Draw(play, GID_SEEDS);
+                    GetItem_Draw(play, GID_DEKU_SEEDS);
                     break;
                 }
             case ITEM00_SMALL_KEY:
@@ -1221,7 +1221,7 @@ void EnItem00_Draw(Actor* thisx, PlayState* play) {
                     this->actor.shape.yOffset = 50.0f;
                     this->actor.world.rot.x = 0x4000;
                     this->actor.shape.shadowScale = 0.5f;
-                    GetItem_Draw(play, GID_KEY_SMALL);
+                    GetItem_Draw(play, GID_SMALL_KEY);
                     break;
                 } else {
                     Actor_SetScale(&this->actor, 0.03f);
@@ -1285,12 +1285,12 @@ void EnItem00_CustomItemsParticles(Actor* Parent, PlayState* play, GetItemEntry 
                 case ITEM_SONG_PRELUDE:
                     color_slot = 5;
                     break;
-                case ITEM_STICK_UPGRADE_20:
-                case ITEM_STICK_UPGRADE_30:
+                case ITEM_DEKU_STICK_UPGRADE_20:
+                case ITEM_DEKU_STICK_UPGRADE_30:
                     color_slot = 6;
                     break;
-                case ITEM_NUT_UPGRADE_30:
-                case ITEM_NUT_UPGRADE_40:
+                case ITEM_DEKU_NUT_UPGRADE_30:
+                case ITEM_DEKU_NUT_UPGRADE_40:
                     color_slot = 7;
                     break;
                 default:
@@ -1436,7 +1436,7 @@ void EnItem00_DrawRupee(EnItem00* this, PlayState* play) {
 void EnItem00_DrawCollectible(EnItem00* this, PlayState* play) {
     if (gSaveContext.n64ddFlag && (this->getItemId != GI_NONE || this->actor.params == ITEM00_SMALL_KEY)) {
         RandomizerCheck randoCheck =
-            Randomizer_GetCheckFromActor(this->actor.id, play->sceneNum, this->ogParams);
+            Randomizer_GetCheckFromActor(this->actor.id, play->sceneId, this->ogParams);
 
         if (randoCheck != RC_UNKNOWN_CHECK) {
             this->randoGiEntry =
@@ -1505,7 +1505,7 @@ void EnItem00_DrawHeartContainer(EnItem00* this, PlayState* play) {
 void EnItem00_DrawHeartPiece(EnItem00* this, PlayState* play) {
     if (gSaveContext.n64ddFlag) {
         RandomizerCheck randoCheck =
-            Randomizer_GetCheckFromActor(this->actor.id, play->sceneNum, this->ogParams);
+            Randomizer_GetCheckFromActor(this->actor.id, play->sceneId, this->ogParams);
 
         if (randoCheck != RC_UNKNOWN_CHECK) {
             this->randoGiEntry =
@@ -1595,7 +1595,7 @@ s16 func_8001F404(s16 dropId) {
     }
     // clang-format on
 
-    if (dropId == ITEM00_HEART && gSaveContext.healthCapacity == gSaveContext.health) {
+    if (dropId == ITEM00_RECOVERY_HEART && gSaveContext.healthCapacity == gSaveContext.health) {
         return ITEM00_RUPEE_GREEN;
     }
 
@@ -1613,7 +1613,7 @@ EnItem00* Item_DropCollectible(PlayState* play, Vec3f* spawnPos, s16 params) {
 
     params &= 0x3FFF;
 
-    if ((params & 0x00FF) == ITEM00_HEART && CVarGetInteger("gNoHeartDrops", 0)) { return NULL; }
+    if ((params & 0x00FF) == ITEM00_RECOVERY_HEART && CVarGetInteger("gNoHeartDrops", 0)) { return NULL; }
 
     if (((params & 0x00FF) == ITEM00_FLEXIBLE) && !param4000) {
         // TODO: Prevent the cast to EnItem00 here since this is a different actor (En_Elf)
@@ -1658,7 +1658,7 @@ EnItem00* Item_DropCollectible2(PlayState* play, Vec3f* spawnPos, s16 params) {
 
     params &= 0x3FFF;
 
-    if ((params & 0x00FF) == ITEM00_HEART && CVarGetInteger("gNoHeartDrops", 0)) { return NULL; }
+    if ((params & 0x00FF) == ITEM00_RECOVERY_HEART && CVarGetInteger("gNoHeartDrops", 0)) { return NULL; }
     
     if (((params & 0x00FF) == ITEM00_FLEXIBLE) && !param4000) {
         // TODO: Prevent the cast to EnItem00 here since this is a different actor (En_Elf)
@@ -1741,11 +1741,11 @@ void Item_DropCollectibleRandom(PlayState* play, Actor* fromActor, Vec3f* spawnP
         } else if (gSaveContext.health <= 0x30 && !CVarGetInteger("gNoHeartDrops", 0)) { // 3 hearts or less
             params = 0xB * 0x10;
             dropTableIndex = 0x0;
-            dropId = ITEM00_HEART;
+            dropId = ITEM00_RECOVERY_HEART;
         } else if (gSaveContext.health <= 0x50 && !CVarGetInteger("gNoHeartDrops", 0)) { // 5 hearts or less
             params = 0xA * 0x10;
             dropTableIndex = 0x0;
-            dropId = ITEM00_HEART;
+            dropId = ITEM00_RECOVERY_HEART;
         } else if ((gSaveContext.magicLevel != 0) && (gSaveContext.magic == 0)) { // Empty magic meter
             params = 0xA * 0x10;
             dropTableIndex = 0x0;
@@ -1775,7 +1775,7 @@ void Item_DropCollectibleRandom(PlayState* play, Actor* fromActor, Vec3f* spawnP
         }
     }
 
-    if (dropId != 0xFF && (!CVarGetInteger("gNoHeartDrops", 0) || dropId != ITEM00_HEART)) {
+    if (dropId != 0xFF && (!CVarGetInteger("gNoHeartDrops", 0) || dropId != ITEM00_RECOVERY_HEART)) {
         dropQuantity = sDropQuantities[params + dropTableIndex];
         while (dropQuantity > 0) {
             if (!param8000) {

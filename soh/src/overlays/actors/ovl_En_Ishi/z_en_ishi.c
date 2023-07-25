@@ -334,7 +334,7 @@ void EnIshi_Init(Actor* thisx, PlayState* play) {
     // block child Link from reaching the Fire Temple entrance.
     if (type == ROCK_LARGE && gSaveContext.n64ddFlag &&
         Randomizer_GetSettingValue(RSK_SHUFFLE_DUNGEON_ENTRANCES) != RO_DUNGEON_ENTRANCE_SHUFFLE_OFF &&
-        play->sceneNum == 0x061) { // Death Mountain Creater
+        play->sceneId == 0x061) { // Death Mountain Creater
         Actor_Kill(&this->actor);
     }
     EnIshi_SetupWait(this);
@@ -379,9 +379,9 @@ void EnIshi_Wait(EnIshi* this, PlayState* play) {
             if (this->actor.xzDistToPlayer < 90.0f) {
                 // GI_NONE in these cases allows the player to lift the actor
                 if (type == ROCK_LARGE) {
-                    func_8002F434(&this->actor, play, GI_NONE, 80.0f, 20.0f);
+                    Actor_OfferGetItem(&this->actor, play, GI_NONE, 80.0f, 20.0f);
                 } else {
-                    func_8002F434(&this->actor, play, GI_NONE, 50.0f, 10.0f);
+                    Actor_OfferGetItem(&this->actor, play, GI_NONE, 50.0f, 10.0f);
                 }
             }
         }
@@ -403,7 +403,7 @@ void EnIshi_LiftedUp(EnIshi* this, PlayState* play) {
         EnIshi_SetupFly(this);
         EnIshi_Fall(this);
         func_80A7ED94(&this->actor.velocity, D_80A7FA28[this->actor.params & 1]);
-        func_8002D7EC(&this->actor);
+        Actor_UpdatePos(&this->actor);
         Actor_UpdateBgCheckInfo(play, &this->actor, 7.5f, 35.0f, 0.0f, 0xC5);
     }
 }
@@ -438,11 +438,11 @@ void EnIshi_Fly(EnIshi* this, PlayState* play) {
             sDustSpawnFuncs[type](this, play);
         }
         if (type == ROCK_LARGE) {
-            quakeIdx = Quake_Add(GET_ACTIVE_CAM(play), 3);
+            quakeIdx = Quake_Request(GET_ACTIVE_CAM(play), 3);
             Quake_SetSpeed(quakeIdx, -0x3CB0);
-            Quake_SetQuakeValues(quakeIdx, 3, 0, 0, 0);
-            Quake_SetCountdown(quakeIdx, 7);
-            func_800AA000(this->actor.xyzDistToPlayerSq, 0xFF, 0x14, 0x96);
+            Quake_SetPerturbations(quakeIdx, 3, 0, 0, 0);
+            Quake_SetDuration(quakeIdx, 7);
+            Rumble_Request(this->actor.xyzDistToPlayerSq, 0xFF, 0x14, 0x96);
         }
         Actor_Kill(&this->actor);
         return;
@@ -470,7 +470,7 @@ void EnIshi_Fly(EnIshi* this, PlayState* play) {
     Math_StepToF(&this->actor.shape.yOffset, 0.0f, 2.0f);
     EnIshi_Fall(this);
     func_80A7ED94(&this->actor.velocity, D_80A7FA28[type]);
-    func_8002D7EC(&this->actor);
+    Actor_UpdatePos(&this->actor);
     this->actor.shape.rot.x += sRockRotSpeedX;
     this->actor.shape.rot.y += sRockRotSpeedY;
     Actor_UpdateBgCheckInfo(play, &this->actor, 7.5f, 35.0f, 0.0f, 0xC5);

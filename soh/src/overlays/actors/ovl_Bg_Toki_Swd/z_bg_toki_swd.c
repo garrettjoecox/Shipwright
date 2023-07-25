@@ -91,11 +91,11 @@ void BgTokiSwd_Init(Actor* thisx, PlayState* play) {
             Player* player = GET_PLAYER(gPlayState);
             player->currentSwordItemId = ITEM_NONE;
             gSaveContext.equips.buttonItems[0] = ITEM_NONE;
-            Inventory_ChangeEquipment(EQUIP_SWORD, PLAYER_SWORD_NONE);
+            Inventory_ChangeEquipment(EQUIP_TYPE_SWORD, PLAYER_SWORD_NONE);
         }
     }
 
-    if (gSaveContext.sceneSetupIndex == 5) {
+    if (gSaveContext.sceneLayer == 5) {
         play->roomCtx.unk_74[0] = 0xFF;
     }
 
@@ -112,7 +112,7 @@ void BgTokiSwd_Destroy(Actor* thisx, PlayState* play) {
 }
 
 void func_808BAF40(BgTokiSwd* this, PlayState* play) {
-    if (((Flags_GetEventChkInf(EVENTCHKINF_ENTERED_MASTER_SWORD_CHAMBER)) == 0) && (gSaveContext.sceneSetupIndex < 4) &&
+    if (((Flags_GetEventChkInf(EVENTCHKINF_ENTERED_MASTER_SWORD_CHAMBER)) == 0) && (gSaveContext.sceneLayer < 4) &&
         Actor_IsFacingAndNearPlayer(&this->actor, 800.0f, 0x7530) && !Play_InCsMode(play)) {
         Flags_SetEventChkInf(EVENTCHKINF_ENTERED_MASTER_SWORD_CHAMBER);
         play->csCtx.segment = D_808BBD90;
@@ -136,11 +136,11 @@ void func_808BAF40(BgTokiSwd* this, PlayState* play) {
             Player* player = GET_PLAYER(play);
             if (Actor_IsFacingPlayer(&this->actor, 0x2000) && 
                 (!gSaveContext.n64ddFlag || (gSaveContext.n64ddFlag && player->getItemId == GI_NONE))) {
-                func_8002F580(&this->actor, play);
+                Actor_OfferCarry(&this->actor, play);
             }
         }
     }
-    if (gSaveContext.sceneSetupIndex == 5) {
+    if (gSaveContext.sceneLayer == 5) {
         if (play->roomCtx.unk_74[0] > 0) {
             play->roomCtx.unk_74[0]--;
         } else {
@@ -155,7 +155,7 @@ void func_808BB0AC(BgTokiSwd* this, PlayState* play) {
     // if sword has a parent it has been pulled/placed from the pedestal
     if (Actor_HasParent(&this->actor, play)) {
         if (!LINK_IS_ADULT) {
-            Audio_PlayActorSound2(&this->actor, NA_SE_IT_SWORD_PUTAWAY_STN);
+            Actor_PlaySfx(&this->actor, NA_SE_IT_SWORD_PUTAWAY_STN);
             this->actor.draw = NULL; // sword has been pulled, dont draw sword
         } else {
             this->actor.draw = BgTokiSwd_Draw; // sword has been placed, draw the master sword

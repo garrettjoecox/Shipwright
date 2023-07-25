@@ -365,15 +365,15 @@ s32 func_80A7975C(EnIn* this, PlayState* play) {
 }
 
 s32 func_80A79830(EnIn* this, PlayState* play) {
-    if (play->sceneNum == SCENE_SPOT20 && LINK_IS_CHILD && IS_DAY && this->actor.shape.rot.z == 1 &&
+    if (play->sceneId == SCENE_LON_LON_RANCH && LINK_IS_CHILD && IS_DAY && this->actor.shape.rot.z == 1 &&
         !Flags_GetEventChkInf(EVENTCHKINF_TALON_RETURNED_FROM_CASTLE)) {
         return 1;
     }
-    if (play->sceneNum == SCENE_MALON_STABLE && LINK_IS_CHILD && IS_DAY && this->actor.shape.rot.z == 3 &&
+    if (play->sceneId == SCENE_STABLE && LINK_IS_CHILD && IS_DAY && this->actor.shape.rot.z == 3 &&
         (Flags_GetEventChkInf(EVENTCHKINF_TALON_RETURNED_FROM_CASTLE))) {
         return 1;
     }
-    if (play->sceneNum == SCENE_MALON_STABLE && LINK_IS_CHILD && IS_NIGHT) {
+    if (play->sceneId == SCENE_STABLE && LINK_IS_CHILD && IS_NIGHT) {
         if ((this->actor.shape.rot.z == 2) && !Flags_GetEventChkInf(EVENTCHKINF_TALON_RETURNED_FROM_CASTLE)) {
             return 1;
         }
@@ -381,7 +381,7 @@ s32 func_80A79830(EnIn* this, PlayState* play) {
             return 1;
         }
     }
-    if (play->sceneNum == SCENE_SPOT20 && LINK_IS_ADULT && IS_DAY) {
+    if (play->sceneId == SCENE_LON_LON_RANCH && LINK_IS_ADULT && IS_DAY) {
         if ((this->actor.shape.rot.z == 5) && !Flags_GetEventChkInf(EVENTCHKINF_EPONA_OBTAINED)) {
             return 2;
         }
@@ -389,7 +389,7 @@ s32 func_80A79830(EnIn* this, PlayState* play) {
             return 4;
         }
     }
-    if (play->sceneNum == SCENE_SOUKO && LINK_IS_ADULT && IS_NIGHT) {
+    if (play->sceneId == SCENE_LON_LON_BUILDINGS && LINK_IS_ADULT && IS_NIGHT) {
         if (this->actor.shape.rot.z == 6 && !Flags_GetEventChkInf(EVENTCHKINF_EPONA_OBTAINED)) {
             return 3;
         }
@@ -432,10 +432,10 @@ void func_80A79BAC(EnIn* this, PlayState* play, s32 index, u32 arg3) {
     if (index == 2) {
         gSaveContext.nextCutsceneIndex = 0xFFF0;
     }
-    play->fadeTransition = arg3;
-    play->sceneLoadFlag = 0x14;
+    play->transitionType = arg3;
+    play->transitionTrigger = 0x14;
     func_8002DF54(play, &this->actor, 8);
-    Interface_ChangeAlpha(1);
+    Interface_ChangeHudVisibilityMode(1);
     if (index == 0) {
         AREG(6) = 0;
     }
@@ -472,8 +472,8 @@ void func_80A79C78(EnIn* this, PlayState* play) {
     }
     player->actor.freezeTimer = 10;
     this->actor.flags &= ~ACTOR_FLAG_TARGETABLE;
-    ShrinkWindow_SetVal(0x20);
-    Interface_ChangeAlpha(2);
+    Letterbox_SetSizeTarget(0x20);
+    Interface_ChangeHudVisibilityMode(2);
 }
 
 static s32 D_80A7B998 = 0;
@@ -584,7 +584,7 @@ void func_80A79FB0(EnIn* this, PlayState* play) {
                         this->actor.targetMode = 3;
                         EnIn_ChangeAnim(this, ENIN_ANIM_2);
                         this->actionFunc = func_80A7A568;
-                        func_80088B34(0x3C);
+                        Interface_SetTimer(0x3C);
                         break;
                     case 3:
                         EnIn_ChangeAnim(this, ENIN_ANIM_4);
@@ -614,21 +614,21 @@ void func_80A79FB0(EnIn* this, PlayState* play) {
 void func_80A7A304(EnIn* this, PlayState* play) {
     if (this->skelAnime.animation == &object_in_Anim_015814 || this->skelAnime.animation == &object_in_Anim_01646C) {
         if (this->skelAnime.curFrame == 8.0f) {
-            Audio_PlaySoundRandom(&this->actor.projectedPos, NA_SE_VO_IN_LASH_0,
+            Audio_PlaySfxRandom(&this->actor.projectedPos, NA_SE_VO_IN_LASH_0,
                                   NA_SE_VO_IN_LASH_1 - NA_SE_VO_IN_LASH_0 + 1);
         }
     }
     if (this->skelAnime.animation == &object_in_Anim_018C38 && this->skelAnime.curFrame == 20.0f) {
-        Audio_PlayActorSound2(&this->actor, NA_SE_VO_IN_CRY_0);
+        Actor_PlaySfx(&this->actor, NA_SE_VO_IN_CRY_0);
     }
     if (SkelAnime_Update(&this->skelAnime) != 0) {
         this->animationIdx %= 8;
         this->unk_1E8 = this->animationIdx;
         if (this->animationIdx == 3 || this->animationIdx == 4) {
-            Audio_PlaySoundGeneral(NA_SE_IT_LASH, &this->actor.projectedPos, 4, &D_801333E0, &D_801333E0, &D_801333E8);
+            Audio_PlaySfxGeneral(NA_SE_IT_LASH, &this->actor.projectedPos, 4, &gSfxDefaultFreqAndVolScale, &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
             if (Rand_ZeroOne() < 0.3f) {
-                Audio_PlaySoundGeneral(NA_SE_IT_INGO_HORSE_NEIGH, &this->actor.projectedPos, 4, &D_801333E0,
-                                       &D_801333E0, &D_801333E8);
+                Audio_PlaySfxGeneral(NA_SE_IT_INGO_HORSE_NEIGH, &this->actor.projectedPos, 4, &gSfxDefaultFreqAndVolScale,
+                                       &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
             }
         }
         Animation_Change(&this->skelAnime, D_80A7B918[this->animationIdx], 1.0f, 0.0f,
@@ -661,7 +661,7 @@ void func_80A7A568(EnIn* this, PlayState* play) {
         Flags_SetInfTable(INFTABLE_AB);
     }
     if (gSaveContext.timer1State == 10) {
-        Audio_PlaySoundGeneral(NA_SE_SY_FOUND, &D_801333D4, 4, &D_801333E0, &D_801333E0, &D_801333E8);
+        Audio_PlaySfxGeneral(NA_SE_SY_FOUND, &gSfxDefaultPos, 4, &gSfxDefaultFreqAndVolScale, &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
         func_80A79C78(this, play);
         this->actionFunc = func_80A7B024;
         gSaveContext.timer1State = 0;
@@ -679,7 +679,7 @@ void func_80A7A568(EnIn* this, PlayState* play) {
             phi_a2 = 2;
             phi_a3 = 2;
         } else {
-            Audio_PlaySoundGeneral(NA_SE_SY_FOUND, &D_801333D4, 4, &D_801333E0, &D_801333E0, &D_801333E8);
+            Audio_PlaySfxGeneral(NA_SE_SY_FOUND, &gSfxDefaultPos, 4, &gSfxDefaultFreqAndVolScale, &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
             if (!Flags_GetEventChkInf(EVENTCHKINF_RENTED_HORSE_FROM_INGO)) {
                 if (Flags_GetInfTable(INFTABLE_AB)) {
                     Flags_SetEventChkInf(EVENTCHKINF_RENTED_HORSE_FROM_INGO);
@@ -742,7 +742,7 @@ void func_80A7A940(EnIn* this, PlayState* play) {
     if (this->unk_1EC != 0) {
         this->unk_1EC--;
         if (this->unk_1EC == 0) {
-            Audio_PlayActorSound2(&this->actor, NA_SE_VO_IN_LOST);
+            Actor_PlaySfx(&this->actor, NA_SE_VO_IN_LOST);
         }
     }
     if (this->interactInfo.talkState == NPC_TALK_STATE_ACTION) {
@@ -791,8 +791,8 @@ void func_80A7AA40(EnIn* this, PlayState* play) {
     this->interactInfo.talkState = NPC_TALK_STATE_TALKING;
     this->unk_1FC = 0;
     play->csCtx.frames = 0;
-    ShrinkWindow_SetVal(0x20);
-    Interface_ChangeAlpha(2);
+    Letterbox_SetSizeTarget(0x20);
+    Interface_ChangeHudVisibilityMode(2);
     this->actionFunc = func_80A7ABD4;
 }
 
@@ -809,7 +809,7 @@ void func_80A7ABD4(EnIn* this, PlayState* play) {
         if (this->unk_1EC != 0) {
             this->unk_1EC--;
             if (this->unk_1EC == 0) {
-                Audio_PlayActorSound2(&this->actor, NA_SE_VO_IN_LOST);
+                Actor_PlaySfx(&this->actor, NA_SE_VO_IN_LOST);
             }
         }
     }
@@ -831,7 +831,7 @@ void func_80A7ABD4(EnIn* this, PlayState* play) {
             return;
         }
         if (play->csCtx.frames == 44) {
-            Audio_PlayActorSound2(&this->actor, NA_SE_EV_RONRON_DOOR_CLOSE);
+            Actor_PlaySfx(&this->actor, NA_SE_EV_RONRON_DOOR_CLOSE);
         }
         Math_SmoothStepToF(&this->unk_2F0, 0.0f, 0.06f, 10000.0f, 0.0f);
         Math_SmoothStepToF(&this->unk_2F4, 50.0f, 0.06f, 10000.0f, 0.0f);
@@ -857,7 +857,7 @@ void func_80A7AE84(EnIn* this, PlayState* play) {
     Play_ChangeCameraStatus(play, this->activeCamId, CAM_STAT_ACTIVE);
     Play_ClearCamera(play, this->camId);
     func_8002DF54(play, &this->actor, 7);
-    Interface_ChangeAlpha(0x32);
+    Interface_ChangeHudVisibilityMode(0x32);
     this->actionFunc = func_80A7AEF0;
 }
 
@@ -871,8 +871,8 @@ void func_80A7AEF0(EnIn* this, PlayState* play) {
     yaw = Math_Vec3f_Yaw(&pos, &player->actor.world.pos);
     if (ABS(yaw) > 0x4000) {
         play->nextEntranceIndex = 0x0476;
-        play->sceneLoadFlag = 0x14;
-        play->fadeTransition = 5;
+        play->transitionTrigger = 0x14;
+        play->transitionType = 5;
         this->actionFunc = func_80A7B018;
     } else if (this->interactInfo.talkState == NPC_TALK_STATE_ACTION) {
         play->msgCtx.stateTimer = 4;

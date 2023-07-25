@@ -137,10 +137,10 @@ u8 WeatherTag_CheckEnableWeatherEffect(EnWeatherTag* this, PlayState* play, u8 a
     if (Actor_WorldDistXZToActor(&player->actor, &this->actor) < WEATHER_TAG_RANGE100(this->actor.params)) {
         if ((play->envCtx.indoors != 0) || !gSkyboxBlendingEnabled ||
             (play->skyboxId != SKYBOX_NORMAL_SKY && play->envCtx.unk_1F == play->envCtx.unk_20)) {
-            D_8011FB38 = 1;
+            gInterruptSongOfStorms = 1;
             if (play->envCtx.gloomySkyMode == 0 &&
                 (play->envCtx.indoors != 0 || (play->envCtx.unk_1F != 1 && play->envCtx.unk_21 == 0))) {
-                D_8011FB38 = 0;
+                gInterruptSongOfStorms = 0;
                 if (gWeatherMode != weatherMode) {
                     gWeatherMode = weatherMode;
                     if (play->envCtx.gloomySkyMode == 0) {
@@ -151,7 +151,7 @@ u8 WeatherTag_CheckEnableWeatherEffect(EnWeatherTag* this, PlayState* play, u8 a
                         play->envCtx.unk_21 = 1;
                         play->envCtx.unk_1F = arg4;
                         play->envCtx.unk_20 = arg5;
-                        D_8011FB34 = arg5;
+                        gLightConfigAfterUnderwater = arg5;
                         play->envCtx.unk_24 = arg6;
                         play->envCtx.unk_22 = play->envCtx.unk_24;
                     }
@@ -159,7 +159,7 @@ u8 WeatherTag_CheckEnableWeatherEffect(EnWeatherTag* this, PlayState* play, u8 a
                 ret = true;
             }
         } else {
-            if (gTimeIncrement != 0) {
+            if (gTimeSpeed != 0) {
                 gSaveContext.dayTime += 0x14;
             }
         }
@@ -177,10 +177,10 @@ u8 WeatherTag_CheckRestoreWeather(EnWeatherTag* this, PlayState* play, u8 arg2, 
     if ((WEATHER_TAG_RANGE100(this->actor.params) + 100.0f) < Actor_WorldDistXZToActor(&player->actor, &this->actor)) {
         if (play->envCtx.indoors != 0 || !gSkyboxBlendingEnabled ||
             (play->skyboxId != SKYBOX_NORMAL_SKY && play->envCtx.unk_1F == play->envCtx.unk_20)) {
-            D_8011FB38 = 1;
+            gInterruptSongOfStorms = 1;
             if ((play->envCtx.gloomySkyMode == 0) &&
                 (play->envCtx.indoors != 0 || (play->envCtx.unk_1F != 1 && play->envCtx.unk_21 == 0))) {
-                D_8011FB38 = 0;
+                gInterruptSongOfStorms = 0;
                 gWeatherMode = 0;
                 play->envCtx.unk_19 = 1;
                 play->envCtx.unk_17 = arg2;
@@ -189,13 +189,13 @@ u8 WeatherTag_CheckRestoreWeather(EnWeatherTag* this, PlayState* play, u8 arg2, 
                 play->envCtx.unk_21 = 1;
                 play->envCtx.unk_1F = arg4;
                 play->envCtx.unk_20 = arg5;
-                D_8011FB34 = arg5;
+                gLightConfigAfterUnderwater = arg5;
                 play->envCtx.unk_24 = arg6;
                 play->envCtx.unk_22 = play->envCtx.unk_24;
 
                 ret = true;
             }
-        } else if (gTimeIncrement != 0) {
+        } else if (gTimeSpeed != 0) {
             gSaveContext.dayTime += 0x14;
         }
     }

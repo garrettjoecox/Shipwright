@@ -369,7 +369,7 @@ void func_80096680(PlayState* play, Room* room, u32 flags) {
             {
                 Vec3f sp60;
                 spA8 = POLY_OPA_DISP;
-                Camera_GetSkyboxOffset(&sp60, camera);
+                Camera_GetQuakeOffset(&sp60, camera);
                 func_8009638C(&spA8, polygon1->single.source, polygon1->single.tlut, polygon1->single.width,
                               polygon1->single.height, polygon1->single.fmt, polygon1->single.siz,
                               polygon1->single.mode0, polygon1->single.tlutCount,
@@ -471,7 +471,7 @@ void func_80096B6C(PlayState* play, Room* room, u32 flags) {
             {
                 Vec3f sp5C;
                 spA8 = POLY_OPA_DISP;
-                Camera_GetSkyboxOffset(&sp5C, camera);
+                Camera_GetQuakeOffset(&sp5C, camera);
                 func_8009638C(&spA8, bgImage->source, bgImage->tlut, bgImage->width, bgImage->height, bgImage->fmt,
                               bgImage->siz, bgImage->mode0, bgImage->tlutCount,
                               (sp5C.x + sp5C.z) * 1.2f + sp5C.y * 0.6f, sp5C.y * 2.4f + (sp5C.x + sp5C.z) * 0.3f);
@@ -638,16 +638,16 @@ void func_80097534(PlayState* play, RoomContext* roomCtx) {
     func_80031B14(play, &play->actorCtx); //kills all actors without room num set to -1
     Actor_SpawnTransitionActors(play, &play->actorCtx);
     Map_InitRoomData(play, roomCtx->curRoom.num);
-    if (!((play->sceneNum >= SCENE_SPOT00) && (play->sceneNum <= SCENE_SPOT20))) {
+    if (!((play->sceneId >= SCENE_HYRULE_FIELD) && (play->sceneId <= SCENE_LON_LON_RANCH))) {
         Map_SavePlayerInitialInfo(play);
     }
     Audio_SetEnvReverb(play->roomCtx.curRoom.echo);
     u8 idx = gSaveContext.sohStats.tsIdx;
-    gSaveContext.sohStats.sceneTimestamps[idx].scene = gSaveContext.sohStats.sceneNum;
+    gSaveContext.sohStats.sceneTimestamps[idx].scene = gSaveContext.sohStats.sceneId;
     gSaveContext.sohStats.sceneTimestamps[idx].room = gSaveContext.sohStats.roomNum;
     gSaveContext.sohStats.sceneTimestamps[idx].roomTime = gSaveContext.sohStats.roomTimer / 2;
     gSaveContext.sohStats.sceneTimestamps[idx].isRoom = 
-        gPlayState->sceneNum == gSaveContext.sohStats.sceneTimestamps[idx].scene &&
+        gPlayState->sceneId == gSaveContext.sohStats.sceneTimestamps[idx].scene &&
         gPlayState->roomCtx.curRoom.num != gSaveContext.sohStats.sceneTimestamps[idx].room;
     gSaveContext.sohStats.tsIdx++;
     gSaveContext.sohStats.roomNum = roomCtx->curRoom.num;

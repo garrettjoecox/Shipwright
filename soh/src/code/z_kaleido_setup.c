@@ -13,10 +13,10 @@ void KaleidoSetup_Update(PlayState* play) {
     Input* input = &play->state.input[0];
 
     if (pauseCtx->state == 0 && pauseCtx->debugState == 0 && play->gameOverCtx.state == GAMEOVER_INACTIVE &&
-        play->sceneLoadFlag == 0 && play->transitionMode == 0 && gSaveContext.cutsceneIndex < 0xFFF0 &&
+        play->transitionTrigger == 0 && play->transitionMode == 0 && gSaveContext.cutsceneIndex < 0xFFF0 &&
         gSaveContext.nextCutsceneIndex < 0xFFF0 && !Play_InCsMode(play) &&
         play->shootingGalleryStatus <= 1 && gSaveContext.magicState != 8 && gSaveContext.magicState != 9 &&
-        (play->sceneNum != SCENE_BOWLING || !Flags_GetSwitch(play, 0x38))) {
+        (play->sceneId != SCENE_BOMBCHU_BOWLING_ALLEY || !Flags_GetSwitch(play, 0x38))) {
 
         if (CVarGetInteger("gCheatEasyPauseBufferFrameAdvance", 0) == 2 && !CHECK_BTN_ALL(input->press.button, BTN_START)) {
             CVarSetInteger("gCheatEasyPauseBufferFrameAdvance", 0);
@@ -63,7 +63,7 @@ void KaleidoSetup_Update(PlayState* play) {
             R_UPDATE_RATE = 2;
 
             if (ShrinkWindow_GetVal()) {
-                ShrinkWindow_SetVal(0);
+                Letterbox_SetSizeTarget(0);
             }
 
             func_800F64E0(1);

@@ -4,19 +4,19 @@ s32 osContStartReadData(OSMesgQueue* mq) {
     s32 ret;
 
     __osSiGetAccess();
-    if (__osContLastPoll != 1) {
+    if (__osContLastCmd != 1) {
         __osPackReadData();
-        __osSiRawStartDma(OS_WRITE, &__osPifInternalBuff);
+        __osSiRawStartDma(OS_WRITE, &__osContPifRam);
         osRecvMesg(mq, NULL, OS_MESG_BLOCK);
     }
-    ret = __osSiRawStartDma(OS_READ, &__osPifInternalBuff);
-    __osContLastPoll = CONT_CMD_READ_BUTTON;
+    ret = __osSiRawStartDma(OS_READ, &__osContPifRam);
+    __osContLastCmd = CONT_CMD_READ_BUTTON;
     __osSiRelAccess();
     return ret;
 }
 
 void osContGetReadData(OSContPad* contData) {
-    u8* bufptr = (u8*)(&__osPifInternalBuff);
+    u8* bufptr = (u8*)(&__osContPifRam);
     __OSContReadHeader read;
     s32 i;
 
@@ -32,14 +32,14 @@ void osContGetReadData(OSContPad* contData) {
 }
 
 void __osPackReadData(void) {
-    u8* bufptr = (u8*)(&__osPifInternalBuff);
+    u8* bufptr = (u8*)(&__osContPifRam);
     __OSContReadHeader read;
     s32 i;
 
     for (i = 0; i < 0xF; i++) {
-        __osPifInternalBuff.ram[i] = 0;
+        __osContPifRam.ram[i] = 0;
     }
-    __osPifInternalBuff.status = 1;
+    __osContPifRam.status = 1;
     read.align = 0xFF;
     read.txsize = 1;
     read.rxsize = 4;

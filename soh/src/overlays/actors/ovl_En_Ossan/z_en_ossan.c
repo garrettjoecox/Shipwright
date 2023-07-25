@@ -429,7 +429,7 @@ void EnOssan_SpawnItemsOnShelves(EnOssan* this, PlayState* play, ShopItem* shopI
         } else {
             itemParams = sShopItemReplaceFunc[shopItems->shopItemIndex](shopItems->shopItemIndex);
             if (gSaveContext.n64ddFlag && Randomizer_GetSettingValue(RSK_SHOPSANITY) != RO_SHOPSANITY_OFF) {
-                ShopItemIdentity shopItemIdentity = Randomizer_IdentifyShopItem(play->sceneNum, i);
+                ShopItemIdentity shopItemIdentity = Randomizer_IdentifyShopItem(play->sceneId, i);
                 if (shopItemIdentity.randomizerCheck != RC_UNKNOWN_CHECK) {
                     itemParams = shopItemIdentity.enGirlAShopItem;
 
@@ -677,7 +677,7 @@ void EnOssan_EndInteraction(PlayState* play, EnOssan* this) {
     play->msgCtx.stateTimer = 4;
     player->stateFlags2 &= ~0x20000000;
     func_800BC490(play, 1);
-    Interface_ChangeAlpha(50);
+    Interface_ChangeHudVisibilityMode(50);
     this->drawCursor = 0;
     this->stickLeftPrompt.isEnabled = false;
     this->stickRightPrompt.isEnabled = false;
@@ -944,8 +944,8 @@ void EnOssan_State_StartConversation(EnOssan* this, PlayState* play, Player* pla
                 return;
             case OSSAN_HAPPY_STATE_ANGRY:
                 play->nextEntranceIndex = 0x1D1;
-                play->sceneLoadFlag = 0x14;
-                play->fadeTransition = 0x2E;
+                play->transitionTrigger = 0x14;
+                play->transitionType = 0x2E;
                 return;
         }
 
@@ -1377,23 +1377,23 @@ void EnOssan_GiveItemWithFanfare(PlayState* play, EnOssan* this) {
 
     osSyncPrintf("\n" VT_FGCOL(YELLOW) "初めて手にいれた！！" VT_RST "\n\n");
     if (!gSaveContext.n64ddFlag) {
-        func_8002F434(&this->actor, play, this->shelfSlots[this->cursorIndex]->getItemId, 120.0f, 120.0f);
+        Actor_OfferGetItem(&this->actor, play, this->shelfSlots[this->cursorIndex]->getItemId, 120.0f, 120.0f);
     } else {
-        ShopItemIdentity shopItemIdentity = Randomizer_IdentifyShopItem(play->sceneNum, this->cursorIndex);
+        ShopItemIdentity shopItemIdentity = Randomizer_IdentifyShopItem(play->sceneId, this->cursorIndex);
         // en_ossan/en_girla are also used for the happy mask shop, which never has randomized items
         // and returns RC_UNKNOWN_CHECK, in which case we should fall back to vanilla logic
         if (shopItemIdentity.randomizerCheck != RC_UNKNOWN_CHECK) {
             GetItemEntry getItemEntry = Randomizer_GetItemFromKnownCheck(shopItemIdentity.randomizerCheck, shopItemIdentity.ogItemId);
             GiveItemEntryFromActor(&this->actor, play, getItemEntry, 120.0f, 120.0f);
         } else {
-            func_8002F434(&this->actor, play, this->shelfSlots[this->cursorIndex]->getItemId, 120.0f, 120.0f);
+            Actor_OfferGetItem(&this->actor, play, this->shelfSlots[this->cursorIndex]->getItemId, 120.0f, 120.0f);
         }
     }
     play->msgCtx.msgMode = MSGMODE_TEXT_CLOSING;
     play->msgCtx.stateTimer = 4;
     player->stateFlags2 &= ~0x20000000;
     func_800BC490(play, 1);
-    Interface_ChangeAlpha(50);
+    Interface_ChangeHudVisibilityMode(50);
     this->drawCursor = 0;
     EnOssan_UpdateCameraDirection(this, play, 0.0f);
     this->stateFlag = OSSAN_STATE_GIVE_ITEM_FANFARE;
@@ -1724,9 +1724,9 @@ void EnOssan_State_GiveItemWithFanfare(EnOssan* this, PlayState* play, Player* p
         return;
     }
     if (!gSaveContext.n64ddFlag) {
-        func_8002F434(&this->actor, play, this->shelfSlots[this->cursorIndex]->getItemId, 120.0f, 120.0f);
+        Actor_OfferGetItem(&this->actor, play, this->shelfSlots[this->cursorIndex]->getItemId, 120.0f, 120.0f);
     } else {
-        ShopItemIdentity shopItemIdentity = Randomizer_IdentifyShopItem(play->sceneNum, this->cursorIndex);
+        ShopItemIdentity shopItemIdentity = Randomizer_IdentifyShopItem(play->sceneId, this->cursorIndex);
         // en_ossan/en_girla are also used for the happy mask shop, which never has randomized items
         // and returns RC_UNKNOWN_CHECK, in which case we should fall back to vanilla logic
         if (shopItemIdentity.randomizerCheck != RC_UNKNOWN_CHECK) {
@@ -1734,7 +1734,7 @@ void EnOssan_State_GiveItemWithFanfare(EnOssan* this, PlayState* play, Player* p
                 Randomizer_GetItemFromKnownCheck(shopItemIdentity.randomizerCheck, shopItemIdentity.ogItemId);
             GiveItemEntryFromActor(&this->actor, play, getItemEntry, 120.0f, 120.0f);
         } else {
-            func_8002F434(&this->actor, play, this->shelfSlots[this->cursorIndex]->getItemId, 120.0f, 120.0f);
+            Actor_OfferGetItem(&this->actor, play, this->shelfSlots[this->cursorIndex]->getItemId, 120.0f, 120.0f);
         }
     }
 }
@@ -1742,7 +1742,7 @@ void EnOssan_State_GiveItemWithFanfare(EnOssan* this, PlayState* play, Player* p
 void EnOssan_State_ItemPurchased(EnOssan* this, PlayState* play, Player* player) {
     EnGirlA* item;
     EnGirlA* itemTemp;
-    ShopItemIdentity shopItemIdentity = Randomizer_IdentifyShopItem(play->sceneNum, this->cursorIndex);
+    ShopItemIdentity shopItemIdentity = Randomizer_IdentifyShopItem(play->sceneId, this->cursorIndex);
     GetItemEntry getItemEntry;
     if (shopItemIdentity.randomizerCheck != RC_UNKNOWN_CHECK) {
         getItemEntry = Randomizer_GetItemFromKnownCheck(shopItemIdentity.randomizerCheck, shopItemIdentity.ogItemId);
@@ -2319,7 +2319,7 @@ void EnOssan_MainActionFunc(EnOssan* this, PlayState* play) {
         sStateFunc[this->stateFlag](this, play, player);
     }
 
-    Actor_MoveForward(&this->actor);
+    Actor_MoveXZGravity(&this->actor);
     Actor_UpdateBgCheckInfo(play, &this->actor, 26.0f, 10.0f, 0.0f, 5);
     Actor_SetFocus(&this->actor, 90.0f);
     Actor_SetScale(&this->actor, sShopkeeperScale[this->actor.params]);

@@ -80,7 +80,7 @@ void ItemOcarina_Destroy(Actor* thisx, PlayState* play) {
 void ItemOcarina_Fly(ItemOcarina* this, PlayState* play) {
     Vec3f ripplePos;
 
-    func_8002D7EC(&this->actor);
+    Actor_UpdatePos(&this->actor);
     this->actor.shape.rot.x += this->spinRotOffset * 2;
     this->actor.shape.rot.y += this->spinRotOffset * 3;
 
@@ -109,7 +109,7 @@ void ItemOcarina_Fly(ItemOcarina* this, PlayState* play) {
         this->actor.gravity = -0.1f;
         this->actor.minVelocityY = -0.5f;
         this->spinRotOffset = 0;
-        Audio_PlayActorSound2(&this->actor, NA_SE_EV_BOMB_DROP_WATER);
+        Actor_PlaySfx(&this->actor, NA_SE_EV_BOMB_DROP_WATER);
     }
 
     // landed in water
@@ -131,7 +131,7 @@ void ItemOcarina_GetThrown(ItemOcarina* this, PlayState* play) {
 }
 
 void func_80B864EC(ItemOcarina* this, PlayState* play) {
-    func_8002D7EC(&this->actor);
+    Actor_UpdatePos(&this->actor);
     this->actor.shape.rot.x += this->spinRotOffset * 2;
     this->actor.shape.rot.y += this->spinRotOffset * 3;
 
@@ -173,8 +173,8 @@ void ItemOcarina_StartSoTCutscene(ItemOcarina* this, PlayState* play) {
             play->csCtx.segment = SEGMENTED_TO_VIRTUAL(gHyruleFieldZeldaSongOfTimeCs);
             gSaveContext.cutsceneTrigger = 1;
         } else {
-            play->sceneLoadFlag = 0x14;
-            play->fadeTransition = 3;
+            play->transitionTrigger = 0x14;
+            play->transitionType = 3;
             gSaveContext.nextTransitionType = 3;
             play->nextEntranceIndex = 0x050F;
             gSaveContext.nextCutsceneIndex = 0;
@@ -190,9 +190,9 @@ void ItemOcarina_WaitInWater(ItemOcarina* this, PlayState* play) {
         this->actor.draw = NULL;
     } else {
         if (!gSaveContext.n64ddFlag) {
-            func_8002F434(&this->actor, play, GI_OCARINA_OOT, 30.0f, 50.0f);
+            Actor_OfferGetItem(&this->actor, play, GI_OCARINA_OF_TIME, 30.0f, 50.0f);
         } else {
-            GetItemEntry getItemEntry = Randomizer_GetItemFromKnownCheck(RC_HF_OCARINA_OF_TIME_ITEM, GI_OCARINA_OOT);
+            GetItemEntry getItemEntry = Randomizer_GetItemFromKnownCheck(RC_HF_OCARINA_OF_TIME_ITEM, GI_OCARINA_OF_TIME);
             GiveItemEntryFromActor(&this->actor, play, getItemEntry, 30.0f, 50.0f);
         }
 
@@ -215,11 +215,11 @@ void ItemOcarina_Draw(Actor* thisx, PlayState* play) {
     func_8002ED80(thisx, play, 0);
 
     if (gSaveContext.n64ddFlag) {
-        GetItemEntry randoGetItem = Randomizer_GetItemFromKnownCheck(RC_HF_OCARINA_OF_TIME_ITEM, GI_OCARINA_OOT);
+        GetItemEntry randoGetItem = Randomizer_GetItemFromKnownCheck(RC_HF_OCARINA_OF_TIME_ITEM, GI_OCARINA_OF_TIME);
         EnItem00_CustomItemsParticles(&this->actor, play, randoGetItem);
         GetItemEntry_Draw(play, randoGetItem);
         return;
     }
 
-    GetItem_Draw(play, GID_OCARINA_TIME);
+    GetItem_Draw(play, GID_OCARINA_OF_TIME);
 }
