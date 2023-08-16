@@ -18,9 +18,12 @@ void GameInteractor_ExecuteOnFlagUnset(int16_t flagType, int16_t flag);
 void GameInteractor_ExecuteOnSceneSpawnActors();
 void GameInteractor_ExecuteOnPlayerUpdate();
 void GameInteractor_ExecuteOnOcarinaSongAction();
+void GameInteractor_ExecuteOnActorInit(void* actor);
 void GameInteractor_ExecuteOnActorUpdate(void* actor);
 void GameInteractor_ExecuteOnPlayerBonk();
 void GameInteractor_ExecuteOnOcarinaSongAction();
+void GameInteractor_ExecuteOnPlayDestroy();
+void GameInteractor_ExecuteOnPlayDrawEnd();
 
 // MARK: -  Save Files
 void GameInteractor_ExecuteOnSaveFile(int32_t fileNum);
