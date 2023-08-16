@@ -3081,7 +3081,7 @@ void RandomizerSettingsWindow::DrawElement() {
     static int maxKeyringCount;
     static bool disableGFKeyring = false;
 
-    ImGui::SetNextWindowSize(ImVec2(920, 600), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(490, 130), ImGuiCond_FirstUseEver);
     if (!ImGui::Begin("Randomizer Editor", &mIsVisible, ImGuiWindowFlags_NoFocusOnAppearing)) {
         ImGui::End();
         return;
@@ -3092,7 +3092,9 @@ void RandomizerSettingsWindow::DrawElement() {
         UIWidgets::DisableComponent(ImGui::GetStyle().Alpha * 0.5f);
     }
 
+    /* [Race Template] Hide preset selector
     DrawPresetSelector(PRESET_TYPE_RANDOMIZER);
+    */
 
     UIWidgets::Spacer(0);
     UIWidgets::EnhancementCheckbox("Manual seed entry", "gRandoManualSeedEntry", false, "");
@@ -3120,6 +3122,7 @@ void RandomizerSettingsWindow::DrawElement() {
     }
 
     UIWidgets::Spacer(0);
+    /* [Race Template] Hide the rest of the randomizer menu
     std::string spoilerfilepath = CVarGetString("gSpoilerLog", "");
     ImGui::Text("Spoiler File: %s", spoilerfilepath.c_str());
 
@@ -5125,6 +5128,7 @@ void RandomizerSettingsWindow::DrawElement() {
         ImGui::EndTabBar();
     }
     
+    */
     if (disableEditingRandoSettings) {
         UIWidgets::ReEnableComponent("");
     }

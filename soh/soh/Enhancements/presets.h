@@ -52,6 +52,7 @@ void applyPreset(std::vector<PresetEntry> entries);
 // TODO: Ideally everything below this point will come from one/many JSON files
 
 const std::vector<const char*> enhancementsCvars = {
+    /* [Race Template] Prevent controls cvars from being reset
     "gDpadPause",
     "gDpadText",
     "gDpadOcarina",
@@ -64,6 +65,7 @@ const std::vector<const char*> enhancementsCvars = {
     "gInvertYAxis",
     "gRightStickAiming",
     "gDisableAutoCenterViewFirstPerson",
+    */
     "gTextSpeed",
     "gMweepSpeed",
     "gForgeTime",
@@ -391,6 +393,10 @@ const std::vector<const char*> randomizerCvars = {
     "gRandomizeGregHint",
     "gRandoManualSeedEntry",
     "gRandomizerSettingsEnabled",
+};
+
+const std::vector<PresetEntry> racePresetEntries = {
+    PRESET_ENTRY_S32("gGameplayStats.RTATiming", 1),
 };
 
 const std::vector<PresetEntry> vanillaPlusPresetEntries = {
