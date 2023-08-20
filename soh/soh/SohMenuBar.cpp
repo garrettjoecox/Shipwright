@@ -477,6 +477,7 @@ extern std::shared_ptr<GameplayStatsWindow> mGameplayStatsWindow;
 void DrawEnhancementsMenu() {
     if (ImGui::BeginMenu("Enhancements"))
     {
+        /* [Race Template] Hide appropriate enhancements
         DrawPresetSelector(PRESET_TYPE_ENHANCEMENTS);
 
         UIWidgets::PaddedSeparator();
@@ -1136,6 +1137,9 @@ void DrawEnhancementsMenu() {
 
         UIWidgets::PaddedSeparator(true, true, 2.0f, 2.0f);
 
+        */
+        ImGui::Dummy(ImVec2(200.0f, 0.0f));
+
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(12.0f, 6.0f));
         ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0, 0));
         ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
@@ -1626,6 +1630,7 @@ void DrawRandomizerMenu() {
         ImGui::PopStyleVar(3);
         ImGui::PopStyleColor(1);
 
+        /* [Race Template] Hide other rando stuff
         UIWidgets::PaddedSeparator();
 
         if (ImGui::BeginMenu("Rando Enhancements"))
@@ -1674,6 +1679,7 @@ void DrawRandomizerMenu() {
             ImGui::EndMenu();
         }
 
+        */
         ImGui::EndMenu();
     }
 }
@@ -1698,6 +1704,7 @@ void SohMenuBar::DrawElement() {
 
         ImGui::SetCursorPosY(0.0f);
 
+        /* [Race Template] Hide Cheats and Developer Tools
         DrawCheatsMenu();
 
         ImGui::SetCursorPosY(0.0f);
@@ -1705,6 +1712,7 @@ void SohMenuBar::DrawElement() {
         DrawDeveloperToolsMenu();
 
         ImGui::SetCursorPosY(0.0f);
+        */
 
         #ifdef ENABLE_REMOTE_CONTROL
         DrawRemoteControlMenu();

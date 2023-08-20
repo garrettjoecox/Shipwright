@@ -187,7 +187,7 @@ void from_json(const json& j, SaveContext& saveContext) {
 
 std::map<uint32_t, AnchorClient> GameInteractorAnchor::AnchorClients = {};
 std::vector<uint32_t> GameInteractorAnchor::FairyIndexToClientId = {};
-std::string GameInteractorAnchor::clientVersion = "Anchor Build 10";
+std::string GameInteractorAnchor::clientVersion = "Anchor Race Build 1";
 std::string GameInteractorAnchor::seed = "00000";
 std::vector<std::pair<uint16_t, int16_t>> receivedItems = {};
 std::vector<AnchorMessage> anchorMessages = {};
@@ -266,6 +266,7 @@ void GameInteractorAnchor::HandleRemoteJson(nlohmann::json payload) {
         SPDLOG_INFO("Received payload:\n{}", payload.dump());
     }
 
+    /* [Race Template] No sharing
     if (payload["type"] == "GIVE_ITEM") {
         auto effect = new GameInteractionEffect::GiveItem();
         effect->parameters[0] = payload["modId"].get<uint16_t>();
@@ -347,6 +348,7 @@ void GameInteractorAnchor::HandleRemoteJson(nlohmann::json payload) {
     if (payload["type"] == "REQUEST_SAVE_STATE" && GameInteractor::IsSaveLoaded()) {
         Anchor_PushSaveStateToRemote();
     }
+    */
     if (payload["type"] == "ALL_CLIENT_DATA") {
         std::vector<AnchorClient> newClients = payload["clients"].get<std::vector<AnchorClient>>();
 
@@ -404,6 +406,7 @@ void GameInteractorAnchor::HandleRemoteJson(nlohmann::json payload) {
             GameInteractorAnchor::AnchorClients[clientId].gameComplete = client.gameComplete;
         }
     }
+    /* [Race Template] No sharing
     if (payload["type"] == "SKIP_LOCATION" && GameInteractor::IsSaveLoaded()) {
         gSaveContext.sohStats.locationsSkipped[payload["locationIndex"].get<uint32_t>()] = payload["skipped"].get<bool>();
     }
@@ -421,6 +424,7 @@ void GameInteractorAnchor::HandleRemoteJson(nlohmann::json payload) {
     if (payload["type"] == "UPDATE_KEY_COUNT" && GameInteractor::IsSaveLoaded()) {
         gSaveContext.inventory.dungeonKeys[payload["sceneNum"].get<int16_t>()] = payload["amount"].get<int8_t>();
     }
+    */
     if (payload["type"] == "GAME_COMPLETE") {
         AnchorClient anchorClient = GameInteractorAnchor::AnchorClients[payload["clientId"].get<uint32_t>()];
         Anchor_DisplayMessage({
@@ -442,6 +446,7 @@ void GameInteractorAnchor::HandleRemoteJson(nlohmann::json payload) {
 }
 
 void Anchor_PushSaveStateToRemote() {
+    return; // [Race Template] No sharing
     json payload = gSaveContext;
     payload["type"] = "PUSH_SAVE_STATE";
     // manually update current scene flags
@@ -454,6 +459,7 @@ void Anchor_PushSaveStateToRemote() {
 }
 
 void Anchor_RequestSaveStateFromRemote() {
+    return; // [Race Template] No sharing
     nlohmann::json payload;
     payload["type"] = "REQUEST_SAVE_STATE";
 
@@ -461,6 +467,7 @@ void Anchor_RequestSaveStateFromRemote() {
 }
 
 void Anchor_ParseSaveStateFromRemote(nlohmann::json payload) {
+    return; // [Race Template] No sharing
     SaveContext loadedData = payload.get<SaveContext>();
 
     gSaveContext.healthCapacity = loadedData.healthCapacity;
@@ -565,6 +572,7 @@ Color_RGB8 Anchor_GetClientColor(uint32_t fairyIndex) {
 }
 
 void Anchor_SpawnClientFairies() {
+    return; // [Race Template] Disable client fairies
     if (gPlayState == NULL) return;
     Actor* actor = gPlayState->actorCtx.actorLists[ACTORCAT_ITEMACTION].head;
     while (actor != NULL) {
@@ -593,6 +601,7 @@ void Anchor_RegisterHooks() {
         Anchor_RequestSaveStateFromRemote();
     });
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnItemReceive>([](GetItemEntry itemEntry) {
+        return; // [Race Template] No sharing
         if (itemEntry.modIndex == MOD_NONE && (itemEntry.itemId == ITEM_KEY_SMALL || itemEntry.itemId == ITEM_KEY_BOSS || itemEntry.itemId == ITEM_SWORD_MASTER)) {
             return;
         }
@@ -617,6 +626,7 @@ void Anchor_RegisterHooks() {
         GameInteractorAnchor::Instance->TransmitJsonToRemote(payload);
     });
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSceneFlagSet>([](int16_t sceneNum, int16_t flagType, int16_t flag) {
+        return; // [Race Template] No sharing
         if (!GameInteractor::Instance->isRemoteInteractorConnected || !GameInteractor::Instance->IsSaveLoaded()) return;
         nlohmann::json payload;
 
@@ -628,6 +638,7 @@ void Anchor_RegisterHooks() {
         GameInteractorAnchor::Instance->TransmitJsonToRemote(payload);
     });
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnFlagSet>([](int16_t flagType, int16_t flag) {
+        return; // [Race Template] No sharing
         if (flagType == FLAG_INF_TABLE && flag == INFTABLE_SWORDLESS) {
             return;
         }
@@ -642,6 +653,7 @@ void Anchor_RegisterHooks() {
         GameInteractorAnchor::Instance->TransmitJsonToRemote(payload);
     });
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSceneFlagUnset>([](int16_t sceneNum, int16_t flagType, int16_t flag) {
+        return; // [Race Template] No sharing
         if (!GameInteractor::Instance->isRemoteInteractorConnected || !GameInteractor::Instance->IsSaveLoaded()) return;
         nlohmann::json payload;
 
@@ -653,6 +665,7 @@ void Anchor_RegisterHooks() {
         GameInteractorAnchor::Instance->TransmitJsonToRemote(payload);
     });
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnFlagUnset>([](int16_t flagType, int16_t flag) {
+        return; // [Race Template] No sharing
         if (flagType == FLAG_INF_TABLE && flag == INFTABLE_SWORDLESS) {
             return;
         }
@@ -667,6 +680,7 @@ void Anchor_RegisterHooks() {
         GameInteractorAnchor::Instance->TransmitJsonToRemote(payload);
     });
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnPlayerUpdate>([]() {
+        return; // [Race Template] No sharing
         static uint32_t lastPlayerCount = 0;
         uint32_t currentPlayerCount =  GameInteractorAnchor::AnchorClients.size();
         if (!GameInteractor::Instance->isRemoteInteractorConnected || gPlayState == NULL || !GameInteractor::Instance->IsSaveLoaded()) {
@@ -695,6 +709,7 @@ void Anchor_RegisterHooks() {
 }
 
 void Anchor_SkipLocation(uint32_t locationIndex, bool skipped) {
+    return; // [Race Template] No sharing
     if (!GameInteractor::Instance->isRemoteInteractorConnected || !GameInteractor::Instance->IsSaveLoaded()) return;
 
     nlohmann::json payload;
@@ -707,6 +722,7 @@ void Anchor_SkipLocation(uint32_t locationIndex, bool skipped) {
 }
 
 void Anchor_UpdateBeansBought(uint8_t amount) {
+    return; // [Race Template] No sharing
     if (!GameInteractor::Instance->isRemoteInteractorConnected || !GameInteractor::Instance->IsSaveLoaded()) return;
 
     nlohmann::json payload;
@@ -718,6 +734,7 @@ void Anchor_UpdateBeansBought(uint8_t amount) {
 }
 
 void Anchor_UpdateBeansCount(uint8_t amount) {
+    return; // [Race Template] No sharing
     if (!GameInteractor::Instance->isRemoteInteractorConnected || !GameInteractor::Instance->IsSaveLoaded()) return;
 
     nlohmann::json payload;
@@ -729,6 +746,7 @@ void Anchor_UpdateBeansCount(uint8_t amount) {
 }
 
 void Anchor_ConsumeAdultTradeItem(uint8_t itemId) {
+    return; // [Race Template] No sharing
     if (!GameInteractor::Instance->isRemoteInteractorConnected || !GameInteractor::Instance->IsSaveLoaded()) return;
 
     nlohmann::json payload;
@@ -740,6 +758,7 @@ void Anchor_ConsumeAdultTradeItem(uint8_t itemId) {
 }
 
 void Anchor_UpdateKeyCount(int16_t sceneNum, int8_t amount) {
+    return; // [Race Template] No sharing
     if (!GameInteractor::Instance->isRemoteInteractorConnected || !GameInteractor::Instance->IsSaveLoaded()) return;
 
     nlohmann::json payload;

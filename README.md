@@ -1,6 +1,34 @@
 ![Ship of Harkinian](docs/shiptitle.darkmode.png#gh-dark-mode-only)
 ![Ship of Harkinian](docs/shiptitle.lightmode.png#gh-light-mode-only)
 
+- tcp client
+- name: Host
+- upon connecting to room disconnect everyone and reset until host is ready
+- when anyone connects to room before host is ready disconnect them
+- host sets mode (ongoing or kickoff) and seed
+- host readys up
+- when client connects, send them the settings (loaded from json) and seed
+- if client connects with a save loaded disconnect them
+- if client loads a save with the wrong seed disconnect them
+- if mode = kickoff
+  - clients are considered "ready" when loaded into seed
+  - clients input is disabled until kickoff
+  - host types "start" to kick off race
+  - If anyone joins after kickoff, they are disconnected
+- if mode = ongoing
+  - clients can join at any time
+  - file created at and game completed timestamps are persisted
+
+# Todo
+- [ ] Some commands handled by SoH client
+  - [ ] setting seed
+  - [ ] setting all cvars (should clear all, then set from payload)
+  - [ ] Obfuscate hints somehow
+- [ ] TCP Client
+  - [ ] Connecting to the room
+  - [ ] Keeping state
+  - [ ] sending payloads to clients
+
 ## Website
 
 Official Website: https://www.shipofharkinian.com/

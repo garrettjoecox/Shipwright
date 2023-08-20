@@ -620,7 +620,7 @@ void DrawGameplayStatsOptionsTab() {
     UIWidgets::PaddedEnhancementCheckbox("Room Breakdown", "gGameplayStats.RoomBreakdown", true, false);
     ImGui::SameLine();
     UIWidgets::InsertHelpHoverText("Allows a more in-depth perspective of time spent in a certain map.");   
-    UIWidgets::PaddedEnhancementCheckbox("RTA Timing on new files", "gGameplayStats.RTATiming", true, false);
+    UIWidgets::PaddedEnhancementCheckbox("RTA Timing on new files", "gGameplayStats.RTATiming", true, false, true, "This is always on for this build");
     ImGui::SameLine();
     UIWidgets::InsertHelpHoverText(
         "Timestamps are relative to starting timestamp rather than in game time, usually necessary for races/speedruns.\n\n"

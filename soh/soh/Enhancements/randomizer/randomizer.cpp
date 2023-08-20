@@ -29,6 +29,7 @@
 #include <boost_custom/container_hash/hash_32.hpp>
 #include <libultraship/libultraship.h>
 #include "randomizer_settings_window.h"
+#include "../game-interactor/GameInteractor.h"
 
 extern "C" uint32_t ResourceMgr_IsGameMasterQuest();
 extern "C" uint32_t ResourceMgr_IsSceneMasterQuest(s16 sceneNum);
@@ -3094,6 +3095,7 @@ void RandomizerSettingsWindow::DrawElement() {
         UIWidgets::DisableComponent(ImGui::GetStyle().Alpha * 0.5f);
     }
 
+    /* [Race Template] Hide generation options
     DrawPresetSelector(PRESET_TYPE_RANDOMIZER);
 
     UIWidgets::Spacer(0);
@@ -3120,8 +3122,17 @@ void RandomizerSettingsWindow::DrawElement() {
     if (ImGui::Button("Generate Randomizer")) {
         GenerateRandomizer(CVarGetInteger("gRandoManualSeedEntry", 0) ? seedString : "");
     }
+    */
+    if (GameInteractor::Instance->isRemoteInteractorConnected) {
+        if (ImGui::Button("Generate Randomizer")) {
+
+        }
+    } else {
+        ImGui::Text("Please connect to an anchor-race room to generate a seed");
+    }
 
     UIWidgets::Spacer(0);
+    /* [Race Template] Hide the rest of the randomizer menu
     std::string spoilerfilepath = CVarGetString("gSpoilerLog", "");
     ImGui::Text("Spoiler File: %s", spoilerfilepath.c_str());
 
@@ -5127,6 +5138,7 @@ void RandomizerSettingsWindow::DrawElement() {
         ImGui::EndTabBar();
     }
     
+    */
     if (disableEditingRandoSettings) {
         UIWidgets::ReEnableComponent("");
     }
