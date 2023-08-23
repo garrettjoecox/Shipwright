@@ -3123,12 +3123,13 @@ void RandomizerSettingsWindow::DrawElement() {
         GenerateRandomizer(CVarGetInteger("gRandoManualSeedEntry", 0) ? seedString : "");
     }
     */
-    if (GameInteractor::Instance->isRemoteInteractorConnected) {
+    if (GameInteractor::Instance->isRemoteInteractorConnected && CVarGetString("gRandomizerSeedString", "") != "") {
+        ImGui::Text("Seed: %s", CVarGetString("gRandomizerSeedString", ""));
         if (ImGui::Button("Generate Randomizer")) {
-
+            GenerateRandomizer(CVarGetString("gRandomizerSeedString", ""));
         }
     } else {
-        ImGui::Text("Please connect to an anchor-race room to generate a seed");
+        ImGui::Text("Please connect to an anchor-race room with a host to generate a seed");
     }
 
     UIWidgets::Spacer(0);

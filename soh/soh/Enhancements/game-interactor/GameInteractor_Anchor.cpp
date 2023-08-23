@@ -6,6 +6,7 @@
 #include <soh/Enhancements/randomizer/randomizerTypes.h>
 #include <soh/Enhancements/randomizer/adult_trade_shuffle.h>
 #include <soh/Enhancements/nametag.h>
+#include <soh/Enhancements/presets.h>
 #include <soh/util.h>
 #include <nlohmann/json.hpp>
 
@@ -351,9 +352,15 @@ void GameInteractorAnchor::HandleRemoteJson(nlohmann::json payload) {
     */
     if (payload["type"] == "ALL_CLIENT_DATA") {
         std::vector<AnchorClient> newClients = payload["clients"].get<std::vector<AnchorClient>>();
+        int hostClientIndex = -1;
+        int i = 0;
 
         // add new clients
         for (auto& client : newClients) {
+            if (client.name == "HOST") {
+                hostClientIndex = i;
+            }
+            i++;
             if (!GameInteractorAnchor::AnchorClients.contains(client.clientId)) {
                 GameInteractorAnchor::AnchorClients[client.clientId] = {
                     client.clientId,
@@ -373,6 +380,21 @@ void GameInteractorAnchor::HandleRemoteJson(nlohmann::json payload) {
                     .message = "connected"
                 });
             }
+        }
+
+        clearCvars(enhancementsCvars);
+        clearCvars(randomizerCvars);
+        clearCvars(cheatCvars);
+        applyPreset(racePresetEntries);
+        if (hostClientIndex != -1) {
+            auto cvars = payload["clients"][hostClientIndex]["config"];
+            for (json::iterator it = cvars.begin(); it != cvars.end(); ++it) {
+                // TODO: gracefully handle non ints
+                CVarSetInteger(it.key().c_str(), it.value().get<int>());
+            }
+            CVarSetString("gRandomizerSeedString", payload["clients"][hostClientIndex]["seed"].get<std::string>().c_str());
+        } else {
+            CVarClear("gRandomizerSeedString");
         }
 
         // remove clients that are no longer in the list
