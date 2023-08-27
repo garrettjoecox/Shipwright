@@ -1537,12 +1537,12 @@ void DrawRemoteControlMenu() {
                         ImGui::EndTooltip();
                     }
                 }
-                if (client.seed != GameInteractorAnchor::seed) {
+                if (client.seed != gSaveContext.seed) {
                     ImGui::SameLine();
                     ImGui::TextColored(ImVec4(1, 0, 0, 1), ICON_FA_EXCLAMATION_TRIANGLE);
                     if (ImGui::IsItemHovered()) {
                         ImGui::BeginTooltip();
-                        ImGui::Text("Seed mismatch (%s)", client.seed.c_str());
+                        ImGui::Text("Seed mismatch (%s != %s)", client.seed.c_str(), gSaveContext.seed);
                         ImGui::EndTooltip();
                     }
                 }

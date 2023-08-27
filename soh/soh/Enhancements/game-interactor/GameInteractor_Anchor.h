@@ -30,7 +30,6 @@ class GameInteractorAnchor {
         static std::map<uint32_t, AnchorClient> AnchorClients;
         static std::vector<uint32_t> FairyIndexToClientId;
         static std::string clientVersion;
-        static std::string seed;
 
         void Enable();
         void Disable();

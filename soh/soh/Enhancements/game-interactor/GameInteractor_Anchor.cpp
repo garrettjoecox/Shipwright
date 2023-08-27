@@ -189,7 +189,6 @@ void from_json(const json& j, SaveContext& saveContext) {
 std::map<uint32_t, AnchorClient> GameInteractorAnchor::AnchorClients = {};
 std::vector<uint32_t> GameInteractorAnchor::FairyIndexToClientId = {};
 std::string GameInteractorAnchor::clientVersion = "Anchor Race Build 1";
-std::string GameInteractorAnchor::seed = "00000";
 std::vector<std::pair<uint16_t, int16_t>> receivedItems = {};
 std::vector<AnchorMessage> anchorMessages = {};
 uint32_t notificationId = 0;
@@ -200,15 +199,12 @@ void Anchor_DisplayMessage(AnchorMessage message = {}) {
 }
 
 void Anchor_SendClientData() {
-    GameInteractorAnchor::seed = std::accumulate(std::begin(gSaveContext.seedIcons), std::end(gSaveContext.seedIcons), std::string(), [](std::string a, int b) {
-        return a + std::to_string(b);
-    });
-
     nlohmann::json payload;
     payload["data"]["name"] = CVarGetString("gRemote.AnchorName", "");
     payload["data"]["color"] = CVarGetColor24("gRemote.AnchorColor", { 100, 255, 100 });
     payload["data"]["clientVersion"] = GameInteractorAnchor::clientVersion;
-    payload["data"]["seed"] = GameInteractorAnchor::seed;
+    payload["data"]["seed"] = gSaveContext.seed;
+    payload["data"]["fileNum"] = gSaveContext.fileNum;
     payload["data"]["gameComplete"] = gSaveContext.sohStats.gameComplete;
     payload["type"] = "UPDATE_CLIENT_DATA";
     GameInteractorAnchor::Instance->TransmitJsonToRemote(payload);
@@ -245,6 +241,10 @@ void GameInteractorAnchor::Disable() {
     if (GameInteractor::IsSaveLoaded()) {
         Anchor_SpawnClientFairies();
     }
+    clearCvars(enhancementsCvars);
+    clearCvars(randomizerCvars);
+    clearCvars(cheatCvars);
+    applyPreset(racePresetEntries);
 }
 
 void GameInteractorAnchor::TransmitJsonToRemote(nlohmann::json payload) {
@@ -389,8 +389,13 @@ void GameInteractorAnchor::HandleRemoteJson(nlohmann::json payload) {
         if (hostClientIndex != -1) {
             auto cvars = payload["clients"][hostClientIndex]["config"];
             for (json::iterator it = cvars.begin(); it != cvars.end(); ++it) {
-                // TODO: gracefully handle non ints
-                CVarSetInteger(it.key().c_str(), it.value().get<int>());
+                if (it.value().is_number_float()) {
+                    CVarSetFloat(it.key().c_str(), it.value().get<float>());
+                } else if (it.value().is_number_integer()) {
+                    CVarSetInteger(it.key().c_str(), it.value().get<int>());
+                } else if (it.value().is_string()) {
+                    CVarSetString(it.key().c_str(), it.value().get<std::string>().c_str());
+                }
             }
             CVarSetString("gRandomizerSeedString", payload["clients"][hostClientIndex]["seed"].get<std::string>().c_str());
         } else {
@@ -464,6 +469,9 @@ void GameInteractorAnchor::HandleRemoteJson(nlohmann::json payload) {
     if (payload["type"] == "DISABLE_ANCHOR") {
         GameInteractor::Instance->isRemoteInteractorEnabled = false;
         GameInteractorAnchor::Instance->isEnabled = false;
+    }
+    if (payload["type"] == "RESET") {
+        std::reinterpret_pointer_cast<LUS::ConsoleWindow>(LUS::Context::GetInstance()->GetWindow()->GetGui()->GetGuiWindow("Console"))->Dispatch("reset");
     }
 }
 
@@ -621,6 +629,11 @@ void Anchor_RegisterHooks() {
 
         Anchor_SendClientData();
         Anchor_RequestSaveStateFromRemote();
+    });
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnPresentFileSelect>([]() {
+        if (!GameInteractor::Instance->isRemoteInteractorConnected) return;
+
+        Anchor_SendClientData();
     });
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnItemReceive>([](GetItemEntry itemEntry) {
         return; // [Race Template] No sharing

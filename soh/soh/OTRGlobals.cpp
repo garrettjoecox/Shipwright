@@ -838,6 +838,7 @@ extern "C" void InitOTR() {
     clearCvars(randomizerCvars);
     clearCvars(cheatCvars);
     applyPreset(racePresetEntries);
+    CVarSetInteger("gRemote.Enabled", 0);
 #ifdef ENABLE_REMOTE_CONTROL
     SDLNet_Init();
     if (CVarGetInteger("gRemote.Enabled", 0)) {

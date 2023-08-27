@@ -1494,6 +1494,10 @@ void Randomizer::ParseItemLocationsFile(const char* spoilerFileName, bool silent
             index++;
         }
 
+        std::string seed = spoilerFileJson["seed"].get<std::string>();
+        strncpy(gSaveContext.seed, seed.c_str(), sizeof(gSaveContext.seed) - 1);
+        gSaveContext.seed[sizeof(gSaveContext.seed) - 1] = 0;
+
         for (auto it = locationsJson.begin(); it != locationsJson.end(); ++it) {
             RandomizerCheck randomizerCheck = SpoilerfileCheckNameToEnum[it.key()];
             if (it->is_structured()) {
