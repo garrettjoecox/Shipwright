@@ -31,11 +31,11 @@ GameInteractionEffectQueryResult GameInteractionEffectBase::Apply() {
 }
 
 /// For most effects, CanBeRemoved is the same as CanBeApplied. When its not: please override `CanBeRemoved`.
-GameInteractionEffectQueryResult GameInteractionEffectBase::CanBeRemoved() {
+GameInteractionEffectQueryResult RemovableGameInteractionEffect::CanBeRemoved() {
     return CanBeApplied();
 }
 
-GameInteractionEffectQueryResult GameInteractionEffectBase::Remove() {
+GameInteractionEffectQueryResult RemovableGameInteractionEffect::Remove() {
     GameInteractionEffectQueryResult result = CanBeRemoved();
     if (result != GameInteractionEffectQueryResult::Possible) {
         return result;
@@ -46,6 +46,55 @@ GameInteractionEffectQueryResult GameInteractionEffectBase::Remove() {
 }
 
 namespace GameInteractionEffect {
+
+    // MARK: - Flags
+    GameInteractionEffectQueryResult SetSceneFlag::CanBeApplied() {
+        if (!GameInteractor::IsSaveLoaded()) {
+            return GameInteractionEffectQueryResult::TemporarilyNotPossible;
+        }
+
+        return GameInteractionEffectQueryResult::Possible;
+    }
+
+    void SetSceneFlag::_Apply() {
+        GameInteractor::RawAction::SetSceneFlag(parameters[0], parameters[1], parameters[2]);
+    }
+
+    GameInteractionEffectQueryResult UnsetSceneFlag::CanBeApplied() {
+        if (!GameInteractor::IsSaveLoaded()) {
+            return GameInteractionEffectQueryResult::TemporarilyNotPossible;
+        }
+
+        return GameInteractionEffectQueryResult::Possible;
+    }
+
+    void UnsetSceneFlag::_Apply() {
+        GameInteractor::RawAction::UnsetSceneFlag(parameters[0], parameters[1], parameters[2]);
+    }
+
+    GameInteractionEffectQueryResult SetFlag::CanBeApplied() {
+        if (!GameInteractor::IsSaveLoaded()) {
+            return GameInteractionEffectQueryResult::TemporarilyNotPossible;
+        }
+
+        return GameInteractionEffectQueryResult::Possible;
+    }
+
+    void SetFlag::_Apply() {
+        GameInteractor::RawAction::SetFlag(parameters[0], parameters[1]);
+    }
+
+    GameInteractionEffectQueryResult UnsetFlag::CanBeApplied() {
+        if (!GameInteractor::IsSaveLoaded()) {
+            return GameInteractionEffectQueryResult::TemporarilyNotPossible;
+        }
+
+        return GameInteractionEffectQueryResult::Possible;
+    }
+
+    void UnsetFlag::_Apply() {
+        GameInteractor::RawAction::UnsetFlag(parameters[0], parameters[1]);
+    }
 
     // MARK: - ModifyHeartContainers
     GameInteractionEffectQueryResult ModifyHeartContainers::CanBeApplied() {
@@ -173,7 +222,7 @@ namespace GameInteractionEffect {
     // MARK: - FreezePlayer
     GameInteractionEffectQueryResult FreezePlayer::CanBeApplied() {
         Player* player = GET_PLAYER(gPlayState);
-        if (!GameInteractor::IsSaveLoaded() || GameInteractor::IsGameplayPaused()) {
+        if (!GameInteractor::IsSaveLoaded() || GameInteractor::IsGameplayPaused() || !PlayerGrounded(player)) {
             return GameInteractionEffectQueryResult::TemporarilyNotPossible;
         } else {
             return GameInteractionEffectQueryResult::Possible;
@@ -589,5 +638,18 @@ namespace GameInteractionEffect {
     }
     void SlipperyFloor::_Remove() {
         GameInteractor::State::SlipperyFloorActive = 0;
+    }
+
+    // MARK: - GiveItem
+    GameInteractionEffectQueryResult GiveItem::CanBeApplied() {
+        if (!GameInteractor::IsSaveLoaded()) {
+            return GameInteractionEffectQueryResult::NotPossible;
+        }
+
+        return GameInteractionEffectQueryResult::Possible;
+    }
+
+    void GiveItem::_Apply() {
+        GameInteractor::RawAction::GiveItem(parameters[0], parameters[1]);
     }
 }

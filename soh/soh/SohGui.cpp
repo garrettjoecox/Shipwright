@@ -31,8 +31,10 @@
 #include "soh/resource/type/Skeleton.h"
 #include "libultraship/libultraship.h"
 
-#ifdef ENABLE_CROWD_CONTROL
+#ifdef ENABLE_REMOTE_CONTROL
 #include "Enhancements/crowd-control/CrowdControl.h"
+#include "Enhancements/game-interactor/GameInteractor_BuiltIn.h"
+#include "Enhancements/game-interactor/GameInteractor_Anchor.h"
 #endif
 
 #include "Enhancements/game-interactor/GameInteractor.h"
@@ -125,6 +127,10 @@ namespace SohGui {
     std::shared_ptr<ItemTrackerSettingsWindow> mItemTrackerSettingsWindow;
     std::shared_ptr<ItemTrackerWindow> mItemTrackerWindow;
     std::shared_ptr<RandomizerSettingsWindow> mRandomizerSettingsWindow;
+#ifdef ENABLE_REMOTE_CONTROL
+    std::shared_ptr<AnchorPlayerLocationWindow> mAnchorPlayerLocationWindow;
+    std::shared_ptr<AnchorLogWindow> mAnchorLogWindow;
+#endif
 
     void SetupGuiElements() {
         auto gui = LUS::Context::GetInstance()->GetWindow()->GetGui();
@@ -183,6 +189,12 @@ namespace SohGui {
         gui->AddGuiWindow(mItemTrackerSettingsWindow);
         mRandomizerSettingsWindow = std::make_shared<RandomizerSettingsWindow>("gRandomizerSettingsEnabled", "Randomizer Settings");
         gui->AddGuiWindow(mRandomizerSettingsWindow);
+#ifdef ENABLE_REMOTE_CONTROL
+        mAnchorPlayerLocationWindow = std::make_shared<AnchorPlayerLocationWindow>("gRemote.AnchorPlayerLocationWindow", "Anchor Player Location Window");
+        gui->AddGuiWindow(mAnchorPlayerLocationWindow);
+        mAnchorLogWindow = std::make_shared<AnchorLogWindow>("gRemote.AnchorLogWindow", "Anchor Log");
+        gui->AddGuiWindow(mAnchorLogWindow);
+#endif
     }
 
     void Destroy() {
@@ -204,5 +216,9 @@ namespace SohGui {
         mStatsWindow = nullptr;
         mConsoleWindow = nullptr;
         mSohMenuBar = nullptr;
+#ifdef ENABLE_REMOTE_CONTROL
+        mAnchorPlayerLocationWindow = nullptr;
+        mAnchorLogWindow = nullptr;
+#endif
     }
 }

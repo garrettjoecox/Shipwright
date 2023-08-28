@@ -9,6 +9,9 @@
 #include "3drando/item_location.hpp"
 #include "soh/Enhancements/game-interactor/GameInteractor.h"
 #include "randomizerTypes.h"
+#ifdef ENABLE_REMOTE_CONTROL
+#include "soh/Enhancements/game-interactor/GameInteractor_Anchor.h"
+#endif
 
 
 extern "C" {
@@ -744,15 +747,8 @@ bool HasItemBeenCollected(RandomizerCheckObject obj) {
             return gSaveContext.itemGetInf[flag / 16] & INDEX_TO_16BIT_LITTLE_ENDIAN_BITMASK(flag);
         case SpoilerCollectionCheckType::SPOILER_CHK_MAGIC_BEANS:
             return BEANS_BOUGHT >= 10;
-        case SpoilerCollectionCheckType::SPOILER_CHK_MINIGAME:
-            if (obj.rc == RC_LH_CHILD_FISHING)
-                return HIGH_SCORE(HS_FISHING) & 0x400;
-            if (obj.rc == RC_LH_ADULT_FISHING)
-                return HIGH_SCORE(HS_FISHING) & 0x800;
         case SpoilerCollectionCheckType::SPOILER_CHK_NONE:
             return false;
-        case SpoilerCollectionCheckType::SPOILER_CHK_POE_POINTS:
-            return gSaveContext.highScores[HS_POE_POINTS] >= 1000;
         case SpoilerCollectionCheckType::SPOILER_CHK_GRAVEDIGGER:
             // Gravedigger has a fix in place that means one of two save locations. Check both.
             return (gSaveContext.itemGetInf[1] & 0x1000) || // vanilla flag
@@ -819,9 +815,15 @@ void DrawLocation(RandomizerCheckObject rcObj, RandomizerCheckShow* thisCheckSta
             if (skipped) {
                 gSaveContext.sohStats.locationsSkipped[rcObj.rc] = 0;
                 *thisCheckStatus = RCSHOW_UNCHECKED;
+#ifdef ENABLE_REMOTE_CONTROL
+                Anchor_SkipLocation(rcObj.rc, false);
+#endif
             } else {
                 gSaveContext.sohStats.locationsSkipped[rcObj.rc] = 1;
                 *thisCheckStatus = RCSHOW_SKIPPED;
+#ifdef ENABLE_REMOTE_CONTROL
+                Anchor_SkipLocation(rcObj.rc, true);
+#endif
             }
         }
     } else {

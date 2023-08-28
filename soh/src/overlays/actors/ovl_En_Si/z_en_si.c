@@ -5,6 +5,7 @@
  */
 
 #include "z_en_si.h"
+#include "soh/Enhancements/game-interactor/GameInteractor_Hooks.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_HOOKSHOT_DRAGS)
 
@@ -180,12 +181,21 @@ void func_80AFB950(EnSi* this, PlayState* play) {
         player->actor.freezeTimer = 10;
     } else {
         SET_GS_FLAGS((this->actor.params & 0x1F00) >> 8, this->actor.params & 0xFF);
+        GameInteractor_ExecuteOnFlagSet(FLAG_GS_TOKEN, this->actor.params);
         Actor_Kill(&this->actor);
     }
 }
 
 void EnSi_Update(Actor* thisx, PlayState* play) {
     EnSi* this = (EnSi*)thisx;
+
+    // #region SOH [Co-op]
+    // Check to see if this gold skull token has already been retrieved.
+    if (GET_GS_FLAGS((thisx->params & 0x1F00) >> 8) & (thisx->params & 0xFF)) {
+        Actor_Kill(&this->actor);
+        return;
+    }
+    // #endregion
 
     Actor_MoveForward(&this->actor);
     Actor_UpdateBgCheckInfo(play, &this->actor, 0.0f, 0.0f, 0.0f, 4);
