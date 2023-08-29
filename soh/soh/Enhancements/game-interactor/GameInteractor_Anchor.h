@@ -18,33 +18,36 @@ typedef struct {
     uint8_t roomIndex;
     uint32_t entranceIndex;
     PosRot posRot;
+    s32 playerAge;
+    uint16_t playerSound;
 } AnchorClient;
 
 class GameInteractorAnchor {
-    private:
-        bool isEnabled;
+  private:
+    bool isEnabled;
 
-        void HandleRemoteJson(nlohmann::json payload);
-    public:
-        static GameInteractorAnchor* Instance;
-        static std::map<uint32_t, AnchorClient> AnchorClients;
-        static std::vector<uint32_t> FairyIndexToClientId;
-        static std::string clientVersion;
-        static std::string seed;
+    void HandleRemoteJson(nlohmann::json payload);
 
-        void Enable();
-        void Disable();
+  public:
+    static GameInteractorAnchor* Instance;
+    static std::map<uint32_t, AnchorClient> AnchorClients;
+    static std::vector<uint32_t> FairyIndexToClientId;
+    static std::string clientVersion;
+    static std::string seed;
 
-        void TransmitJsonToRemote(nlohmann::json payload);
+    void Enable();
+    void Disable();
+
+    void TransmitJsonToRemote(nlohmann::json payload);
 };
 
 class AnchorPlayerLocationWindow : public LUS::GuiWindow {
   public:
     using GuiWindow::GuiWindow;
 
-    void InitElement() override {};
+    void InitElement() override{};
     void DrawElement() override;
-    void UpdateElement() override {};
+    void UpdateElement() override{};
 };
 
 struct AnchorMessage {
@@ -63,9 +66,9 @@ class AnchorLogWindow : public LUS::GuiWindow {
   public:
     using GuiWindow::GuiWindow;
 
-    void InitElement() override {};
+    void InitElement() override{};
     void DrawElement() override;
-    void UpdateElement() override {};
+    void UpdateElement() override{};
 };
 
 #endif
@@ -80,6 +83,8 @@ void Anchor_PushSaveStateToRemote();
 void Anchor_RequestSaveStateFromRemote();
 uint8_t Anchor_GetClientScene(uint32_t fairyIndex);
 PosRot Anchor_GetClientPosition(uint32_t fairyIndex);
+s32 Anchor_GetClientAge(uint32_t puppetIndex);
+uint16_t Anchor_GetClientSound(uint32_t puppetIndex);
 Color_RGB8 Anchor_GetClientColor(uint32_t fairyIndex);
 void Anchor_SpawnClientFairies();
 void Anchor_SkipLocation(uint32_t locationIndex, bool skipped);
