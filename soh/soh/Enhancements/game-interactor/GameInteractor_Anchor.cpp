@@ -357,7 +357,6 @@ void GameInteractorAnchor::HandleRemoteJson(nlohmann::json payload) {
                                                                          0,
                                                                          { -9999, -9999, -9999, 0, 0, 0 },
                                                                          0,
-                                                                         0,
                                                                          0 };
                 Anchor_DisplayMessage(
                     { .prefix = client.name, .prefixColor = ImVec4(1.0f, 0.5f, 0.5f, 1.0f), .message = "connected" });
