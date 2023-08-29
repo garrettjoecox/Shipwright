@@ -86,6 +86,12 @@ void LinkPuppet_Init(Actor* thisx, PlayState* play) {
     this->actor.room = -1;
     this->actor.targetMode = 1;
 
+    s32 playerAge = Anchor_GetClientAge(this->actor.params - 3);
+
+    SkelAnime_InitLink(play, &this->linkSkeleton, gPlayerSkelHeaders[((void)0, playerAge)],
+           gPlayerAnim_link_normal_wait, 9, this->linkSkeleton.jointTable, this->linkSkeleton.morphTable,
+           PLAYER_LIMB_MAX);
+
     ActorShape_Init(&this->actor.shape, 0.0f, ActorShadow_DrawFeet, 90.0f);
 
     Collider_InitCylinder(play, &this->collider);
@@ -261,12 +267,10 @@ void Puppet_PostLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot
 void LinkPuppet_Draw(Actor* thisx, PlayState* play) {
     LinkPuppet* this = (LinkPuppet*)thisx;
 
-    if (this->initialized) {
-        func_8008F470(play, this->linkSkeleton.skeleton, this->linkSkeleton.jointTable, this->linkSkeleton.dListCount,
-                      0, 0, 0, 0, Puppet_OverrideLimbDraw, Puppet_PostLimbDraw, this);
+    func_8008F470(play, this->linkSkeleton.skeleton, this->linkSkeleton.jointTable, this->linkSkeleton.dListCount, 0, 0,
+                  0, 0, Puppet_OverrideLimbDraw, Puppet_PostLimbDraw, this);
 
-        /*        func_8008F470(play, this->linkSkeleton.skeleton, this->linkSkeleton.jointTable,
-           this->linkSkeleton.dListCount, 0, this->packet.tunicType, this->packet.bootsType, this->packet.faceType,
-           Puppet_OverrideLimbDraw, Puppet_PostLimbDraw, this);*/
-    }
+    /*        func_8008F470(play, this->linkSkeleton.skeleton, this->linkSkeleton.jointTable,
+       this->linkSkeleton.dListCount, 0, this->packet.tunicType, this->packet.bootsType, this->packet.faceType,
+       Puppet_OverrideLimbDraw, Puppet_PostLimbDraw, this);*/
 }
