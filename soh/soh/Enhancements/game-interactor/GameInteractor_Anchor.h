@@ -20,7 +20,7 @@ typedef struct {
     uint32_t entranceIndex;
     PosRot posRot;
     PlayerData playerData;
-    Vec3s jointTable[21];
+    Vec3s jointTable[23];
 } AnchorClient;
 
 class GameInteractorAnchor {

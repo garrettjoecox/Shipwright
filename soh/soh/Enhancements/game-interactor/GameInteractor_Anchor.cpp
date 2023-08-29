@@ -371,7 +371,7 @@ void GameInteractorAnchor::HandleRemoteJson(nlohmann::json payload) {
             GameInteractorAnchor::AnchorClients[clientId].posRot = payload["posRot"].get<PosRot>();
             GameInteractorAnchor::AnchorClients[clientId].playerData = payload["playerData"].get<PlayerData>();
             std::vector<Vec3s> jointTable = payload["jointTable"].get<std::vector<Vec3s>>();
-            for (int i = 0; i < 21; i++) {
+            for (int i = 0; i < 23; i++) {
                 GameInteractorAnchor::AnchorClients[clientId].jointTable[i] = jointTable[i];
             }
         }
@@ -752,7 +752,7 @@ void Anchor_RegisterHooks() {
         payload["posRot"] = player->actor.world;
         payload["playerData"] = gSaveContext.playerData;
         std::vector<Vec3s> jointTable = {};
-        for (int i = 0; i < 21; i++) {
+        for (int i = 0; i < 23; i++) {
             jointTable.push_back(player->skelAnime.jointTable[i]);
         }
         payload["jointTable"] = jointTable;

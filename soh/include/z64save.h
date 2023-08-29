@@ -176,7 +176,7 @@ typedef struct {
     u8 rightHandType;
     u8 tunicType;
     u8 bootsType;
-    u8 faceType;
+    s16 faceType;
     u8 shieldType;
 } PlayerData;
 
