@@ -190,11 +190,7 @@ void LinkPuppet_Update(Actor* thisx, PlayState* play) {
 
     PlayerData playerData = Anchor_GetClientPlayerData(this->actor.params - 3);
 
-    /*
-    if (this->packet.jointTable != NULL) {
-        this->linkSkeleton.jointTable = this->packet.jointTable;
-    }
-    */
+    this->linkSkeleton.jointTable = playerData.jointTable;
 
     if (playerData.playerSound != 0) {
         Audio_PlaySoundGeneral(playerData.playerSound, &this->actor.projectedPos, 4, &D_801333E0, &D_801333E0,
