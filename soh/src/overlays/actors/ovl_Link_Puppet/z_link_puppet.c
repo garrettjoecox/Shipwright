@@ -190,7 +190,7 @@ void LinkPuppet_Update(Actor* thisx, PlayState* play) {
 
     PlayerData playerData = Anchor_GetClientPlayerData(this->actor.params - 3);
 
-    this->linkSkeleton.jointTable = playerData.jointTable;
+    //this->linkSkeleton.jointTable = playerData.jointTable;
 
     if (playerData.playerSound != 0) {
         Audio_PlaySoundGeneral(playerData.playerSound, &this->actor.projectedPos, 4, &D_801333E0, &D_801333E0,
@@ -267,8 +267,4 @@ void LinkPuppet_Draw(Actor* thisx, PlayState* play) {
     func_8008F470(play, this->linkSkeleton.skeleton, this->linkSkeleton.jointTable, this->linkSkeleton.dListCount, 0,
                   playerData.tunicType, playerData.bootsType, playerData.faceType, Puppet_OverrideLimbDraw,
                   Puppet_PostLimbDraw, this);
-
-    /*        func_8008F470(play, this->linkSkeleton.skeleton, this->linkSkeleton.jointTable,
-       this->linkSkeleton.dListCount, 0, this->packet.tunicType, this->packet.bootsType, this->packet.faceType,
-       Puppet_OverrideLimbDraw, Puppet_PostLimbDraw, this);*/
 }

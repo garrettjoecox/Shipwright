@@ -622,7 +622,7 @@ void Anchor_SpawnClientFairies() {
         GameInteractorAnchor::FairyIndexToClientId.push_back(clientId);
         auto fairy = Actor_Spawn(&gPlayState->actorCtx, gPlayState, gEnLinkPuppetId, -9999.0, -9999.0, -9999.0, 0, 0, 0, 3 + i, false);
         NameTagOptions options = NameTagOptions();
-        options.yOffset = Player_GetHeight(GET_PLAYER(gPlayState)); 
+        options.yOffset = Player_GetHeight(GET_PLAYER(gPlayState)) - 18.0f; 
         NameTag_RegisterForActorWithOptions(fairy, client.name.c_str(), options);
         i++;
     }
@@ -710,18 +710,15 @@ void Anchor_RegisterHooks() {
         GameInteractorAnchor::Instance->TransmitJsonToRemote(payload);
     });
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnPlayerUpdate>([]() {
-        static uint32_t lastPlayerCount = 0;
-        uint32_t currentPlayerCount =  GameInteractorAnchor::AnchorClients.size();
+        uint32_t currentPlayerCount = GameInteractorAnchor::AnchorClients.size();
+
         if (!GameInteractor::Instance->isRemoteInteractorConnected || gPlayState == NULL || !GameInteractor::Instance->IsSaveLoaded()) {
-            lastPlayerCount = currentPlayerCount;
             return;
         }
+
         Player* player = GET_PLAYER(gPlayState);
         nlohmann::json payload;
         float currentPosition = player->actor.world.pos.x + player->actor.world.pos.y + player->actor.world.pos.z + player->actor.world.rot.y;
-        static float lastPosition = 0.0f;
-
-        if (currentPosition == lastPosition && currentPlayerCount == lastPlayerCount) return;
 
         gSaveContext.playerData.bootsType = player->currentBoots;
         gSaveContext.playerData.shieldType = player->currentShield;
@@ -741,9 +738,6 @@ void Anchor_RegisterHooks() {
         payload["posRot"] = player->actor.world;
         payload["playerData"] = gSaveContext.playerData;
         payload["quiet"] = true;
-
-        lastPosition = currentPosition;
-        lastPlayerCount = currentPlayerCount;
 
         GameInteractorAnchor::Instance->TransmitJsonToRemote(payload);
 
