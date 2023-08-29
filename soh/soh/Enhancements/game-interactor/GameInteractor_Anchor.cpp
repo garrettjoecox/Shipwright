@@ -370,6 +370,10 @@ void GameInteractorAnchor::HandleRemoteJson(nlohmann::json payload) {
             GameInteractorAnchor::AnchorClients[clientId].entranceIndex = payload.contains("entranceIndex") ? payload.at("entranceIndex").get<int16_t>() : 0;
             GameInteractorAnchor::AnchorClients[clientId].posRot = payload["posRot"].get<PosRot>();
             GameInteractorAnchor::AnchorClients[clientId].playerData = payload["playerData"].get<PlayerData>();
+            std::vector<Vec3s> jointTable = payload["jointTable"].get<std::vector<Vec3s>>();
+            for (int i = 0; i < 21; i++) {
+                GameInteractorAnchor::AnchorClients[clientId].jointTable[i] = jointTable[i];
+            }
         }
     }
     if (payload["type"] == "PUSH_SAVE_STATE" && GameInteractor::IsSaveLoaded()) {
@@ -395,7 +399,8 @@ void GameInteractorAnchor::HandleRemoteJson(nlohmann::json payload) {
                     0,
                     0,
                     { -9999, -9999, -9999, 0, 0, 0 },
-                    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+                    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                    {},
                 };
                 Anchor_DisplayMessage({
                     .prefix = client.name,
@@ -587,6 +592,15 @@ PlayerData Anchor_GetClientPlayerData(uint32_t puppetIndex) {
     return GameInteractorAnchor::AnchorClients[clientId].playerData;
 }
 
+Vec3s* Anchor_GetClientJointTable(uint32_t puppetIndex) {
+    uint32_t clientId = GameInteractorAnchor::FairyIndexToClientId[puppetIndex];
+    if (GameInteractorAnchor::AnchorClients.find(clientId) == GameInteractorAnchor::AnchorClients.end()) {
+        return {};
+    }
+
+    return GameInteractorAnchor::AnchorClients[clientId].jointTable;
+}
+
 PosRot Anchor_GetClientPosition(uint32_t fairyIndex) {
     uint32_t clientId = GameInteractorAnchor::FairyIndexToClientId[fairyIndex];
     if (GameInteractorAnchor::AnchorClients.find(clientId) == GameInteractorAnchor::AnchorClients.end()) {
@@ -737,6 +751,11 @@ void Anchor_RegisterHooks() {
         payload["entranceIndex"] = gSaveContext.entranceIndex;
         payload["posRot"] = player->actor.world;
         payload["playerData"] = gSaveContext.playerData;
+        std::vector<Vec3s> jointTable = {};
+        for (int i = 0; i < 21; i++) {
+            jointTable.push_back(player->skelAnime.jointTable[i]);
+        }
+        payload["jointTable"] = jointTable;
         payload["quiet"] = true;
 
         GameInteractorAnchor::Instance->TransmitJsonToRemote(payload);
