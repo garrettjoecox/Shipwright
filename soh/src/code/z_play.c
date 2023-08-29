@@ -745,7 +745,7 @@ void Play_Init(GameState* thisx) {
     #endif
 
     if (CVarGetInteger("gIvanCoopModeEnabled", 0)) {
-        Actor_Spawn(&play->actorCtx, play, gEnLinkPuppetId, GET_PLAYER(play)->actor.world.pos.x,
+        Actor_Spawn(&play->actorCtx, play, gEnPartnerId, GET_PLAYER(play)->actor.world.pos.x,
                     GET_PLAYER(play)->actor.world.pos.y + Player_GetHeight(GET_PLAYER(play)) + 5.0f,
                     GET_PLAYER(play)->actor.world.pos.z, 0, 0, 0, 1, true);
     }

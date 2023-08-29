@@ -36,6 +36,35 @@ void to_json(json& j, const Color_RGB8& color) {
     };
 }
 
+void from_json(const json& j, PlayerData& playerData) {
+    j.at("playerAge").get_to(playerData.playerAge);
+    j.at("playerSound").get_to(playerData.playerSound);
+    j.at("sheathType").get_to(playerData.sheathType);
+    j.at("leftHandType").get_to(playerData.leftHandType);
+    j.at("biggoron_broken").get_to(playerData.biggoron_broken);
+    j.at("rightHandType").get_to(playerData.rightHandType);
+    j.at("tunicType").get_to(playerData.tunicType);
+    j.at("bootsType").get_to(playerData.bootsType);
+    j.at("faceType").get_to(playerData.faceType);
+    j.at("shieldType").get_to(playerData.shieldType);
+}
+
+void to_json(json& j, const PlayerData& playerData) {
+    j = json{
+        { "playerAge", playerData.playerAge },
+        { "playerSound", playerData.playerSound },
+        { "sheathType", playerData.sheathType },
+        { "leftHandType", playerData.leftHandType },
+        { "biggoron_broken", playerData.biggoron_broken },
+        { "rightHandType", playerData.rightHandType },
+        { "tunicType", playerData.tunicType },
+        { "bootsType", playerData.bootsType },
+        { "faceType", playerData.faceType },
+        { "shieldType", playerData.shieldType },
+    };
+
+}
+
 void to_json(json& j, const Vec3f& vec) {
     j = json{
         {"x", vec.x},
@@ -87,6 +116,7 @@ void from_json(const json& j, AnchorClient& client) {
     j.contains("roomIndex") ? j.at("roomIndex").get_to(client.roomIndex) : client.roomIndex = 0;
     j.contains("entranceIndex") ? j.at("entranceIndex").get_to(client.entranceIndex) : client.entranceIndex = 0;
     j.contains("posRot") ? j.at("posRot").get_to(client.posRot) : client.posRot = { -9999, -9999, -9999, 0, 0, 0 };
+    j.contains("playerData") ? j.at("playerData").get_to(client.playerData) : client.playerData = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 }
 
 void to_json(json& j, const SavedSceneFlags& flags) {
@@ -339,6 +369,7 @@ void GameInteractorAnchor::HandleRemoteJson(nlohmann::json payload) {
             GameInteractorAnchor::AnchorClients[clientId].roomIndex = payload.contains("roomIndex") ? payload.at("roomIndex").get<int16_t>() : 0;
             GameInteractorAnchor::AnchorClients[clientId].entranceIndex = payload.contains("entranceIndex") ? payload.at("entranceIndex").get<int16_t>() : 0;
             GameInteractorAnchor::AnchorClients[clientId].posRot = payload["posRot"].get<PosRot>();
+            GameInteractorAnchor::AnchorClients[clientId].playerData = payload["playerData"].get<PlayerData>();
         }
     }
     if (payload["type"] == "PUSH_SAVE_STATE" && GameInteractor::IsSaveLoaded()) {
@@ -364,8 +395,7 @@ void GameInteractorAnchor::HandleRemoteJson(nlohmann::json payload) {
                     0,
                     0,
                     { -9999, -9999, -9999, 0, 0, 0 },
-                    0,
-                    0
+                    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
                 };
                 Anchor_DisplayMessage({
                     .prefix = client.name,
@@ -548,22 +578,13 @@ uint8_t Anchor_GetClientScene(uint32_t fairyIndex) {
     return GameInteractorAnchor::AnchorClients[clientId].scene;
 }
 
-uint16_t Anchor_GetClientSound(uint32_t puppetIndex) {
+PlayerData Anchor_GetClientPlayerData(uint32_t puppetIndex) {
     uint32_t clientId = GameInteractorAnchor::FairyIndexToClientId[puppetIndex];
     if (GameInteractorAnchor::AnchorClients.find(clientId) == GameInteractorAnchor::AnchorClients.end()) {
-        return 0;
+        return { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     }
 
-    return GameInteractorAnchor::AnchorClients[clientId].playerSound;
-}
-
-s32 Anchor_GetClientAge(uint32_t puppetIndex) {
-    uint32_t clientId = GameInteractorAnchor::FairyIndexToClientId[puppetIndex];
-    if (GameInteractorAnchor::AnchorClients.find(clientId) == GameInteractorAnchor::AnchorClients.end()) {
-        return 0;
-    }
-
-    return GameInteractorAnchor::AnchorClients[clientId].playerAge;
+    return GameInteractorAnchor::AnchorClients[clientId].playerData;
 }
 
 PosRot Anchor_GetClientPosition(uint32_t fairyIndex) {
@@ -600,7 +621,9 @@ void Anchor_SpawnClientFairies() {
     for (auto [clientId, client] : GameInteractorAnchor::AnchorClients) {
         GameInteractorAnchor::FairyIndexToClientId.push_back(clientId);
         auto fairy = Actor_Spawn(&gPlayState->actorCtx, gPlayState, gEnLinkPuppetId, -9999.0, -9999.0, -9999.0, 0, 0, 0, 3 + i, false);
-        NameTag_RegisterForActor(fairy, client.name.c_str());
+        NameTagOptions options = NameTagOptions();
+        options.yOffset = Player_GetHeight(GET_PLAYER(gPlayState)); 
+        NameTag_RegisterForActorWithOptions(fairy, client.name.c_str(), options);
         i++;
     }
 }
@@ -700,17 +723,31 @@ void Anchor_RegisterHooks() {
 
         if (currentPosition == lastPosition && currentPlayerCount == lastPlayerCount) return;
 
+        gSaveContext.playerData.bootsType = player->currentBoots;
+        gSaveContext.playerData.shieldType = player->currentShield;
+        gSaveContext.playerData.sheathType = player->sheathType;
+        gSaveContext.playerData.leftHandType = player->leftHandType;
+        gSaveContext.playerData.rightHandType = player->rightHandType;
+        gSaveContext.playerData.tunicType = player->currentTunic;
+        gSaveContext.playerData.faceType = player->actor.shape.face;
+        gSaveContext.playerData.biggoron_broken = gSaveContext.swordHealth <= 0 ? 1 : 0;
+        gSaveContext.playerData.playerAge = gSaveContext.linkAge;
+        gSaveContext.playerData.playerSound = gSaveContext.linkSound;
+
         payload["type"] = "CLIENT_UPDATE";
         payload["sceneNum"] = gPlayState->sceneNum;
         payload["roomIndex"] = gPlayState->roomCtx.curRoom.num;
         payload["entranceIndex"] = gSaveContext.entranceIndex;
         payload["posRot"] = player->actor.world;
+        payload["playerData"] = gSaveContext.playerData;
         payload["quiet"] = true;
 
         lastPosition = currentPosition;
         lastPlayerCount = currentPlayerCount;
 
         GameInteractorAnchor::Instance->TransmitJsonToRemote(payload);
+
+        gSaveContext.linkSound = 0;
     });
 }
 

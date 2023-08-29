@@ -86,7 +86,7 @@ void LinkPuppet_Init(Actor* thisx, PlayState* play) {
     this->actor.room = -1;
     this->actor.targetMode = 1;
 
-    s32 playerAge = Anchor_GetClientAge(this->actor.params - 3);
+    s32 playerAge = Anchor_GetClientPlayerData(this->actor.params - 3).playerAge;
 
     SkelAnime_InitLink(play, &this->linkSkeleton, gPlayerSkelHeaders[((void)0, playerAge)],
            gPlayerAnim_link_normal_wait, 9, this->linkSkeleton.jointTable, this->linkSkeleton.morphTable,
@@ -188,15 +188,17 @@ void LinkPuppet_Update(Actor* thisx, PlayState* play) {
         }
     }
 
+    PlayerData playerData = Anchor_GetClientPlayerData(this->actor.params - 3);
+
     /*
     if (this->packet.jointTable != NULL) {
         this->linkSkeleton.jointTable = this->packet.jointTable;
     }
     */
 
-    s32 playerSound = Anchor_GetClientSound(this->actor.params - 3);
-    if (playerSound != 0) {
-        Audio_PlaySoundGeneral(playerSound, &this->actor.projectedPos, 4, &D_801333E0, &D_801333E0, &D_801333E8);
+    if (playerData.playerSound != 0) {
+        Audio_PlaySoundGeneral(playerData.playerSound, &this->actor.projectedPos, 4, &D_801333E0, &D_801333E0,
+                               &D_801333E8);
     }
 }
 
@@ -211,10 +213,10 @@ extern Gfx* D_80125D28[];
 s32 Puppet_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, void* thisx) {
     LinkPuppet* this = (LinkPuppet*)thisx;
 
-    s32 playerAge = Anchor_GetClientAge(this->actor.params - 3);
+    PlayerData playerData = Anchor_GetClientPlayerData(this->actor.params - 3);
 
     if (limbIndex == PLAYER_LIMB_ROOT) {
-        if (playerAge == 1) {
+        if (playerData.playerAge == 1) {
             if (!(this->linkSkeleton.moveFlags & 4) || (this->linkSkeleton.moveFlags & 1)) {
                 pos->x *= 0.64f;
                 pos->z *= 0.64f;
@@ -224,33 +226,30 @@ s32 Puppet_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* 
                 pos->y *= 0.64f;
             }
         }
-    }
-    /*
-    else if (limbIndex == PLAYER_LIMB_SHEATH) {
+    } else if (limbIndex == PLAYER_LIMB_SHEATH) {
 
-        Gfx** dLists = &sPlayerDListGroups[this->packet.sheathType][(void)0, playerAge];
-        if ((this->packet.sheathType == 18) || (this->packet.sheathType == 19)) {
-            dLists += this->packet.shieldType * 4;
+        Gfx** dLists = &sPlayerDListGroups[playerData.sheathType][(void)0, playerData.playerAge];
+        if ((playerData.sheathType == 18) || (playerData.sheathType == 19)) {
+            dLists += playerData.shieldType * 4;
         }
         *dList = ResourceMgr_LoadGfxByName(dLists[0]);
 
     } else if (limbIndex == PLAYER_LIMB_L_HAND) {
 
-        Gfx** dLists = &sPlayerDListGroups[this->packet.leftHandType][(void)0, playerAge];
-        if ((this->packet.leftHandType == 4) && this->packet.biggoron_broken) {
+        Gfx** dLists = &sPlayerDListGroups[playerData.leftHandType][(void)0, playerData.playerAge];
+        if ((playerData.leftHandType == 4) && playerData.biggoron_broken) {
             dLists += 4;
         }
         *dList = ResourceMgr_LoadGfxByName(dLists[0]);
 
     } else if (limbIndex == PLAYER_LIMB_R_HAND) {
 
-        Gfx** dLists = &sPlayerDListGroups[this->packet.rightHandType][(void)0, playerAge];
-        if (this->packet.rightHandType == 10) {
-            dLists += this->packet.shieldType * 4;
+        Gfx** dLists = &sPlayerDListGroups[playerData.rightHandType][(void)0, playerData.playerAge];
+        if (playerData.rightHandType == 10) {
+            dLists += playerData.shieldType * 4;
         }
         *dList = ResourceMgr_LoadGfxByName(dLists[0]);
     }
-    */
 
     return false;
 }
@@ -258,17 +257,20 @@ s32 Puppet_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* 
 void Puppet_PostLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, void* thisx) {
     LinkPuppet* this = (LinkPuppet*)thisx;
 
-    s32 playerAge = Anchor_GetClientAge(this->actor.params - 3);
+    PlayerData playerData = Anchor_GetClientPlayerData(this->actor.params - 3);
 
-    Vec3f* vec = &FEET_POS[((void)0, playerAge)];
+    Vec3f* vec = &FEET_POS[((void)0, playerData.playerAge)];
     Actor_SetFeetPos(&this->actor, limbIndex, PLAYER_LIMB_L_FOOT, vec, PLAYER_LIMB_R_FOOT, vec);
 }
 
 void LinkPuppet_Draw(Actor* thisx, PlayState* play) {
     LinkPuppet* this = (LinkPuppet*)thisx;
 
-    func_8008F470(play, this->linkSkeleton.skeleton, this->linkSkeleton.jointTable, this->linkSkeleton.dListCount, 0, 0,
-                  0, 0, Puppet_OverrideLimbDraw, Puppet_PostLimbDraw, this);
+    PlayerData playerData = Anchor_GetClientPlayerData(this->actor.params - 3);
+
+    func_8008F470(play, this->linkSkeleton.skeleton, this->linkSkeleton.jointTable, this->linkSkeleton.dListCount, 0,
+                  playerData.tunicType, playerData.bootsType, playerData.faceType, Puppet_OverrideLimbDraw,
+                  Puppet_PostLimbDraw, this);
 
     /*        func_8008F470(play, this->linkSkeleton.skeleton, this->linkSkeleton.jointTable,
        this->linkSkeleton.dListCount, 0, this->packet.tunicType, this->packet.bootsType, this->packet.faceType,

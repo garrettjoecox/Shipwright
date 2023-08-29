@@ -168,6 +168,19 @@ typedef struct {
 } RandoSetting;
 
 typedef struct {
+    s32 playerAge;
+    u16 playerSound;
+    u8 sheathType;
+    u8 leftHandType;
+    u8 biggoron_broken;
+    u8 rightHandType;
+    u8 tunicType;
+    u8 bootsType;
+    u8 faceType;
+    u8 shieldType;
+} PlayerData;
+
+typedef struct {
     /* 0x0000 */ s32 entranceIndex; // start of `save` substruct, originally called "memory"
     /* 0x0004 */ s32 linkAge; // 0: Adult; 1: Child (see enum `LinkAge`)
     /* 0x0008 */ s32 cutsceneIndex;
@@ -323,6 +336,7 @@ typedef struct {
     // #region SOH [Network]
     // Upstream TODO: Move these to their own struct or name to more obviously specific to Network
     /*        */ uint16_t linkSound;
+    /*        */ PlayerData playerData;
     // #endregion
 } SaveContext; // size = 0x1428
 
