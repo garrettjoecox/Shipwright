@@ -88,6 +88,8 @@ void LinkPuppet_Init(Actor* thisx, PlayState* play) {
 
     s32 playerAge = Anchor_GetClientPlayerData(this->actor.params - 3).playerAge;
 
+    this->puppetAge = playerAge;
+
     SkelAnime_InitLink(play, &this->linkSkeleton, gPlayerSkelHeaders[((void)0, playerAge)],
            gPlayerAnim_link_normal_wait, 9, this->linkSkeleton.jointTable, this->linkSkeleton.morphTable,
            PLAYER_LIMB_MAX);
@@ -113,63 +115,65 @@ void LinkPuppet_Update(Actor* thisx, PlayState* play) {
 
     Actor_UpdateBgCheckInfo(play, &this->actor, 15.0f, 30.0f, 60.0f, 0x1D);
 
+    PlayerData playerData = Anchor_GetClientPlayerData(this->actor.params - 3);
+
+    if (this->puppetAge != playerData.playerAge) {
+        LinkPuppet_Init(this, play);
+        return;
+    }
+
     if (this->damageTimer > 0) {
         this->damageTimer--;
     }
 
-    /*
-    if (this->packet.damageEffect > 0 && GET_PLAYER(globalCtx)->invincibilityTimer <= 0 &&
-        !Player_InBlockingCsMode(globalCtx, GET_PLAYER(globalCtx))) {
-
-        if (this->packet.damageEffect == PUPPET_DMGEFF_NORMAL) {
-            Player_InflictDamage(globalCtx, this->packet.damageValue * -4);
-            func_80837C0C(globalCtx, GET_PLAYER(globalCtx), 0, 0, 0, 0, 0);
-            GET_PLAYER(globalCtx)->invincibilityTimer = 18;
-            GET_PLAYER(globalCtx)->actor.freezeTimer = 0;
-        } else if (this->packet.damageEffect == PUPPET_DMGEFF_ICE) {
-            GET_PLAYER(globalCtx)->stateFlags1 &= ~(PLAYER_STATE1_10 | PLAYER_STATE1_11);
-            func_80837C0C(globalCtx, GET_PLAYER(globalCtx), 3, 0.0f, 0.0f, 0, 20);
-            GET_PLAYER(globalCtx)->invincibilityTimer = 18;
-            GET_PLAYER(globalCtx)->actor.freezeTimer = 0;
-        } else if (this->packet.damageEffect == PUPPET_DMGEFF_FIRE) {
+    if (playerData.damageEffect > 0 && GET_PLAYER(play)->invincibilityTimer <= 0 &&
+        !Player_InBlockingCsMode(play, GET_PLAYER(play))) {
+        if (playerData.damageEffect == PUPPET_DMGEFF_NORMAL) {
+            Player_InflictDamage(play, playerData.damageValue * -4);
+            func_80837C0C(play, GET_PLAYER(play), 0, 0, 0, 0, 0);
+            GET_PLAYER(play)->invincibilityTimer = 18;
+            GET_PLAYER(play)->actor.freezeTimer = 0;
+        } else if (playerData.damageEffect == PUPPET_DMGEFF_ICE) {
+            GET_PLAYER(play)->stateFlags1 &= ~(PLAYER_STATE1_GETTING_ITEM | PLAYER_STATE1_ITEM_OVER_HEAD);
+            func_80837C0C(play, GET_PLAYER(play), 3, 0.0f, 0.0f, 0, 20);
+            GET_PLAYER(play)->invincibilityTimer = 18;
+            GET_PLAYER(play)->actor.freezeTimer = 0;
+        } else if (playerData.damageEffect == PUPPET_DMGEFF_FIRE) {
             for (int i = 0; i < 18; i++) {
-                GET_PLAYER(globalCtx)->flameTimers[i] = Rand_S16Offset(0, 200);
+                GET_PLAYER(play)->flameTimers[i] = Rand_S16Offset(0, 200);
             }
-            GET_PLAYER(globalCtx)->isBurning = true;
-            func_80837C0C(gGlobalCtx, GET_PLAYER(globalCtx), 0, 0, 0, 0, 0);
-            GET_PLAYER(globalCtx)->invincibilityTimer = 18;
-            GET_PLAYER(globalCtx)->actor.freezeTimer = 0;
-        } else if (this->packet.damageEffect == PUPPET_DMGEFF_THUNDER) {
-            func_80837C0C(globalCtx, GET_PLAYER(globalCtx), 4, 0.0f, 0.0f, 0, 20);
-            GET_PLAYER(globalCtx)->invincibilityTimer = 18;
-            GET_PLAYER(globalCtx)->actor.freezeTimer = 0;
-        } else if (this->packet.damageEffect == PUPPET_DMGEFF_KNOCKBACK) {
-            func_8002F71C(globalCtx, &this->actor, 100.0f * 0.04f + 4.0f, this->actor.world.rot.y, 8.0f);
-            GET_PLAYER(globalCtx)->invincibilityTimer = 28;
-            GET_PLAYER(globalCtx)->actor.freezeTimer = 0;
-        } else if (this->packet.damageEffect == PUPPET_DMGEFF_STUN) {
-            GET_PLAYER(globalCtx)->actor.freezeTimer = 20;
-            Actor_SetColorFilter(&GET_PLAYER(globalCtx)->actor, 0, 0xFF, 0, 10);
+            GET_PLAYER(play)->isBurning = true;
+            func_80837C0C(play, GET_PLAYER(play), 0, 0, 0, 0, 0);
+            GET_PLAYER(play)->invincibilityTimer = 18;
+            GET_PLAYER(play)->actor.freezeTimer = 0;
+        } else if (playerData.damageEffect == PUPPET_DMGEFF_THUNDER) {
+            func_80837C0C(play, GET_PLAYER(play), 4, 0.0f, 0.0f, 0, 20);
+            GET_PLAYER(play)->invincibilityTimer = 18;
+            GET_PLAYER(play)->actor.freezeTimer = 0;
+        } else if (playerData.damageEffect == PUPPET_DMGEFF_KNOCKBACK) {
+            func_8002F71C(play, &this->actor, 100.0f * 0.04f + 4.0f, this->actor.world.rot.y, 8.0f);
+            GET_PLAYER(play)->invincibilityTimer = 28;
+            GET_PLAYER(play)->actor.freezeTimer = 0;
+        } else if (playerData.damageEffect == PUPPET_DMGEFF_STUN) {
+            GET_PLAYER(play)->actor.freezeTimer = 20;
+            Actor_SetColorFilter(&GET_PLAYER(play)->actor, 0, 0xFF, 0, 10);
         }
-
-        this->packet.damageEffect = 0;
     }
 
     if (this->collider.base.acFlags & AC_HIT && this->damageTimer <= 0) {
         this->collider.base.acFlags &= ~AC_HIT;
-        gPacket.damageValue = this->actor.colChkInfo.damage;
-        gPacket.damageEffect = this->actor.colChkInfo.damageEffect;
+        gSaveContext.playerData.damageEffect = this->actor.colChkInfo.damageEffect;
+        gSaveContext.playerData.damageValue = this->actor.colChkInfo.damage;
 
-        if (gPacket.damageEffect == PUPPET_DMGEFF_STUN) {
+        if (gSaveContext.playerData.damageEffect == PUPPET_DMGEFF_STUN) {
             Audio_PlayActorSound2(&this->actor, NA_SE_EN_GOMA_JR_FREEZE);
             Actor_SetColorFilter(&this->actor, 0, 0xFF, 0, 40);
-        } else if (gPacket.damageEffect != PUPPET_DMGEFF_NONE) {
+        } else if (gSaveContext.playerData.damageEffect != PUPPET_DMGEFF_NONE) {
             Actor_SetColorFilter(&this->actor, 0x4000, 255, 0, 24);
         }
 
         this->damageTimer = 18;
     }
-    */
 
     Collider_UpdateCylinder(thisx, &this->collider);
     CollisionCheck_SetOC(play, &play->colChkCtx, &this->collider.base);
@@ -188,7 +192,6 @@ void LinkPuppet_Update(Actor* thisx, PlayState* play) {
         }
     }
 
-    PlayerData playerData = Anchor_GetClientPlayerData(this->actor.params - 3);
     Vec3s* jointTable = Anchor_GetClientJointTable(this->actor.params - 3);
 
     this->linkSkeleton.jointTable = jointTable;

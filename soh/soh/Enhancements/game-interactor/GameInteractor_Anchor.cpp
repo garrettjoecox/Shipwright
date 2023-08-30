@@ -47,6 +47,8 @@ void from_json(const json& j, PlayerData& playerData) {
     j.at("bootsType").get_to(playerData.bootsType);
     j.at("faceType").get_to(playerData.faceType);
     j.at("shieldType").get_to(playerData.shieldType);
+    j.at("damageEffect").get_to(playerData.damageEffect);
+    j.at("damageValue").get_to(playerData.damageValue);
 }
 
 void to_json(json& j, const PlayerData& playerData) {
@@ -61,6 +63,8 @@ void to_json(json& j, const PlayerData& playerData) {
         { "bootsType", playerData.bootsType },
         { "faceType", playerData.faceType },
         { "shieldType", playerData.shieldType },
+        { "damageEffect", playerData.damageEffect },
+        { "damageValue", playerData.damageValue },
     };
 
 }
@@ -116,7 +120,7 @@ void from_json(const json& j, AnchorClient& client) {
     j.contains("roomIndex") ? j.at("roomIndex").get_to(client.roomIndex) : client.roomIndex = 0;
     j.contains("entranceIndex") ? j.at("entranceIndex").get_to(client.entranceIndex) : client.entranceIndex = 0;
     j.contains("posRot") ? j.at("posRot").get_to(client.posRot) : client.posRot = { -9999, -9999, -9999, 0, 0, 0 };
-    j.contains("playerData") ? j.at("playerData").get_to(client.playerData) : client.playerData = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    j.contains("playerData") ? j.at("playerData").get_to(client.playerData) : client.playerData = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 }
 
 void to_json(json& j, const SavedSceneFlags& flags) {
@@ -399,7 +403,7 @@ void GameInteractorAnchor::HandleRemoteJson(nlohmann::json payload) {
                     0,
                     0,
                     { -9999, -9999, -9999, 0, 0, 0 },
-                    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                     {},
                 };
                 Anchor_DisplayMessage({
@@ -586,7 +590,7 @@ uint8_t Anchor_GetClientScene(uint32_t fairyIndex) {
 PlayerData Anchor_GetClientPlayerData(uint32_t puppetIndex) {
     uint32_t clientId = GameInteractorAnchor::FairyIndexToClientId[puppetIndex];
     if (GameInteractorAnchor::AnchorClients.find(clientId) == GameInteractorAnchor::AnchorClients.end()) {
-        return { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        return { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     }
 
     return GameInteractorAnchor::AnchorClients[clientId].playerData;
@@ -636,7 +640,7 @@ void Anchor_SpawnClientFairies() {
         GameInteractorAnchor::FairyIndexToClientId.push_back(clientId);
         auto fairy = Actor_Spawn(&gPlayState->actorCtx, gPlayState, gEnLinkPuppetId, -9999.0, -9999.0, -9999.0, 0, 0, 0, 3 + i, false);
         NameTagOptions options = NameTagOptions();
-        options.yOffset = Player_GetHeight(GET_PLAYER(gPlayState)) - 18.0f; 
+        options.yOffset = Player_GetHeight(GET_PLAYER(gPlayState)) - 18.0f;
         NameTag_RegisterForActorWithOptions(fairy, client.name.c_str(), options);
         i++;
     }
@@ -743,7 +747,6 @@ void Anchor_RegisterHooks() {
         gSaveContext.playerData.faceType = player->actor.shape.face;
         gSaveContext.playerData.biggoron_broken = gSaveContext.swordHealth <= 0 ? 1 : 0;
         gSaveContext.playerData.playerAge = gSaveContext.linkAge;
-        gSaveContext.playerData.playerSound = gSaveContext.linkSound;
 
         payload["type"] = "CLIENT_UPDATE";
         payload["sceneNum"] = gPlayState->sceneNum;
@@ -760,7 +763,9 @@ void Anchor_RegisterHooks() {
 
         GameInteractorAnchor::Instance->TransmitJsonToRemote(payload);
 
-        gSaveContext.linkSound = 0;
+        gSaveContext.playerData.playerSound = 0;
+        gSaveContext.playerData.damageEffect = 0;
+        gSaveContext.playerData.damageValue = 0;
     });
 }
 

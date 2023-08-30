@@ -178,6 +178,8 @@ typedef struct {
     u8 bootsType;
     s16 faceType;
     u8 shieldType;
+    u8 damageEffect;
+    u8 damageValue;
 } PlayerData;
 
 typedef struct {
@@ -335,7 +337,6 @@ typedef struct {
     // #endregion
     // #region SOH [Network]
     // Upstream TODO: Move these to their own struct or name to more obviously specific to Network
-    /*        */ uint16_t linkSound;
     /*        */ PlayerData playerData;
     // #endregion
 } SaveContext; // size = 0x1428
