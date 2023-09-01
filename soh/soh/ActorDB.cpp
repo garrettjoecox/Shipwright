@@ -608,7 +608,7 @@ extern "C" s16 gEnPartnerId;
 static ActorDBInit EnLinkPuppetInit = {
     "En_Link_Puppet",
     "Puppet",
-    ACTORCAT_NPC,
+    ACTORCAT_ITEMACTION,
     (ACTOR_FLAG_UPDATE_WHILE_CULLED | ACTOR_FLAG_DRAW_WHILE_CULLED),
     OBJECT_LINK_BOY,
     sizeof(LinkPuppet),

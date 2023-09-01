@@ -639,8 +639,11 @@ void Anchor_SpawnClientFairies() {
     for (auto [clientId, client] : GameInteractorAnchor::AnchorClients) {
         GameInteractorAnchor::FairyIndexToClientId.push_back(clientId);
         auto fairy = Actor_Spawn(&gPlayState->actorCtx, gPlayState, gEnLinkPuppetId, -9999.0, -9999.0, -9999.0, 0, 0, 0, 3 + i, false);
+
+        PlayerData playerData = Anchor_GetClientPlayerData(i);
+
         NameTagOptions options = NameTagOptions();
-        options.yOffset = Player_GetHeight(GET_PLAYER(gPlayState)) - 18.0f;
+        options.yOffset = playerData.playerAge == LINK_AGE_ADULT ? 50.0f : 26.0f;
         NameTag_RegisterForActorWithOptions(fairy, client.name.c_str(), options);
         i++;
     }
@@ -752,20 +755,27 @@ void Anchor_RegisterHooks() {
         payload["sceneNum"] = gPlayState->sceneNum;
         payload["roomIndex"] = gPlayState->roomCtx.curRoom.num;
         payload["entranceIndex"] = gSaveContext.entranceIndex;
-        payload["posRot"] = player->actor.world;
+
+        PosRot playerPosRot;
+        playerPosRot.pos = player->actor.world.pos;
+        playerPosRot.rot = player->actor.shape.rot;
+        payload["posRot"] = playerPosRot;
+
         payload["playerData"] = gSaveContext.playerData;
+
         std::vector<Vec3s> jointTable = {};
         for (int i = 0; i < 23; i++) {
             jointTable.push_back(player->skelAnime.jointTable[i]);
         }
+
         payload["jointTable"] = jointTable;
         payload["quiet"] = true;
 
         GameInteractorAnchor::Instance->TransmitJsonToRemote(payload);
 
-        gSaveContext.playerData.playerSound = 0;
         gSaveContext.playerData.damageEffect = 0;
         gSaveContext.playerData.damageValue = 0;
+        gSaveContext.playerData.playerSound = 0;
     });
 }
 

@@ -182,8 +182,7 @@ void LinkPuppet_Update(Actor* thisx, PlayState* play) {
     if (this->actor.params >= 3) {
         if (Anchor_GetClientScene(this->actor.params - 3) == play->sceneNum) {
             PosRot playerPosRot = Anchor_GetClientPosition(this->actor.params - 3);
-
-            this->actor.world = playerPosRot;
+            this->actor.world.pos = playerPosRot.pos;
             this->actor.shape.rot = playerPosRot.rot;
         } else {
             this->actor.world.pos.x = -9999.0f;
