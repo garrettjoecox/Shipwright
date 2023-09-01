@@ -4,6 +4,7 @@
 #include "textures/parameter_static/parameter_static.h"
 #include "textures/map_i_static/map_i_static.h"
 #include "textures/map_grand_static/map_grand_static.h"
+#include "soh/Enhancements/game-interactor/GameInteractor.h"
 #include "soh/Enhancements/game-interactor/GameInteractor_Anchor.h"
 #include <assert.h>
 
@@ -687,6 +688,14 @@ void Minimap_DrawCompassIcons(PlayState* play) {
                   G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
 
         gDPSetPrimColor(OVERLAY_DISP++, 0, 0xFF, currentPositionColor.r, currentPositionColor.g, currentPositionColor.b, 255);
+
+        #ifdef ENABLE_REMOTE_CONTROL
+        if (CVarGetInteger("gRemote.Scheme", 0) == GI_SCHEME_ANCHOR) {
+            Color_RGB8 myColor = CVarGetColor24("gRemote.AnchorColor", (Color_RGB8){ 100, 255, 100 });
+            gDPSetPrimColor(OVERLAY_DISP++, 0, 0xFF, myColor.r, myColor.g, myColor.b, 255);
+        }
+        #endif
+
         gSPDisplayList(OVERLAY_DISP++, gCompassArrowDL);
 
         //Player map entry (red arrow)
