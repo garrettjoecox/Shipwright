@@ -787,7 +787,7 @@ void func_80AAB948(EnMd* this, PlayState* play) {
     }
 
     // #region SOH [Co-op]
-    if (Flags_GetEventChkInf(EVENTCHKINF_SHOWED_MIDO_SWORD_SHIELD) && this->interactInfo.talkState == NPC_TALK_STATE_IDLE && (play->sceneNum == SCENE_SPOT04)) {
+    if (Flags_GetEventChkInf(EVENTCHKINF_SHOWED_MIDO_SWORD_SHIELD) && this->interactInfo.talkState == NPC_TALK_STATE_IDLE && (play->sceneNum == SCENE_KOKIRI_FOREST)) {
         func_80AAA92C(this, 3);
         func_80AAA93C(this);
         this->waypoint = 1;

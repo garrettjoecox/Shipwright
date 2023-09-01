@@ -878,7 +878,7 @@ void AnchorPlayerLocationWindow::DrawElement() {
         if (client.scene < SCENE_ID_MAX) {
             ImGui::SameLine();
             ImGui::TextColored(ImVec4(0.5, 0.5, 0.5, 1), "%s", SohUtils::GetSceneName(client.scene).c_str());
-            if (gPlayState != NULL && client.scene != SCENE_KAKUSIANA && client.scene != SCENE_ID_MAX) {
+            if (gPlayState != NULL && client.scene != SCENE_GROTTOS && client.scene != SCENE_ID_MAX) {
                 ImGui::SameLine();
                 ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
                 if (ImGui::Button(ICON_FA_CHEVRON_RIGHT, ImVec2(ImGui::GetFontSize() * 1.0f, ImGui::GetFontSize() * 1.0f))) {
