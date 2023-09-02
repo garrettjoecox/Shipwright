@@ -735,8 +735,8 @@ void Minimap_DrawCompassIcons(PlayState* play) {
         // Other Anchor Players Arrow
         Actor* actor = gPlayState->actorCtx.actorLists[ACTORCAT_ITEMACTION].head;
         while (actor != NULL) {
-            if (gEnLinkPuppetId == actor->id) {
-                if (actor->world.pos.x != -9999.0) {
+            if (gEnLinkPuppetId == actor->id && Anchor_GetClientRoomIndex(actor->params - 3) == gPlayState->roomCtx.curRoom.num) {
+                if (actor->world.pos.x != -9999.0 && Anchor_GetClientScene(actor->params - 3) == gPlayState->sceneNum) {
                     Color_RGB8 playerColor = Anchor_GetClientColor(actor->params - 3);
 
                     tempX = actor->world.pos.x;

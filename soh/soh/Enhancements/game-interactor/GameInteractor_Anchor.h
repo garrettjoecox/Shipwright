@@ -82,6 +82,7 @@ void Anchor_RegisterHooks();
 void Anchor_PushSaveStateToRemote();
 void Anchor_RequestSaveStateFromRemote();
 uint8_t Anchor_GetClientScene(uint32_t fairyIndex);
+uint8_t Anchor_GetClientRoomIndex(uint32_t fairyIndex);
 Vec3s* Anchor_GetClientJointTable(uint32_t puppetIndex);
 PlayerData Anchor_GetClientPlayerData(uint32_t puppetIndex);
 PosRot Anchor_GetClientPosition(uint32_t fairyIndex);
