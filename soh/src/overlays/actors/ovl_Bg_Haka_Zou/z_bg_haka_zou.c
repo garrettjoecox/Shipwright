@@ -268,7 +268,7 @@ void func_80882E54(BgHakaZou* this, PlayState* play) {
 }
 
 void func_80883000(BgHakaZou* this, PlayState* play) {
-    if (this->collider.base.acFlags & AC_HIT) {
+    if (this->collider.base.acFlags & AC_HIT || Flags_GetSwitch(play, this->switchFlag)) {
         Flags_SetSwitch(play, this->switchFlag);
 
         if (this->dyna.actor.params == STA_GIANT_BIRD_STATUE) {
