@@ -587,6 +587,15 @@ uint8_t Anchor_GetClientScene(uint32_t fairyIndex) {
     return GameInteractorAnchor::AnchorClients[clientId].scene;
 }
 
+uint8_t Anchor_GetClientRoomIndex(uint32_t fairyIndex) {
+    uint32_t clientId = GameInteractorAnchor::FairyIndexToClientId[fairyIndex];
+    if (GameInteractorAnchor::AnchorClients.find(clientId) == GameInteractorAnchor::AnchorClients.end()) {
+        return 0xFF;
+    }
+
+    return GameInteractorAnchor::AnchorClients[clientId].roomIndex;
+}
+
 PlayerData Anchor_GetClientPlayerData(uint32_t puppetIndex) {
     uint32_t clientId = GameInteractorAnchor::FairyIndexToClientId[puppetIndex];
     if (GameInteractorAnchor::AnchorClients.find(clientId) == GameInteractorAnchor::AnchorClients.end()) {
