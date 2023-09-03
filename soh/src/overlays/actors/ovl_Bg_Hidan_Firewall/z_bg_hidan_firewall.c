@@ -81,12 +81,28 @@ void BgHidanFirewall_Destroy(Actor* thisx, PlayState* play) {
     Collider_DestroyCylinder(play, &this->collider);
 }
 
+extern s16 gEnLinkPuppetId;
+
 s32 BgHidanFirewall_CheckProximity(BgHidanFirewall* this, PlayState* play) {
     Player* player;
     Vec3f distance;
 
     player = GET_PLAYER(play);
     func_8002DBD0(&this->actor, &distance, &player->actor.world.pos);
+
+    Actor* puppet = gPlayState->actorCtx.actorLists[ACTORCAT_ITEMACTION].head;
+    while (puppet != NULL) {
+        if (gEnLinkPuppetId == puppet->id && Anchor_GetClientRoomIndex(puppet->params - 3)) {
+            if (puppet->world.pos.x != -9999.0 && Anchor_GetClientScene(puppet->params - 3) == gPlayState->sceneNum) {
+                Vec3f puppetDistance;
+                func_8002DBD0(&this->actor, &puppetDistance, &puppet->world.pos);
+                if (fabsf(puppetDistance.x) < 100.0f && fabsf(puppetDistance.z) < 120.0f) {
+                    return 1;
+                }
+            }
+        }
+        puppet = puppet->next;
+    }
 
     if (fabsf(distance.x) < 100.0f && fabsf(distance.z) < 120.0f) {
         return 1;
