@@ -780,7 +780,7 @@ void RegisterTriforceHunt() {
             
             // Give Boss Key when player loads back into the savefile.
             if (currentPieces >= requiredPieces && gPlayState->sceneLoadFlag != 0x14 &&
-                (1 << 0 & gSaveContext.inventory.dungeonItems[SCENE_GANON]) == 0) {
+                (1 << 0 & gSaveContext.inventory.dungeonItems[SCENE_GANONS_TOWER]) == 0) {
                 GetItemEntry getItemEntry = ItemTableManager::Instance->RetrieveItemEntry(MOD_RANDOMIZER, RG_GANONS_CASTLE_BOSS_KEY);
                 GiveItemEntryWithoutActor(gPlayState, getItemEntry);
             }
