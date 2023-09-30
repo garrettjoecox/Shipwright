@@ -462,6 +462,42 @@ void GameInteractorAnchor::HandleRemoteJson(nlohmann::json payload) {
     if (payload["type"] == "UPDATE_KEY_COUNT" && GameInteractor::IsSaveLoaded()) {
         gSaveContext.inventory.dungeonKeys[payload["sceneNum"].get<int16_t>()] = payload["amount"].get<int8_t>();
     }
+    if (payload["type"] == "DAMAGE_PLAYER") {
+        if (payload["damageEffect"] > 0 && GET_PLAYER(gPlayState)->invincibilityTimer <= 0 &&
+            !Player_InBlockingCsMode(gPlayState, GET_PLAYER(gPlayState))) {
+            if (payload["damageEffect"] == PUPPET_DMGEFF_NORMAL) {
+                u8 damage = payload["damageValue"];
+                Player_InflictDamage(gPlayState, damage * -4);
+                func_80837C0C(gPlayState, GET_PLAYER(gPlayState), 0, 0, 0, 0, 0);
+                GET_PLAYER(gPlayState)->invincibilityTimer = 18;
+                GET_PLAYER(gPlayState)->actor.freezeTimer = 0;
+            } else if (payload["damageEffect"] == PUPPET_DMGEFF_ICE) {
+                GET_PLAYER(gPlayState)->stateFlags1 &= ~(PLAYER_STATE1_GETTING_ITEM | PLAYER_STATE1_ITEM_OVER_HEAD);
+                func_80837C0C(gPlayState, GET_PLAYER(gPlayState), 3, 0.0f, 0.0f, 0, 20);
+                GET_PLAYER(gPlayState)->invincibilityTimer = 18;
+                GET_PLAYER(gPlayState)->actor.freezeTimer = 0;
+            } else if (payload["damageEffect"] == PUPPET_DMGEFF_FIRE) {
+                for (int i = 0; i < 18; i++) {
+                    GET_PLAYER(gPlayState)->flameTimers[i] = Rand_S16Offset(0, 200);
+                }
+                GET_PLAYER(gPlayState)->isBurning = true;
+                func_80837C0C(gPlayState, GET_PLAYER(gPlayState), 0, 0, 0, 0, 0);
+                GET_PLAYER(gPlayState)->invincibilityTimer = 18;
+                GET_PLAYER(gPlayState)->actor.freezeTimer = 0;
+            } else if (payload["damageEffect"] == PUPPET_DMGEFF_THUNDER) {
+                func_80837C0C(gPlayState, GET_PLAYER(gPlayState), 4, 0.0f, 0.0f, 0, 20);
+                GET_PLAYER(gPlayState)->invincibilityTimer = 18;
+                GET_PLAYER(gPlayState)->actor.freezeTimer = 0;
+            } else if (payload["damageEffect"] == PUPPET_DMGEFF_KNOCKBACK) {
+                func_8002F71C(gPlayState, &GET_PLAYER(gPlayState)->actor, 100.0f * 0.04f + 4.0f, GET_PLAYER(gPlayState)->actor.world.rot.y, 8.0f);
+                GET_PLAYER(gPlayState)->invincibilityTimer = 28;
+                GET_PLAYER(gPlayState)->actor.freezeTimer = 0;
+            } else if (payload["damageEffect"] == PUPPET_DMGEFF_STUN) {
+                GET_PLAYER(gPlayState)->actor.freezeTimer = 20;
+                Actor_SetColorFilter(&GET_PLAYER(gPlayState)->actor, 0, 0xFF, 0, 10);
+            }
+        }
+    }
     if (payload["type"] == "GAME_COMPLETE") {
         AnchorClient anchorClient = GameInteractorAnchor::AnchorClients[payload["clientId"].get<uint32_t>()];
         Anchor_DisplayMessage({
@@ -841,6 +877,20 @@ void Anchor_UpdateKeyCount(int16_t sceneNum, int8_t amount) {
     payload["type"] = "UPDATE_KEY_COUNT";
     payload["sceneNum"] = sceneNum;
     payload["amount"] = amount;
+
+    GameInteractorAnchor::Instance->TransmitJsonToRemote(payload);
+}
+
+void Anchor_DamagePlayer(uint32_t puppetIndex, u8 damageEffect, u8 damageValue) {
+    if (!GameInteractor::Instance->isRemoteInteractorConnected || !GameInteractor::Instance->IsSaveLoaded()) return;
+
+    uint32_t clientId = GameInteractorAnchor::FairyIndexToClientId[puppetIndex];
+    nlohmann::json payload;
+
+    payload["type"] = "DAMAGE_PLAYER";
+    payload["damageEffect"] = damageEffect;
+    payload["damageValue"] = damageValue;
+    payload["targetClientId"] = clientId;
 
     GameInteractorAnchor::Instance->TransmitJsonToRemote(payload);
 }

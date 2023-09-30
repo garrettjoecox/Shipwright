@@ -6,6 +6,7 @@
 #include "z64item.h"
 #include "z64actor.h"
 #include "z64save.h"
+#include "src/overlays/actors/ovl_Link_Puppet/z_link_puppet.h"
 #include "./GameInteractor.h"
 
 typedef struct {
@@ -93,6 +94,7 @@ void Anchor_UpdateBeansBought(uint8_t amount);
 void Anchor_UpdateBeansCount(uint8_t amount);
 void Anchor_ConsumeAdultTradeItem(uint8_t itemId);
 void Anchor_UpdateKeyCount(int16_t sceneNum, int8_t amount);
+void Anchor_DamagePlayer(uint32_t puppetIndex, u8 damageEffect, u8 damageValue);
 void Anchor_GameComplete();
 
 #ifdef __cplusplus

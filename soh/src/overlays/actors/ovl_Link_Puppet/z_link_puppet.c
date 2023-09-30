@@ -37,16 +37,6 @@ static Vec3s D_80854730 = { -57, 3377, 0 };
 
 extern func_80833338(Player* this);
 
-typedef enum {
-    PUPPET_DMGEFF_NONE,
-    PUPPET_DMGEFF_NORMAL,
-    PUPPET_DMGEFF_ICE,
-    PUPPET_DMGEFF_FIRE,
-    PUPPET_DMGEFF_THUNDER,
-    PUPPET_DMGEFF_KNOCKBACK,
-    PUPPET_DMGEFF_STUN,
-} PuppetDamageEffect;
-
 static DamageTable sDamageTable[] = {
     /* Deku nut      */ DMG_ENTRY(0, PUPPET_DMGEFF_STUN),
     /* Deku stick    */ DMG_ENTRY(2, PUPPET_DMGEFF_NORMAL),
@@ -128,44 +118,11 @@ void LinkPuppet_Update(Actor* thisx, PlayState* play) {
         this->damageTimer--;
     }
 
-    if (playerData.damageEffect > 0 && GET_PLAYER(play)->invincibilityTimer <= 0 &&
-        !Player_InBlockingCsMode(play, GET_PLAYER(play))) {
-        if (playerData.damageEffect == PUPPET_DMGEFF_NORMAL) {
-            Player_InflictDamage(play, playerData.damageValue * -4);
-            func_80837C0C(play, GET_PLAYER(play), 0, 0, 0, 0, 0);
-            GET_PLAYER(play)->invincibilityTimer = 18;
-            GET_PLAYER(play)->actor.freezeTimer = 0;
-        } else if (playerData.damageEffect == PUPPET_DMGEFF_ICE) {
-            GET_PLAYER(play)->stateFlags1 &= ~(PLAYER_STATE1_GETTING_ITEM | PLAYER_STATE1_ITEM_OVER_HEAD);
-            func_80837C0C(play, GET_PLAYER(play), 3, 0.0f, 0.0f, 0, 20);
-            GET_PLAYER(play)->invincibilityTimer = 18;
-            GET_PLAYER(play)->actor.freezeTimer = 0;
-        } else if (playerData.damageEffect == PUPPET_DMGEFF_FIRE) {
-            for (int i = 0; i < 18; i++) {
-                GET_PLAYER(play)->flameTimers[i] = Rand_S16Offset(0, 200);
-            }
-            GET_PLAYER(play)->isBurning = true;
-            func_80837C0C(play, GET_PLAYER(play), 0, 0, 0, 0, 0);
-            GET_PLAYER(play)->invincibilityTimer = 18;
-            GET_PLAYER(play)->actor.freezeTimer = 0;
-        } else if (playerData.damageEffect == PUPPET_DMGEFF_THUNDER) {
-            func_80837C0C(play, GET_PLAYER(play), 4, 0.0f, 0.0f, 0, 20);
-            GET_PLAYER(play)->invincibilityTimer = 18;
-            GET_PLAYER(play)->actor.freezeTimer = 0;
-        } else if (playerData.damageEffect == PUPPET_DMGEFF_KNOCKBACK) {
-            func_8002F71C(play, &this->actor, 100.0f * 0.04f + 4.0f, this->actor.world.rot.y, 8.0f);
-            GET_PLAYER(play)->invincibilityTimer = 28;
-            GET_PLAYER(play)->actor.freezeTimer = 0;
-        } else if (playerData.damageEffect == PUPPET_DMGEFF_STUN) {
-            GET_PLAYER(play)->actor.freezeTimer = 20;
-            Actor_SetColorFilter(&GET_PLAYER(play)->actor, 0, 0xFF, 0, 10);
-        }
-    }
-
     if (this->collider.base.acFlags & AC_HIT && this->damageTimer <= 0) {
         this->collider.base.acFlags &= ~AC_HIT;
         gSaveContext.playerData.damageEffect = this->actor.colChkInfo.damageEffect;
         gSaveContext.playerData.damageValue = this->actor.colChkInfo.damage;
+        Anchor_DamagePlayer(this->actor.params - 3, this->actor.colChkInfo.damageEffect, this->actor.colChkInfo.damage);
 
         if (gSaveContext.playerData.damageEffect == PUPPET_DMGEFF_STUN) {
             Audio_PlayActorSound2(&this->actor, NA_SE_EN_GOMA_JR_FREEZE);

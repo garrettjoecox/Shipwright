@@ -17,6 +17,16 @@ typedef struct LinkPuppet {
     uint8_t puppetAge;
 } LinkPuppet;
 
+typedef enum {
+    PUPPET_DMGEFF_NONE,
+    PUPPET_DMGEFF_NORMAL,
+    PUPPET_DMGEFF_ICE,
+    PUPPET_DMGEFF_FIRE,
+    PUPPET_DMGEFF_THUNDER,
+    PUPPET_DMGEFF_KNOCKBACK,
+    PUPPET_DMGEFF_STUN,
+} PuppetDamageEffect;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
