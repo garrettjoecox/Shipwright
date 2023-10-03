@@ -430,7 +430,8 @@ std::map<uint32_t, const char*> itemIcons = {
     ITEM_ICON(ITEM_DUNGEON_MAP),
     ITEM_ICON(ITEM_KEY_SMALL),
     ITEM_ICON(ITEM_MAGIC_SMALL),
-    ITEM_ICON(ITEM_MAGIC_LARGE)
+    ITEM_ICON(ITEM_MAGIC_LARGE),
+    ITEM_ICON(RG_TRIFORCE_PIECE),
 };
 
 std::map<int32_t, int32_t> randomizerGetToItemIdIcon = {
@@ -626,6 +627,7 @@ std::map<int32_t, int32_t> randomizerGetToItemIdIcon = {
     { RG_BUY_RED_POTION_40, ITEM_POTION_RED },
     { RG_BUY_RED_POTION_50, ITEM_POTION_RED },
     { RG_TYCOON_WALLET, ITEM_WALLET_GIANT },
+    { RG_TRIFORCE_PIECE, RG_TRIFORCE_PIECE },
 };
 
 int32_t SohUtils::GetItemIdIconFromRandomizerGet(int32_t randomizerGet) {
