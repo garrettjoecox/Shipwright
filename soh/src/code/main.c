@@ -158,4 +158,5 @@ void Main(void* arg) {
     osSyncPrintf("mainproc 実行終了\n"); // "End of execution"
 
     Heaps_Free();
+    gPlayState = NULL;
 }

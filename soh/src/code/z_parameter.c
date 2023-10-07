@@ -2200,10 +2200,12 @@ u8 Item_Give(PlayState* play, u8 item) {
         gSaveContext.sohStats.heartPieces++;
         if (CVarGetInteger("gFromGI", 0)) {
             gSaveContext.healthAccumulator = 0x140;
-            if ((s32)(gSaveContext.inventory.questItems & 0xF0000000) == 0x40000000) {
-                gSaveContext.inventory.questItems ^= 0x40000000;
-                gSaveContext.healthCapacity += 0x10;
-                gSaveContext.health += 0x10;
+            s32 heartPieces = (s32)(gSaveContext.inventory.questItems & 0xF0000000) >> (QUEST_HEART_PIECE + 4);
+            if (heartPieces >= 4) {
+                gSaveContext.inventory.questItems &= ~0xF0000000;
+                gSaveContext.inventory.questItems += (heartPieces % 4) << (QUEST_HEART_PIECE + 4);
+                gSaveContext.healthCapacity += 0x10 * (heartPieces / 4);
+                gSaveContext.health += 0x10 * (heartPieces / 4);
             }
         }
         return Return_Item(item, MOD_NONE, ITEM_NONE);

@@ -344,10 +344,7 @@ void GameInteractorAnchor::Disable() {
     GameInteractor::Instance->DisableRemoteInteractor();
 
     GameInteractorAnchor::AnchorClients.clear();
-    // TODO: This crashes in player model build for some reason
-    if (GameInteractor::IsSaveLoaded()) {
-        Anchor_RefreshClientActors();
-    }
+    Anchor_RefreshClientActors();
 }
 
 void GameInteractorAnchor::TransmitJsonToRemote(nlohmann::json payload) {
@@ -537,9 +534,7 @@ void GameInteractorAnchor::HandleRemoteJson(nlohmann::json payload) {
             GameInteractorAnchor::AnchorClients.erase(clientId);
         }
 
-        if (GameInteractor::IsSaveLoaded()) {
-            Anchor_RefreshClientActors();
-        }
+        Anchor_RefreshClientActors();
     }
     if (payload["type"] == "UPDATE_CLIENT_DATA") {
         uint32_t clientId = payload["clientId"].get<uint32_t>();
@@ -692,67 +687,78 @@ void Anchor_ParseSaveStateFromRemote(nlohmann::json payload) {
     Anchor_DisplayMessage({ .message = "State loaded from remote!" });
 };
 
-uint8_t Anchor_GetClientScene(uint32_t actorIndex) {
-    uint32_t clientId = GameInteractorAnchor::ActorIndexToClientId[actorIndex];
-    if (GameInteractorAnchor::AnchorClients.find(clientId) == GameInteractorAnchor::AnchorClients.end()) {
-        return SCENE_ID_MAX;
+AnchorClient* Anchor_GetClientByActorIndex(uint32_t actorIndex) {
+    if (actorIndex < GameInteractorAnchor::ActorIndexToClientId.size()) {
+        uint32_t clientId = GameInteractorAnchor::ActorIndexToClientId[actorIndex];
+        if (GameInteractorAnchor::AnchorClients.find(clientId) != GameInteractorAnchor::AnchorClients.end()) {
+            return &GameInteractorAnchor::AnchorClients[clientId];
+        }
     }
 
-    return GameInteractorAnchor::AnchorClients[clientId].sceneNum;
+    return nullptr;
+}
+
+uint8_t Anchor_GetClientScene(uint32_t actorIndex) {
+    AnchorClient* client = Anchor_GetClientByActorIndex(actorIndex);
+    if (client != nullptr) {
+        return client->sceneNum;
+    }
+
+    return SCENE_ID_MAX;
 }
 
 PosRot Anchor_GetClientPosition(uint32_t actorIndex) {
-    uint32_t clientId = GameInteractorAnchor::ActorIndexToClientId[actorIndex];
-    if (GameInteractorAnchor::AnchorClients.find(clientId) == GameInteractorAnchor::AnchorClients.end()) {
-        return {-9999.0, -9999.0, -9999.0, 0, 0, 0};
+    AnchorClient* client = Anchor_GetClientByActorIndex(actorIndex);
+    if (client != nullptr) {
+        return client->posRot;
     }
 
-    return GameInteractorAnchor::AnchorClients[clientId].posRot;
+    return {-9999.0, -9999.0, -9999.0, 0, 0, 0};
 }
 
 PlayerData Anchor_GetClientPlayerData(uint32_t actorIndex) {
-    uint32_t clientId = GameInteractorAnchor::ActorIndexToClientId[actorIndex];
-    if (GameInteractorAnchor::AnchorClients.find(clientId) == GameInteractorAnchor::AnchorClients.end()) {
-        return { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    AnchorClient* client = Anchor_GetClientByActorIndex(actorIndex);
+    if (client != nullptr) {
+        return client->playerData;
     }
 
-    return GameInteractorAnchor::AnchorClients[clientId].playerData;
+    return { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 }
 
 Vec3s* Anchor_GetClientJointTable(uint32_t actorIndex) {
-    uint32_t clientId = GameInteractorAnchor::ActorIndexToClientId[actorIndex];
-    if (GameInteractorAnchor::AnchorClients.find(clientId) == GameInteractorAnchor::AnchorClients.end()) {
-        return {};
+    AnchorClient* client = Anchor_GetClientByActorIndex(actorIndex);
+    if (client != nullptr) {
+        return client->jointTable;
     }
 
-    return GameInteractorAnchor::AnchorClients[clientId].jointTable;
+    return nullptr;
 }
 
 const char* Anchor_GetClientName(uint32_t actorIndex) {
-    uint32_t clientId = GameInteractorAnchor::ActorIndexToClientId[actorIndex];
-    if (GameInteractorAnchor::AnchorClients.find(clientId) == GameInteractorAnchor::AnchorClients.end()) {
-        return "";
+    AnchorClient* client = Anchor_GetClientByActorIndex(actorIndex);
+    if (client != nullptr) {
+        return client->name.c_str();
     }
 
-    return GameInteractorAnchor::AnchorClients[clientId].name.c_str();
+    return "";
 }
 
 uint8_t Anchor_GetClientRoomIndex(uint32_t actorIndex) {
-    uint32_t clientId = GameInteractorAnchor::ActorIndexToClientId[actorIndex];
-    if (GameInteractorAnchor::AnchorClients.find(clientId) == GameInteractorAnchor::AnchorClients.end()) {
-        return 0xFF;
+    AnchorClient* client = Anchor_GetClientByActorIndex(actorIndex);
+    if (client != nullptr) {
+        return client->roomIndex;
     }
 
-    return GameInteractorAnchor::AnchorClients[clientId].roomIndex;
+    return 0xFF;
 }
 
 Color_RGB8 Anchor_GetClientColor(uint32_t actorIndex) {
-    uint32_t clientId = GameInteractorAnchor::ActorIndexToClientId[actorIndex];
-    if (GameInteractorAnchor::AnchorClients.find(clientId) == GameInteractorAnchor::AnchorClients.end()) {
-        return {100, 255, 100};
+    AnchorClient* client = Anchor_GetClientByActorIndex(actorIndex);
+    if (client != nullptr) {
+        return client->color;
     }
 
-    return GameInteractorAnchor::AnchorClients[clientId].color;
+    return {100, 255, 100};
 }
 
 void Anchor_RefreshClientActors() {
@@ -1019,7 +1025,8 @@ void Anchor_UpdateKeyCount(int16_t sceneNum, int8_t amount) {
 }
 
 void Anchor_DamagePlayer(uint32_t actorIndex, u8 damageEffect, u8 damageValue) {
-    if (!GameInteractor::Instance->isRemoteInteractorConnected || !GameInteractor::Instance->IsSaveLoaded()) return;
+    if (!GameInteractor::Instance->isRemoteInteractorConnected || !GameInteractor::Instance->IsSaveLoaded() ||
+        actorIndex >= GameInteractorAnchor::ActorIndexToClientId.size()) return;
 
     uint32_t clientId = GameInteractorAnchor::ActorIndexToClientId[actorIndex];
     nlohmann::json payload;
