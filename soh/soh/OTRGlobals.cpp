@@ -1243,11 +1243,14 @@ extern "C" void ResourceMgr_LoadFile(const char* resName) {
     LUS::Context::GetInstance()->GetResourceManager()->LoadResource(resName);
 }
 
+#ifdef ENABLE_REMOTE_CONTROL
 extern "C" s16 sCurrentLinkPuppetProcessingId;
 
 std::vector<std::string> pathsToModifyInLinkPuppets = { "object_link_child", "object_link_boy" };
+#endif
 
 std::string ProxyResourceRequest(std::string path) {
+#ifdef ENABLE_REMOTE_CONTROL
     if (sCurrentLinkPuppetProcessingId != -1) {
         AnchorClient* client = Anchor_GetClientByActorIndex(sCurrentLinkPuppetProcessingId);
         if (client->skin.empty()) {
@@ -1268,6 +1271,7 @@ std::string ProxyResourceRequest(std::string path) {
             }
         }
     }
+#endif
     return path;
 }
 
