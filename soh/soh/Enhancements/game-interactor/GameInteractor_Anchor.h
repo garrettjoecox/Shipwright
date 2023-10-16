@@ -13,6 +13,7 @@ typedef struct {
     uint32_t clientId;
     std::string clientVersion;
     std::string name;
+    std::string skin;
     Color_RGB8 color;
     uint32_t seed;
     uint8_t fileNum;
@@ -71,6 +72,8 @@ class AnchorLogWindow : public LUS::GuiWindow {
     void DrawElement() override;
     void UpdateElement() override {};
 };
+
+AnchorClient* Anchor_GetClientByActorIndex(uint32_t actorIndex);
 
 #endif
 #endif

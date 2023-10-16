@@ -69,8 +69,12 @@ static DamageTable sDamageTable[] = {
     /* Unknown 2     */ DMG_ENTRY(0, PUPPET_DMGEFF_NONE),
 };
 
+s16 sCurrentLinkPuppetProcessingId = -1;
+
 void LinkPuppet_Init(Actor* thisx, PlayState* play) {
     LinkPuppet* this = (LinkPuppet*)thisx;
+
+    sCurrentLinkPuppetProcessingId = this->actor.params - 3;
 
     this->actor.room = -1;
     this->actor.targetMode = 1;
@@ -98,6 +102,8 @@ void LinkPuppet_Init(Actor* thisx, PlayState* play) {
     const char* playerName = Anchor_GetClientName(this->actor.params - 3);
     this->nameTagOptions.yOffset = 0;
     NameTag_RegisterForActorWithOptions(&this->actor, playerName, this->nameTagOptions);
+
+    sCurrentLinkPuppetProcessingId = -1;
 }
 
 void LinkPuppet_Destroy(Actor* thisx, PlayState* play) {
@@ -108,6 +114,8 @@ void LinkPuppet_Destroy(Actor* thisx, PlayState* play) {
 
 void LinkPuppet_Update(Actor* thisx, PlayState* play) {
     LinkPuppet* this = (LinkPuppet*)thisx;
+
+    sCurrentLinkPuppetProcessingId = this->actor.params - 3;
 
     PlayerData playerData = Anchor_GetClientPlayerData(this->actor.params - 3);
 
@@ -162,6 +170,8 @@ void LinkPuppet_Update(Actor* thisx, PlayState* play) {
         Audio_PlaySoundGeneral(playerData.playerSound, &this->actor.projectedPos, 4, &D_801333E0, &D_801333E0,
                                &D_801333E8);
     }
+
+    sCurrentLinkPuppetProcessingId = -1;
 }
 
 Vec3f FEET_POS[] = {
@@ -213,6 +223,8 @@ void Puppet_PostLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot
 void LinkPuppet_Draw(Actor* thisx, PlayState* play) {
     LinkPuppet* this = (LinkPuppet*)thisx;
 
+    sCurrentLinkPuppetProcessingId = this->actor.params - 3;
+
     PlayerData playerData = Anchor_GetClientPlayerData(this->actor.params - 3);
 
     if (this->puppetAge == playerData.playerAge) {
@@ -234,5 +246,7 @@ void LinkPuppet_Draw(Actor* thisx, PlayState* play) {
             CLOSE_DISPS(play->state.gfxCtx);
         }
     }
+
+    sCurrentLinkPuppetProcessingId = -1;
 }
 #endif

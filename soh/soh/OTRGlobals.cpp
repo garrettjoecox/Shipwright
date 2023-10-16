@@ -1243,8 +1243,39 @@ extern "C" void ResourceMgr_LoadFile(const char* resName) {
     LUS::Context::GetInstance()->GetResourceManager()->LoadResource(resName);
 }
 
+extern "C" s16 sCurrentLinkPuppetProcessingId;
+
+std::vector<std::string> pathsToModifyInLinkPuppets = { "object_link_child", "object_link_boy" };
+
+std::string ProxyResourceRequest(std::string path) {
+    if (sCurrentLinkPuppetProcessingId != -1) {
+        AnchorClient* client = Anchor_GetClientByActorIndex(sCurrentLinkPuppetProcessingId);
+        if (client->skin.empty()) {
+            return path;
+        }
+
+        for (std::string pathToMofify : pathsToModifyInLinkPuppets) {
+            std::string replacement = pathToMofify + "/" + client->skin;
+
+            size_t found = path.find(pathToMofify);
+            if (found != std::string::npos) {
+                std::string newPath = path;
+                newPath.replace(found, pathToMofify.length(), replacement);
+                if (ResourceMgr_FileExists(newPath.c_str())) {
+                    path = newPath;
+                    break;
+                }
+            }
+        }
+    }
+    return path;
+}
+
 std::shared_ptr<LUS::IResource> GetResourceByNameHandlingMQ(const char* path) {
     std::string Path = path;
+
+    Path = ProxyResourceRequest(Path);
+
     if (ResourceMgr_IsGameMasterQuest()) {
         size_t pos = 0;
         if ((pos = Path.find("/nonmq/", 0)) != std::string::npos) {
@@ -1468,15 +1499,21 @@ extern "C" char* ResourceMgr_LoadArrayByNameAsVec3s(const char* path) {
 }
 
 extern "C" CollisionHeader* ResourceMgr_LoadColByName(const char* path) {
-    return (CollisionHeader*) ResourceGetDataByName(path);
+    std::string pathStr = path;
+    pathStr = ProxyResourceRequest(pathStr);
+    return (CollisionHeader*) ResourceGetDataByName(pathStr.c_str());
 }
 
 extern "C" Vtx* ResourceMgr_LoadVtxByName(char* path) {
-    return (Vtx*) ResourceGetDataByName(path);
+    std::string pathStr = path;
+    pathStr = ProxyResourceRequest(pathStr);
+    return (Vtx*) ResourceGetDataByName(pathStr.c_str());
 }
 
 extern "C" SequenceData ResourceMgr_LoadSeqByName(const char* path) {
-    SequenceData* sequence = (SequenceData*) ResourceGetDataByName(path);
+    std::string pathStr = path;
+    pathStr = ProxyResourceRequest(pathStr);
+    SequenceData* sequence = (SequenceData*) ResourceGetDataByName(pathStr.c_str());
     return *sequence;
 }
 
@@ -1541,11 +1578,15 @@ extern "C" SoundFontSample* ReadCustomSample(const char* path) {
 }
 
 extern "C" SoundFontSample* ResourceMgr_LoadAudioSample(const char* path) {
-    return (SoundFontSample*) ResourceGetDataByName(path);
+    std::string pathStr = path;
+    pathStr = ProxyResourceRequest(pathStr);
+    return (SoundFontSample*) ResourceGetDataByName(pathStr.c_str());
 }
 
 extern "C" SoundFont* ResourceMgr_LoadAudioSoundFont(const char* path) {
-    return (SoundFont*) ResourceGetDataByName(path);
+    std::string pathStr = path;
+    pathStr = ProxyResourceRequest(pathStr);
+    return (SoundFont*) ResourceGetDataByName(pathStr.c_str());
 }
 
 extern "C" int ResourceMgr_OTRSigCheck(char* imgData)
@@ -1567,7 +1608,9 @@ extern "C" int ResourceMgr_OTRSigCheck(char* imgData)
 }
 
 extern "C" AnimationHeaderCommon* ResourceMgr_LoadAnimByName(const char* path) {
-    return (AnimationHeaderCommon*) ResourceGetDataByName(path);
+    std::string pathStr = path;
+    pathStr = ProxyResourceRequest(pathStr);
+    return (AnimationHeaderCommon*) ResourceGetDataByName(pathStr.c_str());
 }
 
 extern "C" SkeletonHeader* ResourceMgr_LoadSkeletonByName(const char* path, SkelAnime* skelAnime) {
@@ -1584,11 +1627,17 @@ extern "C" SkeletonHeader* ResourceMgr_LoadSkeletonByName(const char* path, Skel
         pathStr = LUS::IResource::gAltAssetPrefix + pathStr;
     }
 
+    pathStr = ProxyResourceRequest(pathStr);
+
     SkeletonHeader* skelHeader = (SkeletonHeader*) ResourceGetDataByName(pathStr.c_str());
+
+    pathStr = std::string(path);
+    
+    pathStr = ProxyResourceRequest(pathStr);
 
     // If there isn't an alternate model, load the regular one
     if (isAlt && skelHeader == NULL) {
-        skelHeader = (SkeletonHeader*) ResourceGetDataByName(path);
+        skelHeader = (SkeletonHeader*) ResourceGetDataByName(pathStr.c_str());
     }
 
     // This function is only called when a skeleton is initialized.

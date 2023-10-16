@@ -1465,6 +1465,7 @@ void DrawRemoteControlMenu() {
         static std::string ip = CVarGetString("gRemote.IP", "127.0.0.1");
         static uint16_t port = CVarGetInteger("gRemote.Port", 43384);
         static std::string AnchorName = CVarGetString("gRemote.AnchorName", "");
+        static std::string AnchorSkin = CVarGetString("gRemote.AnchorSkin", "");
         static std::string anchorRoomId = CVarGetString("gRemote.AnchorRoomId", "");
         bool isFormValid = !isStringEmpty(CVarGetString("gRemote.IP", "127.0.0.1")) && port > 1024 && port < 65535 && (
             CVarGetInteger("gRemote.Scheme", GI_SCHEME_BUILT_IN) != GI_SCHEME_ANCHOR ||
@@ -1526,6 +1527,11 @@ void DrawRemoteControlMenu() {
         ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
         if (ImGui::InputText("##gRemote.AnchorName", (char*)AnchorName.c_str(), AnchorName.capacity() + 1)) {
             CVarSetString("gRemote.AnchorName", AnchorName.c_str());
+            LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+        }
+        ImGui::Text("Skin");
+        if (ImGui::InputText("##gRemote.AnchorSkin", (char*)AnchorSkin.c_str(), AnchorSkin.capacity() + 1)) {
+            CVarSetString("gRemote.AnchorSkin", AnchorSkin.c_str());
             LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
         }
         ImGui::Text("Room ID");

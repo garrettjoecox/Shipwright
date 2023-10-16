@@ -167,6 +167,7 @@ void from_json(const json& j, AnchorClient& client) {
     j.contains("clientId") ? j.at("clientId").get_to(client.clientId) : client.clientId = 0;
     j.contains("clientVersion") ? j.at("clientVersion").get_to(client.clientVersion) : client.clientVersion = "???";
     j.contains("name") ? j.at("name").get_to(client.name) : client.name = "???";
+    j.contains("skin") ? j.at("skin").get_to(client.skin) : client.skin = "???";
     j.contains("color") ? j.at("color").get_to(client.color) : client.color = {255, 255, 255};
     j.contains("seed") ? j.at("seed").get_to(client.seed) : client.seed = 0;
     j.contains("fileNum") ? j.at("fileNum").get_to(client.fileNum) : client.fileNum = 0xFF;
@@ -292,6 +293,7 @@ void Anchor_DisplayMessage(AnchorMessage message = {}) {
 void Anchor_SendClientData() {
     nlohmann::json payload;
     payload["data"]["name"] = CVarGetString("gRemote.AnchorName", "");
+    payload["data"]["skin"] = CVarGetString("gRemote.AnchorSkin", "");
     payload["data"]["color"] = CVarGetColor24("gRemote.AnchorColor", { 100, 255, 100 });
     payload["data"]["clientVersion"] = GameInteractorAnchor::clientVersion;
     payload["data"]["gameComplete"] = gSaveContext.sohStats.gameComplete;
@@ -505,6 +507,7 @@ void GameInteractorAnchor::HandleRemoteJson(nlohmann::json payload) {
                     client.clientId,
                     client.clientVersion,
                     client.name,
+                    client.skin,
                     client.color,
                     client.seed,
                     client.fileNum,
@@ -548,6 +551,7 @@ void GameInteractorAnchor::HandleRemoteJson(nlohmann::json payload) {
             AnchorClient client = payload["data"].get<AnchorClient>();
             GameInteractorAnchor::AnchorClients[clientId].clientVersion = client.clientVersion;
             GameInteractorAnchor::AnchorClients[clientId].name = client.name;
+            GameInteractorAnchor::AnchorClients[clientId].skin = client.skin;
             GameInteractorAnchor::AnchorClients[clientId].color = client.color;
             GameInteractorAnchor::AnchorClients[clientId].seed = client.seed;
             GameInteractorAnchor::AnchorClients[clientId].fileNum = client.fileNum;
