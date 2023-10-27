@@ -233,6 +233,9 @@ namespace GameControlEditor {
         window->BeginGroupPanelPublic("Aiming/First-Person Camera", ImGui::GetContentRegionAvail());
         UIWidgets::PaddedEnhancementCheckbox("Right Stick Aiming", "gRightStickAiming");
         DrawHelpIcon("Allows for aiming with the right stick in:\n-First-Person/C-Up view\n-Weapon Aiming");
+        if (CVarGetInteger("gRightStickAiming", 0)) {
+            UIWidgets::PaddedEnhancementCheckbox("Allow moving while in first person mode", "gMoveWhileFirstPerson");
+        }
         UIWidgets::PaddedEnhancementCheckbox("Invert Aiming X Axis", "gInvertAimingXAxis");
         DrawHelpIcon("Inverts the Camera X Axis in:\n-First-Person/C-Up view\n-Weapon Aiming");
         UIWidgets::PaddedEnhancementCheckbox("Invert Aiming Y Axis", "gInvertAimingYAxis", true, true, false, "", UIWidgets::CheckboxGraphics::Cross, true);
@@ -245,7 +248,8 @@ namespace GameControlEditor {
         DrawHelpIcon("Prevents the C-Up view from auto-centering, allowing for Gyro Aiming");
         if (UIWidgets::PaddedEnhancementCheckbox("Enable Custom Aiming/First-Person sensitivity", "gEnableFirstPersonSensitivity", true, false)) {
             if (!CVarGetInteger("gEnableFirstPersonSensitivity", 0)) {
-                CVarClear("gFirstPersonCameraSensitivity");
+                CVarClear("gFirstPersonCameraSensitivityX");
+                CVarClear("gFirstPersonCameraSensitivityY");
             }
         }
         if (CVarGetInteger("gEnableFirstPersonSensitivity", 0)) {
