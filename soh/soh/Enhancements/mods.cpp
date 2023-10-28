@@ -1059,4 +1059,14 @@ void InitMods() {
     RegisterAltTrapTypes();
     RegisterRandomizerSheikSpawn();
     NameTag_RegisterHooks();
+
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnPlayerUpdate>([]() {
+        if (gPlayState == NULL) return;
+        gPlayState->envCtx.adjFogColor[0] = 0;
+        gPlayState->envCtx.adjFogColor[1] = 0;
+        gPlayState->envCtx.adjFogColor[2] = 0;
+        if (gPlayState->envCtx.adjFogNear > -84) {
+            gPlayState->envCtx.adjFogNear--;
+        }
+    });
 }

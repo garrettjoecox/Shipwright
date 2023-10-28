@@ -224,13 +224,7 @@ void EnEncount1_SpawnStalchildOrWolfos(EnEncount1* this, PlayState* play) {
     s32 bgId;
     f32 floorY;
 
-    if (play->sceneNum != SCENE_HYRULE_FIELD) {
-        if ((fabsf(player->actor.world.pos.y - this->actor.world.pos.y) > 100.0f) ||
-            (this->actor.xzDistToPlayer > this->spawnRange)) {
-            this->outOfRangeTimer++;
-            return;
-        }
-    } else if (IS_DAY || (Player_GetMask(play) == PLAYER_MASK_BUNNY)) {
+    if (IS_DAY) {
         this->killCount = 0;
         return;
     }
@@ -247,7 +241,7 @@ void EnEncount1_SpawnStalchildOrWolfos(EnEncount1* this, PlayState* play) {
             (CVarGetInteger("gRandomizedEnemies", 0) && enemyCount < 15)) {
         while ((this->curNumSpawn < this->maxCurSpawns && this->totalNumSpawn < this->maxTotalSpawns) || 
                 (CVarGetInteger("gRandomizedEnemies", 0) && enemyCount < 15)) {
-            if (play->sceneNum == SCENE_HYRULE_FIELD) {
+            // if (play->sceneNum == SCENE_HYRULE_FIELD) {
                 if ((player->unk_89E == 0) || (player->actor.floorBgId != BGCHECK_SCENE) ||
                     !(player->actor.bgCheckFlags & 1) || (player->stateFlags1 & 0x08000000)) {
 
@@ -282,7 +276,7 @@ void EnEncount1_SpawnStalchildOrWolfos(EnEncount1* this, PlayState* play) {
                     break;
                 }
                 spawnPos.y = floorY;
-            }
+            // }
             if (this->spawnType == SPAWNER_WOLFOS) {
                 spawnId = ACTOR_EN_WF;
                 spawnParams = (0xFF << 8) | 0x00;
@@ -305,9 +299,9 @@ void EnEncount1_SpawnStalchildOrWolfos(EnEncount1* this, PlayState* play) {
                 if (this->curNumSpawn >= this->maxCurSpawns) {
                     this->fieldSpawnTimer = 100;
                 }
-                if (play->sceneNum != SCENE_HYRULE_FIELD) {
-                    this->totalNumSpawn++;
-                }
+                // if (play->sceneNum != SCENE_HYRULE_FIELD) {
+                    // this->totalNumSpawn++;
+                // }
             } else {
                 // "Cannot spawn!"
                 osSyncPrintf(VT_FGCOL(GREEN) "☆☆☆☆☆ 発生できません！ ☆☆☆☆☆\n" VT_RST);

@@ -754,6 +754,30 @@ void Play_Init(GameState* thisx) {
     }
     #endif
 
+    if (
+        (!IS_DAY && (
+            play->sceneNum == SCENE_KOKIRI_FOREST ||
+            play->sceneNum == SCENE_KAKARIKO_VILLAGE ||
+            play->sceneNum == SCENE_GRAVEYARD ||
+            play->sceneNum == SCENE_GERUDOS_FORTRESS ||
+            play->sceneNum == SCENE_HAUNTED_WASTELAND ||
+            play->sceneNum == SCENE_LOST_WOODS ||
+            play->sceneNum == SCENE_SACRED_FOREST_MEADOW ||
+            play->sceneNum == SCENE_LON_LON_RANCH ||
+            play->sceneNum == SCENE_ZORAS_FOUNTAIN ||
+            play->sceneNum == SCENE_DEATH_MOUNTAIN_CRATER
+        )) ||
+        (play->sceneNum == SCENE_HYRULE_FIELD && LINK_IS_ADULT) ||
+        play->sceneNum == SCENE_DEATH_MOUNTAIN_TRAIL ||
+        play->sceneNum == SCENE_GERUDO_VALLEY ||
+        play->sceneNum == SCENE_ZORAS_RIVER ||
+        play->sceneNum == SCENE_LAKE_HYLIA
+    ) {
+        Actor_Spawn(&play->actorCtx, play, ACTOR_EN_ENCOUNT1, GET_PLAYER(play)->actor.world.pos.x,
+                        GET_PLAYER(play)->actor.world.pos.y + Player_GetHeight(GET_PLAYER(play)) + 5.0f,
+                        GET_PLAYER(play)->actor.world.pos.z, 0, 0, 0, 4260, false);
+    }
+
     if (CVarGetInteger("gIvanCoopModeEnabled", 0)) {
         Actor_Spawn(&play->actorCtx, play, gEnPartnerId, GET_PLAYER(play)->actor.world.pos.x,
                     GET_PLAYER(play)->actor.world.pos.y + Player_GetHeight(GET_PLAYER(play)) + 5.0f,

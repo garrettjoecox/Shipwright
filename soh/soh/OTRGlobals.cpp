@@ -790,6 +790,13 @@ extern "C" void InitOTR() {
         CVarClear("gLetItSnow");
     }
 
+    CVarSetInteger("gInfiniteAmmo", 1);
+    CVarSetInteger("gHyperEnemies", 1);
+    CVarSetInteger("gDamageMul", 1);
+    CVarSetInteger("gRandomizedEnemies", 1);
+    CVarSetInteger("gShadowTag", 1);
+    CVarSetInteger("gBonkDamageMul", 7);
+
     srand(now);
 #ifdef ENABLE_CROWD_CONTROL
     CrowdControl::Instance = new CrowdControl();
