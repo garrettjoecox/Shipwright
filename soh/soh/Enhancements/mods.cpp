@@ -1071,6 +1071,36 @@ void RegisterRandomizedEnemySizes() {
     });
 }
 
+void RegisterMagicAmmo() {
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnPlayerUpdate>([]() {
+        if (CVarGetInteger("gMagicAmmo", 0)) {
+            static u8 framesSinceLastMagicIncrease = 0;
+            framesSinceLastMagicIncrease++;
+            if (framesSinceLastMagicIncrease > 10) {
+                framesSinceLastMagicIncrease = 0;
+                if (gSaveContext.magic < gSaveContext.magicCapacity) {
+                    gSaveContext.magic++;
+                }
+            }
+
+            u8 newAmmoAmount = floor(10 * (static_cast<float>(gSaveContext.magic) / gSaveContext.magicCapacity));
+            AMMO(ITEM_STICK) = newAmmoAmount;
+            AMMO(ITEM_SLINGSHOT) = newAmmoAmount;
+            AMMO(ITEM_NUT) = newAmmoAmount;
+            AMMO(ITEM_BOMB) = newAmmoAmount;
+            AMMO(ITEM_BOW) = newAmmoAmount;
+            AMMO(ITEM_BOMBCHU) = newAmmoAmount;
+        }
+    });
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnChangeAmmo>([](int16_t item, int16_t ammoChange) {
+        if (CVarGetInteger("gMagicAmmo", 0)) {
+            if (item == ITEM_STICK || item == ITEM_NUT || item == ITEM_SLINGSHOT || item == ITEM_BOW || item == ITEM_BOMB || item == ITEM_BOMBCHU) {
+                gSaveContext.magic = MAX(0, gSaveContext.magic - 10); // 10 can be any amount based on ammo type or whatever
+            }
+        }
+    });
+}
+
 void InitMods() {
     RegisterTTS();
     RegisterInfiniteMoney();
@@ -1099,5 +1129,6 @@ void InitMods() {
     RegisterAltTrapTypes();
     RegisterRandomizerSheikSpawn();
     RegisterRandomizedEnemySizes();
+    RegisterMagicAmmo();
     NameTag_RegisterHooks();
 }

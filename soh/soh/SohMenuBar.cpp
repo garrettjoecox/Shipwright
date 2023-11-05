@@ -1136,6 +1136,8 @@ void DrawEnhancementsMenu() {
             UIWidgets::PaddedEnhancementCheckbox("Shadow Tag Mode", "gShadowTag", true, false);
             UIWidgets::Tooltip("A wallmaster follows Link everywhere, don't get caught!");
 
+            UIWidgets::PaddedEnhancementCheckbox("Magic Ammo", "gMagicAmmo", true, false);
+
             UIWidgets::Spacer(0);
 
             UIWidgets::PaddedEnhancementCheckbox("Additional Traps", "gAddTraps.enabled", true, false);

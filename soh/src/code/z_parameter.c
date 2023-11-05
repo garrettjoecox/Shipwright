@@ -3149,6 +3149,7 @@ void GameplayStats_UpdateAmmoUsed(s16 item, s16 ammoUsed) {
 }
 
 void Inventory_ChangeAmmo(s16 item, s16 ammoChange) {
+    GameInteractor_ExecuteOnChangeAmmoHooks(item, ammoChange);
     // "Item = (%d)    Amount = (%d + %d)"
     osSyncPrintf("アイテム = (%d)    数 = (%d + %d)  ", item, AMMO(item), ammoChange);
 
