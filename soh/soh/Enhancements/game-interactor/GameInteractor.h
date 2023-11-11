@@ -160,6 +160,7 @@ public:
     DEFINE_HOOK(OnPlayerUpdate, void());
     DEFINE_HOOK(OnOcarinaSongAction, void());
     DEFINE_HOOK(OnShopSlotChange, void(uint8_t cursorIndex, int16_t price));
+    DEFINE_HOOK(OnChangeAmmo, void(int16_t item, int16_t ammoChange));
     DEFINE_HOOK(OnActorInit, void(void* actor));
     DEFINE_HOOK(OnActorUpdate, void(void* actor));
     DEFINE_HOOK(OnActorKill, void(void* actor));
