@@ -1136,6 +1136,8 @@ void DrawEnhancementsMenu() {
 
             UIWidgets::PaddedEnhancementCheckbox("Rupee Dash Mode", "gRupeeDash", true, false);
             UIWidgets::Tooltip("Rupees reduced over time, Link suffers damage when the count hits 0.");
+            UIWidgets::PaddedEnhancementCheckbox("ALBW-Style Meter", "gMagicAmmo", true, false);
+            UIWidgets::Tooltip("Meter increases over time, items are vulnerable, empty, or unusable when meter is empty.");
 
             if (CVarGetInteger("gRupeeDash", 0)) {
                 UIWidgets::PaddedEnhancementSliderInt(
