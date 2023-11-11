@@ -61,6 +61,9 @@ void GameInteractor_ExecuteOnOcarinaSongAction() {
 void GameInteractor_ExecuteOnShopSlotChangeHooks(uint8_t cursorIndex, int16_t price) {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnShopSlotChange>(cursorIndex, price);
 }
+void GameInteractor_ExecuteOnChangeAmmoHooks(int16_t item, int16_t ammoChange) {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnChangeAmmo>(item, ammoChange);
+}
 
 void GameInteractor_ExecuteOnActorInit(void* actor) {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnActorInit>(actor);
