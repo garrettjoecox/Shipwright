@@ -1136,7 +1136,8 @@ void DrawEnhancementsMenu() {
             UIWidgets::PaddedEnhancementCheckbox("Shadow Tag Mode", "gShadowTag", true, false);
             UIWidgets::Tooltip("A wallmaster follows Link everywhere, don't get caught!");
 
-            UIWidgets::PaddedEnhancementCheckbox("Magic Ammo", "gMagicAmmo", true, false);
+            UIWidgets::PaddedEnhancementCheckbox("ALBW-Style Meter", "gMagicAmmo", true, false);
+            UIWidgets::Tooltip("Meter increases over time, items are vulnerable, empty, or unusable when meter is empty.");
 
             UIWidgets::Spacer(0);
 
