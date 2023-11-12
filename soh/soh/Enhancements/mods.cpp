@@ -37,6 +37,9 @@ uint32_t ResourceMgr_IsSceneMasterQuest(s16 sceneNum);
 }
 bool performDelayedSave = false;
 bool performSave = false;
+bool meterr;
+int timerrr;
+int itemusagge;
 
 // TODO: When there's more uses of something like this, create a new GI::RawAction?
 void ReloadSceneTogglingLinkAge() {
@@ -1076,26 +1079,37 @@ void RegisterMagicAmmo() {
         if (CVarGetInteger("gMagicAmmo", 0)) {
             static u8 framesSinceLastMagicIncrease = 0;
             framesSinceLastMagicIncrease++;
-            if (framesSinceLastMagicIncrease > 10) {
+            if (framesSinceLastMagicIncrease > 10 && meterr == false) {
                 framesSinceLastMagicIncrease = 0;
                 if (gSaveContext.magic < gSaveContext.magicCapacity) {
                     gSaveContext.magic++;
                 }
             }
+            if (meterr == true){
+                timerrr++;
+                if (timerrr == 30){
+                    timerrr = 0;
+                    meterr = false;
+                }
+            }
 
             u8 newAmmoAmount = floor(10 * (static_cast<float>(gSaveContext.magic) / gSaveContext.magicCapacity));
-            AMMO(ITEM_STICK) = newAmmoAmount;
-            AMMO(ITEM_SLINGSHOT) = newAmmoAmount;
-            AMMO(ITEM_NUT) = newAmmoAmount;
-            AMMO(ITEM_BOMB) = newAmmoAmount;
-            AMMO(ITEM_BOW) = newAmmoAmount;
-            AMMO(ITEM_BOMBCHU) = newAmmoAmount;
+            AMMO(ITEM_STICK) = newAmmoAmount/5;
+            AMMO(ITEM_SLINGSHOT) = newAmmoAmount/2;
+            AMMO(ITEM_NUT) = newAmmoAmount/5;
+            AMMO(ITEM_BOMB) = newAmmoAmount/3;
+            AMMO(ITEM_BOW) = newAmmoAmount/2;
+            AMMO(ITEM_BOMBCHU) = newAmmoAmount/3;
         }
     });
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnChangeAmmo>([](int16_t item, int16_t ammoChange) {
         if (CVarGetInteger("gMagicAmmo", 0)) {
             if (item == ITEM_STICK || item == ITEM_NUT || item == ITEM_SLINGSHOT || item == ITEM_BOW || item == ITEM_BOMB || item == ITEM_BOMBCHU) {
-                gSaveContext.magic = MAX(0, gSaveContext.magic - 10); // 10 can be any amount based on ammo type or whatever
+                if (item == ITEM_NUT || ITEM_STICK) itemusagge = 24;
+                else if (item == ITEM_SLINGSHOT || item == ITEM_BOW) itemusagge = 12;
+                else if (item == ITEM_BOMB || item == ITEM_BOMBCHU) itemusagge = 16;
+                gSaveContext.magic = MAX(0, gSaveContext.magic - itemusagge); // 10 can be any amount based on ammo type or whatever
+                meterr = true; timerrr = 0;
             }
         }
     });
