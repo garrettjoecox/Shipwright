@@ -1836,7 +1836,8 @@ void Play_Main(GameState* thisx) {
         HREG(94) = 10;
     }
 
-    if ((HREG(80) != 10) || (HREG(81) != 0)) {
+    if (!CVarGetInteger("gControlledFrameAdvance", 0) || CVarGetInteger("gAdvanceFrame", 0)) {
+        CVarClear("gAdvanceFrame");
         Play_Update(play);
     }
 

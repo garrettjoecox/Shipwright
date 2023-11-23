@@ -1434,6 +1434,14 @@ void DrawDeveloperToolsMenu() {
         UIWidgets::Tooltip("Optimized debug warp screen, with the added ability to chose entrances and time of day");
         UIWidgets::PaddedEnhancementCheckbox("Debug Warp Screen Translation", "gDebugWarpScreenTranslation", true, false, false, "", UIWidgets::CheckboxGraphics::Cross, true);
         UIWidgets::Tooltip("Translate the Debug Warp Screen based on the game language");
+        UIWidgets::PaddedEnhancementCheckbox("Controlled frame advance", "gControlledFrameAdvance", true, false);
+        UIWidgets::Tooltip("Allows you to advance the game one frame at a time by pressing the button below (when enabled)");
+        if (CVarGetInteger("gControlledFrameAdvance", 0)) {
+            if (ImGui::Button("Advance Frame")) {
+                CVarSetInteger("gAdvanceFrame", 1);
+            }
+        }
+
         UIWidgets::PaddedSeparator();
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(12.0f, 6.0f));
         ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0,0));

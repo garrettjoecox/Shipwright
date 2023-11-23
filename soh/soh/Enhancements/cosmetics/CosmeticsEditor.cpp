@@ -1763,6 +1763,111 @@ void CosmeticsEditorWindow::DrawElement() {
         return;
     }
 
+    int Limb_type = CVarGetInteger("gCosmetics.Limb_type", 0);
+    const char * Limb_type_items[] = { "Paper Hat", "Santa Hat", "Antlers", "Rudolph" };
+    if (ImGui::SliderInt("Hat Type##slidergCosmetics.Limb_type", &Limb_type, 0, 3, Limb_type_items[Limb_type])) {
+        CVarSetInteger("gCosmetics.Limb_type", Limb_type);
+        LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+    }
+
+    if (Limb_type == 0) {
+        Color_RGBA8 Limb_color = CVarGetColor("gCosmetics.Limb_color", Color_RGBA8{255, 255, 255, 255});
+        float Limb_color_float[] = { Limb_color.r / 255.0f, Limb_color.g / 255.0f, Limb_color.b / 255.0f, Limb_color.a / 255.0f };
+        if (ImGui::ColorEdit4("Hat Color##slidergCosmetics.Limb_color", Limb_color_float, ImGuiColorEditFlags_NoInputs)) {
+            CVarSetColor("gCosmetics.Limb_color", Color_RGBA8{ (uint8_t)(Limb_color_float[0] * 255.0f), (uint8_t)(Limb_color_float[1] * 255.0f), (uint8_t)(Limb_color_float[2] * 255.0f), (uint8_t)(Limb_color_float[3] * 255.0f) });
+            LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+        }
+    }
+
+    int Limb_index = CVarGetInteger("gCosmetics.Limb_index", 0);
+    if (ImGui::SliderInt("Limb Index##slidergCosmetics.Limb_index", &Limb_index, 0, 20)) {
+        CVarSetInteger("gCosmetics.Limb_index", Limb_index);
+        LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+    }
+
+    int Limb_finder = CVarGetInteger("gCosmetics.Limb_finder", 0);
+    if (ImGui::SliderInt("Limb Finder##slidergCosmetics.Limb_finder", &Limb_finder, 0, 20)) {
+        CVarSetInteger("gCosmetics.Limb_finder", Limb_finder);
+        LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+    }
+
+    int Limb_r_x = CVarGetInteger("gCosmetics.Limb_r_x", 0);
+    if (ImGui::SliderInt("rotation X##slidergCosmetics.Limb_r_x", &Limb_r_x, -32768, 32767)) {
+        CVarSetInteger("gCosmetics.Limb_r_x", Limb_r_x);
+        LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Reset##Limb_r_x")) {
+        CVarClear("gCosmetics.Limb_r_x");
+        LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+    }
+
+    int Limb_r_y = CVarGetInteger("gCosmetics.Limb_r_y", 0);
+    if (ImGui::SliderInt("rotation Y##slidergCosmetics.Limb_r_y", &Limb_r_y, -32768, 32767)) {
+        CVarSetInteger("gCosmetics.Limb_r_y", Limb_r_y);
+        LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Reset##Limb_r_y")) {
+        CVarClear("gCosmetics.Limb_r_y");
+        LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+    }
+
+    int Limb_r_z = CVarGetInteger("gCosmetics.Limb_r_z", 0);
+    if (ImGui::SliderInt("rotation Z##slidergCosmetics.Limb_r_z", &Limb_r_z, -32768, 32767)) {
+        CVarSetInteger("gCosmetics.Limb_r_z", Limb_r_z);
+        LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Reset##Limb_r_z")) {
+        CVarClear("gCosmetics.Limb_r_z");
+        LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+    }
+
+    float Limb_t_x = CVarGetFloat("gCosmetics.Limb_t_x", 0.0f);
+    if (ImGui::SliderFloat("translate X##slidergCosmetics.Limb_t_x", &Limb_t_x, -2000.0f, 2000.0f)) {
+        CVarSetFloat("gCosmetics.Limb_t_x", Limb_t_x);
+        LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Reset##Limb_t_x")) {
+        CVarClear("gCosmetics.Limb_t_x");
+        LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+    }
+
+    float Limb_t_y = CVarGetFloat("gCosmetics.Limb_t_y", 0.0f);
+    if (ImGui::SliderFloat("translate Y##slidergCosmetics.Limb_t_y", &Limb_t_y, -2000.0f, 2000.0f)) {
+        CVarSetFloat("gCosmetics.Limb_t_y", Limb_t_y);
+        LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Reset##Limb_t_y")) {
+        CVarClear("gCosmetics.Limb_t_y");
+        LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+    }
+
+    float Limb_t_z = CVarGetFloat("gCosmetics.Limb_t_z", 0.0f);
+    if (ImGui::SliderFloat("translate Z##slidergCosmetics.Limb_t_z", &Limb_t_z, -2000.0f, 2000.0f)) {
+        CVarSetFloat("gCosmetics.Limb_t_z", Limb_t_z);
+        LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Reset##Limb_t_z")) {
+        CVarClear("gCosmetics.Limb_t_z");
+        LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+    }
+
+    float Limb_s_x = CVarGetFloat("gCosmetics.Limb_s_x", 1.0f);
+    if (ImGui::SliderFloat("scale##slidergCosmetics.Limb_s_x", &Limb_s_x, 0.0f, 10.0f)) {
+        CVarSetFloat("gCosmetics.Limb_s_x", Limb_s_x);
+        LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Reset##Limb_s_x")) {
+        CVarClear("gCosmetics.Limb_s_x");
+        LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+    }
+
     ImGui::Text("Color Scheme");
     ImGui::SameLine();
     UIWidgets::EnhancementCombobox("gCosmetics.DefaultColorScheme", colorSchemes, COLORSCHEME_N64);

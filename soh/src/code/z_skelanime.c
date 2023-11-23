@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <assert.h>
+#include <soh_assets.h>
 
 #define ANIM_INTERP 1
 
@@ -45,12 +46,36 @@ void SkelAnime_DrawLimbLod(PlayState* play, s32 limbIndex, void** skeleton, Vec3
         Matrix_TranslateRotateZYX(&pos, &rot);
         if (dList != NULL) {
             gSPMatrix(POLY_OPA_DISP++, MATRIX_NEWMTX(play->state.gfxCtx), G_MTX_LOAD);
+            gDPSetGrayscaleColor(POLY_OPA_DISP++, 0, 0, 0, 255);
+            if (limbIndex != CVarGetInteger("gCosmetics.Limb_finder", 0) && CVarGetInteger("gCosmetics.Limb_finder", 0) != 0) gSPGrayscale(POLY_OPA_DISP++, 1);
             gSPDisplayList(POLY_OPA_DISP++, dList);
+            if (limbIndex != CVarGetInteger("gCosmetics.Limb_finder", 0) && CVarGetInteger("gCosmetics.Limb_finder", 0) != 0) gSPGrayscale(POLY_OPA_DISP++, 0);
         }
     }
 
     if (postLimbDraw != NULL) {
         postLimbDraw(play, limbIndex, &dList, &rot, arg);
+    }
+    if (limbIndex == CVarGetInteger("gCosmetics.Limb_index", 0)) {
+        Matrix_Push();
+        Matrix_RotateZYX(CVarGetInteger("gCosmetics.Limb_r_x", 0), CVarGetInteger("gCosmetics.Limb_r_y", 0), CVarGetInteger("gCosmetics.Limb_r_z", 0), MTXMODE_APPLY);
+        Matrix_Translate(CVarGetFloat("gCosmetics.Limb_t_x", 0.0f), CVarGetFloat("gCosmetics.Limb_t_y", 0.0f), CVarGetFloat("gCosmetics.Limb_t_z", 0.0f), MTXMODE_APPLY);
+        Matrix_Scale(CVarGetFloat("gCosmetics.Limb_s_x", 1.0f), CVarGetFloat("gCosmetics.Limb_s_x", 1.0f), CVarGetFloat("gCosmetics.Limb_s_x", 1.0f), MTXMODE_APPLY);
+
+        gSPMatrix(POLY_OPA_DISP++, MATRIX_NEWMTX(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+        if (CVarGetInteger("gCosmetics.Limb_type", 0) == 0) {
+            Color_RGBA8 color = { 255, 255, 255, 255 };
+            color = CVarGetColor("gCosmetics.Limb_color", color);
+            gDPSetEnvColor(POLY_OPA_DISP++, color.r, color.g, color.b, color.a);
+            gSPDisplayList(POLY_OPA_DISP++, gPaperCrownGenericDL);
+        } else if (CVarGetInteger("gCosmetics.Limb_type", 0) == 1) {
+            gSPDisplayList(POLY_OPA_DISP++, gSantaHatGenericDL);
+        } else if (CVarGetInteger("gCosmetics.Limb_type", 0) == 2) {
+            gSPDisplayList(POLY_OPA_DISP++, gHorseAntlersDL);
+        } else {
+            gSPDisplayList(POLY_OPA_DISP++, gEponaRudolphHatDL);
+        }
+        Matrix_Pop();
     }
 
     if (limb->child != LIMB_DONE) {
@@ -151,7 +176,10 @@ void SkelAnime_DrawFlexLimbLod(PlayState* play, s32 limbIndex, void** skeleton, 
             {
                 OPEN_DISPS(play->state.gfxCtx);
                 gSPMatrix(POLY_OPA_DISP++, *mtx, G_MTX_LOAD);
+                gDPSetGrayscaleColor(POLY_OPA_DISP++, 0, 0, 0, 255);
+                if (limbIndex != CVarGetInteger("gCosmetics.Limb_finder", 0) && CVarGetInteger("gCosmetics.Limb_finder", 0) != 0) gSPGrayscale(POLY_OPA_DISP++, 1);
                 gSPDisplayList(POLY_OPA_DISP++, newDList);
+                if (limbIndex != CVarGetInteger("gCosmetics.Limb_finder", 0) && CVarGetInteger("gCosmetics.Limb_finder", 0) != 0) gSPGrayscale(POLY_OPA_DISP++, 0);
                 CLOSE_DISPS(play->state.gfxCtx);
             }
             (*mtx)++;
@@ -162,6 +190,29 @@ void SkelAnime_DrawFlexLimbLod(PlayState* play, s32 limbIndex, void** skeleton, 
     }
     if (postLimbDraw != NULL) {
         postLimbDraw(play, limbIndex, &limbDList, &rot, arg);
+    }
+    if (limbIndex == CVarGetInteger("gCosmetics.Limb_index", 0)) {
+        OPEN_DISPS(play->state.gfxCtx);
+        Matrix_Push();
+        Matrix_RotateZYX(CVarGetInteger("gCosmetics.Limb_r_x", 0), CVarGetInteger("gCosmetics.Limb_r_y", 0), CVarGetInteger("gCosmetics.Limb_r_z", 0), MTXMODE_APPLY);
+        Matrix_Translate(CVarGetFloat("gCosmetics.Limb_t_x", 0.0f), CVarGetFloat("gCosmetics.Limb_t_y", 0.0f), CVarGetFloat("gCosmetics.Limb_t_z", 0.0f), MTXMODE_APPLY);
+        Matrix_Scale(CVarGetFloat("gCosmetics.Limb_s_x", 1.0f), CVarGetFloat("gCosmetics.Limb_s_x", 1.0f), CVarGetFloat("gCosmetics.Limb_s_x", 1.0f), MTXMODE_APPLY);
+
+        gSPMatrix(POLY_OPA_DISP++, MATRIX_NEWMTX(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+        if (CVarGetInteger("gCosmetics.Limb_type", 0) == 0) {
+            Color_RGBA8 color = { 255, 255, 255, 255 };
+            color = CVarGetColor("gCosmetics.Limb_color", color);
+            gDPSetEnvColor(POLY_OPA_DISP++, color.r, color.g, color.b, color.a);
+            gSPDisplayList(POLY_OPA_DISP++, gPaperCrownGenericDL);
+        } else if (CVarGetInteger("gCosmetics.Limb_type", 0) == 1) {
+            gSPDisplayList(POLY_OPA_DISP++, gSantaHatGenericDL);
+        } else if (CVarGetInteger("gCosmetics.Limb_type", 0) == 2) {
+            gSPDisplayList(POLY_OPA_DISP++, gHorseAntlersDL);
+        } else {
+            gSPDisplayList(POLY_OPA_DISP++, gEponaRudolphHatDL);
+        }
+        Matrix_Pop();
+        CLOSE_DISPS(play->state.gfxCtx);
     }
     if (limb->child != LIMB_DONE) {
         SkelAnime_DrawFlexLimbLod(play, limb->child, skeleton, jointTable, overrideLimbDraw, postLimbDraw, arg,
@@ -264,12 +315,37 @@ void SkelAnime_DrawLimbOpa(PlayState* play, s32 limbIndex, void** skeleton, Vec3
         Matrix_TranslateRotateZYX(&pos, &rot);
         if (dList != NULL) {
             gSPMatrix(POLY_OPA_DISP++, MATRIX_NEWMTX(play->state.gfxCtx), G_MTX_LOAD);
+            gDPSetGrayscaleColor(POLY_OPA_DISP++, 0, 0, 0, 255);
+            if (limbIndex != CVarGetInteger("gCosmetics.Limb_finder", 0) && CVarGetInteger("gCosmetics.Limb_finder", 0) != 0) gSPGrayscale(POLY_OPA_DISP++, 1);
             gSPDisplayList(POLY_OPA_DISP++, dList);
+            if (limbIndex != CVarGetInteger("gCosmetics.Limb_finder", 0) && CVarGetInteger("gCosmetics.Limb_finder", 0) != 0) gSPGrayscale(POLY_OPA_DISP++, 0);
         }
     }
 
     if (postLimbDraw != NULL) {
         postLimbDraw(play, limbIndex, &dList, &rot, arg);
+    }
+
+    if (limbIndex == CVarGetInteger("gCosmetics.Limb_index", 0)) {
+        Matrix_Push();
+        Matrix_RotateZYX(CVarGetInteger("gCosmetics.Limb_r_x", 0), CVarGetInteger("gCosmetics.Limb_r_y", 0), CVarGetInteger("gCosmetics.Limb_r_z", 0), MTXMODE_APPLY);
+        Matrix_Translate(CVarGetFloat("gCosmetics.Limb_t_x", 0.0f), CVarGetFloat("gCosmetics.Limb_t_y", 0.0f), CVarGetFloat("gCosmetics.Limb_t_z", 0.0f), MTXMODE_APPLY);
+        Matrix_Scale(CVarGetFloat("gCosmetics.Limb_s_x", 1.0f), CVarGetFloat("gCosmetics.Limb_s_x", 1.0f), CVarGetFloat("gCosmetics.Limb_s_x", 1.0f), MTXMODE_APPLY);
+
+        gSPMatrix(POLY_OPA_DISP++, MATRIX_NEWMTX(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+        if (CVarGetInteger("gCosmetics.Limb_type", 0) == 0) {
+            Color_RGBA8 color = { 255, 255, 255, 255 };
+            color = CVarGetColor("gCosmetics.Limb_color", color);
+            gDPSetEnvColor(POLY_OPA_DISP++, color.r, color.g, color.b, color.a);
+            gSPDisplayList(POLY_OPA_DISP++, gPaperCrownGenericDL);
+        } else if (CVarGetInteger("gCosmetics.Limb_type", 0) == 1) {
+            gSPDisplayList(POLY_OPA_DISP++, gSantaHatGenericDL);
+        } else if (CVarGetInteger("gCosmetics.Limb_type", 0) == 2) {
+            gSPDisplayList(POLY_OPA_DISP++, gHorseAntlersDL);
+        } else {
+            gSPDisplayList(POLY_OPA_DISP++, gEponaRudolphHatDL);
+        }
+        Matrix_Pop();
     }
 
     if (limb->child != LIMB_DONE) {
@@ -380,7 +456,10 @@ void SkelAnime_DrawFlexLimbOpa(PlayState* play, s32 limbIndex, void** skeleton, 
         if (newDList != NULL) {
             MATRIX_TOMTX(*limbMatricies);
             gSPMatrix(POLY_OPA_DISP++, *limbMatricies, G_MTX_LOAD);
+            gDPSetGrayscaleColor(POLY_OPA_DISP++, 0, 0, 0, 255);
+            if (limbIndex != CVarGetInteger("gCosmetics.Limb_finder", 0) && CVarGetInteger("gCosmetics.Limb_finder", 0) != 0) gSPGrayscale(POLY_OPA_DISP++, 1);
             gSPDisplayList(POLY_OPA_DISP++, newDList);
+            if (limbIndex != CVarGetInteger("gCosmetics.Limb_finder", 0) && CVarGetInteger("gCosmetics.Limb_finder", 0) != 0) gSPGrayscale(POLY_OPA_DISP++, 0);
             (*limbMatricies)++;
         } else if (limbDList != NULL) {
             MATRIX_TOMTX(*limbMatricies);
@@ -390,6 +469,27 @@ void SkelAnime_DrawFlexLimbOpa(PlayState* play, s32 limbIndex, void** skeleton, 
 
     if (postLimbDraw != NULL) {
         postLimbDraw(play, limbIndex, &limbDList, &rot, arg);
+    }
+    if (limbIndex == CVarGetInteger("gCosmetics.Limb_index", 0)) {
+        Matrix_Push();
+        Matrix_RotateZYX(CVarGetInteger("gCosmetics.Limb_r_x", 0), CVarGetInteger("gCosmetics.Limb_r_y", 0), CVarGetInteger("gCosmetics.Limb_r_z", 0), MTXMODE_APPLY);
+        Matrix_Translate(CVarGetFloat("gCosmetics.Limb_t_x", 0.0f), CVarGetFloat("gCosmetics.Limb_t_y", 0.0f), CVarGetFloat("gCosmetics.Limb_t_z", 0.0f), MTXMODE_APPLY);
+        Matrix_Scale(CVarGetFloat("gCosmetics.Limb_s_x", 1.0f), CVarGetFloat("gCosmetics.Limb_s_x", 1.0f), CVarGetFloat("gCosmetics.Limb_s_x", 1.0f), MTXMODE_APPLY);
+
+        gSPMatrix(POLY_OPA_DISP++, MATRIX_NEWMTX(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+        if (CVarGetInteger("gCosmetics.Limb_type", 0) == 0) {
+            Color_RGBA8 color = { 255, 255, 255, 255 };
+            color = CVarGetColor("gCosmetics.Limb_color", color);
+            gDPSetEnvColor(POLY_OPA_DISP++, color.r, color.g, color.b, color.a);
+            gSPDisplayList(POLY_OPA_DISP++, gPaperCrownGenericDL);
+        } else if (CVarGetInteger("gCosmetics.Limb_type", 0) == 1) {
+            gSPDisplayList(POLY_OPA_DISP++, gSantaHatGenericDL);
+        } else if (CVarGetInteger("gCosmetics.Limb_type", 0) == 2) {
+            gSPDisplayList(POLY_OPA_DISP++, gHorseAntlersDL);
+        } else {
+            gSPDisplayList(POLY_OPA_DISP++, gEponaRudolphHatDL);
+        }
+        Matrix_Pop();
     }
 
     if (limb->child != LIMB_DONE) {
@@ -548,12 +648,38 @@ Gfx* SkelAnime_DrawLimb(PlayState* play, s32 limbIndex, void** skeleton, Vec3s* 
         Matrix_TranslateRotateZYX(&pos, &rot);
         if (dList != NULL) {
             gSPMatrix(gfx++, MATRIX_NEWMTX(play->state.gfxCtx), G_MTX_LOAD);
+            gDPSetGrayscaleColor(gfx++, 0, 0, 0, 255);
+            if (limbIndex != CVarGetInteger("gCosmetics.Limb_finder", 0) && CVarGetInteger("gCosmetics.Limb_finder", 0) != 0) gSPGrayscale(gfx++, 1);
             gSPDisplayList(gfx++, dList);
+            if (limbIndex != CVarGetInteger("gCosmetics.Limb_finder", 0) && CVarGetInteger("gCosmetics.Limb_finder", 0) != 0) gSPGrayscale(gfx++, 0);
         }
     }
 
     if (postLimbDraw != NULL) {
         postLimbDraw(play, limbIndex, &dList, &rot, arg, &gfx);
+    }
+    if (limbIndex == CVarGetInteger("gCosmetics.Limb_index", 0)) {
+        OPEN_DISPS(play->state.gfxCtx);
+        Matrix_Push();
+        Matrix_RotateZYX(CVarGetInteger("gCosmetics.Limb_r_x", 0), CVarGetInteger("gCosmetics.Limb_r_y", 0), CVarGetInteger("gCosmetics.Limb_r_z", 0), MTXMODE_APPLY);
+        Matrix_Translate(CVarGetFloat("gCosmetics.Limb_t_x", 0.0f), CVarGetFloat("gCosmetics.Limb_t_y", 0.0f), CVarGetFloat("gCosmetics.Limb_t_z", 0.0f), MTXMODE_APPLY);
+        Matrix_Scale(CVarGetFloat("gCosmetics.Limb_s_x", 1.0f), CVarGetFloat("gCosmetics.Limb_s_x", 1.0f), CVarGetFloat("gCosmetics.Limb_s_x", 1.0f), MTXMODE_APPLY);
+
+        gSPMatrix(POLY_OPA_DISP++, MATRIX_NEWMTX(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+        if (CVarGetInteger("gCosmetics.Limb_type", 0) == 0) {
+            Color_RGBA8 color = { 255, 255, 255, 255 };
+            color = CVarGetColor("gCosmetics.Limb_color", color);
+            gDPSetEnvColor(POLY_OPA_DISP++, color.r, color.g, color.b, color.a);
+            gSPDisplayList(POLY_OPA_DISP++, gPaperCrownGenericDL);
+        } else if (CVarGetInteger("gCosmetics.Limb_type", 0) == 1) {
+            gSPDisplayList(POLY_OPA_DISP++, gSantaHatGenericDL);
+        } else if (CVarGetInteger("gCosmetics.Limb_type", 0) == 2) {
+            gSPDisplayList(POLY_OPA_DISP++, gHorseAntlersDL);
+        } else {
+            gSPDisplayList(POLY_OPA_DISP++, gEponaRudolphHatDL);
+        }
+        Matrix_Pop();
+        CLOSE_DISPS(play->state.gfxCtx);
     }
 
     if (limb->child != LIMB_DONE) {
@@ -652,7 +778,10 @@ Gfx* SkelAnime_DrawFlexLimb(PlayState* play, s32 limbIndex, void** skeleton, Vec
         if (newDList != NULL) {
             MATRIX_TOMTX(*mtx);
             gSPMatrix(gfx++, *mtx, G_MTX_LOAD);
+            gDPSetGrayscaleColor(gfx++, 0, 0, 0, 255);
+            if (limbIndex != CVarGetInteger("gCosmetics.Limb_finder", 0) && CVarGetInteger("gCosmetics.Limb_finder", 0) != 0) gSPGrayscale(gfx++, 1);
             gSPDisplayList(gfx++, newDList);
+            if (limbIndex != CVarGetInteger("gCosmetics.Limb_finder", 0) && CVarGetInteger("gCosmetics.Limb_finder", 0) != 0) gSPGrayscale(gfx++, 0);
             (*mtx)++;
         } else if (limbDList != NULL) {
             MATRIX_TOMTX(*mtx);
@@ -661,6 +790,29 @@ Gfx* SkelAnime_DrawFlexLimb(PlayState* play, s32 limbIndex, void** skeleton, Vec
     }
     if (postLimbDraw != NULL) {
         postLimbDraw(play, limbIndex, &limbDList, &rot, arg, &gfx);
+    }
+    if (limbIndex == CVarGetInteger("gCosmetics.Limb_index", 0)) {
+        OPEN_DISPS(play->state.gfxCtx);
+        Matrix_Push();
+        Matrix_RotateZYX(CVarGetInteger("gCosmetics.Limb_r_x", 0), CVarGetInteger("gCosmetics.Limb_r_y", 0), CVarGetInteger("gCosmetics.Limb_r_z", 0), MTXMODE_APPLY);
+        Matrix_Translate(CVarGetFloat("gCosmetics.Limb_t_x", 0.0f), CVarGetFloat("gCosmetics.Limb_t_y", 0.0f), CVarGetFloat("gCosmetics.Limb_t_z", 0.0f), MTXMODE_APPLY);
+        Matrix_Scale(CVarGetFloat("gCosmetics.Limb_s_x", 1.0f), CVarGetFloat("gCosmetics.Limb_s_x", 1.0f), CVarGetFloat("gCosmetics.Limb_s_x", 1.0f), MTXMODE_APPLY);
+
+        gSPMatrix(POLY_OPA_DISP++, MATRIX_NEWMTX(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+        if (CVarGetInteger("gCosmetics.Limb_type", 0) == 0) {
+            Color_RGBA8 color = { 255, 255, 255, 255 };
+            color = CVarGetColor("gCosmetics.Limb_color", color);
+            gDPSetEnvColor(POLY_OPA_DISP++, color.r, color.g, color.b, color.a);
+            gSPDisplayList(POLY_OPA_DISP++, gPaperCrownGenericDL);
+        } else if (CVarGetInteger("gCosmetics.Limb_type", 0) == 1) {
+            gSPDisplayList(POLY_OPA_DISP++, gSantaHatGenericDL);
+        } else if (CVarGetInteger("gCosmetics.Limb_type", 0) == 2) {
+            gSPDisplayList(POLY_OPA_DISP++, gHorseAntlersDL);
+        } else {
+            gSPDisplayList(POLY_OPA_DISP++, gEponaRudolphHatDL);
+        }
+        Matrix_Pop();
+        CLOSE_DISPS(play->state.gfxCtx);
     }
     if (limb->child != LIMB_DONE) {
         gfx = SkelAnime_DrawFlexLimb(play, limb->child, skeleton, jointTable, overrideLimbDraw, postLimbDraw, arg,
