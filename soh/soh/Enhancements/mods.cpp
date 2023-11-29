@@ -35,10 +35,8 @@ extern PlayState* gPlayState;
 extern void Overlay_DisplayText(float duration, const char* text);
 uint32_t ResourceMgr_IsSceneMasterQuest(s16 sceneNum);
 }
-bool performDelayedSave = false;
-bool performSave = false;
 
-bool meterr;int timerrr;int itemusagge;// TODO: When there's more uses of something like this, create a new GI::RawAction?
+bool performDelayedSave = false;bool performSave = false;bool meterr;int timerrr;int itemusagge;// TODO: When there's more uses of something like this, create a new GI::RawAction?
 void ReloadSceneTogglingLinkAge() {
     gPlayState->nextEntranceIndex = gSaveContext.entranceIndex;
     gPlayState->sceneLoadFlag = 0x14;
