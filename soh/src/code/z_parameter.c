@@ -3575,6 +3575,7 @@ void Interface_DrawMagicBar(PlayState* play) {
     s16 magicBarY;
     Color_RGB8 magicbar_yellow = {250,250,0}; //Magic bar being used
     Color_RGB8 magicbar_green = {R_MAGIC_FILL_COLOR(0),R_MAGIC_FILL_COLOR(1),R_MAGIC_FILL_COLOR(2)}; //Magic bar fill
+    Color_RGB8 ALBWMeter = {203, 82, 255};
 
     if (CVarGetInteger("gCosmetics.Consumable_MagicActive.Changed", 0)) {
         magicbar_yellow = CVarGetColor24("gCosmetics.Consumable_MagicActive.Value", magicbar_yellow);
@@ -3582,7 +3583,9 @@ void Interface_DrawMagicBar(PlayState* play) {
     if (CVarGetInteger("gCosmetics.Consumable_Magic.Changed", 0)) {
         magicbar_green = CVarGetColor24("gCosmetics.Consumable_Magic.Value", magicbar_green);
     }
-
+    if (CVarGetInteger("gMagicAmmo", 0) && (CVarGetInteger("gCosmetics.consumable_Magic.Changed", 0) == 0 || CVarGetInteger("gCosmetics.Consumable_MagicActive.Changed", 0) == 0)) {
+        magicbar_green = ALBWMeter;
+    }
     OPEN_DISPS(play->state.gfxCtx);
 
     if (gSaveContext.magicLevel != 0) {
