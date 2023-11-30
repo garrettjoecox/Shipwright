@@ -4,6 +4,7 @@
 #include "ResourceManager.h"
 #include "DisplayList.h"
 #include "../../OTRGlobals.h"
+#include "spdlog/spdlog.h"
 
 #include <array>
 #include <bit>
@@ -27,6 +28,7 @@ char searchString[64] = "";
 int displayListsSearchResultsCount;
 char** displayListsSearchResults;
 char* activeDisplayList = nullptr;
+char* activeExport = nullptr;
 
 std::map<int, std::string> cmdMap = {
     { G_SETPRIMCOLOR, "gsDPSetPrimColor" },
@@ -40,24 +42,24 @@ std::map<int, std::string> cmdMap = {
 
 void DLViewerWindow::DrawElement() {
     ImGui::SetNextWindowSize(ImVec2(520, 600), ImGuiCond_FirstUseEver);
-    if (!ImGui::Begin("Display List Viewer", &mIsVisible, ImGuiWindowFlags_NoFocusOnAppearing)) {
+    if (!ImGui::Begin("Resource Exporter", &mIsVisible, ImGuiWindowFlags_NoFocusOnAppearing)) {
         ImGui::End();
         return;
     }
 
-    if (ImGui::InputText("Search Display Lists", searchString, ARRAY_COUNT(searchString))) {
-        displayListsSearchResults = ResourceMgr_ListFiles(("*" + std::string(searchString) + "*DL").c_str(), &displayListsSearchResultsCount);
+    if (ImGui::InputText("Search Resources", searchString, ARRAY_COUNT(searchString))) {
+        displayListsSearchResults = ResourceMgr_ListFiles(("*" + std::string(searchString) + "*").c_str(), &displayListsSearchResultsCount);
     }
 
-    if (ImGui::BeginCombo("Active Display List", activeDisplayList)) {
-        for (int i = 0; i < displayListsSearchResultsCount; i++) {
-            if (ImGui::Selectable(displayListsSearchResults[i])) {
-                activeDisplayList = displayListsSearchResults[i];
-                break;
-            }
-        }
-        ImGui::EndCombo();
-    }
+    // if (ImGui::BeginCombo("Active Display List", activeDisplayList)) {
+    //     for (int i = 0; i < displayListsSearchResultsCount; i++) {
+    //         if (ImGui::Selectable(displayListsSearchResults[i])) {
+    //             activeDisplayList = displayListsSearchResults[i];
+    //             break;
+    //         }
+    //     }
+    //     ImGui::EndCombo();
+    // }
     if (activeDisplayList != nullptr) {
         auto res = std::static_pointer_cast<LUS::DisplayList>(LUS::Context::GetInstance()->GetResourceManager()->LoadResource(activeDisplayList));
         for (int i = 0; i < res->Instructions.size(); i++) {
@@ -129,9 +131,24 @@ void DLViewerWindow::DrawElement() {
             ImGui::EndGroup();
         }
     }
+
+    if (ImGui::BeginCombo("Export", activeExport)) {
+        for (int i = 0; i < displayListsSearchResultsCount; i++) {
+            if (ImGui::Selectable(displayListsSearchResults[i])) {
+                activeExport = displayListsSearchResults[i];
+                break;
+            }
+        }
+        ImGui::EndCombo();
+    }
+    if (activeExport != nullptr) {
+        if (ImGui::Button("Export##DSADIOSJO")) {
+            LUS::Context::GetInstance()->GetResourceManager()->ExportResource(activeExport, true);
+        }
+    }
     ImGui::End();
 }
 
 void DLViewerWindow::InitElement() {
-    displayListsSearchResults = ResourceMgr_ListFiles("*DL", &displayListsSearchResultsCount);
+    displayListsSearchResults = ResourceMgr_ListFiles("*message_data*", &displayListsSearchResultsCount);
 }
