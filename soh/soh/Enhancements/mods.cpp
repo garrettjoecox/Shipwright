@@ -1091,13 +1091,13 @@ void RegisterMagicAmmo() {
                 }
             }
 
-            u8 newAmmoAmount = floor(10 * (static_cast<float>(gSaveContext.magic) / gSaveContext.magicCapacity));
+            float newAmmoAmount = (10*gSaveContext.magicCapacity/48) * (static_cast<float>(gSaveContext.magic) / gSaveContext.magicCapacity);
             AMMO(ITEM_STICK) = newAmmoAmount/5;
-            AMMO(ITEM_SLINGSHOT) = newAmmoAmount/2;
+            AMMO(ITEM_SLINGSHOT) = newAmmoAmount/2.5;
             AMMO(ITEM_NUT) = newAmmoAmount/5;
-            AMMO(ITEM_BOMB) = newAmmoAmount/3;
-            AMMO(ITEM_BOW) = newAmmoAmount/2;
-            AMMO(ITEM_BOMBCHU) = newAmmoAmount/3;
+            AMMO(ITEM_BOMB) = newAmmoAmount/3.3;
+            AMMO(ITEM_BOW) = newAmmoAmount/2.5;
+            AMMO(ITEM_BOMBCHU) = newAmmoAmount/3.3;
         }
     });
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnChangeAmmo>([](int16_t item, int16_t ammoChange) {
