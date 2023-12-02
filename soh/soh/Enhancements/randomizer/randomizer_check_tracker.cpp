@@ -12,6 +12,9 @@
 #include "3drando/item_location.hpp"
 #include "soh/Enhancements/game-interactor/GameInteractor.h"
 #include "z64item.h"
+#ifdef ENABLE_REMOTE_CONTROL
+#include "soh/Enhancements/game-interactor/GameInteractor_Anchor.h"
+#endif
 
 extern "C" {
 #include "variables.h"
@@ -239,6 +242,10 @@ void SetCheckCollected(RandomizerCheck rc) {
     }
     SaveManager::Instance->SaveSection(gSaveContext.fileNum, sectionId, true);
 
+#ifdef ENABLE_REMOTE_CONTROL
+    Anchor_UpdateCheckData(rc);
+#endif
+
     doAreaScroll = true;
     UpdateOrdering(rcObj.rcArea);
     UpdateInventoryChecks();
@@ -360,6 +367,9 @@ void SetShopSeen(uint32_t sceneNum, bool prices) {
     for (int i = start; i < start + 8; i++) {
         if (gSaveContext.checkTrackerData[i].status == RCSHOW_UNCHECKED) {
             gSaveContext.checkTrackerData[i].status = RCSHOW_SEEN;
+#ifdef ENABLE_REMOTE_CONTROL
+            Anchor_UpdateCheckData(i);
+#endif
             statusChanged = true;
         }
     }
@@ -490,6 +500,9 @@ void CheckTrackerShopSlotChange(uint8_t cursorSlot, int16_t basePrice) {
         gSaveContext.checkTrackerData[slot].status = RCSHOW_IDENTIFIED;
         gSaveContext.checkTrackerData[slot].price = basePrice;
         SaveManager::Instance->SaveSection(gSaveContext.fileNum, sectionId, true);
+#ifdef ENABLE_REMOTE_CONTROL
+        Anchor_UpdateCheckData(slot);
+#endif
     }
 }
 
@@ -1319,6 +1332,9 @@ void DrawLocation(RandomizerCheckObject rcObj) {
                 gSaveContext.checkTrackerData[rcObj.rc].skipped = true;
                 areaChecksGotten[rcObj.rcArea]++;
             }
+#ifdef ENABLE_REMOTE_CONTROL
+            Anchor_UpdateCheckData(rcObj.rc);
+#endif
             UpdateOrdering(rcObj.rcArea);
             UpdateInventoryChecks();
             SaveManager::Instance->SaveSection(gSaveContext.fileNum, sectionId, true);

@@ -10,6 +10,9 @@
 #include "randomizer_entrance.h"
 #include "randomizer_grotto.h"
 #include <string.h>
+#ifdef ENABLE_REMOTE_CONTROL
+#include "soh/Enhancements/game-interactor/GameInteractor_Anchor.h"
+#endif
 
 #include "global.h"
 
@@ -805,6 +808,10 @@ void Entrance_SetEntranceDiscovered(u16 entranceIndex, u8 isReversedEntrance) {
     if (entranceIndex > MAX_ENTRANCE_RANDO_USED_INDEX || Entrance_GetIsEntranceDiscovered(entranceIndex)) {
         return;
     }
+
+#ifdef ENABLE_REMOTE_CONTROL
+    Anchor_EntranceDiscovered(entranceIndex);
+#endif
 
     u16 bitsPerIndex = sizeof(u32) * 8;
     u32 idx = entranceIndex / bitsPerIndex;
