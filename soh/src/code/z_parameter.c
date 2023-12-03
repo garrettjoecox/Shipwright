@@ -1338,6 +1338,18 @@ void func_80083108(PlayState* play) {
                         }
                     }
                 }
+                if (gSaveContext.magic < MAX(0, 6) && CVarGetInteger("gMagicAmmo", 0)) {
+                    for (i = 1; i < ARRAY_COUNT(gSaveContext.equips.buttonItems); i++) {
+                        if (gSaveContext.equips.buttonItems[i] == ITEM_BOOMERANG || gSaveContext.equips.buttonItems[i] == ITEM_HOOKSHOT || gSaveContext.equips.buttonItems[i] == ITEM_LONGSHOT) {
+                            if (gSaveContext.buttonStatus[BUTTON_STATUS_INDEX(i)] == BTN_ENABLED) {
+                                sp28 = 1;
+                            }
+
+                            gSaveContext.buttonStatus[BUTTON_STATUS_INDEX(i)] = BTN_DISABLED;
+                            
+                        }
+                    }
+                }
             }
         }
     }
