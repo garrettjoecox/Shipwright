@@ -1075,19 +1075,24 @@ void RegisterRandomizedEnemySizes() {
 void RegisterMagicAmmo() {
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnPlayerUpdate>([]() {
         if (CVarGetInteger("gMagicAmmo", 0)) {
+            static int temp_ammo = gSaveContext.magic;
             static u8 framesSinceLastMagicIncrease = 0;
             framesSinceLastMagicIncrease++;
-            if (framesSinceLastMagicIncrease > 10 && meterr == false) {
-                framesSinceLastMagicIncrease = 0;
-                if (gSaveContext.magic < gSaveContext.magicCapacity) {
-                    gSaveContext.magic++;
-                }
-            }
+
+            if (temp_ammo != gSaveContext.magic){meterr = true; timerrr = 0; temp_ammo = gSaveContext.magic;}
             if (meterr == true){
                 timerrr++;
                 if (timerrr == 30){
                     timerrr = 0;
                     meterr = false;
+                }
+            }
+
+            if (framesSinceLastMagicIncrease > 10 && meterr == false) {
+                framesSinceLastMagicIncrease = 0;
+                if (gSaveContext.magic < gSaveContext.magicCapacity) {
+                    gSaveContext.magic++;
+                    temp_ammo++;
                 }
             }
 
@@ -1102,12 +1107,12 @@ void RegisterMagicAmmo() {
     });
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnChangeAmmo>([](int16_t item, int16_t ammoChange) {
         if (CVarGetInteger("gMagicAmmo", 0)) {
+        
             if (item == ITEM_STICK || item == ITEM_NUT || item == ITEM_SLINGSHOT || item == ITEM_BOW || item == ITEM_BOMB || item == ITEM_BOMBCHU) {
                 if (item == ITEM_NUT || ITEM_STICK) itemusagge = 24;
                 else if (item == ITEM_SLINGSHOT || item == ITEM_BOW) itemusagge = 12;
                 else if (item == ITEM_BOMB || item == ITEM_BOMBCHU) itemusagge = 16;
                 gSaveContext.magic = MAX(0, gSaveContext.magic - itemusagge); // 10 can be any amount based on ammo type or whatever
-                meterr = true; timerrr = 0;
             }
         }
     });
