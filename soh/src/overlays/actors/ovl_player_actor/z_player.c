@@ -2438,6 +2438,7 @@ s32 func_8083442C(Player* this, PlayState* play) {
 
         if (this->unk_860 >= 0) {
             Player_PlaySfx(this, D_80854398[ABS(this->unk_860) - 1]);
+            if (Player_HoldsHookshot(this) && CVarGetInteger("gMagicAmmo", 0)) gSaveContext.magic = MAX(0, gSaveContext.magic - 6);
 
             if (!Player_HoldsHookshot(this) && (func_80834380(play, this, &item, &arrowType) > 0)) {
                 magicArrowType = arrowType - ARROW_FIRE;
@@ -3007,6 +3008,7 @@ s32 func_808359FC(Player* this, PlayState* play) {
             this->unk_A73 = 4;
             Player_PlaySfx(this, NA_SE_IT_BOOMERANG_THROW);
             func_80832698(this, NA_SE_VO_LI_SWORD_N);
+            if (CVarGetInteger("gMagicAmmo", 0)) gSaveContext.magic = MAX(0, gSaveContext.magic - 6);
         }
     }
 
