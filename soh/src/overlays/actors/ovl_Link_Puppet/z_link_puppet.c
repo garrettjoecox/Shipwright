@@ -6,6 +6,7 @@
 #include "soh/Enhancements/game-interactor/GameInteractor_Anchor.h"
 #include <string.h>
 #include <objects/object_link_child/object_link_child.h>
+#include "soh_assets.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_UPDATE_WHILE_CULLED | ACTOR_FLAG_DRAW_WHILE_CULLED)
 
@@ -182,6 +183,52 @@ void Puppet_PostLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot
 
     Vec3f* vec = &FEET_POS[((void)0, playerData.playerAge)];
     Actor_SetFeetPos(&this->actor, limbIndex, PLAYER_LIMB_L_FOOT, vec, PLAYER_LIMB_R_FOOT, vec);
+
+    if (CVarGetInteger("gLetItSnow", 0)) {
+        if (limbIndex == PLAYER_LIMB_HEAD) {
+            OPEN_DISPS(play->state.gfxCtx);
+
+            Matrix_Push();
+            if (!playerData.playerAge) {
+                Matrix_RotateZYX(24000, -16000, -7000, MTXMODE_APPLY);
+                Matrix_Translate(32.0f, 0.0f, 0.0f, MTXMODE_APPLY);
+                Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
+                gSPMatrix(POLY_OPA_DISP++, MATRIX_NEWMTX(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                gSPDisplayList(POLY_OPA_DISP++, gLinkAdultHatTrimDL);
+            } else {
+                Matrix_RotateZYX(24000, -16000, -7000, MTXMODE_APPLY);
+                Matrix_Translate(32.0f, 0.0f, 0.0f, MTXMODE_APPLY);
+                Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
+                gSPMatrix(POLY_OPA_DISP++, MATRIX_NEWMTX(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                gSPDisplayList(POLY_OPA_DISP++, gLinkChildHatTrimDL);
+            }
+
+            Matrix_Pop();
+
+            CLOSE_DISPS(play->state.gfxCtx);
+        }
+
+        if (limbIndex == PLAYER_LIMB_HAT) {
+            OPEN_DISPS(play->state.gfxCtx);
+
+            Matrix_Push();
+            if (!playerData.playerAge) {
+                Matrix_RotateZYX(0, 0, 17500, MTXMODE_APPLY);
+                Matrix_Translate(-195.0f, 1500.0f, -95.0f, MTXMODE_APPLY);
+                Matrix_Scale(2.0f, 2.0f, 2.0f, MTXMODE_APPLY);
+            } else {
+                Matrix_RotateZYX(0, 0, 27000, MTXMODE_APPLY);
+                Matrix_Translate(-950.0f, 2600.0f, -75.0f, MTXMODE_APPLY);
+                Matrix_Scale(2.0f, 2.0f, 2.0f, MTXMODE_APPLY);
+            }
+
+            gSPMatrix(POLY_OPA_DISP++, MATRIX_NEWMTX(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+            gSPDisplayList(POLY_OPA_DISP++, gLinkAdultPompomDL);
+            Matrix_Pop();
+
+            CLOSE_DISPS(play->state.gfxCtx);
+        }
+    }
 
     if (limbIndex == PLAYER_LIMB_L_HAND && playerData.itemAction == PLAYER_IA_DEKU_STICK) {
         OPEN_DISPS(play->state.gfxCtx);
