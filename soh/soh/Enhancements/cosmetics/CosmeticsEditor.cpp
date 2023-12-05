@@ -47,6 +47,13 @@ extern PlayState* gPlayState;
 #include "objects/object_gjyo_objects/object_gjyo_objects.h"
 #include "textures/nintendo_rogo_static/nintendo_rogo_static.h"
 #include "objects/object_gi_rabit_mask/object_gi_rabit_mask.h"
+#include "objects/object_wood02/object_wood02.h"
+#include "scenes/overworld/spot00/spot00_room_0.h"
+#include "scenes/overworld/spot04/spot04_room_0.h"
+#include "scenes/overworld/spot04/spot04_room_1.h"
+#include "scenes/overworld/spot20/spot20_room_0.h"
+#include "scenes/overworld/spot03/spot03_room_0.h"
+#include "scenes/overworld/spot15/spot15_room_0.h"
 void ResourceMgr_PatchGfxByName(const char* path, const char* patchName, int index, Gfx instruction);
 void ResourceMgr_PatchGfxCopyCommandByName(const char* path, const char* patchName, int destinationIndex, int sourceIndex);
 void ResourceMgr_UnpatchGfxByName(const char* path, const char* patchName);
@@ -190,9 +197,9 @@ typedef struct {
     colors were darker than the gDPSetPrimColor. You will see many more examples of this below in the `ApplyOrResetCustomGfxPatches` method
 */
 static std::map<std::string, CosmeticOption> cosmeticOptions = {
-    COSMETIC_OPTION("Link_KokiriTunic",              "Kokiri Tunic",         GROUP_LINK,         ImVec4( 30, 105,  27, 255), false, true, false),
-    COSMETIC_OPTION("Link_GoronTunic",               "Goron Tunic",          GROUP_LINK,         ImVec4(100,  20,   0, 255), false, true, false),
-    COSMETIC_OPTION("Link_ZoraTunic",                "Zora Tunic",           GROUP_LINK,         ImVec4(  0,  60, 100, 255), false, true, false),
+    COSMETIC_OPTION("Link_KokiriTunic",              "Kokiri Tunic",         GROUP_LINK,         ImVec4(255,   0,   0, 255), false, true, false),
+    COSMETIC_OPTION("Link_GoronTunic",               "Goron Tunic",          GROUP_LINK,         ImVec4(255,   0,   0, 255), false, true, false),
+    COSMETIC_OPTION("Link_ZoraTunic",                "Zora Tunic",           GROUP_LINK,         ImVec4(255,   0,   0, 255), false, true, false),
     COSMETIC_OPTION("Link_Hair",                     "Hair",                 GROUP_LINK,         ImVec4(255, 173,  27, 255), false, true, true),
     COSMETIC_OPTION("Link_Linen",                    "Linen",                GROUP_LINK,         ImVec4(255, 255, 255, 255), false, true, true),
     COSMETIC_OPTION("Link_Boots",                    "Boots",                GROUP_LINK,         ImVec4( 93,  44,  18, 255), false, true, true),
@@ -325,7 +332,7 @@ static std::map<std::string, CosmeticOption> cosmeticOptions = {
     COSMETIC_OPTION("NPC_Dog1",                      "Dog 1",                GROUP_NPC,          ImVec4(255, 255, 200, 255), false, true, true),
     COSMETIC_OPTION("NPC_Dog2",                      "Dog 2",                GROUP_NPC,          ImVec4(150, 100,  50, 255), false, true, true),
     COSMETIC_OPTION("NPC_GoldenSkulltula",           "Golden Skulltula",     GROUP_NPC,          ImVec4(255, 255, 255, 255), false, true, false),
-    COSMETIC_OPTION("NPC_Kokiri",                    "Kokiri",               GROUP_NPC,          ImVec4(  0, 130,  70, 255), false, true, false),
+    COSMETIC_OPTION("NPC_Kokiri",                    "Kokiri",               GROUP_NPC,          ImVec4(255,   0,   0, 255), false, true, false),
     COSMETIC_OPTION("NPC_Gerudo",                    "Gerudo",               GROUP_NPC,          ImVec4( 90,   0, 140, 255), false, true, false),
     COSMETIC_OPTION("NPC_MetalTrap",                 "Metal Trap",           GROUP_NPC,          ImVec4(255, 255, 255, 255), false, true, true),
     COSMETIC_OPTION("NPC_IronKnuckles",              "Iron Knuckles",        GROUP_NPC,          ImVec4(245, 255, 205, 255), false, true, false),
@@ -441,6 +448,24 @@ void CosmeticsUpdateTick() {
     5. GFX Command: The GFX command you want to insert
 */
 void ApplyOrResetCustomGfxPatches(bool manualChange) {
+    if (manualChange) {
+        PATCH_GFX(object_wood02_DL_007968,                        "Tree1",                    "gLetItSnow",                        17, gsDPSetPrimColor(0, 0, 255, 255, 255, 255));
+        PATCH_GFX(object_wood02_DL_000090,                        "Tree2",                    "gLetItSnow",                        17, gsDPSetPrimColor(0, 0, 200, 255, 255, 255));
+        PATCH_GFX(object_wood02_DL_000340,                        "Tree3",                    "gLetItSnow",                        17, gsDPSetPrimColor(0, 0, 255, 255, 255, 255));
+        PATCH_GFX(object_wood02_DL_000340,                        "Tree4",                    "gLetItSnow",                        24, gsDPSetPrimColor(0, 0, 255, 255, 255, 255));
+        PATCH_GFX(spot00_room_0DL_0139A8,                         "Path1",                    "gLetItSnow",                        23, gsDPSetPrimColor(0, 0, 100, 150, 255, 60));
+        PATCH_GFX(spot00_room_0DL_013250,                         "Path2",                    "gLetItSnow",                        23, gsDPSetPrimColor(0, 0, 100, 150, 255, 60));
+        PATCH_GFX(spot00_room_0DL_0143C8,                         "Path3",                    "gLetItSnow",                        23, gsDPSetPrimColor(0, 0, 100, 150, 255, 60));
+        PATCH_GFX(spot04_room_0DL_018048,                         "Path4",                    "gLetItSnow",                        24, gsDPSetPrimColor(0, 0, 100, 150, 255, 60));
+        PATCH_GFX(spot04_room_1DL_007810,                         "Path5",                    "gLetItSnow",                        24, gsDPSetPrimColor(0, 0, 100, 150, 255, 60));
+        PATCH_GFX(spot20_room_0DL_0062D0,                         "Path6",                    "gLetItSnow",                        23, gsDPSetPrimColor(0, 0, 200, 230, 255, 30));
+        PATCH_GFX(spot20_room_0DL_004460,                         "Path8",                    "gLetItSnow",                        31, gsDPSetPrimColor(0, 0, 200, 230, 255, 30));
+        PATCH_GFX(spot20_room_0DL_004460,                         "Path9",                    "gLetItSnow",                       118, gsDPSetPrimColor(0, 0, 200, 230, 255, 30));
+        PATCH_GFX(spot20_room_0DL_0065E8,                         "Path10",                   "gLetItSnow",                        24, gsDPSetPrimColor(0, 0, 200, 230, 255, 30));
+        PATCH_GFX(spot03_room_0DL_00C4B0,                         "Path11",                   "gLetItSnow",                        23, gsDPSetPrimColor(0, 0, 200, 230, 255, 30));
+        PATCH_GFX(spot15_room_0DL_00C748,                         "Path12",                   "gLetItSnow",                        23, gsDPSetPrimColor(0, 0, 200, 230, 255, 30));
+    }
+
     static CosmeticOption& linkGoronTunic = cosmeticOptions.at("Link_GoronTunic");
     if (manualChange || CVarGetInteger(linkGoronTunic.rainbowCvar, 0)) {
         static Color_RGBA8 defaultColor = {linkGoronTunic.defaultColor.x, linkGoronTunic.defaultColor.y, linkGoronTunic.defaultColor.z, linkGoronTunic.defaultColor.w};

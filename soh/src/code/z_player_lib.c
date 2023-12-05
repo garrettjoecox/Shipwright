@@ -15,6 +15,7 @@
 #endif
 
 #include <stdlib.h>
+#include <soh_assets.h>
 
 typedef struct {
     /* 0x00 */ u8 flag;
@@ -975,10 +976,18 @@ void* sMouthTextures[] = {
 };
 #endif
 
+// Original colors
+//Color_RGB8 sTunicColors[] = {
+//    { 30, 105, 27 },
+//    { 100, 20, 0 },
+//    { 0, 60, 100 },
+//};
+
+// Overwrite to red tunic as default for Holidays in Hyrule build
 Color_RGB8 sTunicColors[] = {
-    { 30, 105, 27 },
-    { 100, 20, 0 },
-    { 0, 60, 100 },
+    { 255, 0, 0 },
+    { 255, 0, 0 },
+    { 255, 0, 0 },
 };
 
 Color_RGB8 sGauntletColors[] = {
@@ -1889,6 +1898,52 @@ void Player_PostLimbDrawGameplay(PlayState* play, s32 limbIndex, Gfx** dList, Ve
 
     if (*dList != NULL) {
         Matrix_MultVec3f(&sZeroVec, D_80160000);
+    }
+
+    if (CVarGetInteger("gLetItSnow", 0) && !(this->stateFlags1 & PLAYER_STATE1_FIRST_PERSON) && !(this->stateFlags2 & PLAYER_STATE2_CRAWLING)) {
+        if (limbIndex == PLAYER_LIMB_HEAD) {
+            OPEN_DISPS(play->state.gfxCtx);
+
+            Matrix_Push();
+            if (LINK_IS_ADULT) {
+                Matrix_RotateZYX(24000, -16000, -7000, MTXMODE_APPLY);
+                Matrix_Translate(32.0f, 0.0f, 0.0f, MTXMODE_APPLY);
+                Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
+                gSPMatrix(POLY_OPA_DISP++, MATRIX_NEWMTX(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                gSPDisplayList(POLY_OPA_DISP++, gLinkAdultHatTrimDL);
+            } else {
+                Matrix_RotateZYX(24000, -16000, -7000, MTXMODE_APPLY);
+                Matrix_Translate(32.0f, 0.0f, 0.0f, MTXMODE_APPLY);
+                Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
+                gSPMatrix(POLY_OPA_DISP++, MATRIX_NEWMTX(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                gSPDisplayList(POLY_OPA_DISP++, gLinkChildHatTrimDL);
+            }
+
+            Matrix_Pop();
+
+            CLOSE_DISPS(play->state.gfxCtx);
+        }
+
+        if (limbIndex == PLAYER_LIMB_HAT) {
+            OPEN_DISPS(play->state.gfxCtx);
+
+            Matrix_Push();
+            if (LINK_IS_ADULT) {
+                Matrix_RotateZYX(0, 0, 17500, MTXMODE_APPLY);
+                Matrix_Translate(-195.0f, 1500.0f, -95.0f, MTXMODE_APPLY);
+                Matrix_Scale(2.0f, 2.0f, 2.0f, MTXMODE_APPLY);
+            } else {
+                Matrix_RotateZYX(0, 0, 27000, MTXMODE_APPLY);
+                Matrix_Translate(-950.0f, 2600.0f, -75.0f, MTXMODE_APPLY);
+                Matrix_Scale(2.0f, 2.0f, 2.0f, MTXMODE_APPLY);
+            }
+
+            gSPMatrix(POLY_OPA_DISP++, MATRIX_NEWMTX(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+            gSPDisplayList(POLY_OPA_DISP++, gLinkAdultPompomDL);
+            Matrix_Pop();
+
+            CLOSE_DISPS(play->state.gfxCtx);
+        }
     }
 
     if (limbIndex == PLAYER_LIMB_L_HAND) {

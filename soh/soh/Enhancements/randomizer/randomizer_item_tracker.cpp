@@ -506,7 +506,7 @@ void DrawItemCount(ItemTrackerItem item) {
         uint8_t piecesTotal = OTRGlobals::Instance->gRandomizer->GetRandoSettingValue(RSK_TRIFORCE_HUNT_PIECES_TOTAL);
         ImU32 currentColor = gSaveContext.triforcePiecesCollected >= piecesRequired ? IM_COL_GREEN : IM_COL_WHITE;
         ImU32 maxColor = IM_COL_GREEN;
-        int32_t trackerTriforcePieceNumberDisplayMode = CVarGetInteger("gItemTrackerTriforcePieceTrack", TRIFORCE_PIECE_COLLECTED_REQUIRED_MAX);
+        int32_t trackerTriforcePieceNumberDisplayMode = CVarGetInteger("gItemTrackerTriforcePieceTrack", TRIFORCE_PIECE_COLLECTED_REQUIRED);
 
         currentString += std::to_string(gSaveContext.triforcePiecesCollected);
         currentString += "/";
@@ -607,7 +607,7 @@ void DrawItem(ItemTrackerItem item) {
         case RG_TRIFORCE_PIECE:
             actualItemId = item.id;
             hasItem = IS_RANDO && OTRGlobals::Instance->gRandomizer->GetRandoSettingValue(RSK_TRIFORCE_HUNT);
-            itemName = "Triforce Piece";
+            itemName = "Christmas Ornament";
             break;
     }
 
@@ -1148,9 +1148,9 @@ void ItemTrackerSettingsWindow::DrawElement() {
 
     UIWidgets::Spacer(0);
 
-    ImGui::Text("Triforce Piece Count Tracking");
-    UIWidgets::EnhancementCombobox("gItemTrackerTriforcePieceTrack", itemTrackerTriforcePieceTrackOptions, TRIFORCE_PIECE_COLLECTED_REQUIRED_MAX);
-    UIWidgets::InsertHelpHoverText("Customize what numbers are shown for triforce piece tracking.");
+    ImGui::Text("Christmas ornament Count Tracking");
+    UIWidgets::EnhancementCombobox("gItemTrackerTriforcePieceTrack", itemTrackerTriforcePieceTrackOptions, TRIFORCE_PIECE_COLLECTED_REQUIRED);
+    UIWidgets::InsertHelpHoverText("Customize what numbers are shown for ornament tracking.");
 
     ImGui::TableNextColumn();
 
@@ -1191,7 +1191,7 @@ void ItemTrackerSettingsWindow::DrawElement() {
         shouldUpdateVectors = true;
     }
 
-    if (UIWidgets::LabeledRightAlignedEnhancementCombobox("Triforce Pieces", "gItemTrackerTriforcePiecesDisplayType", displayTypes, SECTION_DISPLAY_HIDDEN)) {
+    if (UIWidgets::LabeledRightAlignedEnhancementCombobox("Christmas Ornaments", "gItemTrackerTriforcePiecesDisplayType", displayTypes, SECTION_DISPLAY_HIDDEN)) {
         shouldUpdateVectors = true;
     }
 
