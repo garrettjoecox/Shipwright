@@ -14,6 +14,7 @@
 #ifdef ENABLE_REMOTE_CONTROL
 #include "Enhancements/crowd-control/CrowdControl.h"
 #include "Enhancements/game-interactor/GameInteractor_Sail.h"
+#include "Enhancements/game-interactor/GameInteractor_Anchor.h"
 #endif
 
 
@@ -1422,6 +1423,10 @@ extern std::shared_ptr<ColViewerWindow> mColViewerWindow;
 extern std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
 extern std::shared_ptr<DLViewerWindow> mDLViewerWindow;
 extern std::shared_ptr<ValueViewerWindow> mValueViewerWindow;
+#ifdef ENABLE_REMOTE_CONTROL
+extern std::shared_ptr<AnchorPlayerLocationWindow> mAnchorPlayerLocationWindow;
+extern std::shared_ptr<AnchorLogWindow> mAnchorLogWindow;
+#endif
 
 void DrawDeveloperToolsMenu() {
     if (ImGui::BeginMenu("Developer Tools")) {
@@ -1529,9 +1534,17 @@ void DrawRemoteControlMenu() {
     if (ImGui::BeginMenu("Network")) {
         static std::string ip = CVarGetString("gRemote.IP", "127.0.0.1");
         static uint16_t port = CVarGetInteger("gRemote.Port", 43384);
-        bool isFormValid = !isStringEmpty(CVarGetString("gRemote.IP", "127.0.0.1")) && port > 1024 && port < 65535;
+        static std::string AnchorName = CVarGetString("gRemote.AnchorName", "");
+        static std::string anchorRoomId = CVarGetString("gRemote.AnchorRoomId", "");
+        bool isFormValid = !isStringEmpty(CVarGetString("gRemote.IP", "127.0.0.1")) && port > 1024 && port < 65535 && (
+            CVarGetInteger("gRemote.Scheme", GI_SCHEME_SAIL) != GI_SCHEME_ANCHOR ||
+            (
+                !isStringEmpty(CVarGetString("gRemote.AnchorName", "")) &&
+                !isStringEmpty(CVarGetString("gRemote.AnchorRoomId", ""))
+            )
+        );
 
-        const char* remoteOptions[2] = { "Sail", "Crowd Control"};
+        const char* remoteOptions[3] = { "Sail", "Crowd Control", "Anchor" };
 
         ImGui::BeginDisabled(GameInteractor::Instance->isRemoteInteractorEnabled);
         ImGui::Text("Remote Interaction Scheme");
@@ -1543,6 +1556,12 @@ void DrawRemoteControlMenu() {
                     CVarSetInteger("gRemote.Port", 43384);
                     ip = "127.0.0.1";
                     port = 43384;
+                    break;
+                case GI_SCHEME_ANCHOR:
+                    CVarSetString("gRemote.IP", "anchor.proxysaw.dev");
+                    CVarSetInteger("gRemote.Port", 43385);
+                    ip = "anchor.proxysaw.dev";
+                    port = 43385;
                     break;
             }
             LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
@@ -1576,28 +1595,105 @@ void DrawRemoteControlMenu() {
                     ImGui::SetClipboardText("https://crowdcontrol.live");
                 }
                 break;
+            case GI_SCHEME_ANCHOR:
+                UIWidgets::InsertHelpHoverText(
+                    "Anchor is an unofficial co-op mode for Ship of Harkinian. "
+                    "It allows multiple people to play the game together, sharing "
+                    "items and world flags. You can host your own Anchor server "
+                    "but there is also a public server available.\n"
+                    "\n"
+                    "If you run into any issues, please report them on the Anchor "
+                    "thread on the Ship of Harkinian Discord server.\n"
+                    "\n"
+                    "Click the question mark to copy a link to the thread to your "
+                    "clipboard."
+                );
+                if (ImGui::IsItemClicked()) {
+                    ImGui::SetClipboardText("https://discord.com/channels/808039310850130000/1125069592365121648");
+                }
+                break;
         }
 
         ImGui::Text("Remote IP & Port");
+        ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - ImGui::GetFontSize() * 5.7);
         if (ImGui::InputText("##gRemote.IP", (char*)ip.c_str(), ip.capacity() + 1)) {
             CVarSetString("gRemote.IP", ip.c_str());
             LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
         }
-
         ImGui::SameLine();
-        ImGui::PushItemWidth(ImGui::GetFontSize() * 5);
+        ImGui::SetNextItemWidth(ImGui::GetFontSize() * 5);
         if (ImGui::InputScalar("##gRemote.Port", ImGuiDataType_U16, &port)) {
             CVarSetInteger("gRemote.Port", port);
             LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
         }
+        if (CVarGetInteger("gRemote.Scheme", GI_SCHEME_SAIL) == GI_SCHEME_ANCHOR) {
+            ImGui::Text("Fairy Color & Name");
+            static Color_RGBA8 color = CVarGetColor("gRemote.AnchorColor", { 100, 255, 100, 255 });
+            static ImVec4 colorVec = ImVec4(color.r / 255.0, color.g / 255.0, color.b / 255.0, 1);
+            if (ImGui::ColorEdit3("##gRemote.AnchorColor", (float*)&colorVec, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel)) {
+                color.r = colorVec.x * 255.0;
+                color.g = colorVec.y * 255.0;
+                color.b = colorVec.z * 255.0;
 
-        ImGui::PopItemWidth();
+                CVarSetColor("gRemote.AnchorColor", color);
+                LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+            }
+            ImGui::SameLine();
+            ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+            if (ImGui::InputText("##gRemote.AnchorName", (char*)AnchorName.c_str(), AnchorName.capacity() + 1)) {
+                CVarSetString("gRemote.AnchorName", AnchorName.c_str());
+                LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+            }
+            ImGui::Text("Room ID");
+            int flags = 0;
+            if (GameInteractor::Instance->isRemoteInteractorEnabled) flags = ImGuiInputTextFlags_Password;
+            ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+            if (ImGui::InputText("##gRemote.AnchorRoomId", (char*)anchorRoomId.c_str(), anchorRoomId.capacity() + 1, flags)) {
+                CVarSetString("gRemote.AnchorRoomId", anchorRoomId.c_str());
+                LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+            }
+        }
         ImGui::EndDisabled();
+
+        ImGui::Spacing();
+
+        if (CVarGetInteger("gRemote.Scheme", GI_SCHEME_SAIL) == GI_SCHEME_ANCHOR) {
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(12.0f, 6.0f));
+            ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0, 0));
+            ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
+            if (mAnchorPlayerLocationWindow) {
+                if (ImGui::Button(GetWindowButtonText("Player Location Window", CVarGetInteger("gRemote.AnchorPlayerLocationWindow", 0)).c_str(), ImVec2(ImGui::GetContentRegionAvail().x - 20.0f, 0.0f))) {
+                    mAnchorPlayerLocationWindow->ToggleVisibility();
+                }
+                UIWidgets::InsertHelpHoverText(
+                    "This window shows all players in the room and their current "
+                    "location.\n"
+                    "\n"
+                    "You can move this window around, and press the arrow button "
+                    "to teleport to the other player."
+                );
+            }
+            if (mAnchorLogWindow) {
+                if (ImGui::Button(GetWindowButtonText("Incoming Item Window", CVarGetInteger("gRemote.AnchorLogWindow", 0)).c_str(), ImVec2(ImGui::GetContentRegionAvail().x - 20.0f, 0.0f))) {
+                    mAnchorLogWindow->ToggleVisibility();
+                }
+                UIWidgets::InsertHelpHoverText(
+                    "This window shows all incoming items from other players. "
+                    "The messages will expire after a few seconds.\n"
+                    "\n"
+                    "You can move this window around, and press the directional "
+                    "buttons to change the direction the messages stack towards."
+                );
+            }
+            ImGui::PopStyleVar(3);
+        }
 
         ImGui::Spacing();
 
         ImGui::BeginDisabled(!isFormValid);
         const char* buttonLabel = GameInteractor::Instance->isRemoteInteractorEnabled ? "Disable" : "Enable";
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(12.0f, 6.0f));
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
         if (ImGui::Button(buttonLabel, ImVec2(-1.0f, 0.0f))) {
             if (GameInteractor::Instance->isRemoteInteractorEnabled) {
                 CVarSetInteger("gRemote.Enabled", 0);
@@ -1608,6 +1704,15 @@ void DrawRemoteControlMenu() {
                         break;
                     case GI_SCHEME_CROWD_CONTROL:
                         CrowdControl::Instance->Disable();
+                        break;
+                    case GI_SCHEME_ANCHOR:
+                        if (CVarGetInteger("gRemote.AnchorLogWindow", 0) && mAnchorLogWindow) {
+                            mAnchorLogWindow->ToggleVisibility();
+                        }
+                        if (CVarGetInteger("gRemote.AnchorPlayerLocationWindow", 0) && mAnchorPlayerLocationWindow) {
+                            mAnchorPlayerLocationWindow->ToggleVisibility();
+                        }
+                        GameInteractorAnchor::Instance->Disable();
                         break;
                 }
             } else {
@@ -1620,18 +1725,62 @@ void DrawRemoteControlMenu() {
                     case GI_SCHEME_CROWD_CONTROL:
                         CrowdControl::Instance->Enable();
                         break;
+                    case GI_SCHEME_ANCHOR:
+                        if (!CVarGetInteger("gRemote.AnchorLogWindow", 0) && mAnchorLogWindow) {
+                            mAnchorLogWindow->ToggleVisibility();
+                        }
+                        if (!CVarGetInteger("gRemote.AnchorPlayerLocationWindow", 0) && mAnchorPlayerLocationWindow) {
+                            mAnchorPlayerLocationWindow->ToggleVisibility();
+                        }
+                        GameInteractorAnchor::Instance->Enable();
+                        break;
                 }
             }
         }
+        ImGui::PopStyleVar(2);
         ImGui::EndDisabled();
 
         if (GameInteractor::Instance->isRemoteInteractorEnabled) {
             ImGui::Spacing();
-            if (GameInteractor::Instance->isRemoteInteractorConnected) {
-                ImGui::Text("Connected");
-            } else {
+            if (!GameInteractor::Instance->isRemoteInteractorConnected) {
                 ImGui::Text("Connecting...");
             }
+        }
+
+        if (GameInteractor::Instance->isRemoteInteractorConnected && CVarGetInteger("gRemote.Scheme", GI_SCHEME_SAIL) == GI_SCHEME_ANCHOR) {
+            if (ImGui::Button("Request State", ImVec2(ImGui::GetContentRegionAvail().x, 0.0f))) {
+                Anchor_RequestSaveStateFromRemote();
+            }
+
+            ImGui::Text("Players in Room:");
+            ImGui::Text("%s", CVarGetString("gRemote.AnchorName", ""));
+            for (auto& [clientId, client] : GameInteractorAnchor::AnchorClients) {
+                ImGui::Text("%s", client.name.c_str());
+                if (client.clientVersion != GameInteractorAnchor::clientVersion) {
+                    ImGui::SameLine();
+                    ImGui::TextColored(ImVec4(1, 0, 0, 1), ICON_FA_EXCLAMATION_TRIANGLE);
+                    if (ImGui::IsItemHovered()) {
+                        ImGui::BeginTooltip();
+                        ImGui::Text("Incompatible version! Will not work together!");
+                        ImGui::Text("Yours: %s", GameInteractorAnchor::clientVersion.c_str());
+                        ImGui::Text("Theirs: %s", client.clientVersion.c_str());
+                        ImGui::EndTooltip();
+                    }
+                }
+                if (client.seed != gSaveContext.finalSeed && client.fileNum != 0xFF && gSaveContext.fileNum != 0xFF) {
+                    ImGui::SameLine();
+                    ImGui::TextColored(ImVec4(1, 0, 0, 1), ICON_FA_EXCLAMATION_TRIANGLE);
+                    if (ImGui::IsItemHovered()) {
+                        ImGui::BeginTooltip();
+                        ImGui::Text("Seed mismatch! Continuing will break things!");
+                        ImGui::Text("Yours: %u", gSaveContext.finalSeed);
+                        ImGui::Text("Theirs: %u", client.seed);
+                        ImGui::EndTooltip();
+                    }
+                }
+            }
+
+            ImGui::Spacing();
         }
 
         ImGui::Dummy(ImVec2(0.0f, 0.0f));
