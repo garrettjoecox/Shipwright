@@ -1279,6 +1279,11 @@ void DrawLocation(RandomizerCheck rc) {
     Rando::ItemLocation* itemLoc = OTRGlobals::Instance->gRandoContext->GetItemLocation(rc);
     RandomizerCheckTrackerData checkData = gSaveContext.checkTrackerData[rc];
     RandomizerCheckStatus status = checkData.status;
+
+    if (itemLoc->HasObtained()) {
+        status = RCSHOW_COLLECTED;
+    }
+
     bool skipped = checkData.skipped;
     if (status == RCSHOW_COLLECTED) {
         if (!showHidden && CVarGetInteger("gCheckTrackerCollectedHide", 0))
@@ -1593,12 +1598,12 @@ void CheckTrackerWindow::InitElement() {
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnExitGame>([](uint32_t fileNum) {
         Teardown();
     });
-    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnItemReceive>(CheckTrackerItemReceive);
+    // GameInteractor::Instance->RegisterGameHook<GameInteractor::OnItemReceive>(CheckTrackerItemReceive);
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnGameFrameUpdate>(CheckTrackerFrame);
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnTransitionEnd>(CheckTrackerTransition);
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnShopSlotChange>(CheckTrackerShopSlotChange);
-    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSceneFlagSet>(CheckTrackerSceneFlagSet);
-    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnFlagSet>(CheckTrackerFlagSet);
+    // GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSceneFlagSet>(CheckTrackerSceneFlagSet);
+    // GameInteractor::Instance->RegisterGameHook<GameInteractor::OnFlagSet>(CheckTrackerFlagSet);
 
     //LocationTable_Init();
 }
