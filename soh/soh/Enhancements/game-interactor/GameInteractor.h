@@ -3,6 +3,7 @@
 #ifndef GameInteractor_h
 #define GameInteractor_h
 
+#include "libultraship/libultraship.h"
 #include "GameInteractionEffect.h"
 #include "soh/Enhancements/item-tables/ItemTableTypes.h"
 #include <z64.h>
@@ -66,6 +67,126 @@ typedef enum {
     /*      */ GI_TP_DEST_NOCTURNE = ENTR_GRAVEYARD_7,
     /*      */ GI_TP_DEST_PRELUDE = ENTR_TEMPLE_OF_TIME_7,
 } GITeleportDestinations;
+
+typedef enum {
+    // Vanilla condition: gSaveContext.showTitleCard
+    GI_VB_SHOW_TITLE_CARD,
+    // Opt: *EnWonderTalk2
+    GI_VB_WONDER_TALK,
+    // Opt: *ElfMsg
+    GI_VB_NAVI_TALK,
+    // Vanilla condition: INFTABLE_GREETED_BY_SARIA
+    GI_VB_NOT_BE_GREETED_BY_SARIA,
+    // Opt: *EnMd
+    // Vanilla condition: EnMd->interactInfo.talkState == NPC_TALK_STATE_ACTION
+    GI_VB_MOVE_MIDO_IN_KOKIRI_FOREST,
+    // Opt: *EnMd
+    // Vanilla condition: CHECK_QUEST_ITEM(QUEST_KOKIRI_EMERALD)
+    GI_VB_MIDO_CONSIDER_DEKU_TREE_DEAD,
+    // Opt: *EnKo
+    // Vanilla condition: CHECK_QUEST_ITEM(QUEST_KOKIRI_EMERALD)
+    GI_VB_OPEN_KOKIRI_FOREST,
+    // Opt: *EnOwl
+    // Vanilla condition: EnOwl->actor.xzDistToPlayer < targetDist
+    GI_VB_OWL_INTERACTION,
+    // Vanilla condition: EVENTCHKINF_TALON_RETURNED_FROM_CASTLE
+    GI_VB_MALON_RETURN_FROM_CASTLE,
+    // Vanilla condition: CUR_UPG_VALUE(UPG_STRENGTH) <= 0
+    GI_VB_BE_ELIGIBLE_FOR_DARUNIAS_JOY_REWARD,
+    /* Vanilla condition:
+    ```
+        LINK_IS_ADULT &&
+        (gEntranceTable[((void)0, gSaveContext.entranceIndex)].scene == SCENE_TEMPLE_OF_TIME) &&
+        CHECK_QUEST_ITEM(QUEST_MEDALLION_SPIRIT) &&
+        CHECK_QUEST_ITEM(QUEST_MEDALLION_SHADOW) &&
+        !Flags_GetEventChkInf(EVENTCHKINF_RETURNED_TO_TEMPLE_OF_TIME_WITH_ALL_MEDALLIONS);
+    ```
+    */
+    GI_VB_BE_ELIGIBLE_FOR_LIGHT_ARROWS,
+    // Vanilla condition: !CHECK_QUEST_ITEM(QUEST_SONG_SARIA)
+    GI_VB_BE_ELIGIBLE_FOR_SARIAS_SONG,
+    // Vanilla condition: CHECK_QUEST_ITEM(QUEST_SONG_EPONA)
+    GI_VB_MALON_ALREADY_TAUGHT_EPONAS_SONG,
+    // Vanilla condition: !EVENTCHKINF_LEARNED_SERENADE_OF_WATER and adult and has iron boots
+    GI_VB_BE_ELIGIBLE_FOR_SERENADE_OF_WATER,
+    // Vanilla condition: !EVENTCHKINF_LEARNED_PRELUDE_OF_LIGHT and EVENTCHKINF_USED_FOREST_TEMPLE_BLUE_WARP
+    GI_VB_BE_ELIGIBLE_FOR_PRELUDE_OF_LIGHT,
+    /* Vanilla Condition: 
+    ```
+        LINK_IS_ADULT &&
+        gSaveContext.entranceIndex == ENTR_KAKARIKO_VILLAGE_0 &&
+        Flags_GetEventChkInf(EVENTCHKINF_USED_FOREST_TEMPLE_BLUE_WARP) &&
+        Flags_GetEventChkInf(EVENTCHKINF_USED_FIRE_TEMPLE_BLUE_WARP) &&
+        Flags_GetEventChkInf(EVENTCHKINF_USED_WATER_TEMPLE_BLUE_WARP) &&
+        !Flags_GetEventChkInf(EVENTCHKINF_BONGO_BONGO_ESCAPED_FROM_WELL);
+    ```
+    */
+    GI_VB_BE_ELIGIBLE_FOR_NOCTURNE_OF_SHADOW,
+
+    /*** Play Cutscenes ***/
+
+    GI_VB_PLAY_TRANSITION_CS,
+    // Opt: *EventChkInf flag
+    GI_VB_PLAY_ENTRANCE_CS,
+    // Opt: *cutsceneId
+    GI_VB_PLAY_ONEPOINT_CS,
+    // Opt: *actor
+    GI_VB_PLAY_ONEPOINT_ACTOR_CS,
+    // Opt: *BgTreemouth
+    GI_VB_PLAY_DEKU_TREE_INTRO_CS,
+    // Vanilla condition: !EventChkInf except for spirit & shadow temple which are !medallion, and Jabu which always is true
+    GI_VB_PLAY_BLUE_WARP_CS,
+    GI_VB_PLAY_DARUNIAS_JOY_CS,
+    GI_VB_PLAY_SHIEK_BLOCK_MASTER_SWORD_CS,
+    // Vanilla condition: !EVENTCHKINF_PULLED_MASTER_SWORD_FROM_PEDESTAL
+    GI_VB_PLAY_PULL_MASTER_SWORD_CS,
+    GI_VB_PLAY_DROP_FISH_FOR_JABU_CS,
+    // Vanilla condition: player->getItemId == GI_GAUNTLETS_SILVER
+    GI_VB_PLAY_NABOORU_CAPTURED_CS,
+    GI_VB_PLAY_ZELDAS_LULLABY_CS,
+    // Opt: *EnSa
+    GI_VB_PLAY_SARIAS_SONG_CS,
+    GI_VB_PLAY_PRELUDE_OF_LIGHT_CS,
+    GI_VB_PLAY_MINUET_OF_FOREST_CS,
+    GI_VB_PLAY_BOLERO_OF_FIRE_CS,
+    GI_VB_PLAY_SERENADE_OF_WATER_CS,
+
+    /*** Give Items ***/
+
+    GI_VB_GIVE_ITEM_FROM_CHEST,
+    GI_VB_GIVE_ITEM_FROM_BLUE_WARP,
+
+    GI_VB_GIVE_ITEM_FAIRY_OCARINA,
+    GI_VB_GIVE_ITEM_LIGHT_ARROW,
+    GI_VB_GIVE_ITEM_STRENGTH_1,
+    GI_VB_GIVE_ITEM_ZELDAS_LETTER,
+    GI_VB_GIVE_ITEM_MASTER_SWORD,
+    GI_VB_GIVE_ITEM_OCARINA_OF_TIME,
+    GI_VB_GIVE_ITEM_KOKIRI_EMERALD,
+    GI_VB_GIVE_ITEM_GORON_RUBY,
+    GI_VB_GIVE_ITEM_ZORA_SAPPHIRE,
+    GI_VB_GIVE_ITEM_LIGHT_MEDALLION,
+    GI_VB_GIVE_ITEM_FOREST_MEDALLION,
+    GI_VB_GIVE_ITEM_FIRE_MEDALLION,
+    GI_VB_GIVE_ITEM_WATER_MEDALLION,
+    GI_VB_GIVE_ITEM_SPIRIT_MEDALLION,
+    GI_VB_GIVE_ITEM_SHADOW_MEDALLION,
+
+    /*** Give Songs ***/
+
+    GI_VB_GIVE_ITEM_ZELDAS_LULLABY,
+    GI_VB_GIVE_ITEM_SARIAS_SONG,
+    GI_VB_GIVE_ITEM_EPONAS_SONG,
+    GI_VB_GIVE_ITEM_SUNS_SONG,
+    GI_VB_GIVE_ITEM_SONG_OF_TIME,
+    GI_VB_GIVE_ITEM_SONG_OF_STORMS,
+    GI_VB_GIVE_ITEM_MINUET_OF_FOREST,
+    GI_VB_GIVE_ITEM_BOLERO_OF_FIRE,
+    GI_VB_GIVE_ITEM_SERENADE_OF_WATER,
+    GI_VB_GIVE_ITEM_REQUIEM_OF_SPIRIT,
+    GI_VB_GIVE_ITEM_NOCTURNE_OF_SHADOW,
+    GI_VB_GIVE_ITEM_PRELUDE_OF_LIGHT,
+} GIVanillaBehavior;
 
 #ifdef __cplusplus
 extern "C" {
@@ -163,11 +284,22 @@ public:
     static GameInteractionEffectQueryResult RemoveEffect(RemovableGameInteractionEffect* effect);
 
     // Game Hooks
-    template <typename H> struct RegisteredGameHooks { inline static std::vector<typename H::fn> functions; };
-    template <typename H> void RegisterGameHook(typename H::fn h) { RegisteredGameHooks<H>::functions.push_back(h); }
+    uint32_t nextHookId = 0;
+    template <typename H> struct RegisteredGameHooks { inline static std::unordered_map<uint32_t, typename H::fn> functions; };
+    template <typename H> uint32_t RegisterGameHook(typename H::fn h) {
+        // Ensure hook id is unique
+        while (RegisteredGameHooks<H>::functions.find(this->nextHookId) != RegisteredGameHooks<H>::functions.end()) {
+            this->nextHookId++;
+        }
+        RegisteredGameHooks<H>::functions[this->nextHookId] = h;
+        return this->nextHookId++;
+    }
+    template <typename H> void UnregisterGameHook(uint32_t id) {
+        RegisteredGameHooks<H>::functions.erase(id);
+    }
     template <typename H, typename... Args> void ExecuteHooks(Args&&... args) {
-        for (auto& fn : RegisteredGameHooks<H>::functions) {
-            fn(std::forward<Args>(args)...);
+        for (auto& hook : RegisteredGameHooks<H>::functions) {
+            hook.second(std::forward<Args>(args)...);
         }
     }
 
@@ -193,6 +325,8 @@ public:
     DEFINE_HOOK(OnPlayerBonk, void());
     DEFINE_HOOK(OnPlayDestroy, void());
     DEFINE_HOOK(OnPlayDrawEnd, void());
+
+    DEFINE_HOOK(OnVanillaBehavior, void(GIVanillaBehavior flag, bool* result, void* opt));
 
     DEFINE_HOOK(OnSaveFile, void(int32_t fileNum));
     DEFINE_HOOK(OnLoadFile, void(int32_t fileNum));
