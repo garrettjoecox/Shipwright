@@ -11,6 +11,7 @@
 #include "objects/object_kw1/object_kw1.h"
 #include "vt.h"
 #include "soh/Enhancements/randomizer/adult_trade_shuffle.h"
+#include "soh/Enhancements/game-interactor/GameInteractor_Hooks.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_FRIENDLY | ACTOR_FLAG_UPDATE_WHILE_CULLED)
 
@@ -1186,18 +1187,10 @@ void func_80A99048(EnKo* this, PlayState* play) {
         Actor_SpawnAsChild(&play->actorCtx, &this->actor, play, ACTOR_EN_ELF, this->actor.world.pos.x,
                            this->actor.world.pos.y, this->actor.world.pos.z, 0, 0, 0, 3);
         if (ENKO_TYPE == ENKO_TYPE_CHILD_3) {
-            if (!IS_RANDO) {
-                if (!CHECK_QUEST_ITEM(QUEST_KOKIRI_EMERALD)) {
-                    this->collider.dim.height += 200;
-                    this->actionFunc = func_80A995CC;
-                    return;
-                }
-            } else {
-                if (!Flags_GetEventChkInf(EVENTCHKINF_OBTAINED_KOKIRI_EMERALD_DEKU_TREE_DEAD)) {
-                    this->collider.dim.height += 200;
-                    this->actionFunc = func_80A995CC;
-                    return;
-                }
+            if (!GameInteractor_Should(GI_VB_OPEN_KOKIRI_FOREST, CHECK_QUEST_ITEM(QUEST_KOKIRI_EMERALD), this)) {
+                this->collider.dim.height += 200;
+                this->actionFunc = func_80A995CC;
+                return;
             }
             Path_CopyLastPoint(this->path, &this->actor.world.pos);
         }
