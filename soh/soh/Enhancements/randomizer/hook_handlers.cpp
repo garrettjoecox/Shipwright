@@ -204,7 +204,7 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             Player* player = GET_PLAYER(gPlayState);
             player->unk_850 = 1;
             player->getItemId = GI_NONE;
-            player->getItemEntry = (GetItemEntry)GET_ITEM_NONE;
+            player->getItemEntry = GetItemEntry(GET_ITEM_NONE);
             *should = false;
             break;
         }
