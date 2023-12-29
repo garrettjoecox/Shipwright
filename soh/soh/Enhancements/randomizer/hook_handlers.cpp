@@ -31,6 +31,7 @@ RandomizerCheck GetRandomizerCheckFromSceneFlag(int16_t sceneNum, int16_t flagTy
     for (auto& loc : Rando::StaticData::GetLocationTable()) {
         if (loc.GetCollectionCheck().scene == sceneNum && loc.GetCollectionCheck().flag == flag && (
             (flagType == FLAG_SCENE_TREASURE && loc.GetCollectionCheck().type == SPOILER_CHK_CHEST) ||
+            (flagType == FLAG_SCENE_COLLECTIBLE && loc.GetCollectionCheck().type == SPOILER_CHK_COLLECTABLE) ||
             (flagType == FLAG_GS_TOKEN && loc.GetCollectionCheck().type == SPOILER_CHK_GOLD_SKULLTULA)
         )) {
             return loc.GetRandomizerCheck();
@@ -105,7 +106,18 @@ void RandomizerOnSceneFlagSetHandler(int16_t sceneNum, int16_t flagType, int16_t
 }
 
 void RandomizerOnPlayerUpdateForRCQueueHandler() {
-    if (randomizerQueuedChecks.size() < 1 || randomizerQueuedCheck != RC_UNKNOWN_CHECK) return;
+    // If we're already queued, don't queue again
+    if (randomizerQueuedCheck != RC_UNKNOWN_CHECK) return;
+
+    // If there's nothing to queue, don't queue
+    if (randomizerQueuedChecks.size() < 1) return;
+
+    // Commented out till we figure out issues with using item00
+    // // If we're in a cutscene, don't queue
+    // Player* player = GET_PLAYER(gPlayState);
+    // if (Player_InBlockingCsMode(gPlayState, player) || player->stateFlags1 & PLAYER_STATE1_IN_ITEM_CS || player->stateFlags1 & PLAYER_STATE1_GETTING_ITEM || player->stateFlags1 & PLAYER_STATE1_ITEM_OVER_HEAD) {
+    //     return;
+    // }
 
     RandomizerCheck rc = randomizerQueuedChecks.front();
     auto loc = Rando::Context::GetInstance()->GetItemLocation(rc);
@@ -117,6 +129,16 @@ void RandomizerOnPlayerUpdateForRCQueueHandler() {
         randomizerQueuedCheck = rc;
         randomizerQueuedItemEntry = getItemEntry;
         SPDLOG_INFO("Queueing Item mod {} item {} from RC {}", getItemEntry.modIndex, getItemEntry.itemId, rc);
+        // Commented out till we figure out issues with using item00
+        // u8 type = ITEM00_SOH_GIVE_ITEM_ENTRY_GI;
+        // if (
+        //     getItemEntry.getItemCategory == ITEM_CATEGORY_SKULLTULA_TOKEN ||
+        //     getItemEntry.getItemCategory == ITEM_CATEGORY_JUNK ||
+        //     getItemEntry.getItemCategory == ITEM_CATEGORY_LESSER
+        // ) {
+        //     type = ITEM00_SOH_GIVE_ITEM_ENTRY;
+        // }
+        // Item_DropCollectible(gPlayState, &player->actor.world.pos, type | 0x8000);
     }
 
     randomizerQueuedChecks.pop();
@@ -169,13 +191,20 @@ void RandomizerOnItemReceiveHandler(GetItemEntry receivedItemEntry) {
     }
 }
 
+void EnItem00_DrawRandomizedItem(EnItem00* enItem00, PlayState* play) {
+    f32 mtxScale = 15.67f;
+    Matrix_Scale(mtxScale, mtxScale, mtxScale, MTXMODE_APPLY);
+    EnItem00_CustomItemsParticles(&enItem00->actor, play, enItem00->itemEntry);
+    GetItemEntry_Draw(play, enItem00->itemEntry);
+}
+
 void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void* optionalArg) {
     switch (id) {
         case GI_VB_GIVE_ITEM_FROM_CHEST: {
             Player* player = GET_PLAYER(gPlayState);
             player->unk_850 = 1;
             player->getItemId = GI_NONE;
-            player->getItemEntry = (GetItemEntry) GET_ITEM_NONE;
+            player->getItemEntry = (GetItemEntry)GET_ITEM_NONE;
             *should = false;
             break;
         }
@@ -223,7 +252,56 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
                 Rando::Context::GetInstance()->GetItemLocation(RC_TOT_MASTER_SWORD)->MarkAsObtained();
             }
             break;
+        case GI_VB_ITEM00_DESPAWN: {
+            EnItem00* item00 = (EnItem00*)optionalArg;
+            if (item00->actor.params == ITEM00_HEART_PIECE || item00->actor.params == ITEM00_SMALL_KEY) {
+                RandomizerCheck rc = OTRGlobals::Instance->gRandomizer->GetCheckFromActor(item00->actor.id, gPlayState->sceneNum, item00->ogParams);
+                if (rc != RC_UNKNOWN_CHECK) {
+                    item00->actor.params = ITEM00_SOH_DUMMY;
+                    item00->itemEntry = Rando::Context::GetInstance()->GetFinalGIEntry(rc, true, (GetItemID)Rando::StaticData::GetLocation(rc)->GetVanillaItem());
+                    item00->actor.draw = (ActorFunc)EnItem00_DrawRandomizedItem;
+                    *should = Rando::Context::GetInstance()->GetItemLocation(rc)->HasObtained();
+                }
+            } else if (item00->actor.params == ITEM00_SOH_GIVE_ITEM_ENTRY || item00->actor.params == ITEM00_SOH_GIVE_ITEM_ENTRY_GI) {
+                GetItemEntry itemEntry = randomizerQueuedItemEntry;
+                item00->itemEntry = itemEntry;
+                item00->actor.draw = (ActorFunc)EnItem00_DrawRandomizedItem;
+            }
+            break;
+        }
+        case GI_VB_GIVE_ITEM_FROM_ITEM_00: {
+            EnItem00* item00 = (EnItem00*)optionalArg;
+            if (item00->actor.params == ITEM00_SOH_DUMMY) {
+                Flags_SetCollectible(gPlayState, item00->collectibleFlag);
+                Actor_Kill(&item00->actor);
+                *should = false;
+            } else if (item00->actor.params == ITEM00_SOH_GIVE_ITEM_ENTRY) {
+                Audio_PlaySoundGeneral(NA_SE_SY_GET_ITEM, &D_801333D4, 4, &D_801333E0, &D_801333E0, &D_801333E8);
+                if (item00->itemEntry.modIndex == MOD_NONE) {
+                    if (item00->itemEntry.getItemId == GI_SWORD_BGS) {
+                        gSaveContext.bgsFlag = true;
+                    }
+                    Item_Give(gPlayState, item00->itemEntry.itemId);
+                } else if (item00->itemEntry.modIndex == MOD_RANDOMIZER) {
+                    if (item00->itemEntry.getItemId == RG_ICE_TRAP) {
+                        gSaveContext.pendingIceTrapCount++;
+                    } else {
+                        Randomizer_Item_Give(gPlayState, item00->itemEntry);
+                    }
+                }
+                // EnItem00_SetupAction(item00, func_8001E5C8);
+                // *should = false;
+            } else if (item00->actor.params == ITEM00_SOH_GIVE_ITEM_ENTRY_GI) {
+                if (!Actor_HasParent(&item00->actor, gPlayState)) {
+                    GiveItemEntryFromActorWithFixedRange(&item00->actor, gPlayState, item00->itemEntry);
+                }
+                EnItem00_SetupAction(item00, func_8001E5C8);
+                *should = false;
+            }
+            break;
+        }
         case GI_VB_GIVE_ITEM_STRENGTH_1:
+        case GI_VB_GIVE_ITEM_ZELDAS_LETTER:
         case GI_VB_GIVE_ITEM_LIGHT_MEDALLION:
         case GI_VB_GIVE_ITEM_OCARINA_OF_TIME:
             *should = false;
