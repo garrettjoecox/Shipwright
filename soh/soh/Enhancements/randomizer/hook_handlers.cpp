@@ -253,7 +253,7 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             }
             break;
         case GI_VB_ITEM00_DESPAWN: {
-            EnItem00* item00 = (EnItem00*)optionalArg;
+            EnItem00* item00 = static_cast<EnItem00*>(optionalArg);
             if (item00->actor.params == ITEM00_HEART_PIECE || item00->actor.params == ITEM00_SMALL_KEY) {
                 RandomizerCheck rc = OTRGlobals::Instance->gRandomizer->GetCheckFromActor(item00->actor.id, gPlayState->sceneNum, item00->ogParams);
                 if (rc != RC_UNKNOWN_CHECK) {
@@ -270,7 +270,7 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             break;
         }
         case GI_VB_GIVE_ITEM_FROM_ITEM_00: {
-            EnItem00* item00 = (EnItem00*)optionalArg;
+            EnItem00* item00 = static_cast<EnItem00*>(optionalArg);
             if (item00->actor.params == ITEM00_SOH_DUMMY) {
                 Flags_SetCollectible(gPlayState, item00->collectibleFlag);
                 Actor_Kill(&item00->actor);
@@ -300,10 +300,21 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             }
             break;
         }
+        case GI_VB_GIVE_ITEM_FROM_BLUE_WARP:
+        case GI_VB_GIVE_ITEM_FAIRY_OCARINA:
+        case GI_VB_GIVE_ITEM_LIGHT_ARROW:
         case GI_VB_GIVE_ITEM_STRENGTH_1:
         case GI_VB_GIVE_ITEM_ZELDAS_LETTER:
-        case GI_VB_GIVE_ITEM_LIGHT_MEDALLION:
         case GI_VB_GIVE_ITEM_OCARINA_OF_TIME:
+        case GI_VB_GIVE_ITEM_KOKIRI_EMERALD:
+        case GI_VB_GIVE_ITEM_GORON_RUBY:
+        case GI_VB_GIVE_ITEM_ZORA_SAPPHIRE:
+        case GI_VB_GIVE_ITEM_LIGHT_MEDALLION:
+        case GI_VB_GIVE_ITEM_FOREST_MEDALLION:
+        case GI_VB_GIVE_ITEM_FIRE_MEDALLION:
+        case GI_VB_GIVE_ITEM_WATER_MEDALLION:
+        case GI_VB_GIVE_ITEM_SPIRIT_MEDALLION:
+        case GI_VB_GIVE_ITEM_SHADOW_MEDALLION:
             *should = false;
             break;
     }
