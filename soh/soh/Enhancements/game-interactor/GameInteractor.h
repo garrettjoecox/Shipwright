@@ -122,6 +122,9 @@ typedef enum {
     ```
     */
     GI_VB_BE_ELIGIBLE_FOR_NOCTURNE_OF_SHADOW,
+    // Opt: *EnItem00
+    // Vanilla condition: Flags_GetCollectible(play, this->collectibleFlag)
+    GI_VB_ITEM00_DESPAWN,
 
     /*** Play Cutscenes ***/
 
@@ -155,6 +158,8 @@ typedef enum {
 
     GI_VB_GIVE_ITEM_FROM_CHEST,
     GI_VB_GIVE_ITEM_FROM_BLUE_WARP,
+    // Opt: *EnItem00
+    GI_VB_GIVE_ITEM_FROM_ITEM_00,
 
     GI_VB_GIVE_ITEM_FAIRY_OCARINA,
     GI_VB_GIVE_ITEM_LIGHT_ARROW,
