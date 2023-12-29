@@ -376,6 +376,7 @@ void TimeSaverOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void*
                 DemoIm* demoIm = (DemoIm*)opt;
                 Player* player = GET_PLAYER(gPlayState);
                 player->stateFlags1 |= PLAYER_STATE1_IN_CUTSCENE;
+                player->stateFlags1 |= PLAYER_STATE1_GETTING_ITEM;
                 func_80986794(demoIm);
 
                 static uint32_t updateHook;
@@ -386,6 +387,7 @@ void TimeSaverOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void*
                         DemoIm* demoIm = (DemoIm*)actor;
                         Player* player = GET_PLAYER(gPlayState);
                         player->stateFlags1 |= PLAYER_STATE1_IN_CUTSCENE;
+                        player->stateFlags1 |= PLAYER_STATE1_GETTING_ITEM;
 
                         if (Animation_OnFrame(&demoIm->skelAnime, 25.0f)) {
                             Audio_PlaySoundGeneral(NA_SE_IT_DEKU, &demoIm->actor.projectedPos, 4, &D_801333E0, &D_801333E0, &D_801333E8);
