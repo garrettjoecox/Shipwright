@@ -461,10 +461,10 @@ void TimeSaverOnActorInitHandler(void* actorRef) {
     if (actor->id == ACTOR_EN_KO && (actor->params & 0xFF) != ENKO_TYPE_CHILD_3) {
         static uint32_t updateHook;
         static uint32_t killHook;
-        updateHook = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnActorUpdate>([](void* actorRef) {
-            Actor* actor = static_cast<Actor*>(actorRef);
-            if (actor->id == ACTOR_EN_KO && (actor->params & 0xFF) == ENKO_TYPE_CHILD_3 && (CVarGetInteger("gTimeSavers.SkipCutscene.Story", 0) || IS_RANDO)) {
-                EnKo* enKo = static_cast<EnKo*>(actorRef);
+        updateHook = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnActorUpdate>([](void* innerActorRef) {
+            Actor* innerActor = static_cast<Actor*>(innerActorRef);
+            if (innerActor->id == ACTOR_EN_KO && (innerActor->params & 0xFF) == ENKO_TYPE_CHILD_3 && (CVarGetInteger("gTimeSavers.SkipCutscene.Story", 0) || IS_RANDO)) {
+                EnKo* enKo = static_cast<EnKo*>(innerActorRef);
                 // They haven't moved yet, wrap their update function so we check every frame
                 if (enKo->actionFunc == func_80A995CC) {
                     enKo->actionFunc = EnKo_MoveWhenReady;
@@ -502,10 +502,10 @@ void TimeSaverOnActorInitHandler(void* actorRef) {
     if (actor->id == ACTOR_EN_MA1 && gPlayState->sceneNum == SCENE_LON_LON_RANCH) {
         static uint32_t updateHook;
         static uint32_t killHook;
-        updateHook = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnActorUpdate>([](void* actorRef) {
-            Actor* actor = static_cast<Actor*>(actorRef);
-            if (actor->id == ACTOR_EN_MA1 && (CVarGetInteger("gTimeSavers.SkipCutscene.LearnSong", 0) || IS_RANDO)) {
-                EnMa1* enMa1 = static_cast<EnMa1*>(actorRef);
+        updateHook = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnActorUpdate>([](void* innerActorRef) {
+            Actor* innerActor = static_cast<Actor*>(innerActorRef);
+            if (innerActor->id == ACTOR_EN_MA1 && (CVarGetInteger("gTimeSavers.SkipCutscene.LearnSong", 0) || IS_RANDO)) {
+                EnMa1* enMa1 = static_cast<EnMa1*>(innerActorRef);
                 if (enMa1->actionFunc == func_80AA106C) {
                     enMa1->actionFunc = EnMa1_EndTeachSong;
                     GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnActorUpdate>(updateHook);
