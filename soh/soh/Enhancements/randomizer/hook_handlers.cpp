@@ -9,6 +9,7 @@ extern "C" {
 #include "macros.h"
 #include "functions.h"
 #include "variables.h"
+#include "src/overlays/actors/ovl_En_Si/z_en_si.h"
 extern SaveContext gSaveContext;
 extern PlayState* gPlayState;
 }
@@ -17,10 +18,14 @@ extern PlayState* gPlayState;
 
 RandomizerCheck GetRandomizerCheckFromFlag(int16_t flagType, int16_t flag) {
     for (auto& loc : Rando::StaticData::GetLocationTable()) {
-        if (loc.GetCollectionCheck().flag == flag && (
-            (flagType == FLAG_EVENT_CHECK_INF && loc.GetCollectionCheck().type == SPOILER_CHK_EVENT_CHK_INF) ||
-            (flagType == FLAG_RANDOMIZER_INF && loc.GetCollectionCheck().type == SPOILER_CHK_RANDOMIZER_INF)
-        )) {
+        if (
+            (loc.GetCollectionCheck().flag == flag && (
+                (flagType == FLAG_EVENT_CHECK_INF && loc.GetCollectionCheck().type == SPOILER_CHK_EVENT_CHK_INF) ||
+                (flagType == FLAG_RANDOMIZER_INF && loc.GetCollectionCheck().type == SPOILER_CHK_RANDOMIZER_INF)
+            ) ||
+            (loc.GetActorParams() == flag && flagType == FLAG_GS_TOKEN && loc.GetCollectionCheck().type == SPOILER_CHK_GOLD_SKULLTULA)
+        )
+        ) {
             return loc.GetRandomizerCheck();
         }
     }
@@ -310,6 +315,7 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             }
             break;
         }
+        case GI_VB_GIVE_ITEM_SKULL_TOKEN:
         case GI_VB_GIVE_ITEM_FROM_BLUE_WARP:
         case GI_VB_GIVE_ITEM_FAIRY_OCARINA:
         case GI_VB_GIVE_ITEM_WEIRD_EGG:
@@ -366,6 +372,26 @@ void RandomizerOnSceneInitHandler(int16_t sceneNum) {
     });
 }
 
+void EnSi_DrawRandomizedItem(EnSi* enSi, PlayState* play) {
+    func_8002ED80(&enSi->actor, play, 0);
+    func_8002EBCC(&enSi->actor, play, 0);
+    EnItem00_CustomItemsParticles(&enSi->actor, play, enSi->sohGetItemEntry);
+    GetItemEntry_Draw(play, enSi->sohGetItemEntry);
+}
+
+void RandomizerOnActorInitHandler(void* actorRef) {
+    Actor* actor = static_cast<Actor*>(actorRef);
+
+    if (actor->id == ACTOR_EN_SI) {
+        RandomizerCheck rc = OTRGlobals::Instance->gRandomizer->GetCheckFromActor(actor->id, gPlayState->sceneNum, actor->params);
+        if (rc != RC_UNKNOWN_CHECK) {
+            EnSi* enSi = static_cast<EnSi*>(actorRef);
+            enSi->sohGetItemEntry = Rando::Context::GetInstance()->GetFinalGIEntry(rc, true, (GetItemID)Rando::StaticData::GetLocation(rc)->GetVanillaItem());
+            actor->draw = (ActorFunc)EnSi_DrawRandomizedItem;
+        }
+    }
+}
+
 void RandomizerRegisterHooks() {
     static uint32_t onFlagSetHook = 0;
     static uint32_t onSceneFlagSetHook = 0;
@@ -374,6 +400,7 @@ void RandomizerRegisterHooks() {
     static uint32_t onItemReceiveHook = 0;
     static uint32_t onVanillaBehaviorHook = 0;
     static uint32_t onSceneInitHook = 0;
+    static uint32_t onActorInitHook = 0;
 
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnLoadGame>([](int32_t fileNum) {
         randomizerQueuedChecks = std::queue<RandomizerCheck>();
@@ -387,6 +414,7 @@ void RandomizerRegisterHooks() {
         GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnItemReceive>(onItemReceiveHook);
         GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnVanillaBehavior>(onVanillaBehaviorHook);
         GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnSceneInit>(onSceneInitHook);
+        GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnActorInit>(onActorInitHook);
 
         onFlagSetHook = 0;
         onSceneFlagSetHook = 0;
@@ -395,6 +423,7 @@ void RandomizerRegisterHooks() {
         onItemReceiveHook = 0;
         onVanillaBehaviorHook = 0;
         onSceneInitHook = 0;
+        onActorInitHook = 0;
 
         if (!IS_RANDO) return;
 
@@ -405,5 +434,6 @@ void RandomizerRegisterHooks() {
         onItemReceiveHook = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnItemReceive>(RandomizerOnItemReceiveHandler);
         onVanillaBehaviorHook = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnVanillaBehavior>(RandomizerOnVanillaBehaviorHandler);
         onSceneInitHook = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSceneInit>(RandomizerOnSceneInitHandler);
+        onActorInitHook = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnActorInit>(RandomizerOnActorInitHandler);
     });
 }
