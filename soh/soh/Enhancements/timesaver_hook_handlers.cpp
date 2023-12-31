@@ -400,7 +400,7 @@ void TimeSaverOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void*
 
                         if (Animation_OnFrame(&demoIm->skelAnime, 25.0f)) {
                             Audio_PlaySoundGeneral(NA_SE_IT_DEKU, &demoIm->actor.projectedPos, 4, &D_801333E0, &D_801333E0, &D_801333E8);
-                            GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnActorUpdate>(demoImUpdateHook);
+                            GameInteractor::Instance->AsyncUnregisterGameHook<GameInteractor::OnActorUpdate>(demoImUpdateHook);
                             GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnSceneInit>(demoImKillHook);
                             demoImUpdateHook = 0;
                             demoImKillHook = 0;
@@ -421,7 +421,7 @@ void TimeSaverOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void*
                 });
                 demoImKillHook = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSceneInit>([](int16_t sceneNum) mutable {
                     GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnActorUpdate>(demoImUpdateHook);
-                    GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnSceneInit>(demoImKillHook);
+                    GameInteractor::Instance->AsyncUnregisterGameHook<GameInteractor::OnSceneInit>(demoImKillHook);
                     demoImUpdateHook = 0;
                     demoImKillHook = 0;
                 });
@@ -497,31 +497,26 @@ void TimeSaverOnActorInitHandler(void* actorRef) {
         enKoUpdateHook = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnActorUpdate>([](void* innerActorRef) mutable {
             Actor* innerActor = static_cast<Actor*>(innerActorRef);
             if (innerActor->id == ACTOR_EN_KO && (innerActor->params & 0xFF) == ENKO_TYPE_CHILD_3 && (CVarGetInteger("gTimeSavers.SkipCutscene.Story", 0) || IS_RANDO)) {
-                SPDLOG_INFO("tick enKoUpdateHook: {}", enKoUpdateHook);
                 EnKo* enKo = static_cast<EnKo*>(innerActorRef);
                 // They haven't moved yet, wrap their update function so we check every frame
                 if (enKo->actionFunc == func_80A995CC) {
                     enKo->actionFunc = EnKo_MoveWhenReady;
-                    SPDLOG_INFO("unregister enKoUpdateHook: {}", enKoUpdateHook);
-                    GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnActorUpdate>(enKoUpdateHook);
+                    GameInteractor::Instance->AsyncUnregisterGameHook<GameInteractor::OnActorUpdate>(enKoUpdateHook);
                     GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnSceneInit>(enKoKillHook);
                     enKoUpdateHook = 0;
                     enKoKillHook = 0;
                 // They have already moved
                 } else if (enKo->actionFunc == func_80A99384) {
-                    SPDLOG_INFO("unregister enKoUpdateHook: {}", enKoUpdateHook);
-                    GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnActorUpdate>(enKoUpdateHook);
+                    GameInteractor::Instance->AsyncUnregisterGameHook<GameInteractor::OnActorUpdate>(enKoUpdateHook);
                     GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnSceneInit>(enKoKillHook);
                     enKoUpdateHook = 0;
                     enKoKillHook = 0;
                 }
             }
         });
-        SPDLOG_INFO("register enKoUpdateHook: {}", enKoUpdateHook);
         enKoKillHook = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSceneInit>([](int16_t sceneNum) mutable {
-            SPDLOG_INFO("unregister enKoUpdateHook: {}", enKoUpdateHook);
             GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnActorUpdate>(enKoUpdateHook);
-            GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnSceneInit>(enKoKillHook);
+            GameInteractor::Instance->AsyncUnregisterGameHook<GameInteractor::OnSceneInit>(enKoKillHook);
             enKoUpdateHook = 0;
             enKoKillHook = 0;
         });
@@ -536,7 +531,7 @@ void TimeSaverOnActorInitHandler(void* actorRef) {
             if (itemOcarinaframesSinceSpawn > 20) {
                 Audio_PlayActorSound2(innerActor, NA_SE_EV_BOMB_DROP_WATER);
 
-                GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnActorUpdate>(itemOcarinaUpdateHook);
+                GameInteractor::Instance->AsyncUnregisterGameHook<GameInteractor::OnActorUpdate>(itemOcarinaUpdateHook);
                 itemOcarinaUpdateHook = 0;
             }
         });
@@ -549,13 +544,13 @@ void TimeSaverOnActorInitHandler(void* actorRef) {
                 EnMa1* enMa1 = static_cast<EnMa1*>(innerActorRef);
                 if (enMa1->actionFunc == func_80AA106C) {
                     enMa1->actionFunc = EnMa1_EndTeachSong;
-                    GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnActorUpdate>(enMa1UpdateHook);
+                    GameInteractor::Instance->AsyncUnregisterGameHook<GameInteractor::OnActorUpdate>(enMa1UpdateHook);
                     GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnSceneInit>(enMa1KillHook);
                     enMa1UpdateHook = 0;
                     enMa1KillHook = 0;
                 // They've already learned the song
                 } else if (enMa1->actionFunc == func_80AA0D88) {
-                    GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnActorUpdate>(enMa1UpdateHook);
+                    GameInteractor::Instance->AsyncUnregisterGameHook<GameInteractor::OnActorUpdate>(enMa1UpdateHook);
                     GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnSceneInit>(enMa1KillHook);
                     enMa1UpdateHook = 0;
                     enMa1KillHook = 0;
@@ -564,7 +559,7 @@ void TimeSaverOnActorInitHandler(void* actorRef) {
         });
         enMa1KillHook = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSceneInit>([](int16_t sceneNum) mutable {
             GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnActorUpdate>(enMa1UpdateHook);
-            GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnSceneInit>(enMa1KillHook);
+            GameInteractor::Instance->AsyncUnregisterGameHook<GameInteractor::OnSceneInit>(enMa1KillHook);
             enMa1UpdateHook = 0;
             enMa1KillHook = 0;
         });
