@@ -17,6 +17,7 @@ extern "C" {
 #include "src/overlays/actors/ovl_Demo_Im/z_demo_im.h"
 #include "src/overlays/actors/ovl_En_Sa/z_en_sa.h"
 #include "src/overlays/actors/ovl_Bg_Ddan_Kd/z_bg_ddan_kd.h"
+#include "src/overlays/actors/ovl_En_Tk/z_en_tk.h"
 extern SaveContext gSaveContext;
 extern PlayState* gPlayState;
 }
@@ -454,6 +455,30 @@ void TimeSaverOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void*
         case GI_VB_PLAY_PRELUDE_OF_LIGHT_CS:
             if (CVarGetInteger("gTimeSavers.SkipCutscene.LearnSong", 0) || IS_RANDO) {
                 *should = false;
+            }
+            break;
+        case GI_VB_DAMPE_IN_GRAVEYARD_DESPAWN:
+            if (CVarGetInteger("gDampeAllNight", 0)) {
+                *should = LINK_IS_ADULT || gPlayState->sceneNum != SCENE_GRAVEYARD;
+            }
+            break;
+        case GI_VB_BE_VALID_GRAVEDIGGING_SPOT:
+            if (CVarGetInteger("gDampeWin", 0)) {
+                EnTk *enTk = static_cast<EnTk*>(opt);
+                enTk->validDigHere = true;
+                *should = true;
+            }
+            break;
+        case GI_VB_BE_DAMPE_GRAVEDIGGING_GRAND_PRIZE:
+            if (CVarGetInteger("gDampeWin", 0)) {
+                EnTk *enTk = static_cast<EnTk*>(opt);
+                enTk->currentReward = 3;
+                *should = true;
+            }
+            break;
+        case GI_VB_DAMPE_GRAVEDIGGING_GRAND_PRIZE_BE_HEART_PIECE:
+            if (CVarGetInteger("gGravediggingTourFix", 0) || IS_RANDO) {
+                *should = !Flags_GetCollectible(gPlayState, COLLECTFLAG_GRAVEDIGGING_HEART_PIECE);
             }
             break;
     }
