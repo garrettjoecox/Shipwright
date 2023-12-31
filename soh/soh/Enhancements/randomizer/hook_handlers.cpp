@@ -1,6 +1,7 @@
 #include <libultraship/bridge.h>
 #include "soh/OTRGlobals.h"
 #include "soh/Enhancements/enhancementTypes.h"
+#include "soh/Enhancements/custom-message/CustomMessageTypes.h"
 #include "soh/Enhancements/randomizer/randomizerTypes.h"
 #include "soh/Enhancements/game-interactor/GameInteractor.h"
 #include "soh/Enhancements/game-interactor/GameInteractor_Hooks.h"
@@ -11,6 +12,8 @@ extern "C" {
 #include "variables.h"
 #include "src/overlays/actors/ovl_En_Si/z_en_si.h"
 #include "src/overlays/actors/ovl_En_Cow/z_en_cow.h"
+#include "src/overlays/actors/ovl_En_Shopnuts/z_en_shopnuts.h"
+#include "src/overlays/actors/ovl_En_Dns/z_en_dns.h"
 extern SaveContext gSaveContext;
 extern PlayState* gPlayState;
 }
@@ -369,6 +372,21 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             EnCow_MoveForRandomizer(enCow, gPlayState);
             break;
         }
+        case GI_VB_BUSINESS_SCRUB_DESPAWN: {
+            EnShopnuts* enShopnuts = static_cast<EnShopnuts*>(optionalArg);
+            s16 respawnData = gSaveContext.respawn[RESPAWN_MODE_RETURN].data & ((1 << 8) - 1);
+            ScrubIdentity scrubIdentity = OTRGlobals::Instance->gRandomizer->IdentifyScrub(gPlayState->sceneNum, enShopnuts->actor.params, respawnData);
+
+            if (scrubIdentity.isShuffled) {
+                *should = Flags_GetRandomizerInf(scrubIdentity.randomizerInf);
+            }
+            break;
+        }
+        case GI_VB_GIVE_ITEM_FROM_BUSINESS_SCRUB: {
+            EnDns* enDns = static_cast<EnDns*>(optionalArg);
+            *should = !enDns->sohScrubIdentity.isShuffled;
+            break;
+        }
         case GI_VB_GIVE_ITEM_SKULL_TOKEN:
         case GI_VB_GIVE_ITEM_FROM_BLUE_WARP:
         case GI_VB_GIVE_ITEM_FAIRY_OCARINA:
@@ -433,6 +451,21 @@ void EnSi_DrawRandomizedItem(EnSi* enSi, PlayState* play) {
     GetItemEntry_Draw(play, enSi->sohGetItemEntry);
 }
 
+u32 EnDns_RandomizerPurchaseableCheck(EnDns* enDns) {
+    if (Flags_GetRandomizerInf(enDns->sohScrubIdentity.randomizerInf)) {
+        return 3; // Can't get this now
+    }
+    if (gSaveContext.rupees < enDns->dnsItemEntry->itemPrice) {
+        return 0; // Not enough rupees
+    }
+    return 4;
+}
+
+void EnDns_RandomizerPurchase(EnDns* enDns) {
+    Rupees_ChangeBy(-enDns->dnsItemEntry->itemPrice);
+    Flags_SetRandomizerInf(enDns->sohScrubIdentity.randomizerInf);
+}
+
 void RandomizerOnActorInitHandler(void* actorRef) {
     Actor* actor = static_cast<Actor*>(actorRef);
 
@@ -442,6 +475,50 @@ void RandomizerOnActorInitHandler(void* actorRef) {
             EnSi* enSi = static_cast<EnSi*>(actorRef);
             enSi->sohGetItemEntry = Rando::Context::GetInstance()->GetFinalGIEntry(rc, true, (GetItemID)Rando::StaticData::GetLocation(rc)->GetVanillaItem());
             actor->draw = (ActorFunc)EnSi_DrawRandomizedItem;
+        }
+    }
+
+    if (actor->id == ACTOR_EN_DNS) {
+        EnDns* enDns = static_cast<EnDns*>(actorRef);
+        s16 respawnData = gSaveContext.respawn[RESPAWN_MODE_RETURN].data & ((1 << 8) - 1);
+        enDns->sohScrubIdentity = OTRGlobals::Instance->gRandomizer->IdentifyScrub(gPlayState->sceneNum, enDns->actor.params, respawnData);
+
+        if (enDns->sohScrubIdentity.isShuffled) {
+            // DNS uses pointers so we're creating our own entry instead of modifying the original
+            enDns->sohDnsItemEntry = {
+                enDns->dnsItemEntry->itemPrice,
+                1,
+                enDns->sohScrubIdentity.getItemId,
+                EnDns_RandomizerPurchaseableCheck,
+                EnDns_RandomizerPurchase,
+            };
+            enDns->dnsItemEntry = &enDns->sohDnsItemEntry;
+
+            if (enDns->sohScrubIdentity.itemPrice != -1) {
+                enDns->dnsItemEntry->itemPrice = enDns->sohScrubIdentity.itemPrice;
+            }
+
+            enDns->actor.textId = TEXT_SCRUB_RANDOM;
+
+            static uint32_t enDnsUpdateHook = 0;
+            static uint32_t enDnsKillHook = 0;
+            if (!enDnsUpdateHook) {
+                enDnsUpdateHook = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnActorUpdate>([](void* innerActorRef) {
+                    Actor* innerActor = static_cast<Actor*>(innerActorRef);
+                    if (innerActor->id == ACTOR_EN_DNS) {
+                        EnDns* innerEnDns = static_cast<EnDns*>(innerActorRef);
+                        if (innerEnDns->sohScrubIdentity.isShuffled) {
+                            innerActor->textId = TEXT_SCRUB_RANDOM;
+                        }
+                    }
+                });
+                enDnsKillHook = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSceneInit>([](int16_t sceneNum) {
+                    GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnActorUpdate>(enDnsUpdateHook);
+                    GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnSceneInit>(enDnsKillHook);
+                    enDnsUpdateHook = 0;
+                    enDnsKillHook = 0;
+                });
+            }
         }
     }
 }

@@ -55,10 +55,6 @@ class SpoilerCollectionCheck {
         return SpoilerCollectionCheck(SPOILER_CHK_MINIGAME, 0x00, bit);
     }
 
-    static auto Scrub(const uint8_t scene, const uint8_t bit) {
-        return SpoilerCollectionCheck(SPOILER_CHK_SCRUB, scene, bit);
-    }
-
     static auto GerudoToken() {
         return SpoilerCollectionCheck(SPOILER_CHK_GERUDO_MEMBERSHIP_CARD, 0x00, 0x00);
     }
