@@ -390,7 +390,6 @@ bool HasItemBeenCollected(RandomizerCheck rc) {
                gSaveContext.sceneFlags[scene].collect & (1 << flag);
     case SpoilerCollectionCheckType::SPOILER_CHK_MERCHANT:
     case SpoilerCollectionCheckType::SPOILER_CHK_SHOP_ITEM:
-    case SpoilerCollectionCheckType::SPOILER_CHK_COW:
     case SpoilerCollectionCheckType::SPOILER_CHK_SCRUB:
     case SpoilerCollectionCheckType::SPOILER_CHK_RANDOMIZER_INF:
     case SpoilerCollectionCheckType::SPOILER_CHK_MASTER_SWORD:
@@ -710,7 +709,6 @@ void CheckTrackerFlagSet(int16_t flagType, int32_t flag) {
         if (checkMatchType == SpoilerCollectionCheckType::SPOILER_CHK_RANDOMIZER_INF &&
               (scCheckType == SpoilerCollectionCheckType::SPOILER_CHK_MERCHANT ||
                scCheckType == SpoilerCollectionCheckType::SPOILER_CHK_SHOP_ITEM ||
-               scCheckType == SpoilerCollectionCheckType::SPOILER_CHK_COW ||
                scCheckType == SpoilerCollectionCheckType::SPOILER_CHK_SCRUB ||
                scCheckType == SpoilerCollectionCheckType::SPOILER_CHK_MASTER_SWORD ||
                scCheckType == SpoilerCollectionCheckType::SPOILER_CHK_RANDOMIZER_INF)) {
