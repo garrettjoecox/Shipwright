@@ -10,6 +10,7 @@ extern "C" {
 #include "functions.h"
 #include "variables.h"
 #include "src/overlays/actors/ovl_En_Si/z_en_si.h"
+#include "src/overlays/actors/ovl_En_Cow/z_en_cow.h"
 extern SaveContext gSaveContext;
 extern PlayState* gPlayState;
 }
@@ -213,6 +214,33 @@ void EnItem00_DrawRandomizedItem(EnItem00* enItem00, PlayState* play) {
     GetItemEntry_Draw(play, enItem00->itemEntry);
 }
 
+void EnCow_MoveForRandomizer(EnCow* enCow, PlayState* play) {
+    bool moved = false;
+
+    // Don't reposition the tail
+    if (enCow->actor.params != 0) {
+        return;
+    }
+
+    // Move left cow in lon lon tower
+    if (play->sceneNum == SCENE_LON_LON_BUILDINGS && enCow->actor.world.pos.x == -108 &&
+        enCow->actor.world.pos.z == -65) {
+        enCow->actor.world.pos.x = -229.0f;
+        enCow->actor.world.pos.z = 157.0f;
+        enCow->actor.shape.rot.y = 15783.0f;
+        moved = true;
+        // Move right cow in lon lon stable
+    } else if (play->sceneNum == SCENE_STABLE && enCow->actor.world.pos.x == -3 && enCow->actor.world.pos.z == -254) {
+        enCow->actor.world.pos.x += 119.0f;
+        moved = true;
+    }
+
+    if (moved) {
+        // Reposition collider
+        func_809DEE9C(enCow);
+    }
+}
+
 void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void* optionalArg) {
     switch (id) {
         case GI_VB_GIVE_ITEM_FROM_CHEST: {
@@ -313,6 +341,32 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
                 EnItem00_SetupAction(item00, func_8001E5C8);
                 *should = false;
             }
+            break;
+        }
+        case GI_VB_GIVE_ITEM_FROM_COW: {
+            if (!RAND_GET_OPTION(RSK_SHUFFLE_COWS)) {
+                break;
+            }
+            EnCow* enCow = static_cast<EnCow*>(optionalArg);
+            CowIdentity cowIdentity = OTRGlobals::Instance->gRandomizer->IdentifyCow(gPlayState->sceneNum, enCow->actor.world.pos.x, enCow->actor.world.pos.z);
+            // Has this cow already rewarded an item?
+            if (Flags_GetRandomizerInf(cowIdentity.randomizerInf)) {
+                break;
+            }
+            Flags_SetRandomizerInf(cowIdentity.randomizerInf);
+            // setting the ocarina mode here prevents intermittent issues
+            // with the item get not triggering until walking away
+            gPlayState->msgCtx.ocarinaMode = OCARINA_MODE_00;
+            *should = false;
+            break;
+        }
+        case GI_VB_DESPAWN_HORSE_RACE_COW: {
+            if (!RAND_GET_OPTION(RSK_SHUFFLE_COWS)) {
+                break;
+            }
+            EnCow* enCow = static_cast<EnCow*>(optionalArg);
+            // If this is a cow we have to move, then move it now.
+            EnCow_MoveForRandomizer(enCow, gPlayState);
             break;
         }
         case GI_VB_GIVE_ITEM_SKULL_TOKEN:

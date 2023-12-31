@@ -138,6 +138,10 @@ typedef enum {
     // Vanilla condition: !Flags_GetItemGetInf(ITEMGETINF_1C)
     GI_VB_DAMPE_GRAVEDIGGING_GRAND_PRIZE_BE_HEART_PIECE,
 
+    // Opt: *EnCow
+    // Vanilla condition: play->sceneNum == SCENE_LINKS_HOUSE && (!LINK_IS_ADULT || !Flags_GetEventChkInf(EVENTCHKINF_WON_COW_IN_MALONS_RACE))
+    GI_VB_DESPAWN_HORSE_RACE_COW,
+
     /*** Play Cutscenes ***/
 
     GI_VB_PLAY_TRANSITION_CS,
@@ -174,6 +178,8 @@ typedef enum {
     GI_VB_GIVE_ITEM_FROM_ITEM_00,
     // Opt: *EnSi
     GI_VB_GIVE_ITEM_SKULL_TOKEN,
+    // Opt: *EnCow
+    GI_VB_GIVE_ITEM_FROM_COW,
 
     GI_VB_GIVE_ITEM_FAIRY_OCARINA,
     GI_VB_GIVE_ITEM_WEIRD_EGG,
