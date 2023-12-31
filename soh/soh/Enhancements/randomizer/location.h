@@ -91,8 +91,8 @@ class SpoilerCollectionCheck {
         return SpoilerCollectionCheck(SPOILER_CHK_MERCHANT, scene, flag);
     }
 
-    static auto RandomizerInf(const int8_t scene, const uint8_t flag) {
-        return SpoilerCollectionCheck(SPOILER_CHK_RANDOMIZER_INF, scene, flag);
+    static auto RandomizerInf(const uint8_t flag) {
+        return SpoilerCollectionCheck(SPOILER_CHK_RANDOMIZER_INF, 0x00, flag);
     }
 };
 
