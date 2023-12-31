@@ -10,7 +10,7 @@ extern "C" {
 #include "functions.h"
 #include "variables.h"
 #include "src/overlays/actors/ovl_En_Si/z_en_si.h"
-#include <overlays/actors/ovl_En_Cow/z_en_cow.h>
+#include "src/overlays/actors/ovl_En_Cow/z_en_cow.h"
 extern SaveContext gSaveContext;
 extern PlayState* gPlayState;
 }
