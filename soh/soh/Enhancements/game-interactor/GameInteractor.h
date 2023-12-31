@@ -313,20 +313,17 @@ public:
         return this->nextHookId++;
     }
     template <typename H> void UnregisterGameHook(uint32_t id) {
-        RegisteredGameHooks<H>::functions.erase(id);
-    }
-    template <typename H> void AsyncUnregisterGameHook(uint32_t id) {
         HooksToUnregister<H>::hooks.push_back(id);
     }
     
     template <typename H, typename... Args> void ExecuteHooks(Args&&... args) {
-        for (auto& hook : RegisteredGameHooks<H>::functions) {
-            hook.second(std::forward<Args>(args)...);
-        }
         for (auto& hookId : HooksToUnregister<H>::hooks) {
             UnregisterGameHook<H>(hookId);
         }
         HooksToUnregister<H>::hooks.clear();
+        for (auto& hook : RegisteredGameHooks<H>::functions) {
+            hook.second(std::forward<Args>(args)...);
+        }
     }
 
     DEFINE_HOOK(OnLoadGame, void(int32_t fileNum));
