@@ -118,20 +118,15 @@ void EnCow_Init(Actor* thisx, PlayState* play) {
             Collider_SetCylinder(play, &this->colliders[1], &this->actor, &sCylinderInit);
             func_809DEE9C(this);
             this->actionFunc = func_809DF96C;
-            if (play->sceneNum == SCENE_LINKS_HOUSE) {
-                if (GameInteractor_Should(GI_VB_SHOULD_HIDE_HORSE_RACE_COW_AS_CHILD, !LINK_IS_ADULT, this)) {
-                    Actor_Kill(&this->actor);
-                    return;
-                }
-                if (GameInteractor_Should(GI_VB_SHOULD_HIDE_HORSE_RACE_COW, !Flags_GetEventChkInf(EVENTCHKINF_WON_COW_IN_MALONS_RACE), this)) {
-                    Actor_Kill(&this->actor);
-                    return;
-                }
+            if (GameInteractor_Should(GI_VB_DESPAWN_HORSE_RACE_COW, (
+                play->sceneNum == SCENE_LINKS_HOUSE && (!LINK_IS_ADULT || !Flags_GetEventChkInf(EVENTCHKINF_WON_COW_IN_MALONS_RACE))
+            ), this)) {
+                Actor_Kill(&this->actor);
+                return;
             }
-            if (GameInteractor_Should(GI_VB_EN_COW_SHOULD_SPAWN_TAIL, true, this)) {
-                Actor_SpawnAsChild(&play->actorCtx, &this->actor, play, ACTOR_EN_COW, this->actor.world.pos.x,
-                                   this->actor.world.pos.y, this->actor.world.pos.z, 0, this->actor.shape.rot.y, 0, 1);
-            }
+
+            Actor_SpawnAsChild(&play->actorCtx, &this->actor, play, ACTOR_EN_COW, this->actor.world.pos.x,
+                                this->actor.world.pos.y, this->actor.world.pos.z, 0, this->actor.shape.rot.y, 0, 1);
             this->unk_278 = Rand_ZeroFloat(1000.0f) + 40.0f;
             this->unk_27A = 0;
             this->actor.targetMode = 6;

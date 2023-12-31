@@ -214,6 +214,33 @@ void EnItem00_DrawRandomizedItem(EnItem00* enItem00, PlayState* play) {
     GetItemEntry_Draw(play, enItem00->itemEntry);
 }
 
+void EnCow_MoveForRandomizer(EnCow* enCow, PlayState* play) {
+    bool moved = false;
+
+    // Don't reposition the tail
+    if (enCow->actor.params != 0) {
+        return;
+    }
+
+    // Move left cow in lon lon tower
+    if (play->sceneNum == SCENE_LON_LON_BUILDINGS && enCow->actor.world.pos.x == -108 &&
+        enCow->actor.world.pos.z == -65) {
+        enCow->actor.world.pos.x = -229.0f;
+        enCow->actor.world.pos.z = 157.0f;
+        enCow->actor.shape.rot.y = 15783.0f;
+        moved = true;
+        // Move right cow in lon lon stable
+    } else if (play->sceneNum == SCENE_STABLE && enCow->actor.world.pos.x == -3 && enCow->actor.world.pos.z == -254) {
+        enCow->actor.world.pos.x += 119.0f;
+        moved = true;
+    }
+
+    if (moved) {
+        // Reposition collider
+        func_809DEE9C(enCow);
+    }
+}
+
 void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void* optionalArg) {
     switch (id) {
         case GI_VB_GIVE_ITEM_FROM_CHEST: {
@@ -333,18 +360,13 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             *should = false;
             break;
         }
-        case GI_VB_EN_COW_SHOULD_SPAWN_TAIL: {
+        case GI_VB_DESPAWN_HORSE_RACE_COW: {
             if (!RAND_GET_OPTION(RSK_SHUFFLE_COWS)) {
                 break;
             }
             EnCow* enCow = static_cast<EnCow*>(optionalArg);
-            // Don't spawn the tail for cows that need to be moved; we'll spawn them when we move the cow
-            if ((gPlayState->sceneNum == SCENE_LON_LON_BUILDINGS && enCow->actor.world.pos.x == -108 &&
-                 enCow->actor.world.pos.z == -65) ||
-                (gPlayState->sceneNum == SCENE_STABLE && enCow->actor.world.pos.x == -3 &&
-                 enCow->actor.world.pos.z == -254)) {
-                *should = false;
-            }
+            // If this is a cow we have to move, then move it now.
+            EnCow_MoveForRandomizer(enCow, gPlayState);
             break;
         }
         case GI_VB_GIVE_ITEM_SKULL_TOKEN:
@@ -366,36 +388,6 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
         case GI_VB_GIVE_ITEM_SHADOW_MEDALLION:
             *should = false;
             break;
-    }
-}
-
-void EnCow_MoveForRandomizer(EnCow* enCow, PlayState* play) {
-    bool moved = false;
-    
-    // Don't reposition the tail
-    if (enCow->actor.params != 0) {
-        return;
-    }
-
-    // Move left cow in lon lon tower
-    if (play->sceneNum == SCENE_LON_LON_BUILDINGS && enCow->actor.world.pos.x == -108 &&
-        enCow->actor.world.pos.z == -65) {
-        enCow->actor.world.pos.x = -229.0f;
-        enCow->actor.world.pos.z = 157.0f;
-        enCow->actor.shape.rot.y = 15783.0f;
-        moved = true;
-        // Move right cow in lon lon stable
-    } else if (play->sceneNum == SCENE_STABLE && enCow->actor.world.pos.x == -3 && enCow->actor.world.pos.z == -254) {
-        enCow->actor.world.pos.x += 119.0f;
-        moved = true;
-    }
-
-    if (moved) {
-        // Reposition collider
-        func_809DEE9C(enCow);
-        // Spawn tail (gets skipped by GI_VB_EN_COW_SHOULD_SPAWN_TAIL with shuffle cows enabled)
-        Actor_SpawnAsChild(&play->actorCtx, &enCow->actor, play, ACTOR_EN_COW, enCow->actor.world.pos.x,
-                           enCow->actor.world.pos.y, enCow->actor.world.pos.z, 0, enCow->actor.shape.rot.y, 0, 1);
     }
 }
 
@@ -451,12 +443,6 @@ void RandomizerOnActorInitHandler(void* actorRef) {
             enSi->sohGetItemEntry = Rando::Context::GetInstance()->GetFinalGIEntry(rc, true, (GetItemID)Rando::StaticData::GetLocation(rc)->GetVanillaItem());
             actor->draw = (ActorFunc)EnSi_DrawRandomizedItem;
         }
-    }
-
-    if (actor->id == ACTOR_EN_COW &&
-        (gPlayState->sceneNum == SCENE_LON_LON_BUILDINGS || gPlayState->sceneNum == SCENE_STABLE) &&
-        RAND_GET_OPTION(RSK_SHUFFLE_COWS)) {
-        EnCow_MoveForRandomizer(static_cast<EnCow*>(actorRef), gPlayState);
     }
 }
 

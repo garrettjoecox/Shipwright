@@ -139,13 +139,8 @@ typedef enum {
     GI_VB_DAMPE_GRAVEDIGGING_GRAND_PRIZE_BE_HEART_PIECE,
 
     // Opt: *EnCow
-    GI_VB_EN_COW_SHOULD_SPAWN_TAIL,
-    // Opt: *EnCow
-    // Vanilla condition: !LINK_IS_ADULT
-    GI_VB_SHOULD_HIDE_HORSE_RACE_COW_AS_CHILD,
-    // Opt: *EnCow
-    // Vanilla condition: !Flags_GetEventChkInf(EVENTCHKINF_WON_COW_IN_MALONS_RACE)
-    GI_VB_SHOULD_HIDE_HORSE_RACE_COW,
+    // Vanilla condition: play->sceneId == SCENE_LINKS_HOUSE && (!LINK_IS_ADULT || !Flags_GetEventChkInf(EVENTCHKINF_HORSE_RACE_COW_UNLOCK))
+    GI_VB_DESPAWN_HORSE_RACE_COW,
 
     /*** Play Cutscenes ***/
 
