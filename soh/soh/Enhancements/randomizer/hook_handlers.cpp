@@ -10,6 +10,7 @@ extern "C" {
 #include "functions.h"
 #include "variables.h"
 #include "src/overlays/actors/ovl_En_Si/z_en_si.h"
+#include <overlays/actors/ovl_En_Cow/z_en_cow.h>
 extern SaveContext gSaveContext;
 extern PlayState* gPlayState;
 }
@@ -315,6 +316,34 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             }
             break;
         }
+        case GI_VB_GIVE_ITEM_FROM_COW: {
+            if (!RAND_GET_OPTION(RSK_SHUFFLE_COWS))
+                break;
+            EnCow* enCow = static_cast<EnCow*>(optionalArg);
+            CowIdentity cowIdentity = OTRGlobals::Instance->gRandomizer->IdentifyCow(gPlayState->sceneNum, enCow->actor.world.pos.x, enCow->actor.world.pos.z);
+            // Has this cow already rewarded an item?
+            if (Flags_GetRandomizerInf(cowIdentity.randomizerInf))
+                break;
+            Flags_SetRandomizerInf(cowIdentity.randomizerInf);
+            // setting the ocarina mode here prevents intermittent issues
+            // with the item get not triggering until walking away
+            gPlayState->msgCtx.ocarinaMode = OCARINA_MODE_00;
+            *should = false;
+            break;
+        }
+        case GI_VB_EN_COW_SHOULD_SPAWN_TAIL: {
+            if (!RAND_GET_OPTION(RSK_SHUFFLE_COWS))
+                break;
+            EnCow* enCow = static_cast<EnCow*>(optionalArg);
+            // Don't spawn the tail for cows that need to be moved; we'll spawn them when we move the cow
+            if ((gPlayState->sceneNum == SCENE_LON_LON_BUILDINGS && enCow->actor.world.pos.x == -108 &&
+                 enCow->actor.world.pos.z == -65) ||
+                (gPlayState->sceneNum == SCENE_STABLE && enCow->actor.world.pos.x == -3 &&
+                 enCow->actor.world.pos.z == -254)) {
+                *should = false;
+            }
+            break;
+        }
         case GI_VB_GIVE_ITEM_SKULL_TOKEN:
         case GI_VB_GIVE_ITEM_FROM_BLUE_WARP:
         case GI_VB_GIVE_ITEM_FAIRY_OCARINA:
@@ -334,6 +363,36 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
         case GI_VB_GIVE_ITEM_SHADOW_MEDALLION:
             *should = false;
             break;
+    }
+}
+
+void EnCow_MoveForRandomizer(EnCow* enCow, PlayState* play) {
+    bool moved = false;
+    
+    // Don't reposition the tail
+    if (enCow->actor.params != 0) {
+        return;
+    }
+
+    // Move left cow in lon lon tower
+    if (play->sceneNum == SCENE_LON_LON_BUILDINGS && enCow->actor.world.pos.x == -108 &&
+        enCow->actor.world.pos.z == -65) {
+        enCow->actor.world.pos.x = -229.0f;
+        enCow->actor.world.pos.z = 157.0f;
+        enCow->actor.shape.rot.y = 15783.0f;
+        moved = true;
+        // Move right cow in lon lon stable
+    } else if (play->sceneNum == SCENE_STABLE && enCow->actor.world.pos.x == -3 && enCow->actor.world.pos.z == -254) {
+        enCow->actor.world.pos.x += 119.0f;
+        moved = true;
+    }
+
+    if (moved) {
+        // Reposition collider
+        func_809DEE9C(enCow);
+        // Spawn tail (gets skipped by GI_VB_EN_COW_SHOULD_SPAWN_TAIL with shuffle cows enabled)
+        Actor_SpawnAsChild(&play->actorCtx, &enCow->actor, play, ACTOR_EN_COW, enCow->actor.world.pos.x,
+                           enCow->actor.world.pos.y, enCow->actor.world.pos.z, 0, enCow->actor.shape.rot.y, 0, 1);
     }
 }
 
@@ -389,6 +448,12 @@ void RandomizerOnActorInitHandler(void* actorRef) {
             enSi->sohGetItemEntry = Rando::Context::GetInstance()->GetFinalGIEntry(rc, true, (GetItemID)Rando::StaticData::GetLocation(rc)->GetVanillaItem());
             actor->draw = (ActorFunc)EnSi_DrawRandomizedItem;
         }
+    }
+
+    if (actor->id == ACTOR_EN_COW &&
+        (gPlayState->sceneNum == SCENE_LON_LON_BUILDINGS || gPlayState->sceneNum == SCENE_STABLE) &&
+        RAND_GET_OPTION(RSK_SHUFFLE_COWS)) {
+        EnCow_MoveForRandomizer(static_cast<EnCow*>(actorRef), gPlayState);
     }
 }
 

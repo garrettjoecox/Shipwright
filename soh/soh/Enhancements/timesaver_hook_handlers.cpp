@@ -437,6 +437,12 @@ void TimeSaverOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void*
             }
             break;
         }
+        case GI_VB_SHOULD_HIDE_HORSE_RACE_COW_AS_CHILD: {
+            if (CVarGetInteger("gCowOfTime", 0)) {
+                *should = false;
+            }
+            break;
+        }
         case GI_VB_GIVE_ITEM_MINUET_OF_FOREST:
         case GI_VB_GIVE_ITEM_BOLERO_OF_FIRE:
         case GI_VB_GIVE_ITEM_SERENADE_OF_WATER:
