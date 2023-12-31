@@ -201,7 +201,7 @@ void RandomizerOnItemReceiveHandler(GetItemEntry receivedItemEntry) {
             gPlayState->transitionType = TRANS_TYPE_SANDSTORM_END;
             GET_PLAYER(gPlayState)->stateFlags1 &= ~PLAYER_STATE1_IN_CUTSCENE;
             Player_TryCsAction(gPlayState, NULL, 8);
-            GameInteractor::Instance->AsyncUnregisterGameHook<GameInteractor::OnPlayerUpdate>(updateHook);
+            GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnPlayerUpdate>(updateHook);
         });
     }
 }
@@ -367,7 +367,7 @@ void RandomizerOnSceneInitHandler(int16_t sceneNum) {
             Flags_GetEventChkInf(EVENTCHKINF_LEARNED_PRELUDE_OF_LIGHT) &&
             Flags_GetEventChkInf(EVENTCHKINF_RETURNED_TO_TEMPLE_OF_TIME_WITH_ALL_MEDALLIONS)
         ) {
-            GameInteractor::Instance->AsyncUnregisterGameHook<GameInteractor::OnPlayerUpdate>(updateHook);
+            GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnPlayerUpdate>(updateHook);
         }
     });
 }
