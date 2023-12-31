@@ -125,6 +125,18 @@ typedef enum {
     // Opt: *EnItem00
     // Vanilla condition: Flags_GetCollectible(play, this->collectibleFlag)
     GI_VB_ITEM00_DESPAWN,
+    // Opt: *EnTk
+    // Vanilla condition: gSaveContext.dayTime <= 0xC000 || gSaveContext.dayTime >= 0xE000 || LINK_IS_ADULT || play->sceneNum != SCENE_GRAVEYARD
+    GI_VB_DAMPE_IN_GRAVEYARD_DESPAWN,
+    // Opt: *EnTk
+    // Vanilla condition: this->validDigHere == 1
+    GI_VB_BE_VALID_GRAVEDIGGING_SPOT,
+    // Opt: *EnTk
+    // Vanilla condition: this->currentReward == 3
+    GI_VB_BE_DAMPE_GRAVEDIGGING_GRAND_PRIZE,
+    // Opt: *EnTk
+    // Vanilla condition: !Flags_GetItemGetInf(ITEMGETINF_1C)
+    GI_VB_DAMPE_GRAVEDIGGING_GRAND_PRIZE_BE_HEART_PIECE,
 
     /*** Play Cutscenes ***/
 
