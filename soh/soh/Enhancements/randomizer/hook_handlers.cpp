@@ -144,6 +144,8 @@ void RandomizerOnPlayerUpdateForRCQueueHandler() {
             // Skipping ItemGet animation incompatible with checks that require closing a text box to finish
             rc != RC_HF_OCARINA_OF_TIME_ITEM &&
             rc != RC_SPIRIT_TEMPLE_SILVER_GAUNTLETS_CHEST &&
+            // Always show ItemGet animation for ice traps
+            !(getItemEntry.modIndex == MOD_RANDOMIZER && getItemEntry.getItemId == RG_ICE_TRAP) &&
             (
                 CVarGetInteger("gTimeSavers.SkipGetItemAnimation", SGIA_DISABLED) == SGIA_ALL ||
                 (
