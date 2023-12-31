@@ -317,13 +317,15 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             break;
         }
         case GI_VB_GIVE_ITEM_FROM_COW: {
-            if (!RAND_GET_OPTION(RSK_SHUFFLE_COWS))
+            if (!RAND_GET_OPTION(RSK_SHUFFLE_COWS)) {
                 break;
+            }
             EnCow* enCow = static_cast<EnCow*>(optionalArg);
             CowIdentity cowIdentity = OTRGlobals::Instance->gRandomizer->IdentifyCow(gPlayState->sceneNum, enCow->actor.world.pos.x, enCow->actor.world.pos.z);
             // Has this cow already rewarded an item?
-            if (Flags_GetRandomizerInf(cowIdentity.randomizerInf))
+            if (Flags_GetRandomizerInf(cowIdentity.randomizerInf)) {
                 break;
+            }
             Flags_SetRandomizerInf(cowIdentity.randomizerInf);
             // setting the ocarina mode here prevents intermittent issues
             // with the item get not triggering until walking away
@@ -332,8 +334,9 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             break;
         }
         case GI_VB_EN_COW_SHOULD_SPAWN_TAIL: {
-            if (!RAND_GET_OPTION(RSK_SHUFFLE_COWS))
+            if (!RAND_GET_OPTION(RSK_SHUFFLE_COWS)) {
                 break;
+            }
             EnCow* enCow = static_cast<EnCow*>(optionalArg);
             // Don't spawn the tail for cows that need to be moved; we'll spawn them when we move the cow
             if ((gPlayState->sceneNum == SCENE_LON_LON_BUILDINGS && enCow->actor.world.pos.x == -108 &&
