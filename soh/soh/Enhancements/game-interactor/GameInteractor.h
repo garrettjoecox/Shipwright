@@ -318,7 +318,7 @@ public:
     
     template <typename H, typename... Args> void ExecuteHooks(Args&&... args) {
         for (auto& hookId : HooksToUnregister<H>::hooks) {
-            UnregisterGameHook<H>(hookId);
+            RegisteredGameHooks<H>::functions.erase(hookId);
         }
         HooksToUnregister<H>::hooks.clear();
         for (auto& hook : RegisteredGameHooks<H>::functions) {
