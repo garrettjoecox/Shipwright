@@ -331,7 +331,7 @@ void func_80AA0D88(EnMa1* this, PlayState* play) {
 }
 
 void func_80AA0EA0(EnMa1* this, PlayState* play) {
-    if (Actor_HasParent(&this->actor, play)) {
+    if (Actor_HasParent(&this->actor, play) || !GameInteractor_Should(GI_VB_GIVE_ITEM_WEIRD_EGG, true, NULL)) {
         this->actor.parent = NULL;
         this->actionFunc = func_80AA0EFC;
     } else {
@@ -340,7 +340,7 @@ void func_80AA0EA0(EnMa1* this, PlayState* play) {
 }
 
 void func_80AA0EFC(EnMa1* this, PlayState* play) {
-    if (this->interactInfo.talkState == NPC_TALK_STATE_ITEM_GIVEN) {
+    if (this->interactInfo.talkState == NPC_TALK_STATE_ITEM_GIVEN || !GameInteractor_Should(GI_VB_GIVE_ITEM_WEIRD_EGG, true, NULL)) {
         this->interactInfo.talkState = NPC_TALK_STATE_IDLE;
         this->actionFunc = func_80AA0D88;
         Flags_SetEventChkInf(EVENTCHKINF_OBTAINED_POCKET_EGG);

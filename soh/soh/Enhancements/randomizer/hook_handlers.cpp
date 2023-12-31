@@ -1,5 +1,6 @@
 #include <libultraship/bridge.h>
 #include "soh/OTRGlobals.h"
+#include "soh/Enhancements/enhancementTypes.h"
 #include "soh/Enhancements/randomizer/randomizerTypes.h"
 #include "soh/Enhancements/game-interactor/GameInteractor.h"
 #include "soh/Enhancements/game-interactor/GameInteractor_Hooks.h"
@@ -105,6 +106,8 @@ void RandomizerOnSceneFlagSetHandler(int16_t sceneNum, int16_t flagType, int16_t
     randomizerQueuedChecks.push(rc);
 }
 
+static Vec3f spawnPos = { 0.0f, -999.0f, 0.0f };
+
 void RandomizerOnPlayerUpdateForRCQueueHandler() {
     // If we're already queued, don't queue again
     if (randomizerQueuedCheck != RC_UNKNOWN_CHECK) return;
@@ -112,12 +115,11 @@ void RandomizerOnPlayerUpdateForRCQueueHandler() {
     // If there's nothing to queue, don't queue
     if (randomizerQueuedChecks.size() < 1) return;
 
-    // Commented out till we figure out issues with using item00
-    // // If we're in a cutscene, don't queue
-    // Player* player = GET_PLAYER(gPlayState);
-    // if (Player_InBlockingCsMode(gPlayState, player) || player->stateFlags1 & PLAYER_STATE1_IN_ITEM_CS || player->stateFlags1 & PLAYER_STATE1_GETTING_ITEM || player->stateFlags1 & PLAYER_STATE1_ITEM_OVER_HEAD) {
-    //     return;
-    // }
+    // If we're in a cutscene, don't queue
+    Player* player = GET_PLAYER(gPlayState);
+    if (Player_InBlockingCsMode(gPlayState, player) || player->stateFlags1 & PLAYER_STATE1_IN_ITEM_CS || player->stateFlags1 & PLAYER_STATE1_GETTING_ITEM || player->stateFlags1 & PLAYER_STATE1_ITEM_OVER_HEAD) {
+        return;
+    }
 
     RandomizerCheck rc = randomizerQueuedChecks.front();
     auto loc = Rando::Context::GetInstance()->GetItemLocation(rc);
@@ -129,16 +131,24 @@ void RandomizerOnPlayerUpdateForRCQueueHandler() {
         randomizerQueuedCheck = rc;
         randomizerQueuedItemEntry = getItemEntry;
         SPDLOG_INFO("Queueing Item mod {} item {} from RC {}", getItemEntry.modIndex, getItemEntry.itemId, rc);
-        // Commented out till we figure out issues with using item00
-        // u8 type = ITEM00_SOH_GIVE_ITEM_ENTRY_GI;
-        // if (
-        //     getItemEntry.getItemCategory == ITEM_CATEGORY_SKULLTULA_TOKEN ||
-        //     getItemEntry.getItemCategory == ITEM_CATEGORY_JUNK ||
-        //     getItemEntry.getItemCategory == ITEM_CATEGORY_LESSER
-        // ) {
-        //     type = ITEM00_SOH_GIVE_ITEM_ENTRY;
-        // }
-        // Item_DropCollectible(gPlayState, &player->actor.world.pos, type | 0x8000);
+        if (
+            // Skipping ItemGet animation incompatible with checks that require closing a text box to finish
+            rc != RC_HF_OCARINA_OF_TIME_ITEM &&
+            rc != RC_SPIRIT_TEMPLE_SILVER_GAUNTLETS_CHEST &&
+            (
+                CVarGetInteger("gTimeSavers.SkipGetItemAnimation", SGIA_DISABLED) == SGIA_ALL ||
+                (
+                    CVarGetInteger("gTimeSavers.SkipGetItemAnimation", SGIA_DISABLED) == SGIA_JUNK &&
+                    (
+                        getItemEntry.getItemCategory == ITEM_CATEGORY_JUNK ||
+                        getItemEntry.getItemCategory == ITEM_CATEGORY_SKULLTULA_TOKEN ||
+                        getItemEntry.getItemCategory == ITEM_CATEGORY_LESSER
+                    )
+                )
+            )
+        ) {
+            Item_DropCollectible(gPlayState, &spawnPos, ITEM00_SOH_GIVE_ITEM_ENTRY | 0x8000);
+        }
     }
 
     randomizerQueuedChecks.pop();
@@ -302,6 +312,7 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
         }
         case GI_VB_GIVE_ITEM_FROM_BLUE_WARP:
         case GI_VB_GIVE_ITEM_FAIRY_OCARINA:
+        case GI_VB_GIVE_ITEM_WEIRD_EGG:
         case GI_VB_GIVE_ITEM_LIGHT_ARROW:
         case GI_VB_GIVE_ITEM_STRENGTH_1:
         case GI_VB_GIVE_ITEM_ZELDAS_LETTER:
