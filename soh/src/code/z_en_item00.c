@@ -496,16 +496,16 @@ void EnItem00_Init(Actor* thisx, PlayState* play) {
         return;
     }
 
-    if (!GameInteractor_Should(GI_VB_GIVE_ITEM_FROM_ITEM_00, true, this)) {
-        return;
-    }
-
     this->unk_15A = 15;
     this->unk_154 = 35;
 
     this->actor.speedXZ = 0.0f;
     this->actor.velocity.y = 0.0f;
     this->actor.gravity = 0.0f;
+
+    if (!GameInteractor_Should(GI_VB_GIVE_ITEM_FROM_ITEM_00, true, this)) {
+        return;
+    }
 
     switch (this->actor.params) {
         case ITEM00_RUPEE_GREEN:
