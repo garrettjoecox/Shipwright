@@ -291,6 +291,7 @@ public:
     // Game Hooks
     uint32_t nextHookId = 0;
     template <typename H> struct RegisteredGameHooks { inline static std::unordered_map<uint32_t, typename H::fn> functions; };
+    template <typename H> struct HooksToUnregister { inline static std::vector<uint32_t> hooks; };
     template <typename H> uint32_t RegisterGameHook(typename H::fn h) {
         // Ensure hook id is unique
         while (RegisteredGameHooks<H>::functions.find(this->nextHookId) != RegisteredGameHooks<H>::functions.end()) {
@@ -302,10 +303,18 @@ public:
     template <typename H> void UnregisterGameHook(uint32_t id) {
         RegisteredGameHooks<H>::functions.erase(id);
     }
+    template <typename H> void AsyncUnregisterGameHook(uint32_t id) {
+        HooksToUnregister<H>::hooks.push_back(id);
+    }
+    
     template <typename H, typename... Args> void ExecuteHooks(Args&&... args) {
         for (auto& hook : RegisteredGameHooks<H>::functions) {
             hook.second(std::forward<Args>(args)...);
         }
+        for (auto& hookId : HooksToUnregister<H>::hooks) {
+            UnregisterGameHook<H>(hookId);
+        }
+        HooksToUnregister<H>::hooks.clear();
     }
 
     DEFINE_HOOK(OnLoadGame, void(int32_t fileNum));
