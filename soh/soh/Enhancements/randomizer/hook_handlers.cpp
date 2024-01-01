@@ -15,6 +15,7 @@ extern "C" {
 #include "src/overlays/actors/ovl_En_Shopnuts/z_en_shopnuts.h"
 #include "src/overlays/actors/ovl_En_Dns/z_en_dns.h"
 #include "src/overlays/actors/ovl_Item_B_Heart/z_item_b_heart.h"
+#include "adult_trade_shuffle.h"
 extern SaveContext gSaveContext;
 extern PlayState* gPlayState;
 }
@@ -410,6 +411,12 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             *should = false;
             break;
         }
+        case GI_VB_TRADE_COJIRO: {
+            Randomizer_ConsumeAdultTradeItem(gPlayState, ITEM_COJIRO);
+            Flags_SetRandomizerInf(RAND_INF_ADULT_TRADES_LW_TRADE_COJIRO);
+            *should = false;
+            break;
+        }
         case GI_VB_DESPAWN_HORSE_RACE_COW: {
             if (!RAND_GET_OPTION(RSK_SHUFFLE_COWS)) {
                 break;
@@ -434,6 +441,26 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             *should = !enDns->sohScrubIdentity.isShuffled;
             break;
         }
+        case GI_VB_DESPAWN_GROG: {
+            if (!RAND_GET_OPTION(RSK_SHUFFLE_ADULT_TRADE)) {
+                break;
+            }
+            bool tradedMushroom = Flags_GetItemGetInf(ITEMGETINF_30);
+            // To explain the logic because Fado and Grog are linked:
+            // - If you have Cojiro, then spawn Grog and not Fado.
+            // - If you don't have Cojiro but do have Odd Potion, spawn Fado and not Grog.
+            // - If you don't have either, spawn Grog if you haven't traded the Odd Mushroom.
+            // - If you don't have either but have traded the mushroom, don't spawn either.
+            if (PLAYER_HAS_SHUFFLED_ADULT_TRADE_ITEM(ITEM_COJIRO)) {
+                *should = false;
+            } else if (PLAYER_HAS_SHUFFLED_ADULT_TRADE_ITEM(ITEM_ODD_POTION)) {
+                *should = true;
+            } else {
+                *should = tradedMushroom;
+            }
+            break;
+        }
+        case GI_VB_TRADE_TIMER_ODD_MUSHROOM:
         case GI_VB_GIVE_ITEM_SKULL_TOKEN:
         case GI_VB_GIVE_ITEM_FROM_BLUE_WARP:
         case GI_VB_GIVE_ITEM_FAIRY_OCARINA:

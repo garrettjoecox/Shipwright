@@ -152,6 +152,9 @@ typedef enum {
     // Opt: *EnCow
     // Vanilla condition: play->sceneNum == SCENE_LINKS_HOUSE && (!LINK_IS_ADULT || !Flags_GetEventChkInf(EVENTCHKINF_WON_COW_IN_MALONS_RACE))
     GI_VB_DESPAWN_HORSE_RACE_COW,
+    // Opt: *EnHs
+    // Vanilla condition: Flags_GetItemGetInf(ITEMGETINF_30)
+    GI_VB_DESPAWN_GROG,
 
     /*** Play Cutscenes ***/
 
@@ -225,6 +228,11 @@ typedef enum {
     GI_VB_GIVE_ITEM_REQUIEM_OF_SPIRIT,
     GI_VB_GIVE_ITEM_NOCTURNE_OF_SHADOW,
     GI_VB_GIVE_ITEM_PRELUDE_OF_LIGHT,
+
+    /*** Adult Trade ***/
+    // Opt: *EnHs
+    GI_VB_TRADE_COJIRO,
+    GI_VB_TRADE_TIMER_ODD_MUSHROOM,
 } GIVanillaBehavior;
 
 #ifdef __cplusplus
