@@ -427,6 +427,12 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             *should = false;
             break;
         }
+        case GI_VB_TRADE_FROG: {
+            Randomizer_ConsumeAdultTradeItem(gPlayState, ITEM_FROG);
+            Flags_SetRandomizerInf(RAND_INF_ADULT_TRADES_LH_TRADE_FROG);
+            *should = false;
+            break;
+        }
         case GI_VB_DESPAWN_HORSE_RACE_COW: {
             if (!RAND_GET_OPTION(RSK_SHUFFLE_COWS)) {
                 break;
@@ -483,6 +489,7 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             break;
         }
         case GI_VB_TRADE_TIMER_ODD_MUSHROOM:
+        case GI_VB_TRADE_TIMER_EYEDROPS:
         case GI_VB_GIVE_ITEM_SKULL_TOKEN:
         case GI_VB_GIVE_ITEM_FROM_BLUE_WARP:
         case GI_VB_GIVE_ITEM_FAIRY_OCARINA:

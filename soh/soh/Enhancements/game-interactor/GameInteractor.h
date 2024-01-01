@@ -237,7 +237,10 @@ typedef enum {
     GI_VB_TRADE_COJIRO,
     // Opt: *EnKo
     GI_VB_TRADE_ODD_POTION,
+    // Opt: *EnMk
+    GI_VB_TRADE_FROG,
     GI_VB_TRADE_TIMER_ODD_MUSHROOM,
+    GI_VB_TRADE_TIMER_EYEDROPS,
 } GIVanillaBehavior;
 
 #ifdef __cplusplus

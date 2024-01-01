@@ -6,7 +6,7 @@
 
 #include "z_en_mk.h"
 #include "objects/object_mk/object_mk.h"
-#include "soh/Enhancements/randomizer/adult_trade_shuffle.h"
+#include "soh/Enhancements/game-interactor/GameInteractor_Hooks.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_FRIENDLY | ACTOR_FLAG_UPDATE_WHILE_CULLED)
 
@@ -93,37 +93,23 @@ void func_80AACA40(EnMk* this, PlayState* play) {
 }
 
 void func_80AACA94(EnMk* this, PlayState* play) {
-    if (Actor_HasParent(&this->actor, play) != 0) {
+    if (Actor_HasParent(&this->actor, play) != 0 || !GameInteractor_Should(GI_VB_TRADE_FROG, true, this)) {
         this->actor.parent = NULL;
         this->actionFunc = func_80AACA40;
-        if (!IS_RANDO) {
+        if (GameInteractor_Should(GI_VB_TRADE_TIMER_EYEDROPS, true, NULL)) {
             func_80088AA0(240);
             gSaveContext.eventInf[1] &= ~1;
         }
     } else {
-        if (IS_RANDO) {
-            GetItemEntry getItemEntry = Randomizer_GetItemFromKnownCheck(RC_LH_TRADE_FROG, GI_EYEDROPS);
-            Randomizer_ConsumeAdultTradeItem(play, ITEM_FROG);
-            GiveItemEntryFromActor(&this->actor, play, getItemEntry, 10000.0f, 50.0f);
-            Flags_SetRandomizerInf(RAND_INF_ADULT_TRADES_LH_TRADE_FROG);
-        } else {
-            s32 getItemID = GI_EYEDROPS;
-            func_8002F434(&this->actor, play, getItemID, 10000.0f, 50.0f);
-        }
+        func_8002F434(&this->actor, play, GI_EYEDROPS, 10000.0f, 50.0f);
     }
 }
 
 void func_80AACB14(EnMk* this, PlayState* play) {
     if (Actor_TextboxIsClosing(&this->actor, play)) {
         this->actionFunc = func_80AACA94;
-        if (IS_RANDO) {
-            GetItemEntry getItemEntry = Randomizer_GetItemFromKnownCheck(RC_LH_TRADE_FROG, GI_EYEDROPS);
-            Randomizer_ConsumeAdultTradeItem(play, ITEM_FROG);
-            GiveItemEntryFromActor(&this->actor, play, getItemEntry, 10000.0f, 50.0f);
-            Flags_SetRandomizerInf(RAND_INF_ADULT_TRADES_LH_TRADE_FROG);
-        } else {
-            s32 getItemID = GI_EYEDROPS;
-            func_8002F434(&this->actor, play, getItemID, 10000.0f, 50.0f);
+        if (GameInteractor_Should(GI_VB_TRADE_FROG, true, this)) {
+            func_8002F434(&this->actor, play, GI_EYEDROPS, 10000.0f, 50.0f);
         }
     }
 }
