@@ -14,6 +14,7 @@ extern "C" {
 #include "src/overlays/actors/ovl_En_Cow/z_en_cow.h"
 #include "src/overlays/actors/ovl_En_Shopnuts/z_en_shopnuts.h"
 #include "src/overlays/actors/ovl_En_Dns/z_en_dns.h"
+#include "src/overlays/actors/ovl_Item_B_Heart/z_item_b_heart.h"
 extern SaveContext gSaveContext;
 extern PlayState* gPlayState;
 }
@@ -217,6 +218,22 @@ void EnItem00_DrawRandomizedItem(EnItem00* enItem00, PlayState* play) {
     Matrix_Scale(mtxScale, mtxScale, mtxScale, MTXMODE_APPLY);
     EnItem00_CustomItemsParticles(&enItem00->actor, play, enItem00->itemEntry);
     GetItemEntry_Draw(play, enItem00->itemEntry);
+}
+
+void ItemBHeart_DrawRandomizedItem(ItemBHeart* itemBHeart, PlayState* play) {
+    EnItem00_CustomItemsParticles(&itemBHeart->actor, play, itemBHeart->sohItemEntry);
+    GetItemEntry_Draw(play, itemBHeart->sohItemEntry);
+}
+
+void ItemBHeart_UpdateRandomizedItem(Actor* actor, PlayState* play) {
+    ItemBHeart* itemBHeart = (ItemBHeart*)actor;
+
+    func_80B85264(itemBHeart, play);
+    Actor_UpdateBgCheckInfo(play, &itemBHeart->actor, 0.0f, 0.0f, 0.0f, 4);
+    if ((itemBHeart->actor.xzDistToPlayer < 30.0f) && (fabsf(itemBHeart->actor.yDistToPlayer) < 40.0f)) {
+        Flags_SetCollectible(play, 0x1F);
+        Actor_Kill(&itemBHeart->actor);
+    }
 }
 
 void EnCow_MoveForRandomizer(EnCow* enCow, PlayState* play) {
@@ -477,6 +494,16 @@ void RandomizerOnActorInitHandler(void* actorRef) {
             EnSi* enSi = static_cast<EnSi*>(actorRef);
             enSi->sohGetItemEntry = Rando::Context::GetInstance()->GetFinalGIEntry(rc, true, (GetItemID)Rando::StaticData::GetLocation(rc)->GetVanillaItem());
             actor->draw = (ActorFunc)EnSi_DrawRandomizedItem;
+        }
+    }
+
+    if (actor->id == ACTOR_ITEM_B_HEART) {
+        ItemBHeart* itemBHeart = static_cast<ItemBHeart*>(actorRef);
+        RandomizerCheck rc = OTRGlobals::Instance->gRandomizer->GetCheckFromActor(itemBHeart->actor.id, gPlayState->sceneNum, itemBHeart->actor.params);
+        if (rc != RC_UNKNOWN_CHECK) {
+            itemBHeart->sohItemEntry = Rando::Context::GetInstance()->GetFinalGIEntry(rc, true, (GetItemID)Rando::StaticData::GetLocation(rc)->GetVanillaItem());
+            itemBHeart->actor.draw = (ActorFunc)ItemBHeart_DrawRandomizedItem;
+            itemBHeart->actor.update = (ActorFunc)ItemBHeart_UpdateRandomizedItem;
         }
     }
 
