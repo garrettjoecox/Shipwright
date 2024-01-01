@@ -158,6 +158,11 @@ typedef enum {
     // Opt: *EnKo
     // Vanilla condition: (INV_CONTENT(ITEM_TRADE_ADULT) == ITEM_ODD_POTION) ? true : false;
     GI_VB_SPAWN_LW_FADO,
+    // Opt: *EnMk
+    GI_VB_PLAY_EYEDROP_ANIM,
+    // Opt: *EnMk
+    // Vanilla condition: INV_CONTENT(ITEM_ODD_MUSHROOM) == ITEM_EYEDROPS
+    GI_VB_USE_EYEDROP_DIALOGUE,
 
     /*** Play Cutscenes ***/
 
@@ -199,6 +204,8 @@ typedef enum {
     GI_VB_GIVE_ITEM_FROM_COW,
     // Opt: *EnDns
     GI_VB_GIVE_ITEM_FROM_BUSINESS_SCRUB,
+    // Opt: *EnMk
+    GI_VB_GIVE_ITEM_FROM_LAB_DIVE,
 
     GI_VB_GIVE_ITEM_FAIRY_OCARINA,
     GI_VB_GIVE_ITEM_WEIRD_EGG,

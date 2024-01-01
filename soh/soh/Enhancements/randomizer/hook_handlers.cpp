@@ -17,6 +17,7 @@ extern "C" {
 #include "src/overlays/actors/ovl_En_Dns/z_en_dns.h"
 #include "src/overlays/actors/ovl_Item_B_Heart/z_item_b_heart.h"
 #include "src/overlays/actors/ovl_En_Ko/z_en_ko.h"
+#include "src/overlays/actors/ovl_En_Mk/z_en_mk.h"
 #include "adult_trade_shuffle.h"
 extern SaveContext gSaveContext;
 extern PlayState* gPlayState;
@@ -488,8 +489,16 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
 
             break;
         }
+        case GI_VB_USE_EYEDROP_DIALOGUE: {
+            // Skip eye drop text on rando if Link went in the water, so you can still receive the dive check
+            EnMk* enMk = static_cast<EnMk*>(optionalArg);
+            *should &= enMk->swimFlag == 0;
+            break;
+        }
+        case GI_VB_PLAY_EYEDROP_ANIM:
         case GI_VB_TRADE_TIMER_ODD_MUSHROOM:
         case GI_VB_TRADE_TIMER_EYEDROPS:
+        case GI_VB_GIVE_ITEM_FROM_LAB_DIVE:
         case GI_VB_GIVE_ITEM_SKULL_TOKEN:
         case GI_VB_GIVE_ITEM_FROM_BLUE_WARP:
         case GI_VB_GIVE_ITEM_FAIRY_OCARINA:
