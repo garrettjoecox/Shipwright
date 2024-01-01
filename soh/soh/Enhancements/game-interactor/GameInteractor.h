@@ -148,7 +148,6 @@ typedef enum {
     ```
     */
     GI_VB_BUSINESS_SCRUB_DESPAWN,
-
     // Opt: *EnCow
     // Vanilla condition: play->sceneNum == SCENE_LINKS_HOUSE && (!LINK_IS_ADULT || !Flags_GetEventChkInf(EVENTCHKINF_WON_COW_IN_MALONS_RACE))
     GI_VB_DESPAWN_HORSE_RACE_COW,
@@ -160,9 +159,16 @@ typedef enum {
     GI_VB_SPAWN_LW_FADO,
     // Opt: *EnMk
     GI_VB_PLAY_EYEDROP_ANIM,
+    // Opt: *EnDs
+    GI_VB_PLAY_ODD_POTION_ANIM,
     // Opt: *EnMk
     // Vanilla condition: INV_CONTENT(ITEM_ODD_MUSHROOM) == ITEM_EYEDROPS
     GI_VB_USE_EYEDROP_DIALOGUE,
+    // Opt: *EnMk
+    // Vanilla condition: Flags_GetItemGetInf(ITEMGETINF_30)
+    GI_VB_OFFER_BLUE_POTION,
+    // Vanilla condition: Inventory_HasEmptyBottle() == 0
+    GI_VB_NEED_BOTTLE_FOR_GRANNYS_ITEM,
 
     /*** Play Cutscenes ***/
 
@@ -206,6 +212,8 @@ typedef enum {
     GI_VB_GIVE_ITEM_FROM_BUSINESS_SCRUB,
     // Opt: *EnMk
     GI_VB_GIVE_ITEM_FROM_LAB_DIVE,
+    // Opt: *EnDs
+    GI_VB_GIVE_ITEM_FROM_GRANNYS_SHOP,
 
     GI_VB_GIVE_ITEM_FAIRY_OCARINA,
     GI_VB_GIVE_ITEM_WEIRD_EGG,
@@ -246,6 +254,8 @@ typedef enum {
     GI_VB_TRADE_ODD_POTION,
     // Opt: *EnMk
     GI_VB_TRADE_FROG,
+    // Opt: *EnDs
+    GI_VB_TRADE_ODD_MUSHROOM,
     GI_VB_TRADE_TIMER_ODD_MUSHROOM,
     GI_VB_TRADE_TIMER_EYEDROPS,
 } GIVanillaBehavior;

@@ -283,6 +283,16 @@ void EnCow_MoveForRandomizer(EnCow* enCow, PlayState* play) {
     }
 }
 
+u8 EnDs_RandoCanGetGrannyItem() {
+    return RAND_GET_OPTION(RSK_SHUFFLE_MERCHANTS) != RO_SHUFFLE_MERCHANTS_OFF &&
+           !Flags_GetRandomizerInf(RAND_INF_MERCHANTS_GRANNYS_SHOP) &&
+           // Traded odd mushroom when adult trade is on
+           ((RAND_GET_OPTION(RSK_SHUFFLE_ADULT_TRADE) && Flags_GetItemGetInf(ITEMGETINF_30)) ||
+            // Found claim check when adult trade is off
+            (!RAND_GET_OPTION(RSK_SHUFFLE_ADULT_TRADE) &&
+             INV_CONTENT(ITEM_CLAIM_CHECK) == ITEM_CLAIM_CHECK));
+}
+
 void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void* optionalArg) {
     switch (id) {
         case GI_VB_GIVE_ITEM_FROM_CHEST: {
@@ -414,9 +424,20 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             *should = false;
             break;
         }
+        case GI_VB_GIVE_ITEM_FROM_GRANNYS_SHOP: {
+            if (!EnDs_RandoCanGetGrannyItem()) {
+                break;
+            }
+            GetItemEntry itemEntry = OTRGlobals::Instance->gRandomizer->GetItemFromKnownCheck(RC_KAK_GRANNYS_SHOP, GI_POTION_BLUE);
+            gSaveContext.pendingSale = itemEntry.itemId;
+            gSaveContext.pendingSaleMod = itemEntry.modIndex;
+            // Only setting the inf if we've actually gotten the rando item and not the vanilla blue potion
+            Flags_SetRandomizerInf(RAND_INF_MERCHANTS_GRANNYS_SHOP);
+            *should = false;
+            break;
+        }
         case GI_VB_TRADE_COJIRO: {
             Randomizer_ConsumeAdultTradeItem(gPlayState, ITEM_COJIRO);
-            Flags_SetRandomizerInf(RAND_INF_ADULT_TRADES_LW_TRADE_COJIRO);
             *should = false;
             break;
         }
@@ -430,7 +451,13 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
         }
         case GI_VB_TRADE_FROG: {
             Randomizer_ConsumeAdultTradeItem(gPlayState, ITEM_FROG);
-            Flags_SetRandomizerInf(RAND_INF_ADULT_TRADES_LH_TRADE_FROG);
+            *should = false;
+            break;
+        }
+        case GI_VB_TRADE_ODD_MUSHROOM: {
+            Randomizer_ConsumeAdultTradeItem(gPlayState, ITEM_ODD_MUSHROOM);
+            // Trigger the reward now
+            Flags_SetItemGetInf(ITEMGETINF_30);
             *should = false;
             break;
         }
@@ -493,6 +520,16 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             // Skip eye drop text on rando if Link went in the water, so you can still receive the dive check
             EnMk* enMk = static_cast<EnMk*>(optionalArg);
             *should &= enMk->swimFlag == 0;
+            break;
+        }
+        case GI_VB_OFFER_BLUE_POTION: {
+            // Always offer blue potion when adult trade is off
+            *should |= RAND_GET_OPTION(RSK_SHUFFLE_ADULT_TRADE) == RO_GENERIC_OFF;
+            break;
+        }
+        case GI_VB_NEED_BOTTLE_FOR_GRANNYS_ITEM: {
+            // Allow buying the rando item regardless of having a bottle
+            *should &= !EnDs_RandoCanGetGrannyItem();
             break;
         }
         case GI_VB_PLAY_EYEDROP_ANIM:
