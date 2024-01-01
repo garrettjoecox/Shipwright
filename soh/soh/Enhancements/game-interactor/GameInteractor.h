@@ -155,6 +155,9 @@ typedef enum {
     // Opt: *EnHs
     // Vanilla condition: Flags_GetItemGetInf(ITEMGETINF_30)
     GI_VB_DESPAWN_GROG,
+    // Opt: *EnKo
+    // Vanilla condition: (INV_CONTENT(ITEM_TRADE_ADULT) == ITEM_ODD_POTION) ? true : false;
+    GI_VB_SPAWN_LW_FADO,
 
     /*** Play Cutscenes ***/
 
@@ -232,6 +235,8 @@ typedef enum {
     /*** Adult Trade ***/
     // Opt: *EnHs
     GI_VB_TRADE_COJIRO,
+    // Opt: *EnKo
+    GI_VB_TRADE_ODD_POTION,
     GI_VB_TRADE_TIMER_ODD_MUSHROOM,
 } GIVanillaBehavior;
 

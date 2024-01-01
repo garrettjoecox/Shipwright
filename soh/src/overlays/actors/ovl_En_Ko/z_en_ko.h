@@ -59,5 +59,6 @@ typedef enum {
 
 void func_80A995CC(EnKo* actor, PlayState* play);
 void func_80A99384(EnKo* actor, PlayState* play);
+void func_80A99560(EnKo* actor, PlayState* play);
 
 #endif

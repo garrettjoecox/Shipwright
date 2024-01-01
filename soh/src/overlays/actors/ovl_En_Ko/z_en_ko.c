@@ -10,7 +10,6 @@
 #include "objects/object_km1/object_km1.h"
 #include "objects/object_kw1/object_kw1.h"
 #include "vt.h"
-#include "soh/Enhancements/randomizer/adult_trade_shuffle.h"
 #include "soh/Enhancements/game-interactor/GameInteractor_Hooks.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_FRIENDLY | ACTOR_FLAG_UPDATE_WHILE_CULLED)
@@ -1028,20 +1027,9 @@ s32 EnKo_CanSpawn(EnKo* this, PlayState* play) {
             }
 
         case SCENE_LOST_WOODS:
-            if (IS_RANDO && Randomizer_GetSettingValue(RSK_SHUFFLE_ADULT_TRADE)) {
-                // To explain the logic because Fado and Grog are linked:
-                // - If you have Cojiro, then spawn Grog and not Fado.
-                // - If you don't have Cojiro but do have Odd Potion, spawn Fado and not Grog.
-                // - If you don't have either, spawn Grog if you haven't traded the Odd Mushroom.
-                // - If you don't have either but have traded the mushroom, don't spawn either.
-                if (PLAYER_HAS_SHUFFLED_ADULT_TRADE_ITEM(ITEM_COJIRO)) {
-                    return false;
-                } else {
-                    return PLAYER_HAS_SHUFFLED_ADULT_TRADE_ITEM(ITEM_ODD_POTION);
-                }
-            } else {
-                return (INV_CONTENT(ITEM_TRADE_ADULT) == ITEM_ODD_POTION) ? true : false;
-            }
+            return GameInteractor_Should(GI_VB_SPAWN_LW_FADO, (
+                (INV_CONTENT(ITEM_TRADE_ADULT) == ITEM_ODD_POTION) ? true : false
+            ), this);
         default:
             return false;
     }
@@ -1223,18 +1211,11 @@ void func_80A99438(EnKo* this, PlayState* play) {
 }
 
 void func_80A99504(EnKo* this, PlayState* play) {
-    if (Actor_HasParent(&this->actor, play)) {
+    if (Actor_HasParent(&this->actor, play) || !GameInteractor_Should(GI_VB_TRADE_ODD_POTION, true, this)) {
         this->actor.parent = NULL;
         this->actionFunc = func_80A99560;
     } else {
-        if (IS_RANDO) {
-            GetItemEntry itemEntry = Randomizer_GetItemFromKnownCheck(RC_LW_TRADE_ODD_POTION, GI_SAW);
-            Randomizer_ConsumeAdultTradeItem(play, ITEM_ODD_POTION);
-            GiveItemEntryFromActor(&this->actor, play, itemEntry, 120.0f, 10.0f);
-        } else {
-            s32 itemId = GI_SAW;
-            func_8002F434(&this->actor, play, itemId, 120.0f, 10.0f);
-        }
+        func_8002F434(&this->actor, play, GI_SAW, 120.0f, 10.0f);
     }
 }
 

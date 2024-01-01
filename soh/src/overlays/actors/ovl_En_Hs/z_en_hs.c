@@ -157,13 +157,11 @@ void func_80A6E70C(EnHs* this, PlayState* play) {
 }
 
 void func_80A6E740(EnHs* this, PlayState* play) {
-    if (Actor_HasParent(&this->actor, play)) {
+    if (Actor_HasParent(&this->actor, play) || !GameInteractor_Should(GI_VB_TRADE_COJIRO, true, this)) {
         this->actor.parent = NULL;
         func_80A6E3A0(this, func_80A6E630);
     } else {
-        if (GameInteractor_Should(GI_VB_TRADE_COJIRO, true, this)) {
-            func_8002F434(&this->actor, play, GI_ODD_MUSHROOM, 10000.0f, 50.0f);
-        }
+        func_8002F434(&this->actor, play, GI_ODD_MUSHROOM, 10000.0f, 50.0f);
     }
 
     this->unk_2A8 |= 1;
