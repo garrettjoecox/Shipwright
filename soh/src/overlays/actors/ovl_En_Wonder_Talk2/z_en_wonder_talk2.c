@@ -195,7 +195,9 @@ void func_80B3A3D4(EnWonderTalk2* this, PlayState* play) {
                 this->unk_15A = true;
             }
             this->actor.flags &= ~(ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_UPDATE_WHILE_CULLED);
-            func_8002DF54(play, NULL, 7);
+            if (GameInteractor_Should(GI_VB_WONDER_TALK, true, this)) {
+                func_8002DF54(play, NULL, 7);
+            }
             this->unk_156 = true;
             this->actionFunc = func_80B3A4F8;
             break;
@@ -256,9 +258,9 @@ void func_80B3A4F8(EnWonderTalk2* this, PlayState* play) {
                 if (GameInteractor_Should(GI_VB_WONDER_TALK, true, this)) {
                     Message_StartTextbox(play, this->actor.textId, NULL);
                     func_8002DF54(play, NULL, 8);
-                    this->actor.flags |= ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_UPDATE_WHILE_CULLED;
-                    this->actionFunc = func_80B3A3D4;
                 }
+                this->actor.flags |= ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_UPDATE_WHILE_CULLED;
+                this->actionFunc = func_80B3A3D4;
             }
 
         } else {

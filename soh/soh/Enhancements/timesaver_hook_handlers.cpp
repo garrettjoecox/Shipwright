@@ -288,9 +288,6 @@ void TimeSaverOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void*
             break;
         case GI_VB_WONDER_TALK: {
             if (CVarGetInteger("gTimeSavers.NoForcedDialog", 0)) {
-                EnWonderTalk2* wonderTalk = static_cast<EnWonderTalk2*>(opt);
-                Flags_SetSwitch(gPlayState, wonderTalk->switchFlag);
-                Actor_Kill(&wonderTalk->actor);
                 *should = false;
             }
             break;
