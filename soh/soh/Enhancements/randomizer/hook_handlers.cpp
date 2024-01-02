@@ -229,7 +229,7 @@ void RandomizerOnItemReceiveHandler(GetItemEntry receivedItemEntry) {
 }
 
 void EnItem00_DrawRandomizedItem(EnItem00* enItem00, PlayState* play) {
-    f32 mtxScale = 15.67f;
+    f32 mtxScale = CVarGetFloat("gTimeSavers.SkipGetItemAnimationScale", 10.0f);
     Matrix_Scale(mtxScale, mtxScale, mtxScale, MTXMODE_APPLY);
     EnItem00_CustomItemsParticles(&enItem00->actor, play, enItem00->itemEntry);
     GetItemEntry_Draw(play, enItem00->itemEntry);

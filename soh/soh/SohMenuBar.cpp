@@ -601,6 +601,10 @@ void DrawEnhancementsMenu() {
 
                 UIWidgets::PaddedText("Skip Get Item Animations", true, false);
                 UIWidgets::EnhancementCombobox("gTimeSavers.SkipGetItemAnimation", skipGetItemAnimationOptions, SGIA_DISABLED);
+                if (CVarGetInteger("gTimeSavers.SkipGetItemAnimation", SGIA_DISABLED) != SGIA_DISABLED) {
+                    UIWidgets::EnhancementSliderFloat("Item Scale: %f", "##ItemScale", "gTimeSavers.SkipGetItemAnimationScale", 5.0f, 15.0f, "", 10.0f, false);
+                    UIWidgets::Tooltip("The size of the item when it is picked up");
+                }
 
                 UIWidgets::PaddedEnhancementSliderInt("Text Speed: %dx", "##TEXTSPEED", "gTextSpeed", 1, 5, "", 1, true, false, true);
                 UIWidgets::PaddedEnhancementCheckbox("Skip Text", "gSkipText", false, true);
