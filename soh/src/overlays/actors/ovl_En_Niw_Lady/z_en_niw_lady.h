@@ -43,4 +43,6 @@ typedef struct EnNiwLady {
     /* 0x02FC */ GetItemEntry getItemEntry;
 } EnNiwLady; // size = 0x02FC
 
+static s16 sMissingCuccoTextIds[10];
+
 #endif

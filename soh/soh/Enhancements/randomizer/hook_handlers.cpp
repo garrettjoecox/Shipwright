@@ -18,6 +18,7 @@ extern "C" {
 #include "src/overlays/actors/ovl_Item_B_Heart/z_item_b_heart.h"
 #include "src/overlays/actors/ovl_En_Ko/z_en_ko.h"
 #include "src/overlays/actors/ovl_En_Mk/z_en_mk.h"
+#include "src/overlays/actors/ovl_En_Niw_Lady/z_en_niw_lady.h"
 #include "adult_trade_shuffle.h"
 extern SaveContext gSaveContext;
 extern PlayState* gPlayState;
@@ -372,6 +373,22 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             *should = Flags_GetRandomizerInf(RAND_INF_LEARNED_EPONA_SONG);
             break;
         }
+        case GI_VB_CUCCOS_BE_CONSIDERED_COLLECTED: {
+            EnNiwLady* enNiwLady = static_cast<EnNiwLady*>(optionalArg);
+            *should = enNiwLady->cuccosInPen >= RAND_GET_OPTION(RSK_CUCCO_COUNT);
+            break;
+        }
+        case GI_VB_SET_CUCCO_DIALOGUE: {
+            EnNiwLady* enNiwLady = static_cast<EnNiwLady*>(optionalArg);
+            // Don't override dialogue if the minigame is completed
+            if (enNiwLady->unk_26C != 0) {
+                break;
+            }
+            // Override dialogue to report the correct number of remaining Cuccos
+            enNiwLady->actor.textId = sMissingCuccoTextIds[enNiwLady->cuccosInPen - RAND_GET_OPTION(RSK_CUCCO_COUNT)];
+            *should = false;
+            break;
+        }
         case GI_VB_GIVE_ITEM_FROM_ITEM_00: {
             EnItem00* item00 = static_cast<EnItem00*>(optionalArg);
             if (item00->actor.params == ITEM00_SOH_DUMMY) {
@@ -436,6 +453,16 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             *should = false;
             break;
         }
+        case GI_VB_GIVE_ITEM_FROM_ANJU_AS_CHILD: {
+            Flags_SetItemGetInf(ITEMGETINF_0C);
+            *should = false;
+            break;
+        }
+        case GI_VB_GIVE_ITEM_FROM_ANJU_AS_ADULT: {
+            Flags_SetItemGetInf(ITEMGETINF_2C);
+            *should = false;
+            break;
+        }
         case GI_VB_TRADE_COJIRO: {
             Randomizer_ConsumeAdultTradeItem(gPlayState, ITEM_COJIRO);
             *should = false;
@@ -458,6 +485,13 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             Randomizer_ConsumeAdultTradeItem(gPlayState, ITEM_ODD_MUSHROOM);
             // Trigger the reward now
             Flags_SetItemGetInf(ITEMGETINF_30);
+            *should = false;
+            break;
+        }
+        case GI_VB_TRADE_POCKET_CUCCO: {
+            Randomizer_ConsumeAdultTradeItem(gPlayState, ITEM_POCKET_CUCCO);
+            // Trigger the reward now
+            Flags_SetItemGetInf(ITEMGETINF_2E);
             *should = false;
             break;
         }
@@ -535,6 +569,7 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
         case GI_VB_PLAY_EYEDROP_ANIM:
         case GI_VB_TRADE_TIMER_ODD_MUSHROOM:
         case GI_VB_TRADE_TIMER_EYEDROPS:
+        case GI_VB_ANJU_SET_OBTAINED_TRADE_ITEM:
         case GI_VB_GIVE_ITEM_FROM_LAB_DIVE:
         case GI_VB_GIVE_ITEM_SKULL_TOKEN:
         case GI_VB_GIVE_ITEM_FROM_BLUE_WARP:

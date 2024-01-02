@@ -169,6 +169,11 @@ typedef enum {
     GI_VB_OFFER_BLUE_POTION,
     // Vanilla condition: Inventory_HasEmptyBottle() == 0
     GI_VB_NEED_BOTTLE_FOR_GRANNYS_ITEM,
+    // Opt: *EnNiwLady
+    // Vanilla condition this->cuccosInPen >= 7
+    GI_VB_CUCCOS_BE_CONSIDERED_COLLECTED,
+    // Opt: *EnNiwLady
+    GI_VB_SET_CUCCO_DIALOGUE,
 
     /*** Play Cutscenes ***/
 
@@ -214,6 +219,10 @@ typedef enum {
     GI_VB_GIVE_ITEM_FROM_LAB_DIVE,
     // Opt: *EnDs
     GI_VB_GIVE_ITEM_FROM_GRANNYS_SHOP,
+    // Opt: *EnNiwLady
+    GI_VB_GIVE_ITEM_FROM_ANJU_AS_CHILD,
+    // Opt: *EnNiwLady
+    GI_VB_GIVE_ITEM_FROM_ANJU_AS_ADULT,
 
     GI_VB_GIVE_ITEM_FAIRY_OCARINA,
     GI_VB_GIVE_ITEM_WEIRD_EGG,
@@ -256,8 +265,12 @@ typedef enum {
     GI_VB_TRADE_FROG,
     // Opt: *EnDs
     GI_VB_TRADE_ODD_MUSHROOM,
+    // Opt: *EnNiwLady
+    GI_VB_TRADE_POCKET_CUCCO,
     GI_VB_TRADE_TIMER_ODD_MUSHROOM,
     GI_VB_TRADE_TIMER_EYEDROPS,
+    // Opt: *EnNiwLady
+    GI_VB_ANJU_SET_OBTAINED_TRADE_ITEM,
 } GIVanillaBehavior;
 
 #ifdef __cplusplus
