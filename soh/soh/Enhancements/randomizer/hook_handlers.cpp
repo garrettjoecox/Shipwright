@@ -194,6 +194,21 @@ void RandomizerOnItemReceiveHandler(GetItemEntry receivedItemEntry) {
         randomizerQueuedItemEntry = GET_ITEM_NONE;
     }
 
+    if (
+        receivedItemEntry.modIndex == MOD_NONE && (
+            receivedItemEntry.itemId == ITEM_HEART_PIECE ||
+            receivedItemEntry.itemId == ITEM_HEART_PIECE_2 ||
+            receivedItemEntry.itemId == ITEM_HEART_CONTAINER
+        )
+    ) {
+        gSaveContext.healthAccumulator = 0x140; // Refill 20 hearts
+        if ((s32)(gSaveContext.inventory.questItems & 0xF0000000) == 0x40000000) {
+            gSaveContext.inventory.questItems ^= 0x40000000;
+            gSaveContext.healthCapacity += 0x10;
+            gSaveContext.health += 0x10;
+        }
+    }
+
     if (loc->GetRandomizerCheck() == RC_SPIRIT_TEMPLE_SILVER_GAUNTLETS_CHEST) {
         static uint32_t updateHook;
         updateHook = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnPlayerUpdate>([]() {
