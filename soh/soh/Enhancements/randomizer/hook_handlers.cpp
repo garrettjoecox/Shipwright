@@ -486,6 +486,11 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             *should = false;
             break;
         }
+        case GI_VB_TRADE_SAW: {
+            Randomizer_ConsumeAdultTradeItem(gPlayState, ITEM_SAW);
+            *should = false;
+            break;
+        }
         case GI_VB_DESPAWN_HORSE_RACE_COW: {
             if (!RAND_GET_OPTION(RSK_SHUFFLE_COWS)) {
                 break;

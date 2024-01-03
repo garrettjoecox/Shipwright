@@ -264,10 +264,16 @@ typedef enum {
     GI_VB_TRADE_ODD_MUSHROOM,
     // Opt: *EnNiwLady
     GI_VB_TRADE_POCKET_CUCCO,
+    // Opt: *EnToryo
+    GI_VB_TRADE_SAW,
     GI_VB_TRADE_TIMER_ODD_MUSHROOM,
     GI_VB_TRADE_TIMER_EYEDROPS,
     // Opt: *EnNiwLady
     GI_VB_ANJU_SET_OBTAINED_TRADE_ITEM,
+
+    /*** Fixes ***/
+    // Vanilla condition: false
+    GI_VB_FIX_SAW_SOFTLOCK,
 } GIVanillaBehavior;
 
 #ifdef __cplusplus

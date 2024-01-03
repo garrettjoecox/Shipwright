@@ -499,6 +499,11 @@ void TimeSaverOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void*
                 *should = !Flags_GetCollectible(gPlayState, COLLECTFLAG_GRAVEDIGGING_HEART_PIECE);
             }
             break;
+        case GI_VB_FIX_SAW_SOFTLOCK:
+            // Animation Count should be no more than 1 to guarantee putaway is complete after giving the saw
+            // As this is vanilla behavior, it only applies with the Fix toggle or Skip Text enabled.
+            *should = (CVarGetInteger("gFixSawSoftlock", 0) != 0 || CVarGetInteger("gSkipText", 0) != 0) ? gPlayState->animationCtx.animationCount > 1 : *should;
+            break;
     }
 }
 
