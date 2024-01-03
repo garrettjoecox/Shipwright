@@ -373,19 +373,10 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             *should = Flags_GetRandomizerInf(RAND_INF_LEARNED_EPONA_SONG);
             break;
         }
-        case GI_VB_CUCCOS_BE_CONSIDERED_COLLECTED: {
+        case GI_VB_SET_CUCCO_COUNT: {
             EnNiwLady* enNiwLady = static_cast<EnNiwLady*>(optionalArg);
-            *should = enNiwLady->cuccosInPen >= RAND_GET_OPTION(RSK_CUCCO_COUNT);
-            break;
-        }
-        case GI_VB_SET_CUCCO_DIALOGUE: {
-            EnNiwLady* enNiwLady = static_cast<EnNiwLady*>(optionalArg);
-            // Don't override dialogue if the minigame is completed
-            if (enNiwLady->unk_26C != 0) {
-                break;
-            }
-            // Override dialogue to report the correct number of remaining Cuccos
-            enNiwLady->actor.textId = sMissingCuccoTextIds[enNiwLady->cuccosInPen - RAND_GET_OPTION(RSK_CUCCO_COUNT)];
+            // Override starting Cucco count using setting value
+            enNiwLady->cuccosInPen = 7 - RAND_GET_OPTION(RSK_CUCCO_COUNT);
             *should = false;
             break;
         }

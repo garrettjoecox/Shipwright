@@ -170,10 +170,7 @@ typedef enum {
     // Vanilla condition: Inventory_HasEmptyBottle() == 0
     GI_VB_NEED_BOTTLE_FOR_GRANNYS_ITEM,
     // Opt: *EnNiwLady
-    // Vanilla condition this->cuccosInPen >= 7
-    GI_VB_CUCCOS_BE_CONSIDERED_COLLECTED,
-    // Opt: *EnNiwLady
-    GI_VB_SET_CUCCO_DIALOGUE,
+    GI_VB_SET_CUCCO_COUNT,
 
     /*** Play Cutscenes ***/
 

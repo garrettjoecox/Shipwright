@@ -204,7 +204,9 @@ void func_80ABA244(EnNiwLady* this, PlayState* play) {
     EnNiw* currentCucco;
     s32 phi_s1;
 
-    this->cuccosInPen = 0;
+    if (GameInteractor_Should(GI_VB_SET_CUCCO_COUNT, true, this)) {
+        this->cuccosInPen = 0;
+    }
     currentCucco = (EnNiw*)play->actorCtx.actorLists[ACTORCAT_PROP].head;
     while (currentCucco != NULL) {
         if (currentCucco->actor.id == ACTOR_EN_NIW) {
@@ -233,19 +235,18 @@ void func_80ABA244(EnNiwLady* this, PlayState* play) {
         (Message_GetState(&play->msgCtx) == TEXT_STATE_DONE)) {
         this->unk_26E = 101;
     }
-    if (GameInteractor_Should(GI_VB_CUCCOS_BE_CONSIDERED_COLLECTED, this->cuccosInPen >= 7, this)) {
+    if (this->cuccosInPen >= 7) {
         phi_s1 = 8;
         if ((this->unk_26C < 2) && (this->unk_26C == 0)) {
             phi_s1 = 7;
         }
     }
-    // Completed minigame and then threw a Cucco out of the pen
-    if ((this->unk_26C != 0) && !GameInteractor_Should(GI_VB_CUCCOS_BE_CONSIDERED_COLLECTED, this->cuccosInPen >= 7, this)) {
+    // Completed minigame and then threw Cucco(s) out of the pen
+    if ((this->unk_26C != 0) && (phi_s1 < 7)) {
         phi_s1 = 9;
     }
-    if (GameInteractor_Should(GI_VB_SET_CUCCO_DIALOGUE, true, this)) {
-        this->actor.textId = sMissingCuccoTextIds[phi_s1];
-    }
+
+    this->actor.textId = sMissingCuccoTextIds[phi_s1];
     if (Text_GetFaceReaction(play, 8) != 0) {
         this->actor.textId = Text_GetFaceReaction(play, 8);
         this->unk_262 = TEXT_STATE_DONE;
@@ -317,6 +318,7 @@ void func_80ABA654(EnNiwLady* this, PlayState* play) {
             } else {
                 // Circumvent the item offer action
                 this->actionFunc = func_80ABAC84;
+                return;
             }
 
             this->actionFunc = func_80ABAC00;
@@ -408,6 +410,7 @@ void func_80ABA9B8(EnNiwLady* this, PlayState* play) {
                 } else {
                     // Circumvent the item offer action
                     this->actionFunc = func_80ABAC84;
+                    return;
                 }
 
                 break;
@@ -442,6 +445,7 @@ void func_80ABAB08(EnNiwLady* this, PlayState* play) {
                 } else {
                     // Circumvent the item offer action
                     this->actionFunc = func_80ABAC84;
+                    return;
                 }
                 break;
             case 1:
