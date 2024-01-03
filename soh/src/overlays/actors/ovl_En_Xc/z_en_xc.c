@@ -357,7 +357,7 @@ s32 EnXc_BoleroCS(EnXc* this, PlayState* play) {
 
 void EnXc_SetupSerenadeAction(EnXc* this, PlayState* play) {
     // Player is adult and does not have iron boots and has not learned Serenade
-    if (GameInteractor_Should(GI_VB_BE_ELIGIBLE_FOR_SERENADE_OF_WATER, (!CHECK_OWNED_EQUIP(EQUIP_TYPE_BOOTS, EQUIP_INV_BOOTS_IRON) && !Flags_GetEventChkInf(EVENTCHKINF_LEARNED_SERENADE_OF_WATER)) && LINK_IS_ADULT, NULL)) {
+    if (GameInteractor_Should(GI_VB_SHIEK_PREPARE_TO_GIVE_SERENADE_OF_WATER, (!CHECK_OWNED_EQUIP(EQUIP_TYPE_BOOTS, EQUIP_INV_BOOTS_IRON) && !Flags_GetEventChkInf(EVENTCHKINF_LEARNED_SERENADE_OF_WATER)) && LINK_IS_ADULT, NULL)) {
         this->action = SHEIK_ACTION_SERENADE;
         osSyncPrintf("水のセレナーデ シーク誕生!!!!!!!!!!!!!!!!!!\n");
     } else {

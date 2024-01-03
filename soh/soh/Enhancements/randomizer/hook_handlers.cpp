@@ -209,7 +209,7 @@ void RandomizerOnItemReceiveHandler(GetItemEntry receivedItemEntry) {
         }
     }
 
-    if (loc->GetRandomizerCheck() == RC_SPIRIT_TEMPLE_SILVER_GAUNTLETS_CHEST) {
+    if (loc->GetRandomizerCheck() == RC_SPIRIT_TEMPLE_SILVER_GAUNTLETS_CHEST && !CVarGetInteger("gTimeSavers.SkipCutscene.Story", 0)) {
         static uint32_t updateHook;
         updateHook = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnPlayerUpdate>([]() {
             Player* player = GET_PLAYER(gPlayState);
@@ -292,6 +292,10 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             // This behavior is replicated for randomizer in RandomizerOnItemReceiveHandler
             *should = false;
             break;
+        case GI_VB_SHIEK_PREPARE_TO_GIVE_SERENADE_OF_WATER: {
+            *should = !Flags_GetEventChkInf(EVENTCHKINF_LEARNED_SERENADE_OF_WATER) && !Flags_GetTreasure(gPlayState, 0x2);
+            break;
+        }
         case GI_VB_BE_ELIGIBLE_FOR_SERENADE_OF_WATER:
             *should = !Flags_GetEventChkInf(EVENTCHKINF_LEARNED_SERENADE_OF_WATER) && Flags_GetTreasure(gPlayState, 0x2);
             break;
