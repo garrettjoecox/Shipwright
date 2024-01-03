@@ -6684,7 +6684,14 @@ s32 func_8083E5A8(Player* this, PlayState* play) {
                 uint8_t showItemCutscene = play->sceneNum == SCENE_BOMBCHU_BOWLING_ALLEY || Item_CheckObtainability(giEntry.itemId) == ITEM_NONE || IS_RANDO;
 
                 // Only skip cutscenes for drops when they're items/consumables from bushes/rocks/enemies.
-                uint8_t isDropToSkip =
+                uint8_t isDropToSkip = 
+                                        (
+                                            interactedActor->id == ACTOR_EN_ITEM00 &&
+                                            interactedActor->params != ITEM00_HEART_PIECE &&
+                                            interactedActor->params != ITEM00_SMALL_KEY &&
+                                            interactedActor->params != ITEM00_SOH_GIVE_ITEM_ENTRY &&
+                                            interactedActor->params != ITEM00_SOH_GIVE_ITEM_ENTRY_GI
+                                        ) ||
                                         interactedActor->id == ACTOR_EN_KAREBABA || 
                                         interactedActor->id == ACTOR_EN_DEKUBABA;
 
