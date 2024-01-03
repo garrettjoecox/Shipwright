@@ -171,6 +171,15 @@ typedef enum {
     GI_VB_NEED_BOTTLE_FOR_GRANNYS_ITEM,
     // Opt: *EnNiwLady
     GI_VB_SET_CUCCO_COUNT,
+    // Opt: *EnKz
+    // Vanilla condition: CHECK_QUEST_ITEM(QUEST_ZORA_SAPPHIRE)
+    GI_VB_KING_ZORA_THANK_CHILD,
+    // Opt: *EnKz
+    // Vanilla condition: this->actor.textId == 0x401A
+    GI_VB_TRY_EXCHANGE_RUTOS_LETTER,
+    // Opt: *EnKz
+    // Vanilla condition: Flags_GetEventChkInf(EVENTCHKINF_KING_ZORA_MOVED)
+    GI_VB_KING_ZORA_BE_MOVED,
 
     /*** Play Cutscenes ***/
 
@@ -220,6 +229,9 @@ typedef enum {
     GI_VB_GIVE_ITEM_FROM_ANJU_AS_CHILD,
     // Opt: *EnNiwLady
     GI_VB_GIVE_ITEM_FROM_ANJU_AS_ADULT,
+    // Opt: *EnKz
+    // Vanilla condition: !CHECK_OWNED_EQUIP(EQUIP_TYPE_TUNIC, EQUIP_INV_TUNIC_ZORA)
+    GI_VB_GIVE_ITEM_FROM_THAWING_KING_ZORA,
 
     GI_VB_GIVE_ITEM_FAIRY_OCARINA,
     GI_VB_GIVE_ITEM_WEIRD_EGG,
@@ -266,8 +278,11 @@ typedef enum {
     GI_VB_TRADE_POCKET_CUCCO,
     // Opt: *EnToryo
     GI_VB_TRADE_SAW,
+    // Opt: *EnKz,
+    GI_VB_TRADE_PRESCRIPTION,
     GI_VB_TRADE_TIMER_ODD_MUSHROOM,
     GI_VB_TRADE_TIMER_EYEDROPS,
+    GI_VB_TRADE_TIMER_FROG,
     // Opt: *EnNiwLady
     GI_VB_ANJU_SET_OBTAINED_TRADE_ITEM,
 

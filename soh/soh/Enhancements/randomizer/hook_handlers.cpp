@@ -380,6 +380,39 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             *should = false;
             break;
         }
+        case GI_VB_KING_ZORA_THANK_CHILD: {
+            // Allow turning in Ruto's letter even if you have already rescued her
+            if (!Flags_GetEventChkInf(EVENTCHKINF_KING_ZORA_MOVED)) {
+                GET_PLAYER(gPlayState)->exchangeItemId = EXCH_ITEM_LETTER_RUTO;
+            }
+            *should = Flags_GetRandomizerInf(RAND_INF_DUNGEONS_DONE_JABU_JABUS_BELLY);
+            break;
+        }
+        case GI_VB_TRY_EXCHANGE_RUTOS_LETTER: {
+            *should = LINK_IS_CHILD;
+            break;
+        }
+        case GI_VB_KING_ZORA_BE_MOVED: {
+            *should = false;
+            switch (RAND_GET_OPTION(RSK_ZORAS_FOUNTAIN)) {
+                case RO_ZF_CLOSED:
+                    if (Flags_GetEventChkInf(EVENTCHKINF_KING_ZORA_MOVED)) {
+                        *should = true;
+                    }
+                    break;
+                case RO_ZF_CLOSED_CHILD:
+                    if (LINK_IS_ADULT) {
+                        *should = true;
+                    } else if (Flags_GetEventChkInf(EVENTCHKINF_KING_ZORA_MOVED)) {
+                        *should = true;
+                    }
+                    break;
+                case RO_ZF_OPEN:
+                    *should = true;
+                    break;
+            }
+            break;
+        }
         case GI_VB_GIVE_ITEM_FROM_ITEM_00: {
             EnItem00* item00 = static_cast<EnItem00*>(optionalArg);
             if (item00->actor.params == ITEM00_SOH_DUMMY) {
@@ -491,6 +524,10 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             *should = false;
             break;
         }
+        case GI_VB_TRADE_PRESCRIPTION: {
+            *should = !Flags_GetTreasure(gPlayState, 0x1F);
+            break;
+        }
         case GI_VB_DESPAWN_HORSE_RACE_COW: {
             if (!RAND_GET_OPTION(RSK_SHUFFLE_COWS)) {
                 break;
@@ -562,9 +599,13 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             *should &= !EnDs_RandoCanGetGrannyItem();
             break;
         }
+        case GI_VB_GIVE_ITEM_FROM_THAWING_KING_ZORA:
+            *should = true;
+            break;
         case GI_VB_PLAY_EYEDROP_ANIM:
         case GI_VB_TRADE_TIMER_ODD_MUSHROOM:
         case GI_VB_TRADE_TIMER_EYEDROPS:
+        case GI_VB_TRADE_TIMER_FROG:
         case GI_VB_ANJU_SET_OBTAINED_TRADE_ITEM:
         case GI_VB_GIVE_ITEM_FROM_LAB_DIVE:
         case GI_VB_GIVE_ITEM_SKULL_TOKEN:
