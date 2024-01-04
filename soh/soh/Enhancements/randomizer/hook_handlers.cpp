@@ -354,6 +354,10 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             }
             break;
         }
+        case GI_VB_MALON_ALREADY_TAUGHT_EPONAS_SONG: {
+            *should = Flags_GetRandomizerInf(RAND_INF_LEARNED_EPONA_SONG);
+            break;
+        }
         case GI_VB_GIVE_ITEM_FROM_ITEM_00: {
             EnItem00* item00 = static_cast<EnItem00*>(optionalArg);
             if (item00->actor.params == ITEM00_SOH_DUMMY) {
