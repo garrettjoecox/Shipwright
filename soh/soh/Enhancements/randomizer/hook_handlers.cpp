@@ -26,6 +26,7 @@ RandomizerCheck GetRandomizerCheckFromFlag(int16_t flagType, int16_t flag) {
         if (
             (loc.GetCollectionCheck().flag == flag && (
                 (flagType == FLAG_EVENT_CHECK_INF && loc.GetCollectionCheck().type == SPOILER_CHK_EVENT_CHK_INF) ||
+                (flagType == FLAG_ITEM_GET_INF && loc.GetCollectionCheck().type == SPOILER_CHK_ITEM_GET_INF) ||
                 (flagType == FLAG_RANDOMIZER_INF && loc.GetCollectionCheck().type == SPOILER_CHK_RANDOMIZER_INF)
             ) ||
             (loc.GetActorParams() == flag && flagType == FLAG_GS_TOKEN && loc.GetCollectionCheck().type == SPOILER_CHK_GOLD_SKULLTULA)
@@ -382,6 +383,10 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
                 EnItem00_SetupAction(item00, func_8001E5C8);
                 *should = false;
             }
+            break;
+        }
+        case GI_VB_BE_ELIGIBLE_FOR_SARIAS_SONG: {
+            *should = !Flags_GetEventChkInf(EVENTCHKINF_LEARNED_SARIAS_SONG);
             break;
         }
         case GI_VB_GIVE_ITEM_FROM_COW: {
