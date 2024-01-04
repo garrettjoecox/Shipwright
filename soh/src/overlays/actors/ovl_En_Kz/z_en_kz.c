@@ -92,7 +92,7 @@ u16 EnKz_GetTextNoMaskAdult(PlayState* play, EnKz* this) {
     if (INV_CONTENT(ITEM_TRADE_ADULT) >= ITEM_FROG) {
         if (!Flags_GetInfTable(INFTABLE_139)) {
             if (!GameInteractor_Should(GI_VB_GIVE_ITEM_FROM_THAWING_KING_ZORA, (
-                CHECK_OWNED_EQUIP(EQUIP_TYPE_TUNIC, EQUIP_INV_TUNIC_ZORA)
+                !CHECK_OWNED_EQUIP(EQUIP_TYPE_TUNIC, EQUIP_INV_TUNIC_ZORA)
             ), this)) {
                 return 0x401F;
             } else {
@@ -274,7 +274,7 @@ void func_80A9CB18(EnKz* this, PlayState* play) {
             } else {
                 this->actor.textId =
                     !GameInteractor_Should(GI_VB_GIVE_ITEM_FROM_THAWING_KING_ZORA,
-                                            (CHECK_OWNED_EQUIP(EQUIP_TYPE_TUNIC, EQUIP_INV_TUNIC_ZORA)), this)
+                                            (!CHECK_OWNED_EQUIP(EQUIP_TYPE_TUNIC, EQUIP_INV_TUNIC_ZORA)), this)
                         ? 0x401F
                         : 0x4012;
 
@@ -447,32 +447,18 @@ void EnKz_SetupGetItem(EnKz* this, PlayState* play) {
     f32 xzRange;
     f32 yRange;
 
-    if (Actor_HasParent(&this->actor, play)) {
+    if (Actor_HasParent(&this->actor, play) || (
+        (this->isTrading && !GameInteractor_Should(GI_VB_TRADE_PRESCRIPTION, true, this)) ||
+        (!this->isTrading && !GameInteractor_Should(GI_VB_GIVE_ITEM_FROM_THAWING_KING_ZORA, true, this))
+    )) {
         this->actor.parent = NULL;
         this->interactInfo.talkState = NPC_TALK_STATE_TALKING;
         this->actionFunc = EnKz_StartTimer;
     } else {
-        // TODO: maybe need to add a new inf for claiming the thaw reward to avoid messing up the thawing behavior in rando by screwing with the inf table stuff
-        if (IS_RANDO) {
-            //if (this->isTrading) {
-            //    getItemEntry = Randomizer_GetItemFromKnownCheck(RC_ZD_TRADE_PRESCRIPTION, GI_FROG);
-            //    getItemId = getItemEntry.getItemId;
-            //    Randomizer_ConsumeAdultTradeItem(play, ITEM_PRESCRIPTION);
-            //    Flags_SetTreasure(play, 0x1F);
-            //} else {
-            //    getItemEntry = Randomizer_GetItemFromKnownCheck(RC_ZD_KING_ZORA_THAWED, GI_TUNIC_ZORA);
-            //    getItemId = getItemEntry.getItemId;
-            //}
-        } else {
-            getItemId = this->isTrading ? GI_FROG : GI_TUNIC_ZORA;
-        }
+        getItemId = this->isTrading ? GI_FROG : GI_TUNIC_ZORA;
         yRange = fabsf(this->actor.yDistToPlayer) + 1.0f;
         xzRange = this->actor.xzDistToPlayer + 1.0f;
-        if (!IS_RANDO || getItemEntry.getItemId == GI_NONE) {
-            func_8002F434(&this->actor, play, getItemId, xzRange, yRange);
-        } else {
-            GiveItemEntryFromActor(&this->actor, play, getItemEntry, xzRange, yRange);
-        }
+        func_8002F434(&this->actor, play, getItemId, xzRange, yRange);
     }
 }
 

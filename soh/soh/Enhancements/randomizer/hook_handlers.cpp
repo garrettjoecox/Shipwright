@@ -5,6 +5,7 @@
 #include "soh/Enhancements/randomizer/randomizerTypes.h"
 #include "soh/Enhancements/game-interactor/GameInteractor.h"
 #include "soh/Enhancements/game-interactor/GameInteractor_Hooks.h"
+#include "soh/Enhancements/randomizer/randomizer_check_tracker.h"
 
 extern "C" {
 #include "macros.h"
@@ -19,6 +20,7 @@ extern "C" {
 #include "src/overlays/actors/ovl_En_Ko/z_en_ko.h"
 #include "src/overlays/actors/ovl_En_Mk/z_en_mk.h"
 #include "src/overlays/actors/ovl_En_Niw_Lady/z_en_niw_lady.h"
+#include "src/overlays/actors/ovl_En_Kz/z_en_kz.h"
 #include "adult_trade_shuffle.h"
 extern SaveContext gSaveContext;
 extern PlayState* gPlayState;
@@ -34,7 +36,9 @@ RandomizerCheck GetRandomizerCheckFromFlag(int16_t flagType, int16_t flag) {
                 (flagType == FLAG_ITEM_GET_INF && loc.GetCollectionCheck().type == SPOILER_CHK_ITEM_GET_INF) ||
                 (flagType == FLAG_RANDOMIZER_INF && loc.GetCollectionCheck().type == SPOILER_CHK_RANDOMIZER_INF)
             ) ||
-            (loc.GetActorParams() == flag && flagType == FLAG_GS_TOKEN && loc.GetCollectionCheck().type == SPOILER_CHK_GOLD_SKULLTULA)
+            (loc.GetActorParams() == flag && flagType == FLAG_GS_TOKEN && loc.GetCollectionCheck().type == SPOILER_CHK_GOLD_SKULLTULA) ||
+             (loc.GetCollectionCheck().type == SPOILER_CHK_INF_TABLE && loc.GetCollectionCheck().scene == (flag >> 4) &&
+              INDEX_TO_16BIT_LITTLE_ENDIAN_BITMASK(loc.GetCollectionCheck().flag) == (1 << (flag & 0xF)))
         )
         ) {
             return loc.GetRandomizerCheck();
@@ -477,6 +481,18 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             *should = false;
             break;
         }
+        case GI_VB_GIVE_ITEM_FROM_THAWING_KING_ZORA: {
+            EnKz* enKz = static_cast<EnKz*>(optionalArg);
+            // If we aren't setting up the item offer, then we're just checking if it should be possible.
+            if (enKz->actionFunc != (EnKzActionFunc)EnKz_SetupGetItem) {
+                // Always give the reward in rando
+                *should = true;
+                break;
+            }
+            Flags_SetInfTable(INFTABLE_139);
+            *should = false;
+            break;
+        }
         case GI_VB_GIVE_ITEM_FROM_ANJU_AS_CHILD: {
             Flags_SetItemGetInf(ITEMGETINF_0C);
             *should = false;
@@ -525,7 +541,15 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             break;
         }
         case GI_VB_TRADE_PRESCRIPTION: {
-            *should = !Flags_GetTreasure(gPlayState, 0x1F);
+            EnKz* enKz = static_cast<EnKz*>(optionalArg);
+            // If we aren't setting up the item offer, then we're just checking if it should be possible.
+            if (enKz->actionFunc != (EnKzActionFunc)EnKz_SetupGetItem) {
+                *should = !Flags_GetTreasure(gPlayState, 0x1F);
+                break;
+            }
+            Randomizer_ConsumeAdultTradeItem(gPlayState, ITEM_PRESCRIPTION);
+            Flags_SetTreasure(gPlayState, 0x1F);
+            *should = false;
             break;
         }
         case GI_VB_DESPAWN_HORSE_RACE_COW: {
@@ -599,9 +623,6 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             *should &= !EnDs_RandoCanGetGrannyItem();
             break;
         }
-        case GI_VB_GIVE_ITEM_FROM_THAWING_KING_ZORA:
-            *should = true;
-            break;
         case GI_VB_PLAY_EYEDROP_ANIM:
         case GI_VB_TRADE_TIMER_ODD_MUSHROOM:
         case GI_VB_TRADE_TIMER_EYEDROPS:

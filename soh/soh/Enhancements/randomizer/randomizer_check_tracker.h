@@ -28,7 +28,7 @@ class CheckTrackerWindow : public LUS::GuiWindow {
     void DrawElement() override;
     void UpdateElement() override {};
 };
-
+// TODO: used in hook_handlers.cpp, maybe move somewhere less specific to the check tracker?
 //Converts an index into a Little Endian bitmask, as follows:
 //00: 0000000100000000
 //01: 0000001000000000
