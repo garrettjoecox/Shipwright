@@ -70,6 +70,20 @@ void EnZl4_SkipToGivingZeldasLetter(EnZl4* enZl4, PlayState* play) {
     }
 }
 
+static int successChimeCooldown = 0;
+void RateLimitedSuccessChime() {
+    if (successChimeCooldown == 0) {
+        func_80078884(NA_SE_SY_CORRECT_CHIME);
+        successChimeCooldown = 120;
+    }
+}
+
+void TimeSaverOnGameFrameUpdateHandler() {
+    if (successChimeCooldown > 0) {
+        successChimeCooldown--;
+    }
+}
+
 void TimeSaverOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void* opt) {
     switch (id) {
         case GI_VB_PLAY_TRANSITION_CS:
@@ -211,6 +225,7 @@ void TimeSaverOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void*
                     case 4180:
                     case 4100:
                         *should = false;
+                        RateLimitedSuccessChime();
                         break;
                     default:
                         SPDLOG_INFO("GI_VB_PLAY_ONEPOINT_CS {}", *csId);
@@ -232,7 +247,7 @@ void TimeSaverOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void*
                             break;
                         }
 
-                        func_80078884(NA_SE_SY_CORRECT_CHIME);
+                        RateLimitedSuccessChime();
                         *should = false;
                         break;
                 }
@@ -241,7 +256,7 @@ void TimeSaverOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void*
                         ObjSwitch *switchActor = static_cast<ObjSwitch*>(opt);
                         switchActor->cooldownTimer = 0;
                         *should = false;
-                        func_80078884(NA_SE_SY_CORRECT_CHIME);
+                        RateLimitedSuccessChime();
                         break;
                     }
                     case ACTOR_BG_BDAN_SWITCH: {
@@ -249,7 +264,7 @@ void TimeSaverOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void*
                         switchActor->unk_1D8 = 0;
                         switchActor->unk_1DA = 0;
                         *should = false;
-                        func_80078884(NA_SE_SY_CORRECT_CHIME);
+                        RateLimitedSuccessChime();
                         break;
                     }
                     // case ACTOR_PLAYER: // This might cause issues
@@ -272,7 +287,7 @@ void TimeSaverOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void*
                     // case ACTOR_BG_DDAN_KD:
                     // case ACTOR_BG_DDAN_JD:
                         *should = false;
-                        func_80078884(NA_SE_SY_CORRECT_CHIME);
+                        RateLimitedSuccessChime();
                         break;
                 }
                 if (*should) {
@@ -725,6 +740,7 @@ void TimeSaverOnItemReceiveHandler(GetItemEntry receivedItemEntry) {
 static uint32_t onSceneInitHook = 0;
 static uint32_t onVanillaBehaviorHook = 0;
 static uint32_t onActorInitHook = 0;
+static uint32_t onGameFrameUpdate = 0;
 static uint32_t onFlagSetHook = 0;
 static uint32_t onPlayerUpdateHook = 0;
 static uint32_t onItemReceiveHook = 0;
@@ -735,6 +751,7 @@ void TimeSaverRegisterHooks() {
         GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnSceneInit>(onSceneInitHook);
         GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnVanillaBehavior>(onVanillaBehaviorHook);
         GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnActorInit>(onActorInitHook);
+        GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnGameFrameUpdate>(onGameFrameUpdate);
         GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnFlagSet>(onFlagSetHook);
         GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnPlayerUpdate>(onPlayerUpdateHook);
         GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnItemReceive>(onItemReceiveHook);
@@ -742,6 +759,7 @@ void TimeSaverRegisterHooks() {
         onSceneInitHook = 0;
         onVanillaBehaviorHook = 0;
         onActorInitHook = 0;
+        onGameFrameUpdate = 0;
         onFlagSetHook = 0;
         onPlayerUpdateHook = 0;
         onItemReceiveHook = 0;
@@ -749,6 +767,7 @@ void TimeSaverRegisterHooks() {
         onSceneInitHook = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSceneInit>(TimeSaverOnSceneInitHandler);
         onVanillaBehaviorHook = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnVanillaBehavior>(TimeSaverOnVanillaBehaviorHandler);
         onActorInitHook = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnActorInit>(TimeSaverOnActorInitHandler);
+        onGameFrameUpdate = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnGameFrameUpdate>(TimeSaverOnGameFrameUpdateHandler);
 
         if (IS_RANDO) return;
 
