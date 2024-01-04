@@ -5,7 +5,6 @@
 #include "soh/Enhancements/randomizer/randomizerTypes.h"
 #include "soh/Enhancements/game-interactor/GameInteractor.h"
 #include "soh/Enhancements/game-interactor/GameInteractor_Hooks.h"
-#include "soh/Enhancements/randomizer/randomizer_check_tracker.h"
 
 extern "C" {
 #include "macros.h"
@@ -27,6 +26,8 @@ extern PlayState* gPlayState;
 }
 
 #define RAND_GET_OPTION(option) Rando::Context::GetInstance()->GetOption(option).GetSelectedOptionIndex()
+// TODO: just pasted this in from randomizer_check_tracker.h but should probably just move it to one place
+#define INDEX_TO_16BIT_LITTLE_ENDIAN_BITMASK(idx) (0x8000 >> (7 - (idx % 8) + ((idx % 16) / 8) * 8))
 
 RandomizerCheck GetRandomizerCheckFromFlag(int16_t flagType, int16_t flag) {
     for (auto& loc : Rando::StaticData::GetLocationTable()) {
