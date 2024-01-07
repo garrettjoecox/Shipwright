@@ -454,6 +454,9 @@ void EnKz_SetupGetItem(EnKz* this, PlayState* play) {
         this->actor.parent = NULL;
         this->interactInfo.talkState = NPC_TALK_STATE_TALKING;
         this->actionFunc = EnKz_StartTimer;
+        if (!this->isTrading) {
+            Flags_SetRandomizerInf(RAND_INF_KING_ZORA_THAWED);
+        }
     } else {
         getItemId = this->isTrading ? GI_FROG : GI_TUNIC_ZORA;
         yRange = fabsf(this->actor.yDistToPlayer) + 1.0f;

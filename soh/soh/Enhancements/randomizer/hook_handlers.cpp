@@ -21,6 +21,7 @@ extern "C" {
 #include "src/overlays/actors/ovl_En_Niw_Lady/z_en_niw_lady.h"
 #include "src/overlays/actors/ovl_En_Kz/z_en_kz.h"
 #include "adult_trade_shuffle.h"
+#include <overlays/actors/ovl_En_Go2/z_en_go2.h>
 extern SaveContext gSaveContext;
 extern PlayState* gPlayState;
 }
@@ -31,16 +32,12 @@ extern PlayState* gPlayState;
 
 RandomizerCheck GetRandomizerCheckFromFlag(int16_t flagType, int16_t flag) {
     for (auto& loc : Rando::StaticData::GetLocationTable()) {
-        if (
-            (loc.GetCollectionCheck().flag == flag && (
+        if (loc.GetCollectionCheck().flag == flag && (
                 (flagType == FLAG_EVENT_CHECK_INF && loc.GetCollectionCheck().type == SPOILER_CHK_EVENT_CHK_INF) ||
                 (flagType == FLAG_ITEM_GET_INF && loc.GetCollectionCheck().type == SPOILER_CHK_ITEM_GET_INF) ||
                 (flagType == FLAG_RANDOMIZER_INF && loc.GetCollectionCheck().type == SPOILER_CHK_RANDOMIZER_INF)
             ) ||
-            (loc.GetActorParams() == flag && flagType == FLAG_GS_TOKEN && loc.GetCollectionCheck().type == SPOILER_CHK_GOLD_SKULLTULA) ||
-             (loc.GetCollectionCheck().type == SPOILER_CHK_INF_TABLE && loc.GetCollectionCheck().scene == (flag >> 4) &&
-              INDEX_TO_16BIT_LITTLE_ENDIAN_BITMASK(loc.GetCollectionCheck().flag) == (1 << (flag & 0xF)))
-        )
+            (loc.GetActorParams() == flag && flagType == FLAG_GS_TOKEN && loc.GetCollectionCheck().type == SPOILER_CHK_GOLD_SKULLTULA)
         ) {
             return loc.GetRandomizerCheck();
         }
@@ -349,6 +346,11 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
                     CHECK_QUEST_ITEM(QUEST_MEDALLION_FIRE) &&
                     CHECK_QUEST_ITEM(QUEST_MEDALLION_WATER);
             break;
+        case GI_VB_BE_ELIGIBLE_FOR_CHILD_ROLLING_GORON_REWARD: {
+            // Don't require a bomb bag to get prize in rando
+            *should = true;
+            break;
+        }
         case GI_VB_GIVE_ITEM_MASTER_SWORD:
             if (RAND_GET_OPTION(RSK_SHUFFLE_MASTER_SWORD)) {
                 *should = false;
@@ -415,6 +417,31 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
                 case RO_ZF_OPEN:
                     *should = true;
                     break;
+            }
+            break;
+        }
+        case GI_VB_GORONS_CONSIDER_FIRE_TEMPLE_FINISHED: {
+            *should = Flags_GetRandomizerInf(RAND_INF_DUNGEONS_DONE_FIRE_TEMPLE);
+            break;
+        }
+        case GI_VB_GORONS_CONSIDER_DODONGOS_CAVERN_FINISHED: {
+            *should = Flags_GetRandomizerInf(RAND_INF_DUNGEONS_DONE_DODONGOS_CAVERN);
+            break;
+        }
+        case GI_VB_OVERRIDE_LINK_THE_GORON_DIALOGUE: {
+            u16* textId = static_cast<u16*>(optionalArg);
+            *should = true;
+
+            // For rando, prioritize opening the doors in GC when Link the goron has been stopped when
+            // the doors are not opened, otherwise let him talk about the DMC exit or that gorons are saved
+            if (!Flags_GetInfTable(INFTABLE_STOPPED_GORON_LINKS_ROLLING)) {
+                *textId = 0x3030;
+            } else if (!Flags_GetInfTable(INFTABLE_GORON_CITY_DOORS_UNLOCKED)) {
+                *textId = 0x3036;
+            } else if (Flags_GetRandomizerInf(RAND_INF_DUNGEONS_DONE_FIRE_TEMPLE)) {
+                *textId = 0x3041;
+            } else {
+                *textId = Flags_GetInfTable(INFTABLE_SPOKE_TO_GORON_LINK) ? 0x3038 : 0x3037;
             }
             break;
         }
@@ -490,7 +517,6 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
                 *should = true;
                 break;
             }
-            Flags_SetInfTable(INFTABLE_139);
             *should = false;
             break;
         }
@@ -504,21 +530,28 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             *should = false;
             break;
         }
+        case GI_VB_GIVE_ITEM_FROM_EN_GO: {
+            int32_t getItemId = *static_cast<int32_t*>(optionalArg);
+            *should = false;
+            switch (getItemId) {
+                case GI_PRESCRIPTION:
+                    Randomizer_ConsumeAdultTradeItem(gPlayState, ITEM_SWORD_BROKEN);
+                    break;
+                case GI_CLAIM_CHECK:
+                    Randomizer_ConsumeAdultTradeItem(gPlayState, ITEM_EYEDROPS);
+                    break;
+            }
+            break;
+        }
+        case GI_VB_TRADE_POCKET_CUCCO: {
+            Randomizer_ConsumeAdultTradeItem(gPlayState, ITEM_POCKET_CUCCO);
+            // Trigger the reward now
+            Flags_SetItemGetInf(ITEMGETINF_2E);
+            *should = false;
+            break;
+        }
         case GI_VB_TRADE_COJIRO: {
             Randomizer_ConsumeAdultTradeItem(gPlayState, ITEM_COJIRO);
-            *should = false;
-            break;
-        }
-        case GI_VB_TRADE_ODD_POTION: {
-            EnKo* enKo = static_cast<EnKo*>(optionalArg);
-            Randomizer_ConsumeAdultTradeItem(gPlayState, ITEM_ODD_POTION);
-            // Trigger the reward now
-            Flags_SetItemGetInf(ITEMGETINF_31);
-            *should = false;
-            break;
-        }
-        case GI_VB_TRADE_FROG: {
-            Randomizer_ConsumeAdultTradeItem(gPlayState, ITEM_FROG);
             *should = false;
             break;
         }
@@ -529,10 +562,11 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             *should = false;
             break;
         }
-        case GI_VB_TRADE_POCKET_CUCCO: {
-            Randomizer_ConsumeAdultTradeItem(gPlayState, ITEM_POCKET_CUCCO);
+        case GI_VB_TRADE_ODD_POTION: {
+            EnKo* enKo = static_cast<EnKo*>(optionalArg);
+            Randomizer_ConsumeAdultTradeItem(gPlayState, ITEM_ODD_POTION);
             // Trigger the reward now
-            Flags_SetItemGetInf(ITEMGETINF_2E);
+            Flags_SetItemGetInf(ITEMGETINF_31);
             *should = false;
             break;
         }
@@ -550,6 +584,16 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             }
             Randomizer_ConsumeAdultTradeItem(gPlayState, ITEM_PRESCRIPTION);
             Flags_SetTreasure(gPlayState, 0x1F);
+            *should = false;
+            break;
+        }
+        case GI_VB_TRADE_FROG: {
+            Randomizer_ConsumeAdultTradeItem(gPlayState, ITEM_FROG);
+            *should = false;
+            break;
+        }
+        case GI_VB_TRADE_EYEDROPS: {
+            Randomizer_ConsumeAdultTradeItem(gPlayState, ITEM_EYEDROPS);
             *should = false;
             break;
         }
@@ -624,11 +668,13 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             *should &= !EnDs_RandoCanGetGrannyItem();
             break;
         }
+        case GI_VB_BIGGORON_CONSIDER_SWORD_FINISHED:
         case GI_VB_PLAY_EYEDROP_ANIM:
         case GI_VB_TRADE_TIMER_ODD_MUSHROOM:
         case GI_VB_TRADE_TIMER_EYEDROPS:
         case GI_VB_TRADE_TIMER_FROG:
         case GI_VB_ANJU_SET_OBTAINED_TRADE_ITEM:
+        case GI_VB_GIVE_ITEM_FROM_ROLLING_GORON_AS_CHILD:
         case GI_VB_GIVE_ITEM_FROM_LAB_DIVE:
         case GI_VB_GIVE_ITEM_SKULL_TOKEN:
         case GI_VB_GIVE_ITEM_FROM_BLUE_WARP:

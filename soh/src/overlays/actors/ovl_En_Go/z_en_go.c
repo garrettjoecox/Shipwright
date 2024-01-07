@@ -3,7 +3,7 @@
 #include "objects/gameplay_keep/gameplay_keep.h"
 #include "objects/object_oF1d_map/object_oF1d_map.h"
 #include "soh/frame_interpolation.h"
-#include "soh/Enhancements/randomizer/adult_trade_shuffle.h"
+#include "soh/Enhancements/game-interactor/GameInteractor_Hooks.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_FRIENDLY | ACTOR_FLAG_UPDATE_WHILE_CULLED | ACTOR_FLAG_DRAW_WHILE_CULLED)
 
@@ -95,7 +95,7 @@ u16 EnGo_GetTextID(PlayState* play, Actor* thisx) {
 
     switch (thisx->params & 0xF0) {
         case 0x90:
-            if (!IS_RANDO && gSaveContext.bgsFlag) {
+            if (GameInteractor_Should(GI_VB_BIGGORON_CONSIDER_SWORD_FINISHED, gSaveContext.bgsFlag, NULL)) {
                 return 0x305E;
             } else if (INV_CONTENT(ITEM_TRADE_ADULT) >= ITEM_CLAIM_CHECK) {
                 if (Environment_GetBgsDayCount() >= CVarGetInteger("gForgeTime", 3)) {
@@ -113,8 +113,7 @@ u16 EnGo_GetTextID(PlayState* play, Actor* thisx) {
                 return 0x3053;
             }
         case 0x00:
-            if ((!IS_RANDO && CHECK_QUEST_ITEM(QUEST_MEDALLION_FIRE)) ||
-                (IS_RANDO && Flags_GetRandomizerInf(RAND_INF_DUNGEONS_DONE_FIRE_TEMPLE))) {
+            if (GameInteractor_Should(GI_VB_GORONS_CONSIDER_FIRE_TEMPLE_FINISHED, CHECK_QUEST_ITEM(QUEST_MEDALLION_FIRE), NULL)) {
                 if (Flags_GetInfTable(INFTABLE_10F)) {
                     return 0x3042;
                 } else {
@@ -859,7 +858,7 @@ void func_80A405CC(EnGo* this, PlayState* play) {
 
 void EnGo_BiggoronActionFunc(EnGo* this, PlayState* play) {
     if (((this->actor.params & 0xF0) == 0x90) && (this->interactInfo.talkState == NPC_TALK_STATE_ACTION)) {
-        if (!IS_RANDO && gSaveContext.bgsFlag) {
+        if (GameInteractor_Should(GI_VB_BIGGORON_CONSIDER_SWORD_FINISHED, gSaveContext.bgsFlag, NULL)) {
             this->interactInfo.talkState = NPC_TALK_STATE_IDLE;
         } else {
             if (INV_CONTENT(ITEM_TRADE_ADULT) == ITEM_EYEDROPS) {
@@ -958,44 +957,26 @@ void EnGo_GetItem(EnGo* this, PlayState* play) {
         this->unk_20C = 0;
         if ((this->actor.params & 0xF0) == 0x90) {
             if (INV_CONTENT(ITEM_TRADE_ADULT) == ITEM_CLAIM_CHECK) {
-                if (!IS_RANDO) {
-                    getItemId = GI_SWORD_BGS;
-                } else {
-                    getItemEntry = Randomizer_GetItemFromKnownCheck(RC_DMT_TRADE_CLAIM_CHECK, GI_SWORD_BGS);
-                    getItemId = getItemEntry.getItemId;
-                }
+                getItemId = GI_SWORD_BGS;
                 this->unk_20C = 1;
             }
             if (INV_CONTENT(ITEM_TRADE_ADULT) == ITEM_EYEDROPS) {
-                if (IS_RANDO) {
-                    getItemEntry = Randomizer_GetItemFromKnownCheck(RC_DMT_TRADE_EYEDROPS, GI_CLAIM_CHECK);
-                    getItemId = getItemEntry.getItemId;
-                    Randomizer_ConsumeAdultTradeItem(play, ITEM_EYEDROPS);
-                } else {
-                    getItemId = GI_CLAIM_CHECK;
-                }
+                getItemId = GI_CLAIM_CHECK;
             }
             if (INV_CONTENT(ITEM_TRADE_ADULT) == ITEM_SWORD_BROKEN) {
-                if (IS_RANDO) {
-                    getItemEntry = Randomizer_GetItemFromKnownCheck(RC_DMT_TRADE_BROKEN_SWORD, GI_PRESCRIPTION);
-                    Randomizer_ConsumeAdultTradeItem(play, ITEM_SWORD_BROKEN);
-                    getItemId = getItemEntry.getItemId;
-                } else {
-                    getItemId = GI_PRESCRIPTION;
-                }
+                getItemId = GI_PRESCRIPTION;
             }
         }
 
         if ((this->actor.params & 0xF0) == 0) {
             getItemId = GI_TUNIC_GORON;
+            Flags_SetRandomizerInf(RAND_INF_ROLLING_GORON_AS_ADULT);
         }
 
         yDist = fabsf(this->actor.yDistToPlayer) + 1.0f;
         xzDist = this->actor.xzDistToPlayer + 1.0f;
-        if (!IS_RANDO || getItemEntry.getItemId == GI_NONE) {
+        if (GameInteractor_Should(GI_VB_GIVE_ITEM_FROM_EN_GO, true, &getItemId)) {
             func_8002F434(&this->actor, play, getItemId, xzDist, yDist);
-        } else {
-            GiveItemEntryFromActor(&this->actor, play, getItemEntry, xzDist, yDist);
         }
     }
 }

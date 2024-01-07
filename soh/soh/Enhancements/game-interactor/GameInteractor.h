@@ -124,6 +124,9 @@ typedef enum {
     ```
     */
     GI_VB_BE_ELIGIBLE_FOR_NOCTURNE_OF_SHADOW,
+    // Opt: *EnGo2
+    // Vanilla condition: CUR_CAPACITY(UPG_BOMB_BAG) >= 20 && this->waypoint > 7 && this->waypoint < 12
+    GI_VB_BE_ELIGIBLE_FOR_CHILD_ROLLING_GORON_REWARD,
     // Opt: *EnItem00
     // Vanilla condition: Flags_GetCollectible(play, this->collectibleFlag)
     GI_VB_ITEM00_DESPAWN,
@@ -180,6 +183,15 @@ typedef enum {
     // Opt: *EnKz
     // Vanilla condition: Flags_GetEventChkInf(EVENTCHKINF_KING_ZORA_MOVED)
     GI_VB_KING_ZORA_BE_MOVED,
+    // Vanilla condition: gSaveState.bgsFlag
+    GI_VB_BIGGORON_CONSIDER_SWORD_FINISHED,
+    // Vanilla condition: CHECK_QUEST_ITEM(QUEST_MEDALLION_FIRE)
+    GI_VB_GORONS_CONSIDER_FIRE_TEMPLE_FINISHED,
+    // Vanilla condition: CHECK_QUEST_ITEM(QUEST_GORON_RUBY)
+    GI_VB_GORONS_CONSIDER_DODONGOS_CAVERN_FINISHED,
+    // Opt: *uint16_t
+    // Vanilla condition: false
+    GI_VB_OVERRIDE_LINK_THE_GORON_DIALOGUE,
 
     /*** Play Cutscenes ***/
 
@@ -208,6 +220,7 @@ typedef enum {
     GI_VB_PLAY_MINUET_OF_FOREST_CS,
     GI_VB_PLAY_BOLERO_OF_FIRE_CS,
     GI_VB_PLAY_SERENADE_OF_WATER_CS,
+    GI_VB_PLAY_EYEDROPS_CS,
 
     /*** Give Items ***/
 
@@ -232,6 +245,12 @@ typedef enum {
     // Opt: *EnKz
     // Vanilla condition: !CHECK_OWNED_EQUIP(EQUIP_TYPE_TUNIC, EQUIP_INV_TUNIC_ZORA)
     GI_VB_GIVE_ITEM_FROM_THAWING_KING_ZORA,
+    // Opt: *int32_t (GetItemID)
+    GI_VB_GIVE_ITEM_FROM_EN_GO,
+    // Opt: *EnGo2
+    GI_VB_GIVE_ITEM_FROM_ROLLING_GORON_AS_CHILD,
+    // Opt: *EnGo2
+    GI_VB_GIVE_ITEM_FROM_ROLLING_GORON_AS_ADULT,
 
     GI_VB_GIVE_ITEM_FAIRY_OCARINA,
     GI_VB_GIVE_ITEM_WEIRD_EGG,
@@ -266,20 +285,27 @@ typedef enum {
     GI_VB_GIVE_ITEM_PRELUDE_OF_LIGHT,
 
     /*** Adult Trade ***/
-    // Opt: *EnHs
-    GI_VB_TRADE_COJIRO,
-    // Opt: *EnKo
-    GI_VB_TRADE_ODD_POTION,
-    // Opt: *EnMk
-    GI_VB_TRADE_FROG,
-    // Opt: *EnDs
-    GI_VB_TRADE_ODD_MUSHROOM,
     // Opt: *EnNiwLady
     GI_VB_TRADE_POCKET_CUCCO,
+    // Opt: *EnHs
+    GI_VB_TRADE_COJIRO,
+    // Opt: *EnDs
+    GI_VB_TRADE_ODD_MUSHROOM,
+    // Opt: *EnKo
+    GI_VB_TRADE_ODD_POTION,
     // Opt: *EnToryo
     GI_VB_TRADE_SAW,
+    // Opt: *EnGo2
+    GI_VB_TRADE_BROKEN_SWORD,
     // Opt: *EnKz,
     GI_VB_TRADE_PRESCRIPTION,
+    // Opt: *EnMk
+    GI_VB_TRADE_FROG,
+    // Opt: *EnGo2
+    GI_VB_TRADE_EYEDROPS,
+    // Opt: *EnGo2
+    GI_VB_TRADE_CLAIM_CHECK,
+
     GI_VB_TRADE_TIMER_ODD_MUSHROOM,
     GI_VB_TRADE_TIMER_EYEDROPS,
     GI_VB_TRADE_TIMER_FROG,
