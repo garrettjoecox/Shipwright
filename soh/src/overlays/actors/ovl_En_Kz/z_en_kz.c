@@ -242,7 +242,7 @@ void func_80A9CB18(EnKz* this, PlayState* play) {
     Player* player = GET_PLAYER(play);
 
     if (func_80A9C95C(play, this, &this->interactInfo.talkState, 340.0f, EnKz_GetText, func_80A9C6C0)) {
-        if (GameInteractor_Should(GI_VB_TRY_EXCHANGE_RUTOS_LETTER, (this->actor.textId == 0x401A), this) &&
+        if (GameInteractor_Should(GI_VB_BE_ABLE_TO_EXCHANGE_RUTOS_LETTER, (this->actor.textId == 0x401A), this) &&
             !Flags_GetEventChkInf(EVENTCHKINF_KING_ZORA_MOVED))
         {
             if (func_8002F368(play) == EXCH_ITEM_LETTER_RUTO) {
@@ -456,6 +456,8 @@ void EnKz_SetupGetItem(EnKz* this, PlayState* play) {
         this->actionFunc = EnKz_StartTimer;
         if (!this->isTrading) {
             Flags_SetRandomizerInf(RAND_INF_KING_ZORA_THAWED);
+        } else {
+            Flags_SetRandomizerInf(RAND_INF_ADULT_TRADES_ZD_TRADE_PRESCRIPTION);
         }
     } else {
         getItemId = this->isTrading ? GI_FROG : GI_TUNIC_ZORA;

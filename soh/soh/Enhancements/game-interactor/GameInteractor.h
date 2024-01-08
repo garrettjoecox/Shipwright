@@ -179,7 +179,7 @@ typedef enum {
     GI_VB_KING_ZORA_THANK_CHILD,
     // Opt: *EnKz
     // Vanilla condition: this->actor.textId == 0x401A
-    GI_VB_TRY_EXCHANGE_RUTOS_LETTER,
+    GI_VB_BE_ABLE_TO_EXCHANGE_RUTOS_LETTER,
     // Opt: *EnKz
     // Vanilla condition: Flags_GetEventChkInf(EVENTCHKINF_KING_ZORA_MOVED)
     GI_VB_KING_ZORA_BE_MOVED,

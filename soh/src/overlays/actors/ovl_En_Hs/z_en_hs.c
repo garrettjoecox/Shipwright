@@ -132,9 +132,9 @@ void func_80A6E630(EnHs* this, PlayState* play) {
     if ((Message_GetState(&play->msgCtx) == TEXT_STATE_DONE) && Message_ShouldAdvance(play)) {
         if (GameInteractor_Should(GI_VB_TRADE_TIMER_ODD_MUSHROOM, true, NULL)) {
             func_80088AA0(180);
+            gSaveContext.eventInf[1] &= ~1;
         }
         func_80A6E3A0(this, func_80A6E6B0);
-        gSaveContext.eventInf[1] &= ~1;
     }
 
     this->unk_2A8 |= 1;

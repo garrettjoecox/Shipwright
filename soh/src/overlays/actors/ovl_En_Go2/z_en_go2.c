@@ -611,7 +611,7 @@ s16 EnGo2_UpdateTalkStateGoronDmtBiggoron(PlayState* play, EnGo2* this) {
                 if (GameInteractor_Should(GI_VB_BIGGORON_CONSIDER_SWORD_COLLECTED, gSaveContext.bgsFlag, NULL)) {
                     return NPC_TALK_STATE_IDLE;
                 }
-                
+                Flags_SetRandomizerInf(RAND_INF_ADULT_TRADES_DMT_TRADE_CLAIM_CHECK);
                 if (GameInteractor_Should(GI_VB_TRADE_CLAIM_CHECK, true, this)) {
                     EnGo2_GetItem(this, play, GI_SWORD_BGS);
                     this->actionFunc = EnGo2_SetupGetItem;
@@ -644,6 +644,7 @@ s16 EnGo2_UpdateTalkStateGoronDmtBiggoron(PlayState* play, EnGo2* this) {
             if (Message_ShouldAdvance(play)) {
                 if ((this->actor.textId == 0x3054) || (this->actor.textId == 0x3055)) {
                     if (play->msgCtx.choiceIndex == 0) {
+                        Flags_SetRandomizerInf(RAND_INF_ADULT_TRADES_DMT_TRADE_BROKEN_SWORD);
                         if (GameInteractor_Should(GI_VB_TRADE_BROKEN_SWORD, true, this)) {
                             EnGo2_GetItem(this, play, GI_PRESCRIPTION);
                             this->actionFunc = EnGo2_SetupGetItem;

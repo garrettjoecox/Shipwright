@@ -27,8 +27,6 @@ extern PlayState* gPlayState;
 }
 
 #define RAND_GET_OPTION(option) Rando::Context::GetInstance()->GetOption(option).GetSelectedOptionIndex()
-// TODO: just pasted this in from randomizer_check_tracker.h but should probably just move it to one place
-#define INDEX_TO_16BIT_LITTLE_ENDIAN_BITMASK(idx) (0x8000 >> (7 - (idx % 8) + ((idx % 16) / 8) * 8))
 
 RandomizerCheck GetRandomizerCheckFromFlag(int16_t flagType, int16_t flag) {
     for (auto& loc : Rando::StaticData::GetLocationTable()) {
@@ -395,7 +393,7 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             *should = Flags_GetRandomizerInf(RAND_INF_DUNGEONS_DONE_JABU_JABUS_BELLY);
             break;
         }
-        case GI_VB_TRY_EXCHANGE_RUTOS_LETTER: {
+        case GI_VB_BE_ABLE_TO_EXCHANGE_RUTOS_LETTER: {
             *should = LINK_IS_CHILD;
             break;
         }
@@ -421,20 +419,20 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             break;
         }
         case GI_VB_BIGGORON_CONSIDER_SWORD_COLLECTED: {
-            *should = Flags_GetTreasure(gPlayState, 0x1F);
+            *should = Flags_GetRandomizerInf(RAND_INF_ADULT_TRADES_DMT_TRADE_CLAIM_CHECK);
             break;
         }
         case GI_VB_BIGGORON_CONSIDER_TRADE_COMPLETE: {
 
-            *should = INV_CONTENT(ITEM_TRADE_ADULT) == ITEM_CLAIM_CHECK && Flags_GetTreasure(gPlayState, 0x1F);
+            *should = INV_CONTENT(ITEM_TRADE_ADULT) == ITEM_CLAIM_CHECK && Flags_GetRandomizerInf(RAND_INF_ADULT_TRADES_DMT_TRADE_CLAIM_CHECK);
             break;
         }
         case GI_VB_GORONS_CONSIDER_FIRE_TEMPLE_FINISHED: {
-            *should = Flags_GetRandomizerInf(RAND_INF_DUNGEONS_DONE_FIRE_TEMPLE);
+            *should = Flags_GetEventChkInf(EVENTCHKINF_USED_FIRE_TEMPLE_BLUE_WARP);
             break;
         }
         case GI_VB_GORONS_CONSIDER_DODONGOS_CAVERN_FINISHED: {
-            *should = Flags_GetRandomizerInf(RAND_INF_DUNGEONS_DONE_DODONGOS_CAVERN);
+            *should = Flags_GetEventChkInf(EVENTCHKINF_USED_DODONGOS_CAVERN_BLUE_WARP);
             break;
         }
         case GI_VB_OVERRIDE_LINK_THE_GORON_DIALOGUE: {
@@ -447,7 +445,7 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
                 *textId = 0x3030;
             } else if (!Flags_GetInfTable(INFTABLE_GORON_CITY_DOORS_UNLOCKED)) {
                 *textId = 0x3036;
-            } else if (Flags_GetRandomizerInf(RAND_INF_DUNGEONS_DONE_FIRE_TEMPLE)) {
+            } else if (Flags_GetEventChkInf(EVENTCHKINF_USED_FIRE_TEMPLE_BLUE_WARP)) {
                 *textId = 0x3041;
             } else {
                 *textId = Flags_GetInfTable(INFTABLE_SPOKE_TO_GORON_LINK) ? 0x3038 : 0x3037;
@@ -535,9 +533,6 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             if (!EnDs_RandoCanGetGrannyItem()) {
                 break;
             }
-            GetItemEntry itemEntry = OTRGlobals::Instance->gRandomizer->GetItemFromKnownCheck(RC_KAK_GRANNYS_SHOP, GI_POTION_BLUE);
-            gSaveContext.pendingSale = itemEntry.itemId;
-            gSaveContext.pendingSaleMod = itemEntry.modIndex;
             // Only setting the inf if we've actually gotten the rando item and not the vanilla blue potion
             Flags_SetRandomizerInf(RAND_INF_MERCHANTS_GRANNYS_SHOP);
             *should = false;
@@ -580,9 +575,8 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
         case GI_VB_GIVE_ITEM_FROM_ROLLING_GORON_AS_ADULT: {
             EnGo2* enGo2 = static_cast<EnGo2*>(optionalArg);
             *should = false;
-            if (!Flags_GetTreasure(gPlayState, 0x1F)) {
+            if (!Flags_GetRandomizerInf(RAND_INF_ROLLING_GORON_AS_ADULT)) {
                 Flags_SetInfTable(INFTABLE_GORON_CITY_DOORS_UNLOCKED);
-                Flags_SetTreasure(gPlayState, 0x1F);
                 enGo2->interactInfo.talkState = NPC_TALK_STATE_ACTION;
             }
             break;
@@ -623,11 +617,10 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             EnKz* enKz = static_cast<EnKz*>(optionalArg);
             // If we aren't setting up the item offer, then we're just checking if it should be possible.
             if (enKz->actionFunc != (EnKzActionFunc)EnKz_SetupGetItem) {
-                *should = !Flags_GetTreasure(gPlayState, 0x1F);
+                *should = !Flags_GetRandomizerInf(RAND_INF_ADULT_TRADES_ZD_TRADE_PRESCRIPTION);
                 break;
             }
             Randomizer_ConsumeAdultTradeItem(gPlayState, ITEM_PRESCRIPTION);
-            Flags_SetTreasure(gPlayState, 0x1F);
             *should = false;
             break;
         }
@@ -643,11 +636,6 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
         }
         case GI_VB_TRADE_EYEDROPS: {
             Randomizer_ConsumeAdultTradeItem(gPlayState, ITEM_EYEDROPS);
-            *should = false;
-            break;
-        }
-        case GI_VB_TRADE_CLAIM_CHECK: {
-            Flags_SetTreasure(gPlayState, 0x1F);
             *should = false;
             break;
         }
@@ -722,6 +710,7 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             *should &= !EnDs_RandoCanGetGrannyItem();
             break;
         }
+        case GI_VB_TRADE_CLAIM_CHECK:
         case GI_VB_PLAY_EYEDROP_ANIM:
         case GI_VB_TRADE_TIMER_ODD_MUSHROOM:
         case GI_VB_TRADE_TIMER_EYEDROPS:
