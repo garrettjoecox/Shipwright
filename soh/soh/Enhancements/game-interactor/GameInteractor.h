@@ -251,8 +251,6 @@ typedef enum {
     // Opt: *EnKz
     // Vanilla condition: !CHECK_OWNED_EQUIP(EQUIP_TYPE_TUNIC, EQUIP_INV_TUNIC_ZORA)
     GI_VB_GIVE_ITEM_FROM_THAWING_KING_ZORA,
-    // Opt: *int32_t (GetItemID)
-    GI_VB_GIVE_ITEM_FROM_EN_GO,
     // Opt: *EnGo2
     GI_VB_GIVE_ITEM_FROM_ROLLING_GORON_AS_CHILD,
     // Opt: *EnGo2

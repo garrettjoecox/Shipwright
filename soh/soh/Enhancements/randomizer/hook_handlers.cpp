@@ -559,19 +559,6 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             *should = false;
             break;
         }
-        case GI_VB_GIVE_ITEM_FROM_EN_GO: {
-            int32_t getItemId = *static_cast<int32_t*>(optionalArg);
-            *should = false;
-            switch (getItemId) {
-                case GI_PRESCRIPTION:
-                    Randomizer_ConsumeAdultTradeItem(gPlayState, ITEM_SWORD_BROKEN);
-                    break;
-                case GI_CLAIM_CHECK:
-                    Randomizer_ConsumeAdultTradeItem(gPlayState, ITEM_EYEDROPS);
-                    break;
-            }
-            break;
-        }
         case GI_VB_GIVE_ITEM_FROM_ROLLING_GORON_AS_ADULT: {
             EnGo2* enGo2 = static_cast<EnGo2*>(optionalArg);
             *should = false;

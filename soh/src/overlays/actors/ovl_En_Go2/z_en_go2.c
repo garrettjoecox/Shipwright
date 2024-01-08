@@ -1871,7 +1871,7 @@ void EnGo2_BiggoronEyedrops(EnGo2* this, PlayState* play) {
             this->actor.flags &= ~ACTOR_FLAG_TARGETABLE;
             this->actor.shape.rot.y += 0x5B0;
             this->trackingMode = NPC_TRACKING_NONE;
-            this->animTimer = GameInteractor_Should(GI_VB_PLAY_EYEDROPS_CS, true, NULL) ? 0 : (this->skelAnime.endFrame + 60.0f + 60.0f); // eyeDrops animation timer
+            this->animTimer = !GameInteractor_Should(GI_VB_PLAY_EYEDROPS_CS, true, NULL) ? 0 : (this->skelAnime.endFrame + 60.0f + 60.0f); // eyeDrops animation timer
             this->eyeMouthTexState = 2;
             this->unk_20C = 0;
             this->goronState++;
