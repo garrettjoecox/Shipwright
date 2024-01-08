@@ -137,7 +137,7 @@ void func_80AACC04(EnMk* this, PlayState* play) {
     if (this->timer > 0) {
         this->timer--;
     } else {
-        this->timer = GameInteractor_Should(GI_VB_PLAY_EYEDROP_ANIM, true, this) ? 16 : 0;
+        this->timer = GameInteractor_Should(GI_VB_PLAY_EYEDROP_CREATION_ANIM, true, this) ? 16 : 0;
         this->actionFunc = func_80AACBAC;
         Animation_Change(&this->skelAnime, &object_mk_Anim_000D88, 1.0f, 0.0f,
                          Animation_GetLastFrame(&object_mk_Anim_000D88), ANIMMODE_LOOP, -4.0f);
@@ -150,7 +150,7 @@ void func_80AACCA0(EnMk* this, PlayState* play) {
         this->timer--;
         this->actor.shape.rot.y += 0x800;
     } else {
-        this->timer = GameInteractor_Should(GI_VB_PLAY_EYEDROP_ANIM, true, this) ? 120 : 0;
+        this->timer = GameInteractor_Should(GI_VB_PLAY_EYEDROP_CREATION_ANIM, true, this) ? 120 : 0;
         this->actionFunc = func_80AACC04;
         Animation_Change(&this->skelAnime, &object_mk_Anim_000724, 1.0f, 0.0f,
                          Animation_GetLastFrame(&object_mk_Anim_000724), ANIMMODE_LOOP, -4.0f);
@@ -166,7 +166,7 @@ void func_80AACD48(EnMk* this, PlayState* play) {
         this->actionFunc = func_80AACCA0;
         play->msgCtx.msgMode = MSGMODE_PAUSED;
         player->exchangeItemId = EXCH_ITEM_NONE;
-        this->timer = GameInteractor_Should(GI_VB_PLAY_EYEDROP_ANIM, true, this) ? 16 : 0;
+        this->timer = GameInteractor_Should(GI_VB_PLAY_EYEDROP_CREATION_ANIM, true, this) ? 16 : 0;
         Animation_Change(&this->skelAnime, &object_mk_Anim_000D88, 1.0f, 0.0f,
                          Animation_GetLastFrame(&object_mk_Anim_000D88), ANIMMODE_LOOP, -4.0f);
         this->flags &= ~2;

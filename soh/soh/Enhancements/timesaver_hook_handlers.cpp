@@ -386,6 +386,7 @@ void TimeSaverOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void*
             }
             break;
         }
+        case GI_VB_PLAY_EYEDROP_CREATION_ANIM:
         case GI_VB_PLAY_EYEDROPS_CS:
         case GI_VB_PLAY_DROP_FISH_FOR_JABU_CS:
         case GI_VB_PLAY_DARUNIAS_JOY_CS:

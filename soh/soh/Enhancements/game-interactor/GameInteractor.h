@@ -161,7 +161,7 @@ typedef enum {
     // Vanilla condition: (INV_CONTENT(ITEM_TRADE_ADULT) == ITEM_ODD_POTION) ? true : false;
     GI_VB_SPAWN_LW_FADO,
     // Opt: *EnMk
-    GI_VB_PLAY_EYEDROP_ANIM,
+    GI_VB_PLAY_EYEDROP_CREATION_ANIM,
     // Opt: *EnDs
     GI_VB_PLAY_ODD_POTION_ANIM,
     // Opt: *EnMk

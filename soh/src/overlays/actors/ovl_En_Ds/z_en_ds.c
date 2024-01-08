@@ -127,7 +127,7 @@ void EnDs_BrewOddPotion2(EnDs* this, PlayState* play) {
         this->brewTimer -= 1;
     } else {
         this->actionFunc = EnDs_BrewOddPotion3;
-        this->brewTimer = GameInteractor_Should(GI_VB_PLAY_EYEDROP_ANIM, true, this) ? 60 : 0;
+        this->brewTimer = GameInteractor_Should(GI_VB_PLAY_EYEDROP_CREATION_ANIM, true, this) ? 60 : 0;
         Flags_UnsetSwitch(play, 0x3F);
     }
 }
@@ -137,7 +137,7 @@ void EnDs_BrewOddPotion1(EnDs* this, PlayState* play) {
         this->brewTimer -= 1;
     } else {
         this->actionFunc = EnDs_BrewOddPotion2;
-        this->brewTimer = GameInteractor_Should(GI_VB_PLAY_EYEDROP_ANIM, true, this) ? 20 : 0;
+        this->brewTimer = GameInteractor_Should(GI_VB_PLAY_EYEDROP_CREATION_ANIM, true, this) ? 20 : 0;
     }
 
     Math_StepToF(&this->unk_1E4, 1.0f, 0.01f);
@@ -151,7 +151,7 @@ void EnDs_OfferOddPotion(EnDs* this, PlayState* play) {
         switch (play->msgCtx.choiceIndex) {
             case 0: // yes
                 this->actionFunc = EnDs_BrewOddPotion1;
-                this->brewTimer = GameInteractor_Should(GI_VB_PLAY_EYEDROP_ANIM, true, this) ? 60 : 0;
+                this->brewTimer = GameInteractor_Should(GI_VB_PLAY_EYEDROP_CREATION_ANIM, true, this) ? 60 : 0;
                 Flags_SetSwitch(play, 0x3F);
                 play->msgCtx.msgMode = MSGMODE_PAUSED;
                 player->exchangeItemId = EXCH_ITEM_NONE;

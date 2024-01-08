@@ -698,7 +698,6 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             break;
         }
         case GI_VB_TRADE_CLAIM_CHECK:
-        case GI_VB_PLAY_EYEDROP_ANIM:
         case GI_VB_TRADE_TIMER_ODD_MUSHROOM:
         case GI_VB_TRADE_TIMER_EYEDROPS:
         case GI_VB_TRADE_TIMER_FROG:
