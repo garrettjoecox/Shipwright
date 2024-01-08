@@ -505,6 +505,9 @@ void TimeSaverOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void*
             // As this is vanilla behavior, it only applies with the Fix toggle or Skip Text enabled.
             *should = (CVarGetInteger("gFixSawSoftlock", 0) != 0 || CVarGetInteger("gSkipText", 0) != 0) ? gPlayState->animationCtx.animationCount > 1 : *should;
             break;
+        case GI_VB_BIGGORON_CONSIDER_SWORD_FORGED:
+            *should = Environment_GetBgsDayCount() >= CVarGetInteger("gForgeTime", 3);
+            break;
     }
 }
 

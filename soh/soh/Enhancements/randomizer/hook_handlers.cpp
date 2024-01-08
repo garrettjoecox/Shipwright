@@ -20,8 +20,8 @@ extern "C" {
 #include "src/overlays/actors/ovl_En_Mk/z_en_mk.h"
 #include "src/overlays/actors/ovl_En_Niw_Lady/z_en_niw_lady.h"
 #include "src/overlays/actors/ovl_En_Kz/z_en_kz.h"
+#include "src/overlays/actors/ovl_En_Go2/z_en_go2.h"
 #include "adult_trade_shuffle.h"
-#include <overlays/actors/ovl_En_Go2/z_en_go2.h>
 extern SaveContext gSaveContext;
 extern PlayState* gPlayState;
 }
@@ -420,6 +420,15 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             }
             break;
         }
+        case GI_VB_BIGGORON_CONSIDER_SWORD_COLLECTED: {
+            *should = Flags_GetTreasure(gPlayState, 0x1F);
+            break;
+        }
+        case GI_VB_BIGGORON_CONSIDER_TRADE_COMPLETE: {
+
+            *should = INV_CONTENT(ITEM_TRADE_ADULT) == ITEM_CLAIM_CHECK && Flags_GetTreasure(gPlayState, 0x1F);
+            break;
+        }
         case GI_VB_GORONS_CONSIDER_FIRE_TEMPLE_FINISHED: {
             *should = Flags_GetRandomizerInf(RAND_INF_DUNGEONS_DONE_FIRE_TEMPLE);
             break;
@@ -442,6 +451,31 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
                 *textId = 0x3041;
             } else {
                 *textId = Flags_GetInfTable(INFTABLE_SPOKE_TO_GORON_LINK) ? 0x3038 : 0x3037;
+            }
+            break;
+        }
+        case GI_VB_EN_GO2_RESET_AFTER_GET_ITEM: {
+            EnGo2* enGo2 = static_cast<EnGo2*>(optionalArg);
+            // For randomizer, handle updating the states for the gorons after receiving the item based on
+            // the goron type rather then the item being received
+            switch (enGo2->actor.params & 0x1F) {
+                case GORON_DMT_BIGGORON:
+                    // Resolves #1301. unk_13EE is used to set the opacity of the HUD. The trade sequence discussion
+                    // with Biggoron sets the HUD to transparent, and it is restored at z_message_PAL:3549, but by
+                    // specifically watching for trade sequence items, this leaves it transparent for non-trade sequence
+                    // items (in rando) so we fix that here
+                    gSaveContext.unk_13EE = 0x32;
+                    break;
+                case GORON_CITY_LINK:
+                    EnGo2_GetItemAnimation(enGo2, gPlayState);
+                    break;
+                case GORON_CITY_ROLLING_BIG:
+                    EnGo2_RollingAnimation(enGo2, gPlayState);
+                    enGo2->actionFunc = (EnGo2ActionFunc)EnGo2_GoronRollingBigContinueRolling;
+                    break;
+                default:
+                    enGo2->actionFunc = func_80A46B40;
+                    break;
             }
             break;
         }
@@ -543,6 +577,16 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             }
             break;
         }
+        case GI_VB_GIVE_ITEM_FROM_ROLLING_GORON_AS_ADULT: {
+            EnGo2* enGo2 = static_cast<EnGo2*>(optionalArg);
+            *should = false;
+            if (!Flags_GetTreasure(gPlayState, 0x1F)) {
+                Flags_SetInfTable(INFTABLE_GORON_CITY_DOORS_UNLOCKED);
+                Flags_SetTreasure(gPlayState, 0x1F);
+                enGo2->interactInfo.talkState = NPC_TALK_STATE_ACTION;
+            }
+            break;
+        }
         case GI_VB_TRADE_POCKET_CUCCO: {
             Randomizer_ConsumeAdultTradeItem(gPlayState, ITEM_POCKET_CUCCO);
             // Trigger the reward now
@@ -592,8 +636,18 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             *should = false;
             break;
         }
+        case GI_VB_TRADE_BROKEN_SWORD: {
+            Randomizer_ConsumeAdultTradeItem(gPlayState, ITEM_SWORD_BROKEN);
+            *should = false;
+            break;
+        }
         case GI_VB_TRADE_EYEDROPS: {
             Randomizer_ConsumeAdultTradeItem(gPlayState, ITEM_EYEDROPS);
+            *should = false;
+            break;
+        }
+        case GI_VB_TRADE_CLAIM_CHECK: {
+            Flags_SetTreasure(gPlayState, 0x1F);
             *should = false;
             break;
         }
@@ -668,7 +722,6 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             *should &= !EnDs_RandoCanGetGrannyItem();
             break;
         }
-        case GI_VB_BIGGORON_CONSIDER_SWORD_FINISHED:
         case GI_VB_PLAY_EYEDROP_ANIM:
         case GI_VB_TRADE_TIMER_ODD_MUSHROOM:
         case GI_VB_TRADE_TIMER_EYEDROPS:

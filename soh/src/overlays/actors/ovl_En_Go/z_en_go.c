@@ -95,10 +95,10 @@ u16 EnGo_GetTextID(PlayState* play, Actor* thisx) {
 
     switch (thisx->params & 0xF0) {
         case 0x90:
-            if (GameInteractor_Should(GI_VB_BIGGORON_CONSIDER_SWORD_FINISHED, gSaveContext.bgsFlag, NULL)) {
+            if (GameInteractor_Should(GI_VB_BIGGORON_CONSIDER_TRADE_COMPLETE, gSaveContext.bgsFlag, NULL)) {
                 return 0x305E;
             } else if (INV_CONTENT(ITEM_TRADE_ADULT) >= ITEM_CLAIM_CHECK) {
-                if (Environment_GetBgsDayCount() >= CVarGetInteger("gForgeTime", 3)) {
+                if (GameInteractor_Should(GI_VB_BIGGORON_CONSIDER_SWORD_FORGED, Environment_GetBgsDayCount() >= 3, NULL)) {
                     return 0x305E;
                 } else {
                     return 0x305D;
@@ -858,7 +858,7 @@ void func_80A405CC(EnGo* this, PlayState* play) {
 
 void EnGo_BiggoronActionFunc(EnGo* this, PlayState* play) {
     if (((this->actor.params & 0xF0) == 0x90) && (this->interactInfo.talkState == NPC_TALK_STATE_ACTION)) {
-        if (GameInteractor_Should(GI_VB_BIGGORON_CONSIDER_SWORD_FINISHED, gSaveContext.bgsFlag, NULL)) {
+        if (GameInteractor_Should(GI_VB_BIGGORON_CONSIDER_TRADE_COMPLETE, gSaveContext.bgsFlag, NULL)) {
             this->interactInfo.talkState = NPC_TALK_STATE_IDLE;
         } else {
             if (INV_CONTENT(ITEM_TRADE_ADULT) == ITEM_EYEDROPS) {

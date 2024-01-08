@@ -184,7 +184,11 @@ typedef enum {
     // Vanilla condition: Flags_GetEventChkInf(EVENTCHKINF_KING_ZORA_MOVED)
     GI_VB_KING_ZORA_BE_MOVED,
     // Vanilla condition: gSaveState.bgsFlag
-    GI_VB_BIGGORON_CONSIDER_SWORD_FINISHED,
+    GI_VB_BIGGORON_CONSIDER_TRADE_COMPLETE,
+    // Vanilla condition: gSaveState.bgsFlag
+    GI_VB_BIGGORON_CONSIDER_SWORD_COLLECTED,
+    // Vanilla condition: Environment_GetBgsDayCount() >= 3
+    GI_VB_BIGGORON_CONSIDER_SWORD_FORGED,
     // Vanilla condition: CHECK_QUEST_ITEM(QUEST_MEDALLION_FIRE)
     GI_VB_GORONS_CONSIDER_FIRE_TEMPLE_FINISHED,
     // Vanilla condition: CHECK_QUEST_ITEM(QUEST_GORON_RUBY)
@@ -192,6 +196,8 @@ typedef enum {
     // Opt: *uint16_t
     // Vanilla condition: false
     GI_VB_OVERRIDE_LINK_THE_GORON_DIALOGUE,
+    // Opt: *EnGo2
+    GI_VB_EN_GO2_RESET_AFTER_GET_ITEM,
 
     /*** Play Cutscenes ***/
 
