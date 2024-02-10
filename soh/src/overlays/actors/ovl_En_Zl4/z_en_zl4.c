@@ -1109,7 +1109,7 @@ s32 EnZl4_CsMakePlan(EnZl4* this, PlayState* play) {
                 this->talkState = 7;
                 play->talkWithPlayer(play, &this->actor);
                 if (GameInteractor_Should(GI_VB_GIVE_ITEM_ZELDAS_LETTER, true, NULL)) {
-                    func_8002F434(&this->actor, play, GI_LETTER_ZELDA, fabsf(this->actor.xzDistToPlayer) + 1.0f,
+                    Actor_OfferGetItem(&this->actor, play, GI_LETTER_ZELDA, fabsf(this->actor.xzDistToPlayer) + 1.0f,
                                 fabsf(this->actor.yDistToPlayer) + 1.0f);
                 }
                 play->msgCtx.stateTimer = 4;
@@ -1121,7 +1121,7 @@ s32 EnZl4_CsMakePlan(EnZl4* this, PlayState* play) {
                 Animation_ChangeByInfo(&this->skelAnime, sAnimationInfo, ZL4_ANIM_0);
                 this->talkState++;
             } else {
-                func_8002F434(&this->actor, play, GI_LETTER_ZELDA, fabsf(this->actor.xzDistToPlayer) + 1.0f,
+                Actor_OfferGetItem(&this->actor, play, GI_LETTER_ZELDA, fabsf(this->actor.xzDistToPlayer) + 1.0f,
                               fabsf(this->actor.yDistToPlayer) + 1.0f);
             }
             // no break here is required for matching
