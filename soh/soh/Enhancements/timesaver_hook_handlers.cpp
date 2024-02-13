@@ -483,14 +483,14 @@ void TimeSaverOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void*
             }
             break;
         case GI_VB_BE_VALID_GRAVEDIGGING_SPOT:
-            if (CVarGetInteger("gDampeWin", 0)) {
+            if (CVarGetInteger("gDampeWin", 0) || IS_RANDO) {
                 EnTk *enTk = static_cast<EnTk*>(opt);
                 enTk->validDigHere = true;
                 *should = true;
             }
             break;
         case GI_VB_BE_DAMPE_GRAVEDIGGING_GRAND_PRIZE:
-            if (CVarGetInteger("gDampeWin", 0)) {
+            if (CVarGetInteger("gDampeWin", 0) || IS_RANDO) {
                 EnTk *enTk = static_cast<EnTk*>(opt);
                 enTk->currentReward = 3;
                 *should = true;
