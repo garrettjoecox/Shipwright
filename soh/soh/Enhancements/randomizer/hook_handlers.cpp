@@ -782,6 +782,7 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
         case GI_VB_ANJU_SET_OBTAINED_TRADE_ITEM:
         case GI_VB_GIVE_ITEM_FROM_ROLLING_GORON_AS_CHILD:
         case GI_VB_GIVE_ITEM_FROM_LAB_DIVE:
+        case GI_VB_GIVE_ITEM_FROM_LOST_DOG:
         case GI_VB_GIVE_ITEM_SKULL_TOKEN:
         case GI_VB_GIVE_ITEM_FROM_BLUE_WARP:
         case GI_VB_GIVE_ITEM_FAIRY_OCARINA:
@@ -801,6 +802,18 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
         case GI_VB_GIVE_ITEM_SHADOW_MEDALLION:
             *should = false;
             break;
+    }
+}
+
+void RandomizerOnCustomHookHandler(GICustomHook id, void* optionalArg) {
+    switch (id) {
+        case GI_CH_RETURN_LOST_DOG:
+            if (!Flags_GetInfTable(INFTABLE_191)) {
+                Flags_SetInfTable(INFTABLE_191);
+            }
+            gSaveContext.dogParams = 0;
+            gSaveContext.dogIsLost = false;
+        break;
     }
 }
 
@@ -935,6 +948,7 @@ void RandomizerRegisterHooks() {
     static uint32_t onPlayerUpdateForItemQueueHook = 0;
     static uint32_t onItemReceiveHook = 0;
     static uint32_t onVanillaBehaviorHook = 0;
+    static uint32_t onCustomHook = 0;
     static uint32_t onSceneInitHook = 0;
     static uint32_t onActorInitHook = 0;
 
@@ -949,6 +963,7 @@ void RandomizerRegisterHooks() {
         GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnPlayerUpdate>(onPlayerUpdateForItemQueueHook);
         GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnItemReceive>(onItemReceiveHook);
         GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnVanillaBehavior>(onVanillaBehaviorHook);
+        GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnCustomHook>(onCustomHook);
         GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnSceneInit>(onSceneInitHook);
         GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnActorInit>(onActorInitHook);
 
@@ -969,6 +984,7 @@ void RandomizerRegisterHooks() {
         onPlayerUpdateForItemQueueHook = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnPlayerUpdate>(RandomizerOnPlayerUpdateForItemQueueHandler);
         onItemReceiveHook = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnItemReceive>(RandomizerOnItemReceiveHandler);
         onVanillaBehaviorHook = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnVanillaBehavior>(RandomizerOnVanillaBehaviorHandler);
+        onCustomHook = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnCustomHook>(RandomizerOnCustomHookHandler);
         onSceneInitHook = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSceneInit>(RandomizerOnSceneInitHandler);
         onActorInitHook = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnActorInit>(RandomizerOnActorInitHandler);
     });

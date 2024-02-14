@@ -268,6 +268,8 @@ typedef enum {
     GI_VB_GIVE_ITEM_FROM_MAGIC_BEAN_SALESMAN,
     // Opt: *EnFr
     GI_VB_GIVE_ITEM_FROM_FROGS,
+    // Opt: *EnHy
+    GI_VB_GIVE_ITEM_FROM_LOST_DOG,
 
     GI_VB_GIVE_ITEM_FAIRY_OCARINA,
     GI_VB_GIVE_ITEM_WEIRD_EGG,
@@ -333,6 +335,11 @@ typedef enum {
     // Vanilla condition: false
     GI_VB_FIX_SAW_SOFTLOCK,
 } GIVanillaBehavior;
+
+typedef enum {
+    // Opt: *EnHy
+    GI_CH_RETURN_LOST_DOG,
+} GICustomHook;
 
 #ifdef __cplusplus
 extern "C" {
@@ -479,6 +486,7 @@ public:
     DEFINE_HOOK(OnPlayDrawEnd, void());
 
     DEFINE_HOOK(OnVanillaBehavior, void(GIVanillaBehavior flag, bool* result, void* opt));
+    DEFINE_HOOK(OnCustomHook, void(GICustomHook flag, void* opt));
 
     DEFINE_HOOK(OnSaveFile, void(int32_t fileNum));
     DEFINE_HOOK(OnLoadFile, void(int32_t fileNum));
