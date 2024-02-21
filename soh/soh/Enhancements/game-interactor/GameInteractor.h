@@ -203,6 +203,9 @@ typedef enum {
     GI_VB_OVERRIDE_LINK_THE_GORON_DIALOGUE,
     // Opt: *EnGo2
     GI_VB_EN_GO2_RESET_AFTER_GET_ITEM,
+    // Opt: *EnSyatekiMan
+    // Vanilla condition: (this->getItemId == GI_QUIVER_40) || (this->getItemId == GI_QUIVER_50)
+    GI_VB_BE_ELIGIBLE_FOR_ADULT_SHOOTING_GAME_REWARD,
 
     /*** Play Cutscenes ***/
 
@@ -270,6 +273,9 @@ typedef enum {
     GI_VB_GIVE_ITEM_FROM_FROGS,
     // Opt: *EnSkj
     GI_VB_GIVE_ITEM_FROM_SKULL_KID_SARIAS_SONG,
+    GI_VB_GIVE_ITEM_FROM_MAN_ON_ROOF,
+    // Opt: *EnSyatekiMan
+    GI_VB_GIVE_ITEM_FROM_SHOOTING_GALLERY,
 
     GI_VB_GIVE_ITEM_FAIRY_OCARINA,
     GI_VB_GIVE_ITEM_WEIRD_EGG,

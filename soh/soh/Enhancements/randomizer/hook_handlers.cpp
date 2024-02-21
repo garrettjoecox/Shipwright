@@ -23,6 +23,7 @@ extern "C" {
 #include "src/overlays/actors/ovl_En_Go2/z_en_go2.h"
 #include "src/overlays/actors/ovl_En_Ms/z_en_ms.h"
 #include "src/overlays/actors/ovl_En_Fr/z_en_fr.h"
+#include "src/overlays/actors/ovl_En_Syateki_Man/z_en_syateki_man.h"
 #include "adult_trade_shuffle.h"
 extern SaveContext gSaveContext;
 extern PlayState* gPlayState;
@@ -775,6 +776,26 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             *should &= !EnDs_RandoCanGetGrannyItem();
             break;
         }
+        case GI_VB_GIVE_ITEM_FROM_SHOOTING_GALLERY: {
+            EnSyatekiMan* enSyatekiMan = static_cast<EnSyatekiMan*>(optionalArg);
+            enSyatekiMan->getItemId = GI_RUPEE_PURPLE;
+            if (LINK_IS_ADULT) {
+                // Give purple rupee if we've already obtained the reward OR we don't have a bow
+                *should = Flags_GetItemGetInf(ITEMGETINF_0E) || CUR_UPG_VALUE(UPG_QUIVER) == 0;
+            } else {
+                // Give purple rupee if we've already obtained the reward
+                *should = Flags_GetItemGetInf(ITEMGETINF_0D);
+            }
+            break;
+        }
+        case GI_VB_BE_ELIGIBLE_FOR_ADULT_SHOOTING_GAME_REWARD: {
+            *should = CUR_UPG_VALUE(UPG_QUIVER) > 0;
+            if (!*should) {
+                // In Rando without a quiver, display a message reminding the player to come back with a bow
+                Message_StartTextbox(gPlayState, TEXT_SHOOTING_GALLERY_MAN_COME_BACK_WITH_BOW, NULL);
+            }
+            break;
+        }
         case GI_VB_TRADE_CLAIM_CHECK:
         case GI_VB_TRADE_TIMER_ODD_MUSHROOM:
         case GI_VB_TRADE_TIMER_EYEDROPS:
@@ -783,6 +804,7 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
         case GI_VB_GIVE_ITEM_FROM_ROLLING_GORON_AS_CHILD:
         case GI_VB_GIVE_ITEM_FROM_LAB_DIVE:
         case GI_VB_GIVE_ITEM_FROM_SKULL_KID_SARIAS_SONG:
+        case GI_VB_GIVE_ITEM_FROM_MAN_ON_ROOF:
         case GI_VB_GIVE_ITEM_SKULL_TOKEN:
         case GI_VB_GIVE_ITEM_FROM_BLUE_WARP:
         case GI_VB_GIVE_ITEM_FAIRY_OCARINA:
