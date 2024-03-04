@@ -1530,6 +1530,8 @@ bool isStringEmpty(std::string str) {
 }
 
 #ifdef ENABLE_REMOTE_CONTROL
+static const char* anchorPlayerHealth[4] = { "Disabled", "Numeric", "Hearts and Magic", "Numeric + Hearts and Magic" };
+
 void DrawRemoteControlMenu() {
     if (ImGui::BeginMenu("Network")) {
         static std::string ip = CVarGetString("gRemote.IP", "127.0.0.1");
@@ -1627,7 +1629,7 @@ void DrawRemoteControlMenu() {
             LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
         }
         if (CVarGetInteger("gRemote.Scheme", GI_SCHEME_SAIL) == GI_SCHEME_ANCHOR) {
-            ImGui::Text("Fairy Color & Name");
+            ImGui::Text("Tunic Color & Name");
             static Color_RGBA8 color = CVarGetColor("gRemote.AnchorColor", { 100, 255, 100, 255 });
             static ImVec4 colorVec = ImVec4(color.r / 255.0, color.g / 255.0, color.b / 255.0, 1);
             if (ImGui::ColorEdit3("##gRemote.AnchorColor", (float*)&colorVec, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel)) {
@@ -1636,6 +1638,12 @@ void DrawRemoteControlMenu() {
                 color.b = colorVec.z * 255.0;
 
                 CVarSetColor("gRemote.AnchorColor", color);
+                CVarSetInteger("gCosmetics.Link_KokiriTunic.Changed", 1);
+                CVarSetInteger("gCosmetics.Link_GoronTunic.Changed", 1);
+                CVarSetInteger("gCosmetics.Link_ZoraTunic.Changed", 1);
+                CVarSetColor("gCosmetics.Link_KokiriTunic.Value", color);
+                CVarSetColor("gCosmetics.Link_GoronTunic.Value", color);
+                CVarSetColor("gCosmetics.Link_ZoraTunic.Value", color);
                 LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
             }
             ImGui::SameLine();

@@ -14189,6 +14189,12 @@ void Player_UpdateBunnyEars(Player* this) {
     } else {
         sBunnyEarKinematics.rot.z = 0;
     }
+
+    #ifdef ENABLE_REMOTE_CONTROL
+    gSaveContext.playerData.bunnyEarX = sBunnyEarKinematics.rot.x;
+    gSaveContext.playerData.bunnyEarY = sBunnyEarKinematics.rot.y;
+    gSaveContext.playerData.bunnyEarZ = sBunnyEarKinematics.rot.z;
+    #endif
 }
 
 s32 func_80850224(Player* this, PlayState* play) {
