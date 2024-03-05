@@ -7,6 +7,8 @@
 #include "z_en_takara_man.h"
 #include "vt.h"
 #include "objects/object_ts/object_ts.h"
+#include "soh/Enhancements/game-interactor/GameInteractor_Hooks.h"
+
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_FRIENDLY | ACTOR_FLAG_UPDATE_WHILE_CULLED | ACTOR_FLAG_DRAW_WHILE_CULLED | ACTOR_FLAG_NO_LOCKON)
 
@@ -55,8 +57,10 @@ void EnTakaraMan_Init(Actor* thisx, PlayState* play) {
     osSyncPrintf("\n\n");
     // "Bun! %x" (needs a better translation)
     osSyncPrintf(VT_FGCOL(PURPLE) "☆☆☆☆☆ ばぅん！ ☆☆☆☆☆ %x\n" VT_RST, play->actorCtx.flags.chest);
-    play->actorCtx.flags.chest = 0;
-    gSaveContext.inventory.dungeonKeys[gSaveContext.mapIndex] = -1;
+    if (GameInteractor_Should(GI_VB_CHEST_GAME_RESET, true, this)) {
+        play->actorCtx.flags.chest = 0;
+        gSaveContext.inventory.dungeonKeys[gSaveContext.mapIndex] = -1;
+    }
     SkelAnime_InitFlex(play, &this->skelAnime, &object_ts_Skel_004FE0, &object_ts_Anim_000498, this->jointTable,
                        this->morphTable, 10);
     thisx->focus.pos = thisx->world.pos;

@@ -262,7 +262,9 @@ void DoorShutter_Init(Actor* thisx, PlayState* play2) {
     this->unk_16B = phi_a3;
     if (this->doorType == SHUTTER_KEY_LOCKED || this->doorType == SHUTTER_BOSS) {
         if (!Flags_GetSwitch(play, this->dyna.actor.params & 0x3F)) {
-            this->unk_16E = 10;
+            if (GameInteractor_Should(GI_VB_CHEST_GAME_DOOR_BE_LOCKED, true, this)) {
+                this->unk_16E = 10;
+            }
         }
         Actor_SetFocus(&this->dyna.actor, 60.0f);
     } else if (phi_a3 == 4) {
@@ -376,6 +378,9 @@ void func_80996B0C(DoorShutter* this, PlayState* play) {
         this->dyna.actor.velocity.y = 0.0f;
         if (this->unk_16E != 0) {
             Flags_SetSwitch(play, this->dyna.actor.params & 0x3F);
+            if (GameInteractor_Should(GI_VB_CHEST_GAME_DOOR_UNLOCK, true, this)) {
+                Flags_SetRandomizerInf((RandomizerInf)(RAND_INF_CHEST_GAME_DOOR_1 + (this->dyna.actor.params & 0x3F) - 32));
+            }
             if (this->doorType != SHUTTER_BOSS) {
                 gSaveContext.inventory.dungeonKeys[gSaveContext.mapIndex]--;
                 Audio_PlayActorSound2(&this->dyna.actor, NA_SE_EV_CHAIN_KEY_UNLOCK);

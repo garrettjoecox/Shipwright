@@ -24,6 +24,8 @@ extern "C" {
 #include "src/overlays/actors/ovl_En_Ms/z_en_ms.h"
 #include "src/overlays/actors/ovl_En_Fr/z_en_fr.h"
 #include "src/overlays/actors/ovl_En_Syateki_Man/z_en_syateki_man.h"
+#include "src/overlays/actors/ovl_En_Takara_Man/z_en_takara_man.h"
+#include "src/overlays/actors/ovl_Door_Shutter/z_door_shutter.h"
 #include "adult_trade_shuffle.h"
 extern SaveContext gSaveContext;
 extern PlayState* gPlayState;
@@ -516,6 +518,37 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
         }
         case GI_VB_BE_ELIGIBLE_FOR_SARIAS_SONG: {
             *should = !Flags_GetEventChkInf(EVENTCHKINF_LEARNED_SARIAS_SONG);
+            break;
+        }
+        case GI_VB_CHEST_GAME_RESET: {
+            if (RAND_GET_OPTION(RSK_SHUFFLE_CHEST_MINIGAME)) {
+                *should = false;
+                EnTakaraMan* enTakaraMan = static_cast<EnTakaraMan*>(optionalArg);
+                enTakaraMan->unk_214 = 1;
+            }
+            break;
+        }
+        case GI_VB_CHEST_GAME_DOOR_BE_LOCKED: {
+            if (gPlayState->sceneNum != SCENE_TREASURE_BOX_SHOP) break;
+            DoorShutter* doorShutter = static_cast<DoorShutter*>(optionalArg);
+            if (RAND_GET_OPTION(RSK_SHUFFLE_CHEST_MINIGAME)) {
+                int tempSwitch = doorShutter->dyna.actor.params & 0x3F;
+                RandomizerInf door = (RandomizerInf)(RAND_INF_CHEST_GAME_DOOR_1 + (tempSwitch - 32));
+                if (Flags_GetRandomizerInf(door)) {
+                    *should = false;
+                    doorShutter->unk_16E = 0;
+                }
+            }
+            break;
+        }
+        case GI_VB_CHEST_GAME_DOOR_UNLOCK: {
+            if (gPlayState->sceneNum != SCENE_TREASURE_BOX_SHOP) break;
+            DoorShutter* doorShutter = static_cast<DoorShutter*>(optionalArg);
+            if (RAND_GET_OPTION(RSK_SHUFFLE_CHEST_MINIGAME)) {
+                int tempSwitch = doorShutter->dyna.actor.params & 0x3F;
+                RandomizerInf door = (RandomizerInf)(RAND_INF_CHEST_GAME_DOOR_1 + (tempSwitch - 32));
+                *should = !Flags_GetRandomizerInf(door);
+            }
             break;
         }
         case GI_VB_GIVE_ITEM_FROM_COW: {

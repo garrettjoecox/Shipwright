@@ -1495,6 +1495,21 @@ void HintTable_Init_Item() {
                         Text{"a Treasure Chest Shop Small Key", /*french*/"une petite clé de la chasse aux trésors", /*spanish*/"una llave pequeña del Cofre del Tesoro"}
     );
 
+    hintTable[RHT_TREASURE_GAME_KEY_RING] = HintText::Item({
+                        //obscure text
+                        //TODO: update translations
+                        Text{"a gambler's toolbox for unlocking",  /*french*/"un anti-porte de parieur",        /*spanish*/"una clave de un juego de azar"},
+                        Text{"a gambler's season pass",            /*french*/"le rêve d'un prisonnier parieur", /*spanish*/"un pase de un juego de azar"},
+                        Text{"a gambler's jingling ring",          /*french*/"un efface-serrure de parieur",    /*spanish*/"un destructor de cerraduras del juego de azar"},
+                        Text{"a gambler's skeleton key",           /*french*/"un crochet à serrure de parieur", /*spanish*/"una apertura portentosa del juego de azar"},
+                      }, {
+                        //ambiguous text
+                        Text{"a key ring", /*french*/"un trousseau de clés", /*spanish*/"un llavero"},
+                      },
+                        //clear text
+                        Text{"a Treasure Chest Shop Key Ring", /*french*/"une petite clé de la chasse aux trésors", /*spanish*/"una llave pequeña del Cofre del Tesoro"}
+    );
+
     hintTable[RHT_KOKIRI_EMERALD] = HintText::Item({
                        //obscure text
                        Text{"a green stone",       /*french*/"une pierre verte",               /*spanish*/"una piedra verde"},

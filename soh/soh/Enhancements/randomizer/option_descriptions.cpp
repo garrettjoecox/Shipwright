@@ -430,6 +430,11 @@ void Settings::CreateOptionDescriptions() {
         "\n"
         "Greg as Wildcard - Greg does not change logic, Greg helps obtain GBK, max number of "
         "rewards on slider does not change.";
+    mOptionDescriptions[RSK_SHUFFLE_CHEST_MINIGAME] = "The 5 key chests in the Treasure Chest Shop will\n"
+                                        "be randomized, and the 6 keys will be added to the pool.\n"     
+                                        "\n"                                               
+                                        "If you choose the \"pack\" option, you will get\n"
+                                        "all the keys at once, as a keyring."; 
     mOptionDescriptions[RSK_CUCCO_COUNT] = "The amount of cuccos needed to claim the reward from Anju the cucco lady";
     mOptionDescriptions[RSK_BIG_POE_COUNT] = "The Poe collector will give a reward for turning in this many Big Poes.";
     mOptionDescriptions[RSK_SKIP_CHILD_STEALTH] =

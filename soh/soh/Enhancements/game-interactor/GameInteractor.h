@@ -212,6 +212,11 @@ typedef enum {
     // Opt: *BgDyYoseizo
     // Vanilla condition: see soh/src/overlays/actors/ovl_Bg_Dy_Yoseizo/z_bg_dy_yoseizo.c
     GI_VB_BE_ELIGIBLE_FOR_GREAT_FAIRY_REWARD,
+    // Opt: *EnTakaraMan
+    // Vanilla result: play->actorCtx.flags.chest = 0
+    GI_VB_CHEST_GAME_RESET,
+    GI_VB_CHEST_GAME_DOOR_BE_LOCKED, 
+    GI_VB_CHEST_GAME_DOOR_UNLOCK,
 
     /*** Play Cutscenes ***/
 

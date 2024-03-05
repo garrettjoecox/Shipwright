@@ -3242,7 +3242,7 @@ CustomMessage Randomizer::GetGoronMessage(u16 index) {
 void Randomizer::CreateCustomMessages() {
     // RANDTODO: Translate into french and german and replace GIMESSAGE_UNTRANSLATED
     // with GIMESSAGE(getItemID, itemID, english, german, french).
-    const std::array<GetItemMessage, 74> getItemMessages = {{
+    const std::array<GetItemMessage, 76> getItemMessages = {{
         GIMESSAGE(RG_GREG_RUPEE, ITEM_MASK_GORON, 
 			"You found %gGreg%w!",
 			"%gGreg%w! Du hast ihn wirklich gefunden!",
@@ -3324,6 +3324,8 @@ void Randomizer::CreateCustomMessages() {
 			"You found a %rGanon's Castle &%wSmall Key!",
 			"Du erhältst einen %rKleinen&Schlüssel%w für die %rGanons Schloß%w!",
 			"Vous obtenez une %rPetite Clé %w&du %rChâteau de Ganon%w!"),
+        GIMESSAGE_UNTRANSLATED(RG_TREASURE_GAME_SMALL_KEY, ITEM_KEY_SMALL,
+            "You found a %cTreasure Chest&Game%w Small Key!"),
 
         GIMESSAGE(RG_GERUDO_FORTRESS_KEY_RING, ITEM_KEY_SMALL,
 			"You found a %yThieves Hideout &%wKeyring!",
@@ -3361,6 +3363,8 @@ void Randomizer::CreateCustomMessages() {
 			"You found a %rGanon's Castle &%wKeyring!",
 			"Du erhältst ein %rSchlüsselbund%w&für %rGanons Schloß%w!",
 			"Vous obtenez un trousseau de&clés du %rChâteau de Ganon%w!"),
+        GIMESSAGE_UNTRANSLATED(RG_TREASURE_GAME_KEY_RING, ITEM_KEY_SMALL,
+            "You found a %cTreasure Chest&Game%w Keyring!"),
 
         GIMESSAGE(RG_FOREST_TEMPLE_BOSS_KEY, ITEM_KEY_BOSS,
 			"You found the %gForest Temple &%wBoss Key!",

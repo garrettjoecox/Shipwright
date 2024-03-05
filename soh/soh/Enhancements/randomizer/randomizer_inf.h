@@ -282,6 +282,14 @@ typedef enum {
     RAND_INF_COLOSSUS_GREAT_FAIRY_REWARD,
     RAND_INF_OGC_GREAT_FAIRY_REWARD,
 
+    RAND_INF_CHEST_GAME_DOOR_1,
+    RAND_INF_CHEST_GAME_DOOR_2,
+    RAND_INF_CHEST_GAME_DOOR_3,
+    RAND_INF_CHEST_GAME_DOOR_4,
+    RAND_INF_CHEST_GAME_DOOR_5,
+    RAND_INF_CHEST_GAME_DOOR_6,
+
+
     // If you add anything to this list, you need to update the size of randomizerInf in z64save.h to be ceil(RAND_INF_MAX / 16)
 
     RAND_INF_MAX,

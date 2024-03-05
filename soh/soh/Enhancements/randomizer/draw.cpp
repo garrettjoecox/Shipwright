@@ -31,7 +31,7 @@ extern "C" void Randomizer_DrawSmallKey(PlayState* play, GetItemEntry* getItemEn
         DUNGEON_ITEMS_CAN_BE_OUTSIDE_DUNGEON(RSK_KEYSANITY);
     s8 isColoredKeysEnabled = keysCanBeOutsideDungeon && CVarGetInteger("gRandoMatchKeyColors", 1);
     s16 color_slot = getItemEntry->getItemId - RG_FOREST_TEMPLE_SMALL_KEY;
-    s16 colors[9][3] = {
+    s16 colors[10][3] = {
         { 4, 195, 46 },    // Forest Temple
         { 237, 95, 95 },   // Fire Temple
         { 85, 180, 223 },  // Water Temple
@@ -40,7 +40,8 @@ extern "C" void Randomizer_DrawSmallKey(PlayState* play, GetItemEntry* getItemEn
         { 227, 110, 255 }, // Bottom of the Well
         { 221, 212, 60 },  // Gerudo Training Grounds
         { 255, 255, 255 }, // Thieves' Hideout
-        { 80, 80, 80 }     // Ganon's Castle
+        { 80, 80, 80 },    // Ganon's Castle
+        { 60, 32, 0 }      // Chest Game
     };
 
     OPEN_DISPS(play->state.gfxCtx);
@@ -162,7 +163,7 @@ extern "C" void Randomizer_DrawBossKey(PlayState* play, GetItemEntry* getItemEnt
 
 extern "C" void Randomizer_DrawKeyRing(PlayState* play, GetItemEntry* getItemEntry) {
     s16 color_slot = getItemEntry->getItemId - RG_FOREST_TEMPLE_KEY_RING;
-    s16 colors[9][3] = {
+    s16 colors[10][3] = {
         { 4, 195, 46 },    // Forest Temple
         { 237, 95, 95 },   // Fire Temple
         { 85, 180, 223 },  // Water Temple
@@ -171,7 +172,16 @@ extern "C" void Randomizer_DrawKeyRing(PlayState* play, GetItemEntry* getItemEnt
         { 227, 110, 255 }, // Bottom of the Well
         { 221, 212, 60 },  // Gerudo Training Grounds
         { 255, 255, 255 }, // Thieves' Hideout
-        { 80, 80, 80 }     // Ganon's Castle
+        { 80, 80, 80 },    // Ganon's Castle
+        { 60, 32, 0 }      // Chest Game
+    };
+
+    s16 chestGameColors[5][3] = {
+        { 200, 255, 100 },
+        { 200, 255, 100 },
+        { 130, 130, 255 },
+        { 130, 130, 255 },
+        { 255, 100, 100 },
     };
 
     OPEN_DISPS(play->state.gfxCtx);
@@ -194,6 +204,9 @@ extern "C" void Randomizer_DrawKeyRing(PlayState* play, GetItemEntry* getItemEnt
     for (int i = 0; i < 5; i++) {
         gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx, (char*)__FILE__, __LINE__),
                 G_MTX_MODELVIEW | G_MTX_LOAD);
+        if (color_slot == 9) {
+            gDPSetGrayscaleColor(POLY_OPA_DISP++, chestGameColors[i][0], chestGameColors[i][1], chestGameColors[i][2], 255);
+        }
         Matrix_Translate(3.12f, -0.34f, 17.53f, MTXMODE_APPLY);
         Matrix_RotateX(-0.31f, MTXMODE_APPLY);
         Matrix_RotateY(0.19f, MTXMODE_APPLY);

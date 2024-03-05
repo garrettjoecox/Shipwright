@@ -1872,6 +1872,7 @@ typedef enum {
     RG_GERUDO_TRAINING_GROUNDS_KEY_RING,
     RG_GERUDO_FORTRESS_KEY_RING,
     RG_GANONS_CASTLE_KEY_RING,
+    RG_TREASURE_GAME_KEY_RING,
     RG_KOKIRI_EMERALD,
     RG_GORON_RUBY,
     RG_ZORA_SAPPHIRE,
@@ -3092,6 +3093,7 @@ typedef enum {
     RHT_GERUDO_TRAINING_GROUNDS_KEY_RING,
     RHT_GERUDO_FORTRESS_KEY_RING,
     RHT_GANONS_CASTLE_KEY_RING,
+    RHT_TREASURE_GAME_KEY_RING,
     RHT_KOKIRI_EMERALD,
     RHT_GORON_RUBY,
     RHT_ZORA_SAPPHIRE,
@@ -3903,6 +3905,13 @@ typedef enum {
     RO_SHUFFLE_MERCHANTS_ON_NO_HINT,
     RO_SHUFFLE_MERCHANTS_ON_HINT,
 } RandoOptionShuffleMerchants;
+
+//Shuffle Chest Game Keys (Off, On - Separate, On - Pack)
+typedef enum {
+    RO_SHUFFLE_CHEST_GAME_OFF,
+    RO_SHUFFLE_CHEST_GAME_ON_SEPARATE,
+    RO_SHUFFLE_CHEST_GAME_ON_PACK,
+} RandoOptionShuffleChestGame;
 
 //Starting Ocarina Settings (off, fairy)
 typedef enum {
