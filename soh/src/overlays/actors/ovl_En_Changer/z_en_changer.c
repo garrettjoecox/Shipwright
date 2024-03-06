@@ -8,6 +8,7 @@
 #include "vt.h"
 #include "overlays/actors/ovl_Item_Etcetera/z_item_etcetera.h"
 #include "overlays/actors/ovl_En_Ex_Item/z_en_ex_item.h"
+#include "soh/Enhancements/game-interactor/GameInteractor_Hooks.h"
 
 #define FLAGS 0
 
@@ -208,12 +209,16 @@ void EnChanger_Init(Actor* thisx, PlayState* play2) {
 void EnChanger_Wait(EnChanger* this, PlayState* play) {
     if (this->leftChest->unk_1F4 != 0) {
         this->timer = 80;
-        Flags_SetTreasure(play, this->rightChestNum & 0x1F);
+        if (GameInteractor_Should(GI_VB_CHANGER_OPEN_OTHER_CHEST, true, this)) {
+            Flags_SetTreasure(play, this->rightChestNum & 0x1F);
+        }
         this->actionFunc = EnChanger_OpenChests;
     } else if (this->rightChest->unk_1F4 != 0) {
         this->chestOpened = CHEST_RIGHT;
         this->timer = 80;
-        Flags_SetTreasure(play, this->leftChestNum & 0x1F);
+        if (GameInteractor_Should(GI_VB_CHANGER_OPEN_OTHER_CHEST, true, this)) {
+            Flags_SetTreasure(play, this->leftChestNum & 0x1F);
+        }
         this->actionFunc = EnChanger_OpenChests;
     }
 }

@@ -217,6 +217,9 @@ typedef enum {
     GI_VB_CHEST_GAME_RESET,
     GI_VB_CHEST_GAME_DOOR_BE_LOCKED, 
     GI_VB_CHEST_GAME_DOOR_UNLOCK,
+    // Opt: *EnChanger
+    // Vanilla condition: true
+    GI_VB_CHANGER_OPEN_OTHER_CHEST,
 
     /*** Play Cutscenes ***/
 

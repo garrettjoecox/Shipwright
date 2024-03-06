@@ -551,6 +551,10 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             }
             break;
         }
+        case GI_VB_CHANGER_OPEN_OTHER_CHEST: {
+            *should = !RAND_GET_OPTION(RSK_SHUFFLE_CHEST_MINIGAME);
+            break;
+        }
         case GI_VB_GIVE_ITEM_FROM_COW: {
             if (!RAND_GET_OPTION(RSK_SHUFFLE_COWS)) {
                 break;

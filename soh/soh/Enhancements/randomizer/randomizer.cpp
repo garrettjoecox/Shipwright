@@ -307,6 +307,12 @@ void Randomizer::LoadHintMessages() {
             CustomMessage(ctx->GetHint(RH_GREG_RUPEE)->GetText())
         );
     CustomMessageManager::Instance->CreateMessage(
+        Randomizer::randoMiscHintsTableID, TEXT_CHEST_GAME_THANKS_A_LOT,
+        CustomMessage("Sorry, I lost my keys.^And you can't play without them.^Oh well.",
+        "",
+        "")
+    );
+    CustomMessageManager::Instance->CreateMessage(
             Randomizer::randoMiscHintsTableID, TEXT_FROGS_UNDERWATER,
             CustomMessage(ctx->GetHint(RH_FROGS)->GetText().GetEnglish(),
                 ctx->GetHint(RH_FROGS)->GetText().GetGerman(),
