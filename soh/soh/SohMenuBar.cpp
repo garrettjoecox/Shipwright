@@ -1652,10 +1652,20 @@ void DrawRemoteControlMenu() {
                 CVarSetString("gRemote.AnchorRoomId", anchorRoomId.c_str());
                 LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
             }
+
+            UIWidgets::PaddedSeparator(true, true);
+
+            if (ImGui::BeginMenu("Room Settings")) {
+                UIWidgets::PaddedEnhancementSliderInt("Teleport Cost: %d Rupees", "##gTeleportRupeeCost", "gTeleportRupeeCost", 0, 200, "", 0,
+                                                      true, true, true);
+                UIWidgets::Tooltip("Rupees needed to teleport to another player.");
+                ImGui::EndMenu();
+            }
         }
         ImGui::EndDisabled();
 
         ImGui::Spacing();
+        UIWidgets::PaddedSeparator(false, true);
 
         if (CVarGetInteger("gRemote.Scheme", GI_SCHEME_SAIL) == GI_SCHEME_ANCHOR) {
             ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(12.0f, 6.0f));

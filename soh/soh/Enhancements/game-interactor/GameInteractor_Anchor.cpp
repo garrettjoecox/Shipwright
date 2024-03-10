@@ -11,6 +11,7 @@
 #include <soh/Enhancements/randomizer/randomizer_check_tracker.h>
 #include <soh/util.h>
 #include <nlohmann/json.hpp>
+#include <sstream>
 
 extern "C" {
 #include <variables.h>
@@ -200,6 +201,7 @@ std::vector<std::pair<uint16_t, int16_t>> receivedItems = {};
 std::vector<uint16_t> discoveredEntrances = {};
 std::vector<AnchorMessage> anchorMessages = {};
 uint32_t notificationId = 0;
+bool settingsCopied = false;
 
 void Anchor_DisplayMessage(AnchorMessage message = {}) {
     message.id = notificationId++;
@@ -233,6 +235,36 @@ void Anchor_SendClientData() {
     GameInteractorAnchor::Instance->TransmitJsonToRemote(payload);
 }
 
+void Anchor_PushSettingsToRemote() {
+    // If we're asked to push, set settingsCopied to true since we were either the
+    // first in the room, or we've already had our settings copied.
+    settingsCopied = true;
+
+    nlohmann::json payload;
+    payload["type"] = "PUSH_ANCHOR_SETTINGS";
+    payload["teleportRupeeCost"] = CVarGetInteger("gTeleportRupeeCost", 0);
+
+    GameInteractorAnchor::Instance->TransmitJsonToRemote(payload);
+}
+
+void Anchor_RequestSettingsFromRemote() {
+    nlohmann::json payload;
+    payload["type"] = "REQUEST_ANCHOR_SETTINGS";
+
+    GameInteractorAnchor::Instance->TransmitJsonToRemote(payload);
+}
+
+void Anchor_CopySettingsFromRemote(nlohmann::json payload) {
+    if (settingsCopied) {
+        return;
+    }
+
+    CVarSetInteger("gTeleportRupeeCost", payload["teleportRupeeCost"].get<int32_t>());
+
+    settingsCopied = true;
+    Anchor_DisplayMessage({ .message = "Settings copied from remote." });
+}
+
 void GameInteractorAnchor::Enable() {
     if (isEnabled) {
         return;
@@ -252,6 +284,7 @@ void GameInteractorAnchor::Enable() {
     GameInteractor::Instance->RegisterRemoteConnectedHandler([&]() {
         Anchor_DisplayMessage({ .message = "Connected to Anchor" });
         Anchor_SendClientData();
+        Anchor_RequestSettingsFromRemote();
 
         if (GameInteractor::IsSaveLoaded()) {
             Anchor_RequestSaveStateFromRemote();
@@ -268,6 +301,7 @@ void GameInteractorAnchor::Disable() {
     }
 
     isEnabled = false;
+    settingsCopied = false;
     GameInteractor::Instance->DisableRemoteInteractor();
 
     GameInteractorAnchor::AnchorClients.clear();
@@ -384,6 +418,12 @@ void GameInteractorAnchor::HandleRemoteJson(nlohmann::json payload) {
     if (payload["type"] == "REQUEST_SAVE_STATE" && GameInteractor::IsSaveLoaded()) {
         Anchor_PushSaveStateToRemote();
     }
+    if (payload["type"] == "PUSH_ANCHOR_SETTINGS") {
+        Anchor_CopySettingsFromRemote(payload);
+    }
+    if (payload["type"] == "REQUEST_ANCHOR_SETTINGS") {
+        Anchor_PushSettingsToRemote();
+    }
     if (payload["type"] == "ALL_CLIENT_DATA") {
         std::vector<AnchorClient> newClients = payload["clients"].get<std::vector<AnchorClient>>();
 
@@ -481,6 +521,17 @@ void GameInteractorAnchor::HandleRemoteJson(nlohmann::json payload) {
         Anchor_TeleportToPlayer(payload["clientId"].get<uint32_t>());
     }
     if (payload["type"] == "TELEPORT_TO") {
+        // Check if we have enough rupees.
+        int32_t teleportCost = CVarGetInteger("gTeleportRupeeCost", 0);
+        if (gSaveContext.rupees < teleportCost) {
+            // Can't teleport.
+            std::stringstream msg;
+            msg << "Need " << teleportCost << " rupees to teleport.";
+            Anchor_DisplayMessage({ .message = msg.str() });
+            return;
+        }
+        Rupees_ChangeBy(-1 * teleportCost);
+
         uint32_t entranceIndex = payload["entranceIndex"].get<uint32_t>();
         uint32_t roomIndex = payload["roomIndex"].get<uint32_t>();
         PosRot posRot = payload["posRot"].get<PosRot>();
