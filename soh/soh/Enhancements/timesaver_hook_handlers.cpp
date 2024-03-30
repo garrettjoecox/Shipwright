@@ -296,6 +296,9 @@ void TimeSaverOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void*
                         *should = false;
                         break;
                     }
+                    case ACTOR_EN_EX_ITEM:
+                        *should = false;
+                        break;
                     case ACTOR_EN_TA:
                     case ACTOR_DOOR_SHUTTER:
                     case ACTOR_BG_ICE_SHUTTER:
@@ -464,7 +467,7 @@ void TimeSaverOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void*
                             gPlayState->transitionType = TRANS_TYPE_FADE_WHITE;
                             gPlayState->transitionTrigger = TRANS_TRIGGER_START;
                             gSaveContext.nextTransitionType = 2;
-                            func_8002DF54(gPlayState, &player->actor, 8);
+                            Player_SetCsActionWithHaltedActors(gPlayState, &player->actor, 8);
                         }
                     }
                 });
