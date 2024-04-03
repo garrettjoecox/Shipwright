@@ -9,6 +9,7 @@
 #include "overlays/actors/ovl_En_Dnt_Jiji/z_en_dnt_jiji.h"
 #include "overlays/actors/ovl_En_Dnt_Nomal/z_en_dnt_nomal.h"
 #include "vt.h"
+#include "soh/Enhancements/game-interactor/GameInteractor_Hooks.h"
 
 #define FLAGS 0
 
@@ -135,27 +136,26 @@ void EnDntDemo_Judge(EnDntDemo* this, PlayState* play) {
             this->judgeTimer = 0;
         }
     } else {
-        if (IS_RANDO) {
+        if (!GameInteractor_Should(GI_VB_PLAY_ONEPOINT_ACTOR_CS, true, &this->actor)) {
             Player* player = GET_PLAYER(play);
             switch (Player_GetMask(play)) {
-                case PLAYER_MASK_SKULL:
-                    if (!Flags_GetTreasure(play, 0x1F) && !Player_InBlockingCsMode(play, player)) {
-                        GetItemEntry getItemEntry = Randomizer_GetItemFromKnownCheck(RC_DEKU_THEATER_SKULL_MASK, GI_STICK_UPGRADE_30);
-                        GiveItemEntryWithoutActor(play, getItemEntry);
-                        player->pendingFlag.flagID = 0x1F;
-                        player->pendingFlag.flagType = FLAG_SCENE_TREASURE;
+                case PLAYER_MASK_SKULL: {
+                    if (!IS_RANDO && !Flags_GetItemGetInf(ITEMGETINF_OBTAINED_STICK_UPGRADE_FROM_STAGE)) {
+                        GetItemEntry giEntry = ItemTable_RetrieveEntry(MOD_NONE, GI_STICK_UPGRADE_30);
+                        GiveItemEntryWithoutActor(play, giEntry);
                     }
-                    break;
-                case PLAYER_MASK_TRUTH:
-                    if (!Flags_GetTreasure(play, 0x1E) && !Player_InBlockingCsMode(play, player)) {
-                        GetItemEntry getItemEntry = Randomizer_GetItemFromKnownCheck(RC_DEKU_THEATER_MASK_OF_TRUTH, GI_NUT_UPGRADE_40);
-                        GiveItemEntryWithoutActor(play, getItemEntry);
-                        player->pendingFlag.flagID = 0x1E;
-                        player->pendingFlag.flagType = FLAG_SCENE_TREASURE;
+                    Flags_SetItemGetInf(ITEMGETINF_OBTAINED_STICK_UPGRADE_FROM_STAGE);
+                    return;
+                }
+                case PLAYER_MASK_TRUTH: {
+                    if (!IS_RANDO && !Flags_GetItemGetInf(ITEMGETINF_OBTAINED_NUT_UPGRADE_FROM_STAGE)) {
+                        GetItemEntry giEntry = ItemTable_RetrieveEntry(MOD_NONE, GI_NUT_UPGRADE_40);
+                        GiveItemEntryWithoutActor(play, giEntry);
                     }
-                    break;
+                    Flags_SetItemGetInf(ITEMGETINF_OBTAINED_NUT_UPGRADE_FROM_STAGE);
+                    return;
+                }
             }
-            return;
         }
 
         if ((Player_GetMask(play) != 0) && (this->subCamera == SUBCAM_FREE)) {
