@@ -769,6 +769,7 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
         case GI_VB_ANJU_SET_OBTAINED_TRADE_ITEM:
         case GI_VB_GIVE_ITEM_FROM_TARGET_IN_WOODS:
         case GI_VB_GIVE_ITEM_FROM_TALONS_CHICKENS:
+        case GI_VB_GIVE_ITEM_FROM_DIVING_MINIGAME:
         case GI_VB_GIVE_ITEM_FROM_GORON:
         case GI_VB_GIVE_ITEM_FROM_LAB_DIVE:
         case GI_VB_GIVE_ITEM_FROM_SKULL_KID_SARIAS_SONG:
