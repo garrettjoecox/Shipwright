@@ -89,6 +89,13 @@ void EnZl4_SkipToGivingZeldasLetter(EnZl4* enZl4, PlayState* play) {
 }
 
 void EnDntDemo_JudgeSkipToReward(EnDntDemo* enDntDemo, PlayState* play) {
+    // todo: figure out a better way to handle toggling so we don't
+    //       need to double check cvars like this
+    if(!(IS_RANDO || CVarGetInteger("gTimeSavers.SkipMiscInteractions", IS_RANDO))) {
+        EnDntDemo_Judge(enDntDemo, play);
+        return;
+    }
+
     if (enDntDemo->actor.xzDistToPlayer > 30.0f) {
         EnDntDemo_Judge(enDntDemo, play);
         return;
