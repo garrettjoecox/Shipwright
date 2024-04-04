@@ -136,28 +136,6 @@ void EnDntDemo_Judge(EnDntDemo* this, PlayState* play) {
             this->judgeTimer = 0;
         }
     } else {
-        if (!GameInteractor_Should(GI_VB_PLAY_ONEPOINT_ACTOR_CS, true, &this->actor)) {
-            Player* player = GET_PLAYER(play);
-            switch (Player_GetMask(play)) {
-                case PLAYER_MASK_SKULL: {
-                    if (!IS_RANDO && !Flags_GetItemGetInf(ITEMGETINF_OBTAINED_STICK_UPGRADE_FROM_STAGE)) {
-                        GetItemEntry giEntry = ItemTable_RetrieveEntry(MOD_NONE, GI_STICK_UPGRADE_30);
-                        GiveItemEntryWithoutActor(play, giEntry);
-                    }
-                    Flags_SetItemGetInf(ITEMGETINF_OBTAINED_STICK_UPGRADE_FROM_STAGE);
-                    return;
-                }
-                case PLAYER_MASK_TRUTH: {
-                    if (!IS_RANDO && !Flags_GetItemGetInf(ITEMGETINF_OBTAINED_NUT_UPGRADE_FROM_STAGE)) {
-                        GetItemEntry giEntry = ItemTable_RetrieveEntry(MOD_NONE, GI_NUT_UPGRADE_40);
-                        GiveItemEntryWithoutActor(play, giEntry);
-                    }
-                    Flags_SetItemGetInf(ITEMGETINF_OBTAINED_NUT_UPGRADE_FROM_STAGE);
-                    return;
-                }
-            }
-        }
-
         if ((Player_GetMask(play) != 0) && (this->subCamera == SUBCAM_FREE)) {
             this->subCamera = OnePointCutscene_Init(play, 2220, -99, &this->scrubs[3]->actor, MAIN_CAM);
         }

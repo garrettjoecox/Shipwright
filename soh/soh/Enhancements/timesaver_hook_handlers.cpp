@@ -22,6 +22,7 @@ extern "C" {
 #include "src/overlays/actors/ovl_Bg_Spot02_Objects/z_bg_spot02_objects.h"
 #include "src/overlays/actors/ovl_Bg_Hidan_Kousi/z_bg_hidan_kousi.h"
 #include "src/overlays/actors/ovl_Bg_Dy_Yoseizo/z_bg_dy_yoseizo.h"
+#include "src/overlays/actors/ovl_En_Dnt_Demo/z_en_dnt_demo.h"
 extern SaveContext gSaveContext;
 extern PlayState* gPlayState;
 }
@@ -83,6 +84,31 @@ void EnZl4_SkipToGivingZeldasLetter(EnZl4* enZl4, PlayState* play) {
         if (enZl4->interactInfo.talkState != NPC_TALK_STATE_IDLE) {
             enZl4->talkState = 6;
             enZl4->actionFunc = EnZl4_Cutscene;
+        }
+    }
+}
+
+void EnDntDemo_JudgeSkipToReward(EnDntDemo* enDntDemo, PlayState* play) {
+    Player* player = GET_PLAYER(play);
+    switch (Player_GetMask(play)) {
+        case PLAYER_MASK_SKULL: {
+            // if (!IS_RANDO && !Flags_GetItemGetInf(ITEMGETINF_OBTAINED_STICK_UPGRADE_FROM_STAGE)) {
+            //     GetItemEntry giEntry = ItemTable_RetrieveEntry(MOD_NONE, GI_STICK_UPGRADE_30);
+            //     GiveItemEntryWithoutActor(play, giEntry);
+            // }
+            Flags_SetItemGetInf(ITEMGETINF_OBTAINED_STICK_UPGRADE_FROM_STAGE);
+            return;
+        }
+        case PLAYER_MASK_TRUTH: {
+            // if (!IS_RANDO && !Flags_GetItemGetInf(ITEMGETINF_OBTAINED_NUT_UPGRADE_FROM_STAGE)) {
+            //     GetItemEntry giEntry = ItemTable_RetrieveEntry(MOD_NONE, GI_NUT_UPGRADE_40);
+            //     GiveItemEntryWithoutActor(play, giEntry);
+            // }
+            Flags_SetItemGetInf(ITEMGETINF_OBTAINED_NUT_UPGRADE_FROM_STAGE);
+            return;
+        }
+        default: {
+            EnDntDemo_Judge(enDntDemo, play);
         }
     }
 }
@@ -772,6 +798,11 @@ void TimeSaverOnActorInitHandler(void* actorRef) {
         if (enZl4->actionFunc != EnZl4_Cutscene || enZl4->csState != 0) return;
 
         enZl4->actionFunc = EnZl4_SkipToGivingZeldasLetter;
+    }
+
+    if (actor->id == ACTOR_EN_DNT_DEMO && CVarGetInteger("gTimeSavers.SkipCutscene.SkipMiscInteractions", IS_RANDO)) {
+        EnDntDemo* enDntDemo = static_cast<EnDntDemo*>(actorRef);
+        enDntDemo->actionFunc = EnDntDemo_JudgeSkipToReward;
     }
 }
 
