@@ -413,14 +413,16 @@ void EnExItem_TargetPrizeApproach(EnExItem* this, PlayState* play) {
             getItemId = GI_BULLET_BAG_50;
         }
 
-        Actor_OfferGetItem(&this->actor, play, getItemId, 2000.0f, 1000.0f);
+        if (GameInteractor_Should(GI_VB_GIVE_ITEM_FROM_TARGET_IN_WOODS, true, &this->actor)) {
+            Actor_OfferGetItem(&this->actor, play, getItemId, 2000.0f, 1000.0f);
+        }
 
         this->actionFunc = EnExItem_TargetPrizeGive;
     }
 }
 
 void EnExItem_TargetPrizeGive(EnExItem* this, PlayState* play) {
-    if (IS_RANDO || Actor_HasParent(&this->actor, play)) {
+    if (Actor_HasParent(&this->actor, play) || !GameInteractor_Should(GI_VB_GIVE_ITEM_FROM_TARGET_IN_WOODS, true, &this->actor)) {
         this->actionFunc = EnExItem_TargetPrizeFinish;
     } else {
         s32 getItemId = (CUR_UPG_VALUE(UPG_BULLET_BAG) == 2) ? GI_BULLET_BAG_50 : GI_BULLET_BAG_40;
@@ -429,7 +431,7 @@ void EnExItem_TargetPrizeGive(EnExItem* this, PlayState* play) {
 }
 
 void EnExItem_TargetPrizeFinish(EnExItem* this, PlayState* play) {
-    if (IS_RANDO || (Message_GetState(&play->msgCtx) == TEXT_STATE_DONE) && Message_ShouldAdvance(play)) {
+    if (!GameInteractor_Should(GI_VB_GIVE_ITEM_FROM_TARGET_IN_WOODS, true, &this->actor) || (Message_GetState(&play->msgCtx) == TEXT_STATE_DONE) && Message_ShouldAdvance(play)) {
         // "Successful completion"
         osSyncPrintf(VT_FGCOL(GREEN) "☆☆☆☆☆ 正常終了 ☆☆☆☆☆ \n" VT_RST);
         Flags_SetItemGetInf(ITEMGETINF_1D);
