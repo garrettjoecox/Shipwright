@@ -800,7 +800,7 @@ void TimeSaverOnActorInitHandler(void* actorRef) {
         enZl4->actionFunc = EnZl4_SkipToGivingZeldasLetter;
     }
 
-    if (actor->id == ACTOR_EN_DNT_DEMO && (IS_RANDO || CVarGetInteger("gTimeSavers.SkipMiscInteractions", 0))) {
+    if (actor->id == ACTOR_EN_DNT_DEMO && (IS_RANDO || CVarGetInteger("gTimeSavers.SkipMiscInteractions", IS_RANDO))) {
         EnDntDemo* enDntDemo = static_cast<EnDntDemo*>(actorRef);
         enDntDemo->actionFunc = EnDntDemo_JudgeSkipToReward;
     }
