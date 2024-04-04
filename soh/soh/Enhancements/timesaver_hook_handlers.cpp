@@ -89,26 +89,24 @@ void EnZl4_SkipToGivingZeldasLetter(EnZl4* enZl4, PlayState* play) {
 }
 
 void EnDntDemo_JudgeSkipToReward(EnDntDemo* enDntDemo, PlayState* play) {
+    if (enDntDemo->actor.xzDistToPlayer > 30.0f) {
+        EnDntDemo_Judge(enDntDemo, play);
+        return;
+    }
+
     Player* player = GET_PLAYER(play);
     switch (Player_GetMask(play)) {
         case PLAYER_MASK_SKULL: {
-            // if (!IS_RANDO && !Flags_GetItemGetInf(ITEMGETINF_OBTAINED_STICK_UPGRADE_FROM_STAGE)) {
-            //     GetItemEntry giEntry = ItemTable_RetrieveEntry(MOD_NONE, GI_STICK_UPGRADE_30);
-            //     GiveItemEntryWithoutActor(play, giEntry);
-            // }
             Flags_SetItemGetInf(ITEMGETINF_OBTAINED_STICK_UPGRADE_FROM_STAGE);
             return;
         }
         case PLAYER_MASK_TRUTH: {
-            // if (!IS_RANDO && !Flags_GetItemGetInf(ITEMGETINF_OBTAINED_NUT_UPGRADE_FROM_STAGE)) {
-            //     GetItemEntry giEntry = ItemTable_RetrieveEntry(MOD_NONE, GI_NUT_UPGRADE_40);
-            //     GiveItemEntryWithoutActor(play, giEntry);
-            // }
             Flags_SetItemGetInf(ITEMGETINF_OBTAINED_NUT_UPGRADE_FROM_STAGE);
             return;
         }
         default: {
             EnDntDemo_Judge(enDntDemo, play);
+            return;
         }
     }
 }
@@ -981,6 +979,16 @@ void TimeSaverOnFlagSetHandler(int16_t flagType, int16_t flag) {
                     break;
                 case RAND_INF_OGC_GREAT_FAIRY_REWARD:
                     vanillaQueuedItemEntry = Rando::StaticData::RetrieveItem(RG_DOUBLE_DEFENSE).GetGIEntry_Copy();
+                    break;
+            }
+            break;
+        case FLAG_ITEM_GET_INF:
+            switch (flag) {
+                case ITEMGETINF_OBTAINED_STICK_UPGRADE_FROM_STAGE:
+                    vanillaQueuedItemEntry = Rando::StaticData::RetrieveItem(RG_DEKU_STICK_CAPACITY_30).GetGIEntry_Copy();
+                    break;
+                case ITEMGETINF_OBTAINED_NUT_UPGRADE_FROM_STAGE:
+                    vanillaQueuedItemEntry = Rando::StaticData::RetrieveItem(RG_DEKU_NUT_CAPACITY_40).GetGIEntry_Copy();
                     break;
             }
             break;
