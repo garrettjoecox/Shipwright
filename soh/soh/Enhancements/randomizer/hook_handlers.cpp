@@ -763,6 +763,14 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             *should = eligible;
             break;
         }
+        case GI_VB_GIVE_ITEM_FROM_HORSEBACK_ARCHERY: {
+            // give both rewards at the same time
+            if (gSaveContext.minigameScore >= 1500) {
+                Flags_SetItemGetInf(ITEMGETINF_0F);
+            }
+            *should = false;
+            break;
+        }
         case GI_VB_TRADE_TIMER_ODD_MUSHROOM:
         case GI_VB_TRADE_TIMER_EYEDROPS:
         case GI_VB_TRADE_TIMER_FROG:
