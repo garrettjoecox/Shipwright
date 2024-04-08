@@ -429,7 +429,7 @@ void Actor_MountHorse(PlayState* play, Player* player, Actor* horse);
 s32 func_8002DEEC(Player* player);
 void func_8002DF18(PlayState* play, Player* player);
 s32 func_8002DF38(PlayState* play, Actor* actor, u8 csMode);
-s32 func_8002DF54(PlayState* play, Actor* actor, u8 arg2);
+s32 Player_SetCsActionWithHaltedActors(PlayState* play, Actor* actor, u8 arg2);
 void func_8002DF90(DynaPolyActor* dynaActor);
 void func_8002DFA4(DynaPolyActor* dynaActor, f32 arg1, s16 arg2);
 s32 Player_IsFacingActor(Actor* actor, s16 angle, PlayState* play);
@@ -457,11 +457,11 @@ u32 Actor_TextboxIsClosing(Actor* actor, PlayState* play);
 s8 func_8002F368(PlayState* play);
 void Actor_GetScreenPos(PlayState* play, Actor* actor, s16* x, s16* y);
 u32 Actor_HasParent(Actor* actor, PlayState* play);
-// TODO: Rename the follwing 3 functions using whatever scheme we use when we rename func_8002F434 and func_8002F554.
+// TODO: Rename the follwing 3 functions using whatever scheme we use when we rename Actor_OfferGetItem and func_8002F554.
 s32 GiveItemEntryWithoutActor(PlayState* play, GetItemEntry getItemEntry);
 s32 GiveItemEntryFromActor(Actor* actor, PlayState* play, GetItemEntry getItemEntry, f32 xzRange, f32 yRange);
 s32 GiveItemEntryFromActorWithFixedRange(Actor* actor, PlayState* play, GetItemEntry getItemEntry);
-s32 func_8002F434(Actor* actor, PlayState* play, s32 getItemId, f32 xzRange, f32 yRange);
+s32 Actor_OfferGetItem(Actor* actor, PlayState* play, s32 getItemId, f32 xzRange, f32 yRange);
 void func_8002F554(Actor* actor, PlayState* play, s32 getItemId);
 void func_8002F580(Actor* actor, PlayState* play);
 u32 Actor_HasNoParent(Actor* actor, PlayState* play);
@@ -1234,8 +1234,8 @@ Gfx* Gfx_EnvColor(GraphicsContext* gfxCtx, s32 r, s32 g, s32 b, s32 a);
 void Gfx_SetupFrame(GraphicsContext* gfxCtx, u8 r, u8 g, u8 b);
 void func_80095974(GraphicsContext* gfxCtx);
 void func_80095AA0(PlayState* play, Room* room, Input* arg2, UNK_TYPE arg3);
-void func_8009638C(Gfx** displayList, void* source, void* tlut, u16 width, u16 height, u8 fmt, u8 siz, u16 mode0,
-                   u16 tlutCount, f32 frameX, f32 frameY);
+void Room_DrawBackground2D(Gfx** gfxP, void* tex, void* tlut, u16 width, u16 height, u8 fmt, u8 siz, u16 tlutMode,
+                           u16 tlutCount, f32 offsetX, f32 offsetY);
 void func_80096FD4(PlayState* play, Room* room);
 u32 func_80096FE8(PlayState* play, RoomContext* roomCtx);
 s32 func_8009728C(PlayState* play, RoomContext* roomCtx, s32 roomNum);
@@ -1832,8 +1832,8 @@ MtxF* Matrix_CheckFloats(MtxF* mf, char* file, s32 line);
 void Matrix_SetTranslateScaleMtx2(Mtx* mtx, f32 scaleX, f32 scaleY, f32 scaleZ, f32 translateX, f32 translateY,
                                   f32 translateZ);
 uintptr_t SysUcode_GetUCodeBoot(void);
-uintptr_t SysUcode_GetUCodeBootSize(void);
-uintptr_t SysUcode_GetUCode(void);
+size_t SysUcode_GetUCodeBootSize(void);
+uint32_t SysUcode_GetUCode(void);
 uintptr_t SysUcode_GetUCodeData(void);
 void func_800D2E30(UnkRumbleStruct* arg0);
 void func_800D3140(UnkRumbleStruct* arg0);

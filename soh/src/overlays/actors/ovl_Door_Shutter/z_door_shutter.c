@@ -565,7 +565,7 @@ void func_80997220(DoorShutter* this, PlayState* play) {
     this->dyna.actor.velocity.y = 0.0f;
     if (DoorShutter_SetupDoor(this, play) && !(player->stateFlags1 & PLAYER_STATE1_ITEM_OVER_HEAD)) {
         DoorShutter_SetupAction(this, func_80997568);
-        func_8002DF54(play, NULL, 2);
+        Player_SetCsActionWithHaltedActors(play, NULL, 2);
     }
 }
 
@@ -599,7 +599,7 @@ void func_80997528(DoorShutter* this, PlayState* play) {
 
 void func_80997568(DoorShutter* this, PlayState* play) {
     if (this->unk_16F++ > 30) {
-        func_8002DF54(play, NULL, 7);
+        Player_SetCsActionWithHaltedActors(play, NULL, 7);
         DoorShutter_SetupDoor(this, play);
     }
 }

@@ -22,6 +22,7 @@ extern "C" {
 #include "src/overlays/actors/ovl_Bg_Spot02_Objects/z_bg_spot02_objects.h"
 #include "src/overlays/actors/ovl_Bg_Hidan_Kousi/z_bg_hidan_kousi.h"
 #include "src/overlays/actors/ovl_Bg_Dy_Yoseizo/z_bg_dy_yoseizo.h"
+#include "src/overlays/actors/ovl_En_Dnt_Demo/z_en_dnt_demo.h"
 extern SaveContext gSaveContext;
 extern PlayState* gPlayState;
 }
@@ -83,6 +84,36 @@ void EnZl4_SkipToGivingZeldasLetter(EnZl4* enZl4, PlayState* play) {
         if (enZl4->interactInfo.talkState != NPC_TALK_STATE_IDLE) {
             enZl4->talkState = 6;
             enZl4->actionFunc = EnZl4_Cutscene;
+        }
+    }
+}
+
+void EnDntDemo_JudgeSkipToReward(EnDntDemo* enDntDemo, PlayState* play) {
+    // todo: figure out a better way to handle toggling so we don't
+    //       need to double check cvars like this
+    if(!(IS_RANDO || CVarGetInteger("gTimeSavers.SkipMiscInteractions", IS_RANDO))) {
+        EnDntDemo_Judge(enDntDemo, play);
+        return;
+    }
+
+    if (enDntDemo->actor.xzDistToPlayer > 30.0f) {
+        EnDntDemo_Judge(enDntDemo, play);
+        return;
+    }
+
+    Player* player = GET_PLAYER(play);
+    switch (Player_GetMask(play)) {
+        case PLAYER_MASK_SKULL: {
+            Flags_SetItemGetInf(ITEMGETINF_OBTAINED_STICK_UPGRADE_FROM_STAGE);
+            return;
+        }
+        case PLAYER_MASK_TRUTH: {
+            Flags_SetItemGetInf(ITEMGETINF_OBTAINED_NUT_UPGRADE_FROM_STAGE);
+            return;
+        }
+        default: {
+            EnDntDemo_Judge(enDntDemo, play);
+            return;
         }
     }
 }
@@ -296,6 +327,18 @@ void TimeSaverOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void*
                         *should = false;
                         break;
                     }
+                    case ACTOR_EN_EX_ITEM: {
+                        *should = false;
+                        break;
+                    }
+                    case ACTOR_EN_DNT_NOMAL: {
+                        *should = false;
+                        break;
+                    }
+                    case ACTOR_EN_DNT_DEMO: {
+                        *should = false;
+                        break;
+                    }
                     case ACTOR_EN_TA:
                     case ACTOR_DOOR_SHUTTER:
                     case ACTOR_BG_ICE_SHUTTER:
@@ -464,7 +507,7 @@ void TimeSaverOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void*
                             gPlayState->transitionType = TRANS_TYPE_FADE_WHITE;
                             gPlayState->transitionTrigger = TRANS_TRIGGER_START;
                             gSaveContext.nextTransitionType = 2;
-                            func_8002DF54(gPlayState, &player->actor, 8);
+                            Player_SetCsActionWithHaltedActors(gPlayState, &player->actor, 8);
                         }
                     }
                 });
@@ -761,6 +804,11 @@ void TimeSaverOnActorInitHandler(void* actorRef) {
 
         enZl4->actionFunc = EnZl4_SkipToGivingZeldasLetter;
     }
+
+    if (actor->id == ACTOR_EN_DNT_DEMO && (IS_RANDO || CVarGetInteger("gTimeSavers.SkipMiscInteractions", IS_RANDO))) {
+        EnDntDemo* enDntDemo = static_cast<EnDntDemo*>(actorRef);
+        enDntDemo->actionFunc = EnDntDemo_JudgeSkipToReward;
+    }
 }
 
 void TimeSaverOnSceneInitHandler(int16_t sceneNum) {
@@ -938,6 +986,16 @@ void TimeSaverOnFlagSetHandler(int16_t flagType, int16_t flag) {
                     break;
                 case RAND_INF_OGC_GREAT_FAIRY_REWARD:
                     vanillaQueuedItemEntry = Rando::StaticData::RetrieveItem(RG_DOUBLE_DEFENSE).GetGIEntry_Copy();
+                    break;
+            }
+            break;
+        case FLAG_ITEM_GET_INF:
+            switch (flag) {
+                case ITEMGETINF_OBTAINED_STICK_UPGRADE_FROM_STAGE:
+                    vanillaQueuedItemEntry = Rando::StaticData::RetrieveItem(RG_DEKU_STICK_CAPACITY_30).GetGIEntry_Copy();
+                    break;
+                case ITEMGETINF_OBTAINED_NUT_UPGRADE_FROM_STAGE:
+                    vanillaQueuedItemEntry = Rando::StaticData::RetrieveItem(RG_DEKU_NUT_CAPACITY_40).GetGIEntry_Copy();
                     break;
             }
             break;
