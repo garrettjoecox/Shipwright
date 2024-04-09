@@ -282,6 +282,12 @@ void ItemEtcetera_DrawRandomizedItem(ItemEtcetera* itemEtcetera, PlayState* play
     GetItemEntry_Draw(play, itemEtcetera->sohItemEntry);
 }
 
+void ItemEtcetera_DrawRandomizedItemThroughLens(ItemEtcetera* itemEtcetera, PlayState* play) {
+    if (play->actorCtx.lensActive) {
+        ItemEtcetera_DrawRandomizedItem(itemEtcetera, play);
+    }
+}
+
 void ItemEtcetera_func_80B858B4_Randomized(ItemEtcetera* itemEtcetera, PlayState* play) {
     if (itemEtcetera->actor.xzDistToPlayer < 30.0f &&
         fabsf(itemEtcetera->actor.yDistToPlayer) < 50.0f) {
@@ -1034,6 +1040,17 @@ void RandomizerOnActorInitHandler(void* actorRef) {
             }
             case ITEM_ETC_ARROW_FIRE: {
                 itemEtcetera->futureActionFunc = (ItemEtceteraActionFunc)ItemEtcetera_UpdateRandomizedFireArrow;
+                break;
+            }
+            case ITEM_ETC_RUPEE_GREEN_CHEST_GAME:
+            case ITEM_ETC_RUPEE_BLUE_CHEST_GAME:
+            case ITEM_ETC_RUPEE_RED_CHEST_GAME:
+            case ITEM_ETC_RUPEE_PURPLE_CHEST_GAME:
+            case ITEM_ETC_HEART_PIECE_CHEST_GAME:
+            case ITEM_ETC_KEY_SMALL_CHEST_GAME: {
+                if (rc != RC_UNKNOWN_CHECK) {
+                    itemEtcetera->drawFunc = (ActorFunc)ItemEtcetera_DrawRandomizedItemThroughLens;
+                }
                 break;
             }
         }

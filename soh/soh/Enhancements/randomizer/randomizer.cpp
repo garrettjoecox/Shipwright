@@ -1650,7 +1650,9 @@ Rando::Location* Randomizer::GetCheckObjectFromActor(s16 actorId, s16 sceneNum, 
     // TODO: Migrate these special cases into table, or at least document why they are special
     switch(sceneNum) {
         case SCENE_TREASURE_BOX_SHOP:
-            if(actorParams == 20170) specialRc = RC_MARKET_TREASURE_CHEST_GAME_REWARD;
+            if ((actorId == ACTOR_EN_BOX && actorParams == 20170) || (actorId == ACTOR_ITEM_ETCETERA && actorParams == 2572)) {
+                specialRc = RC_MARKET_TREASURE_CHEST_GAME_REWARD;
+            }
 
             // RANDOTODO update logic to match 3ds rando when we implement keysanity
             // keep keys og
