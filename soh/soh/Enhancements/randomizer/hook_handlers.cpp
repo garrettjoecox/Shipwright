@@ -876,7 +876,6 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
         case GI_VB_GIVE_ITEM_FROM_DIVING_MINIGAME:
         case GI_VB_GIVE_ITEM_FROM_GORON:
         case GI_VB_GIVE_ITEM_FROM_LAB_DIVE:
-        case GI_VB_GIVE_ITEM_FROM_UNDERWATER_ITEM:
         case GI_VB_GIVE_ITEM_FROM_SKULL_KID_SARIAS_SONG:
         case GI_VB_GIVE_ITEM_FROM_MAN_ON_ROOF:
         case GI_VB_GIVE_ITEM_SKULL_TOKEN:
