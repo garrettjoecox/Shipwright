@@ -25,6 +25,7 @@ extern "C" {
 #include "src/overlays/actors/ovl_En_Fr/z_en_fr.h"
 #include "src/overlays/actors/ovl_En_Syateki_Man/z_en_syateki_man.h"
 #include "src/overlays/actors/ovl_En_Sth/z_en_sth.h"
+#include "src/overlays/actors/ovl_Item_Etcetera/z_item_etcetera.h"
 #include "adult_trade_shuffle.h"
 extern SaveContext gSaveContext;
 extern PlayState* gPlayState;
@@ -272,6 +273,11 @@ void ItemBHeart_UpdateRandomizedItem(Actor* actor, PlayState* play) {
         Flags_SetCollectible(play, 0x1F);
         Actor_Kill(&itemBHeart->actor);
     }
+}
+
+void ItemEtcetera_DrawRandomizedItem(ItemEtcetera* itemEtcetera, PlayState* play) {
+    EnItem00_CustomItemsParticles(&itemEtcetera->actor, play, itemEtcetera->sohItemEntry);
+    GetItemEntry_Draw(play, itemEtcetera->sohItemEntry);
 }
 
 void EnCow_MoveForRandomizer(EnCow* enCow, PlayState* play) {
@@ -808,6 +814,7 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
         case GI_VB_GIVE_ITEM_FROM_DIVING_MINIGAME:
         case GI_VB_GIVE_ITEM_FROM_GORON:
         case GI_VB_GIVE_ITEM_FROM_LAB_DIVE:
+        case GI_VB_GIVE_ITEM_FROM_UNDERWATER_ITEM:
         case GI_VB_GIVE_ITEM_FROM_SKULL_KID_SARIAS_SONG:
         case GI_VB_GIVE_ITEM_FROM_MAN_ON_ROOF:
         case GI_VB_GIVE_ITEM_SKULL_TOKEN:
@@ -952,6 +959,15 @@ void RandomizerOnActorInitHandler(void* actorRef) {
                     enDnsKillHook = 0;
                 });
             }
+        }
+    }
+
+    if (actor->id == ACTOR_ITEM_ETCETERA) {
+        ItemEtcetera* itemEtcetera = static_cast<ItemEtcetera*>(actorRef);
+        RandomizerCheck rc = OTRGlobals::Instance->gRandomizer->GetCheckFromActor(itemEtcetera->actor.id, gPlayState->sceneNum, itemEtcetera->actor.params);
+        if (rc != RC_UNKNOWN_CHECK) {
+            itemEtcetera->sohItemEntry = Rando::Context::GetInstance()->GetFinalGIEntry(rc, true, (GetItemID)Rando::StaticData::GetLocation(rc)->GetVanillaItem());
+            itemEtcetera->drawFunc = (ActorFunc)ItemEtcetera_DrawRandomizedItem;
         }
     }
 }
