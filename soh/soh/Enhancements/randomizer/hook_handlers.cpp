@@ -280,6 +280,22 @@ void ItemEtcetera_DrawRandomizedItem(ItemEtcetera* itemEtcetera, PlayState* play
     GetItemEntry_Draw(play, itemEtcetera->sohItemEntry);
 }
 
+void ItemEtcetera_func_80B858B4_Randomized(ItemEtcetera* itemEtcetera, PlayState* play) {
+    if (itemEtcetera->actor.xzDistToPlayer < 30.0f &&
+        fabsf(itemEtcetera->actor.yDistToPlayer) < 50.0f) {
+        if ((itemEtcetera->actor.params & 0xFF) == 1) {
+            Flags_SetEventChkInf(EVENTCHKINF_OBTAINED_RUTOS_LETTER);
+            Flags_SetSwitch(play, 0xB);
+        }
+
+        Actor_Kill(&itemEtcetera->actor);
+    } else {
+        if ((play->gameplayFrames & 0xD) == 0) {
+            EffectSsBubble_Spawn(play, &itemEtcetera->actor.world.pos, 0.0f, 0.0f, 10.0f, 0.13f);
+        }
+    }
+}
+
 void EnCow_MoveForRandomizer(EnCow* enCow, PlayState* play) {
     bool moved = false;
 
@@ -968,6 +984,14 @@ void RandomizerOnActorInitHandler(void* actorRef) {
         if (rc != RC_UNKNOWN_CHECK) {
             itemEtcetera->sohItemEntry = Rando::Context::GetInstance()->GetFinalGIEntry(rc, true, (GetItemID)Rando::StaticData::GetLocation(rc)->GetVanillaItem());
             itemEtcetera->drawFunc = (ActorFunc)ItemEtcetera_DrawRandomizedItem;
+        }
+
+        int32_t type = itemEtcetera->actor.params & 0xFF;
+        switch (type) {
+            case ITEM_ETC_LETTER: {
+                itemEtcetera->futureActionFunc = (ItemEtceteraActionFunc)ItemEtcetera_func_80B858B4_Randomized;
+                break;
+            }
         }
     }
 }

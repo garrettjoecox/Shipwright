@@ -142,16 +142,8 @@ void func_80B85824(ItemEtcetera* this, PlayState* play) {
     }
 }
 
-#define UNDERWATER_ITEM_XZ_RANGE 30.0f
-#define UNDERWATER_ITEM_Y_RANGE 50.0f
 void func_80B858B4(ItemEtcetera* this, PlayState* play) {
-    bool should = GameInteractor_Should(GI_VB_GIVE_ITEM_FROM_UNDERWATER_ITEM, true, this);
-    if (Actor_HasParent(&this->actor, play) || (
-            !should &&
-            this->actor.xzDistToPlayer < UNDERWATER_ITEM_XZ_RANGE &&
-            fabsf(this->actor.yDistToPlayer) < UNDERWATER_ITEM_Y_RANGE
-        )
-    ) {
+    if (Actor_HasParent(&this->actor, play)) {
         if ((this->actor.params & 0xFF) == 1) {
             Flags_SetEventChkInf(EVENTCHKINF_OBTAINED_RUTOS_LETTER);
             Flags_SetSwitch(play, 0xB);
@@ -159,9 +151,7 @@ void func_80B858B4(ItemEtcetera* this, PlayState* play) {
 
         Actor_Kill(&this->actor);
     } else {
-        if (should) {
-            Actor_OfferGetItem(&this->actor, play, this->getItemId, UNDERWATER_ITEM_XZ_RANGE, UNDERWATER_ITEM_Y_RANGE);
-        }
+        Actor_OfferGetItem(&this->actor, play, this->getItemId, 30.0f, 50.0f);
 
         if ((play->gameplayFrames & 0xD) == 0) {
             EffectSsBubble_Spawn(play, &this->actor.world.pos, 0.0f, 0.0f, 10.0f, 0.13f);
