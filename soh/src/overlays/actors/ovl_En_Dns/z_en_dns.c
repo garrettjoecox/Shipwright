@@ -391,7 +391,7 @@ void func_809EFDD0(EnDns* this, PlayState* play) {
     GetItemEntry itemEntry = ItemTable_Retrieve(pendingGetItemId);
     gSaveContext.pendingSale = itemEntry.itemId;
     gSaveContext.pendingSaleMod = itemEntry.modIndex;
-    func_8002F434(&this->actor, play, pendingGetItemId, 130.0f, 100.0f);
+    Actor_OfferGetItem(&this->actor, play, pendingGetItemId, 130.0f, 100.0f);
 }
 
 void func_809EFEE8(EnDns* this, PlayState* play) {
@@ -416,7 +416,7 @@ void func_809EFF50(EnDns* this, PlayState* play) {
 void func_809EFF98(EnDns* this, PlayState* play) {
     Player* player = GET_PLAYER(play);
 
-    if (player->stateFlags1 & 0x400) {
+    if (player->stateFlags1 & PLAYER_STATE1_GETTING_ITEM) {
         if ((Message_GetState(&play->msgCtx) == TEXT_STATE_DONE) && Message_ShouldAdvance(play)) {
             this->dnsItemEntry->setRupeesAndFlags(this);
             this->dropCollectible = 1;

@@ -16,10 +16,10 @@ class SpoilerCollectionCheck {
   public:
     SpoilerCollectionCheckType type = SPOILER_CHK_NONE;
     uint8_t scene = 0;
-    uint8_t flag = 0;
+    uint16_t flag = 0;
 
     SpoilerCollectionCheck() = default;
-    SpoilerCollectionCheck(const SpoilerCollectionCheckType type_, const uint8_t scene_, const uint8_t flag_)
+    SpoilerCollectionCheck(const SpoilerCollectionCheckType type_, const uint8_t scene_, const uint16_t flag_)
         : type(type_), scene(scene_), flag(flag_) {
     }
 
@@ -39,8 +39,8 @@ class SpoilerCollectionCheck {
         return SpoilerCollectionCheck(SPOILER_CHK_EVENT_CHK_INF, 0xFF, flag);
     }
 
-    static auto InfTable(const uint8_t offset, const uint8_t bit) {
-        return SpoilerCollectionCheck(SPOILER_CHK_INF_TABLE, offset, bit);
+    static auto InfTable(const uint16_t flag) {
+        return SpoilerCollectionCheck(SPOILER_CHK_INF_TABLE, 0xFF, flag);
     }
 
     static auto Collectable(const uint8_t scene, const uint8_t flag) {
@@ -79,7 +79,7 @@ class SpoilerCollectionCheck {
         return SpoilerCollectionCheck(SPOILER_CHK_MASTER_SWORD, 0x00, 0x00);
     }
 
-    static auto RandomizerInf(const uint8_t flag) {
+    static auto RandomizerInf(const uint16_t flag) {
         return SpoilerCollectionCheck(SPOILER_CHK_RANDOMIZER_INF, 0x00, flag);
     }
 };

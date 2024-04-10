@@ -201,8 +201,17 @@ typedef enum {
     // Opt: *uint16_t
     // Vanilla condition: false
     GI_VB_OVERRIDE_LINK_THE_GORON_DIALOGUE,
-    // Opt: *EnGo2
-    GI_VB_EN_GO2_RESET_AFTER_GET_ITEM,
+    // Vanilla condition: CHECK_OWNED_EQUIP(EQUIP_TYPE_TUNIC, EQUIP_INV_TUNIC_GORON)
+    GI_VB_GORONS_CONSIDER_TUNIC_COLLECTED,
+    // Opt: *EnSyatekiMan
+    // Vanilla condition: (this->getItemId == GI_QUIVER_40) || (this->getItemId == GI_QUIVER_50)
+    GI_VB_BE_ELIGIBLE_FOR_ADULT_SHOOTING_GAME_REWARD,
+    // Opt: *EnOkarinaTag
+    // Vanilla condition: !Flags_GetEventChkInf(EVENTCHKINF_OPENED_THE_DOOR_OF_TIME)
+    GI_VB_BE_ELIGIBLE_TO_OPEN_DOT,
+    // Opt: *BgDyYoseizo
+    // Vanilla condition: see soh/src/overlays/actors/ovl_Bg_Dy_Yoseizo/z_bg_dy_yoseizo.c
+    GI_VB_BE_ELIGIBLE_FOR_GREAT_FAIRY_REWARD,
 
     /*** Play Cutscenes ***/
 
@@ -232,9 +241,20 @@ typedef enum {
     GI_VB_PLAY_BOLERO_OF_FIRE_CS,
     GI_VB_PLAY_SERENADE_OF_WATER_CS,
     GI_VB_PLAY_EYEDROPS_CS,
+    // Opt: *EnOkarinaTag
+    GI_VB_PLAY_DRAIN_WELL_CS,
+    // Opt: *EnOkarinaTag
+    // Vanilla condition: !CHECK_QUEST_ITEM(QUEST_SONG_SUN)
+    GI_VB_PLAY_SUNS_SONG_CS,
+    // Opt: *EnOkarinaTag
+    GI_VB_PLAY_ROYAL_FAMILY_TOMB_CS,
+    GI_VB_PLAY_ROYAL_FAMILY_TOMB_EXPLODE,
+    // Opt: *EnOkarinaTag
+    GI_VB_PLAY_DOOR_OF_TIME_CS,
 
     /*** Give Items ***/
 
+    // Opt: *EnBox
     GI_VB_GIVE_ITEM_FROM_CHEST,
     GI_VB_GIVE_ITEM_FROM_BLUE_WARP,
     // Opt: *EnItem00
@@ -257,9 +277,7 @@ typedef enum {
     // Vanilla condition: !CHECK_OWNED_EQUIP(EQUIP_TYPE_TUNIC, EQUIP_INV_TUNIC_ZORA)
     GI_VB_GIVE_ITEM_FROM_THAWING_KING_ZORA,
     // Opt: *EnGo2
-    GI_VB_GIVE_ITEM_FROM_ROLLING_GORON_AS_CHILD,
-    // Opt: *EnGo2
-    GI_VB_GIVE_ITEM_FROM_ROLLING_GORON_AS_ADULT,
+    GI_VB_GIVE_ITEM_FROM_GORON,
     // Opt: *EnJs
     GI_VB_GIVE_ITEM_FROM_CARPET_SALESMAN,
     // Opt: *EnGm
@@ -269,7 +287,20 @@ typedef enum {
     // Opt: *EnFr
     GI_VB_GIVE_ITEM_FROM_FROGS,
     // Opt: *EnSkj
-    GI_VB_GIVE_ITEM_FROM_OCARINA_MEMORY_GAME,
+    GI_VB_GIVE_ITEM_FROM_SKULL_KID_SARIAS_SONG,
+    GI_VB_GIVE_ITEM_FROM_MAN_ON_ROOF,
+    // Opt: *EnSyatekiMan
+    GI_VB_GIVE_ITEM_FROM_SHOOTING_GALLERY,
+    // Opt: *EnExItem
+    GI_VB_GIVE_ITEM_FROM_TARGET_IN_WOODS,
+    // Opt: *EnTa
+    GI_VB_GIVE_ITEM_FROM_TALONS_CHICKENS,
+    // Opt: *EnDivingGame
+    GI_VB_GIVE_ITEM_FROM_DIVING_MINIGAME,
+    // Opt: *EnGe1
+    GI_VB_GIVE_ITEM_FROM_HORSEBACK_ARCHERY,
+    // Opt: *EnSth
+    GI_VB_GIVE_ITEM_FROM_SKULLTULA_REWARD,
 
     GI_VB_GIVE_ITEM_FAIRY_OCARINA,
     GI_VB_GIVE_ITEM_WEIRD_EGG,
@@ -314,16 +345,10 @@ typedef enum {
     GI_VB_TRADE_ODD_POTION,
     // Opt: *EnToryo
     GI_VB_TRADE_SAW,
-    // Opt: *EnGo2
-    GI_VB_TRADE_BROKEN_SWORD,
     // Opt: *EnKz,
     GI_VB_TRADE_PRESCRIPTION,
     // Opt: *EnMk
     GI_VB_TRADE_FROG,
-    // Opt: *EnGo2
-    GI_VB_TRADE_EYEDROPS,
-    // Opt: *EnGo2
-    GI_VB_TRADE_CLAIM_CHECK,
 
     GI_VB_TRADE_TIMER_ODD_MUSHROOM,
     GI_VB_TRADE_TIMER_EYEDROPS,
@@ -432,21 +457,23 @@ public:
     static GameInteractionEffectQueryResult RemoveEffect(RemovableGameInteractionEffect* effect);
 
     // Game Hooks
-    uint32_t nextHookId = 0;
+    uint32_t nextHookId = 1;
     template <typename H> struct RegisteredGameHooks { inline static std::unordered_map<uint32_t, typename H::fn> functions; };
     template <typename H> struct HooksToUnregister { inline static std::vector<uint32_t> hooks; };
     template <typename H> uint32_t RegisterGameHook(typename H::fn h) {
-        // Ensure hook id is unique
+        // Ensure hook id is unique and not 0, which is reserved for invalid hooks
+        if (this->nextHookId == 0 || this->nextHookId >= UINT32_MAX) this->nextHookId = 1;
         while (RegisteredGameHooks<H>::functions.find(this->nextHookId) != RegisteredGameHooks<H>::functions.end()) {
             this->nextHookId++;
         }
+
         RegisteredGameHooks<H>::functions[this->nextHookId] = h;
         return this->nextHookId++;
     }
     template <typename H> void UnregisterGameHook(uint32_t id) {
         HooksToUnregister<H>::hooks.push_back(id);
     }
-    
+
     template <typename H, typename... Args> void ExecuteHooks(Args&&... args) {
         for (auto& hookId : HooksToUnregister<H>::hooks) {
             RegisteredGameHooks<H>::functions.erase(hookId);
@@ -509,9 +536,10 @@ public:
 
     DEFINE_HOOK(OnFileDropped, void(std::string filePath));
     DEFINE_HOOK(OnAssetAltChange, void());
+    DEFINE_HOOK(OnKaleidoUpdate, void());
 
     // Helpers
-    static bool IsSaveLoaded();
+    static bool IsSaveLoaded(bool allowDbgSave = false);
     static bool IsGameplayPaused();
     static bool CanSpawnActor();
     static bool CanAddOrTakeAmmo(int16_t amount, int16_t item);

@@ -229,7 +229,7 @@ s16 EnGo_UpdateTalkState(PlayState* play, Actor* thisx) {
                     talkState = NPC_TALK_STATE_IDLE;
                     break;
                 case 0x3036:
-                    func_8002F434(thisx, play, GI_TUNIC_GORON, xzRange, yRange);
+                    Actor_OfferGetItem(thisx, play, GI_TUNIC_GORON, xzRange, yRange);
                     Flags_SetInfTable(INFTABLE_10D); // EnGo exclusive flag
                     talkState = NPC_TALK_STATE_ACTION;
                     break;
@@ -971,12 +971,11 @@ void EnGo_GetItem(EnGo* this, PlayState* play) {
 
         if ((this->actor.params & 0xF0) == 0) {
             getItemId = GI_TUNIC_GORON;
-            Flags_SetRandomizerInf(RAND_INF_ROLLING_GORON_AS_ADULT);
         }
 
         yDist = fabsf(this->actor.yDistToPlayer) + 1.0f;
         xzDist = this->actor.xzDistToPlayer + 1.0f;
-        func_8002F434(&this->actor, play, getItemId, xzDist, yDist);
+        Actor_OfferGetItem(&this->actor, play, getItemId, xzDist, yDist);
     }
 }
 
