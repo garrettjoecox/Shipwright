@@ -401,7 +401,7 @@ RandomizerCheck EnFr_RandomizerCheckFromSongIndex(u16 songIndex) {
     }
 }
 
-void RandomzierSetChestGameRandomizerInf(RandomizerCheck rc) {
+void RandomizerSetChestGameRandomizerInf(RandomizerCheck rc) {
     switch (rc) {
         case RC_MARKET_TREASURE_CHEST_GAME_ITEM_1:
             Flags_SetRandomizerInf(RAND_INF_MARKET_TREASURE_CHEST_GAME_ITEM_1);
@@ -441,7 +441,9 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
         case GI_VB_GIVE_ITEM_FROM_CHEST: {
             EnBox* chest = static_cast<EnBox*>(optionalArg);
             RandomizerCheck rc = OTRGlobals::Instance->gRandomizer->GetCheckFromActor(chest->dyna.actor.id, gPlayState->sceneNum, chest->dyna.actor.params);
-            RandomzierSetChestGameRandomizerInf(rc);
+            
+            // if this is a treasure chest game chest then set the appropriate rando inf
+            RandomizerSetChestGameRandomizerInf(rc);
 
             Player* player = GET_PLAYER(gPlayState);
             player->av2.actionVar2 = 1;
