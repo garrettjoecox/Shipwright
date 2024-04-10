@@ -10,6 +10,7 @@
 #include "include/z64audio.h"
 #include "OTRGlobals.h"
 #include "z64.h"
+#include "macros.h"
 #include "Enhancements/game-interactor/GameInteractor.h"
 #include "soh/Enhancements/presets.h"
 #include "soh/Enhancements/mods.h"
@@ -21,6 +22,7 @@
 
 
 #include "Enhancements/audio/AudioEditor.h"
+#include "Enhancements/controls/InputViewer.h"
 #include "Enhancements/cosmetics/CosmeticsEditor.h"
 #include "Enhancements/debugger/actorViewer.h"
 #include "Enhancements/debugger/colViewer.h"
@@ -28,6 +30,7 @@
 #include "Enhancements/debugger/dlViewer.h"
 #include "Enhancements/debugger/valueViewer.h"
 #include "Enhancements/gameplaystatswindow.h"
+#include "Enhancements/debugger/MessageViewer.h"
 #include "Enhancements/randomizer/randomizer_check_tracker.h"
 #include "Enhancements/randomizer/randomizer_entrance_tracker.h"
 #include "Enhancements/randomizer/randomizer_item_tracker.h"
@@ -104,6 +107,7 @@ static const char* imguiScaleOptions[4] = { "Small", "Normal", "Large", "X-Large
         "OHKO"
     };
     static const char* timeTravelOptions[3] = { "Disabled", "Ocarina of Time", "Any Ocarina" };
+    static const char* swordToggleModes[3] = { "Disabled", "Child Toggle", "Both Ages (May lead to unintended behaviour)"};
 
 extern "C" SaveContext gSaveContext;
 
@@ -112,11 +116,11 @@ namespace SohGui {
 void DrawMenuBarIcon() {
     static bool gameIconLoaded = false;
     if (!gameIconLoaded) {
-        LUS::Context::GetInstance()->GetWindow()->GetGui()->LoadTexture("Game_Icon", "textures/icons/gIcon.png");
+        LUS::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage("Game_Icon", "textures/icons/gIcon.png");
         gameIconLoaded = true;
     }
 
-    if (LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName("Game_Icon")) {
+    if (LUS::Context::GetInstance()->GetWindow()->GetGui()->HasTextureByName("Game_Icon")) {
 #ifdef __SWITCH__
         ImVec2 iconSize = ImVec2(20.0f, 20.0f);
         float posScale = 1.0f;
@@ -180,6 +184,8 @@ void DrawShipMenu() {
 }
 
 extern std::shared_ptr<LUS::GuiWindow> mInputEditorWindow;
+extern std::shared_ptr<InputViewer> mInputViewer;
+extern std::shared_ptr<InputViewerSettingsWindow> mInputViewerSettings;
 extern std::shared_ptr<AdvancedResolutionSettings::AdvancedResolutionSettingsWindow> mAdvancedResolutionSettingsWindow;
 
 void DrawSettingsMenu() {
@@ -202,8 +208,7 @@ void DrawSettingsMenu() {
 
             static std::unordered_map<LUS::AudioBackend, const char*> audioBackendNames = {
                 { LUS::AudioBackend::WASAPI, "Windows Audio Session API" },
-                { LUS::AudioBackend::PULSE, "PulseAudio" },
-                { LUS::AudioBackend::SDL, "SDL" },
+                { LUS::AudioBackend::SDL, "SDL" }
             };
 
             ImGui::Text("Audio API (Needs reload)");
@@ -246,11 +251,25 @@ void DrawSettingsMenu() {
         #ifndef __SWITCH__
             UIWidgets::EnhancementCheckbox("Menubar Controller Navigation", "gControlNav");
             UIWidgets::Tooltip("Allows controller navigation of the SOH menu bar (Settings, Enhancements,...)\nCAUTION: This will disable game inputs while the menubar is visible.\n\nD-pad to move between items, A to select, and X to grab focus on the menu bar");
+            UIWidgets::PaddedSeparator();
         #endif
-            UIWidgets::PaddedEnhancementCheckbox("Show Inputs", "gInputEnabled", true, false);
-            UIWidgets::Tooltip("Shows currently pressed inputs on the bottom right of the screen");
-            UIWidgets::PaddedEnhancementSliderFloat("Input Scale: %.2f", "##Input", "gInputScale", 1.0f, 3.0f, "", 1.0f, false, true, true, false);
-            UIWidgets::Tooltip("Sets the on screen size of the displayed inputs from the Show Inputs setting");
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2 (12.0f, 6.0f));
+            ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0f, 0.0f));
+            ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
+            ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.22f, 0.38f, 0.56f, 1.0f));
+            if (mInputViewer) {
+                if (ImGui::Button(GetWindowButtonText("Input Viewer", CVarGetInteger("gOpenWindows.InputViewer", 0)).c_str(), ImVec2 (-1.0f, 0.0f))) {
+                    mInputViewer->ToggleVisibility();
+                }
+            }
+            if (mInputViewerSettings) {
+                if (ImGui::Button(GetWindowButtonText("Input Viewer Settings", CVarGetInteger("gOpenWindows.InputViewerSettings", 0)).c_str(), ImVec2 (-1.0f, 0.0f))) {
+                    mInputViewerSettings->ToggleVisibility();
+                }
+            }
+            ImGui::PopStyleColor(1);
+            ImGui::PopStyleVar(3);
+
             UIWidgets::PaddedEnhancementSliderInt("Simulated Input Lag: %d frames", "##SimulatedInputLag", "gSimulatedInputLag", 0, 6, "", 0, true, true, false);
             UIWidgets::Tooltip("Buffers your inputs to be executed a specified amount of frames later");
 
@@ -557,29 +576,29 @@ void DrawEnhancementsMenu() {
                 ImGui::Text("Speed-ups:");
                 UIWidgets::PaddedSeparator();
                 bool allChecked =
-                    CVarGetInteger("gTimeSavers.SkipCutscene.Intro", 0) &&
-                    CVarGetInteger("gTimeSavers.SkipCutscene.Entrances", 0) &&
-                    CVarGetInteger("gTimeSavers.SkipCutscene.Story", 0) &&
-                    CVarGetInteger("gTimeSavers.SkipCutscene.LearnSong", 0) &&
-                    CVarGetInteger("gTimeSavers.SkipCutscene.BossIntro", 0) &&
-                    CVarGetInteger("gTimeSavers.SkipCutscene.GlitchAiding", 0) &&
-                    CVarGetInteger("gTimeSavers.SkipCutscene.OnePoint", 0) &&
-                    CVarGetInteger("gTimeSavers.NoForcedDialog", 0) &&
-                    CVarGetInteger("gTimeSavers.SkipOwlInteractions", 0) &&
-                    CVarGetInteger("gTimeSavers.SkipMiscInteractions", 0) &&
-                    CVarGetInteger("gTimeSavers.DisableTitleCard", 0);
+                    CVarGetInteger("gTimeSavers.SkipCutscene.Intro", IS_RANDO) &&
+                    CVarGetInteger("gTimeSavers.SkipCutscene.Entrances", IS_RANDO) &&
+                    CVarGetInteger("gTimeSavers.SkipCutscene.Story", IS_RANDO) &&
+                    CVarGetInteger("gTimeSavers.SkipCutscene.LearnSong", IS_RANDO) &&
+                    CVarGetInteger("gTimeSavers.SkipCutscene.BossIntro", IS_RANDO) &&
+                    CVarGetInteger("gTimeSavers.SkipCutscene.GlitchAiding", IS_RANDO) &&
+                    CVarGetInteger("gTimeSavers.SkipCutscene.OnePoint", IS_RANDO) &&
+                    CVarGetInteger("gTimeSavers.NoForcedDialog", IS_RANDO) &&
+                    CVarGetInteger("gTimeSavers.SkipOwlInteractions", IS_RANDO) &&
+                    CVarGetInteger("gTimeSavers.SkipMiscInteractions", IS_RANDO) &&
+                    CVarGetInteger("gTimeSavers.DisableTitleCard", IS_RANDO);
                 bool someChecked =
-                    CVarGetInteger("gTimeSavers.SkipCutscene.Intro", 0) ||
-                    CVarGetInteger("gTimeSavers.SkipCutscene.Entrances", 0) ||
-                    CVarGetInteger("gTimeSavers.SkipCutscene.Story", 0) ||
-                    CVarGetInteger("gTimeSavers.SkipCutscene.LearnSong", 0) ||
-                    CVarGetInteger("gTimeSavers.SkipCutscene.BossIntro", 0) ||
-                    CVarGetInteger("gTimeSavers.SkipCutscene.GlitchAiding", 0) ||
-                    CVarGetInteger("gTimeSavers.SkipCutscene.OnePoint", 0) ||
-                    CVarGetInteger("gTimeSavers.NoForcedDialog", 0) ||
-                    CVarGetInteger("gTimeSavers.SkipOwlInteractions", 0) ||
-                    CVarGetInteger("gTimeSavers.SkipMiscInteractions", 0) ||
-                    CVarGetInteger("gTimeSavers.DisableTitleCard", 0);
+                    CVarGetInteger("gTimeSavers.SkipCutscene.Intro", IS_RANDO) ||
+                    CVarGetInteger("gTimeSavers.SkipCutscene.Entrances", IS_RANDO) ||
+                    CVarGetInteger("gTimeSavers.SkipCutscene.Story", IS_RANDO) ||
+                    CVarGetInteger("gTimeSavers.SkipCutscene.LearnSong", IS_RANDO) ||
+                    CVarGetInteger("gTimeSavers.SkipCutscene.BossIntro", IS_RANDO) ||
+                    CVarGetInteger("gTimeSavers.SkipCutscene.GlitchAiding", IS_RANDO) ||
+                    CVarGetInteger("gTimeSavers.SkipCutscene.OnePoint", IS_RANDO) ||
+                    CVarGetInteger("gTimeSavers.NoForcedDialog", IS_RANDO) ||
+                    CVarGetInteger("gTimeSavers.SkipOwlInteractions", IS_RANDO) ||
+                    CVarGetInteger("gTimeSavers.SkipMiscInteractions", IS_RANDO) ||
+                    CVarGetInteger("gTimeSavers.DisableTitleCard", IS_RANDO);
 
                 ImGuiContext* g = ImGui::GetCurrentContext();
                 ImGuiItemFlags backup_item_flags = g->CurrentItemFlags;
@@ -613,19 +632,19 @@ void DrawEnhancementsMenu() {
                     LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
                 }
                 g->CurrentItemFlags = backup_item_flags;
-                UIWidgets::PaddedEnhancementCheckbox("Skip Intro", "gTimeSavers.SkipCutscene.Intro");
-                UIWidgets::PaddedEnhancementCheckbox("Skip Entrance Cutscenes", "gTimeSavers.SkipCutscene.Entrances");
-                UIWidgets::PaddedEnhancementCheckbox("Skip Story Cutscenes", "gTimeSavers.SkipCutscene.Story");
-                UIWidgets::PaddedEnhancementCheckbox("Skip Song Cutscenes", "gTimeSavers.SkipCutscene.LearnSong");
-                UIWidgets::PaddedEnhancementCheckbox("Skip Boss Introductions", "gTimeSavers.SkipCutscene.BossIntro");
-                UIWidgets::PaddedEnhancementCheckbox("Skip Glitch-Aiding Cutscenes", "gTimeSavers.SkipCutscene.GlitchAiding");
+                UIWidgets::PaddedEnhancementCheckbox("Skip Intro", "gTimeSavers.SkipCutscene.Intro", false, false, false, "", UIWidgets::CheckboxGraphics::Cross, IS_RANDO);
+                UIWidgets::PaddedEnhancementCheckbox("Skip Entrance Cutscenes", "gTimeSavers.SkipCutscene.Entrances", false, false, false, "", UIWidgets::CheckboxGraphics::Cross, IS_RANDO);
+                UIWidgets::PaddedEnhancementCheckbox("Skip Story Cutscenes", "gTimeSavers.SkipCutscene.Story", false, false, false, "", UIWidgets::CheckboxGraphics::Cross, IS_RANDO);
+                UIWidgets::PaddedEnhancementCheckbox("Skip Song Cutscenes", "gTimeSavers.SkipCutscene.LearnSong", false, false, false, "", UIWidgets::CheckboxGraphics::Cross, IS_RANDO);
+                UIWidgets::PaddedEnhancementCheckbox("Skip Boss Introductions", "gTimeSavers.SkipCutscene.BossIntro", false, false, false, "", UIWidgets::CheckboxGraphics::Cross, IS_RANDO);
+                UIWidgets::PaddedEnhancementCheckbox("Skip Glitch-Aiding Cutscenes", "gTimeSavers.SkipCutscene.GlitchAiding", false, false, false, "", UIWidgets::CheckboxGraphics::Cross, IS_RANDO);
                 UIWidgets::Tooltip("Skip cutscenes that are associated with useful glitches, currently this is only the Fire Temple Darunia CS and Forest Temple Poe Sisters CS");
-                UIWidgets::PaddedEnhancementCheckbox("Skip One Point Cutscenes (Chests, Door Unlocks, etc)", "gTimeSavers.SkipCutscene.OnePoint");
-                UIWidgets::PaddedEnhancementCheckbox("No Forced Dialog", "gTimeSavers.NoForcedDialog");
+                UIWidgets::PaddedEnhancementCheckbox("Skip One Point Cutscenes (Chests, Door Unlocks, etc)", "gTimeSavers.SkipCutscene.OnePoint", false, false, false, "", UIWidgets::CheckboxGraphics::Cross, IS_RANDO);
+                UIWidgets::PaddedEnhancementCheckbox("No Forced Dialog", "gTimeSavers.NoForcedDialog", false, false, false, "", UIWidgets::CheckboxGraphics::Cross, IS_RANDO);
                 UIWidgets::Tooltip("Prevent forced conversations with Navi or other NPCs");
-                UIWidgets::PaddedEnhancementCheckbox("Skip Owl Interactions", "gTimeSavers.SkipOwlInteractions");
-                UIWidgets::PaddedEnhancementCheckbox("Skip Misc Interactions", "gTimeSavers.SkipMiscInteractions");
-                UIWidgets::PaddedEnhancementCheckbox("Disable Title Card", "gTimeSavers.DisableTitleCard");
+                UIWidgets::PaddedEnhancementCheckbox("Skip Owl Interactions", "gTimeSavers.SkipOwlInteractions", false, false, false, "", UIWidgets::CheckboxGraphics::Cross, IS_RANDO);
+                UIWidgets::PaddedEnhancementCheckbox("Skip Misc Interactions", "gTimeSavers.SkipMiscInteractions", false, false, false, "", UIWidgets::CheckboxGraphics::Cross, IS_RANDO);
+                UIWidgets::PaddedEnhancementCheckbox("Disable Title Card", "gTimeSavers.DisableTitleCard", false, false, false, "", UIWidgets::CheckboxGraphics::Cross, IS_RANDO);
 
                 UIWidgets::PaddedText("Skip Get Item Animations", true, false);
                 UIWidgets::EnhancementCombobox("gTimeSavers.SkipGetItemAnimation", skipGetItemAnimationOptions, SGIA_DISABLED);
@@ -643,8 +662,37 @@ void DrawEnhancementsMenu() {
                 UIWidgets::PaddedEnhancementSliderInt("Crawl speed %dx", "##CRAWLSPEED", "gCrawlSpeed", 1, 5, "", 1, true, false, true);
                 UIWidgets::PaddedEnhancementCheckbox("Faster Heavy Block Lift", "gFasterHeavyBlockLift", false, false);
                 UIWidgets::Tooltip("Speeds up lifting silver rocks and obelisks");
-                UIWidgets::PaddedEnhancementCheckbox("Link as default file name", "gLinkDefaultName", true, false);
-                UIWidgets::Tooltip("Allows you to have \"Link\" as a premade file name");
+                UIWidgets::PaddedEnhancementCheckbox("Skip Pickup Messages", "gFastDrops", true, false);
+                UIWidgets::Tooltip("Skip pickup messages for new consumable items and bottle swipes");
+                UIWidgets::PaddedEnhancementCheckbox("Fast Ocarina Playback", "gFastOcarinaPlayback", true, false);
+                UIWidgets::Tooltip("Skip the part where the Ocarina playback is called when you play a song");
+                bool forceSkipScarecrow = IS_RANDO && OTRGlobals::Instance->gRandomizer->GetRandoSettingValue(RSK_SKIP_SCARECROWS_SONG);
+                static const char* forceSkipScarecrowText = "This setting is forcefully enabled because a savefile\nwith \"Skip Scarecrow Song\" is loaded";
+                UIWidgets::PaddedEnhancementCheckbox("Skip Scarecrow Song", "gSkipScarecrow", true, false,
+                                                        forceSkipScarecrow, forceSkipScarecrowText, UIWidgets::CheckboxGraphics::Checkmark);
+                UIWidgets::Tooltip("Pierre appears when Ocarina is pulled out. Requires learning scarecrow song.");
+                UIWidgets::PaddedEnhancementCheckbox("Skip Magic Arrow Equip Animation", "gSkipArrowAnimation", true, false);
+                UIWidgets::PaddedEnhancementCheckbox("Skip save confirmation", "gSkipSaveConfirmation", true, false);
+                UIWidgets::Tooltip("Skip the \"Game saved.\" confirmation screen");
+                UIWidgets::PaddedEnhancementCheckbox("Faster Farore's Wind", "gFastFarores", true, false);
+                UIWidgets::Tooltip("Greatly decreases cast time of Farore's Wind magic spell.");
+                UIWidgets::PaddedEnhancementCheckbox("Skip water take breath animation", "gSkipSwimDeepEndAnim", true, false);
+                UIWidgets::Tooltip("Skips Link's taking breath animation after coming up from water. This setting does not interfere with getting items from underwater.");
+
+                ImGui::TableNextColumn();
+                UIWidgets::Spacer(0);
+                ImGui::Text("Changes:");
+                UIWidgets::PaddedSeparator();
+
+                UIWidgets::PaddedEnhancementSliderInt("Biggoron Forge Time: %d days", "##FORGETIME", "gForgeTime", 0, 3, "", 3, true, false, true);
+                UIWidgets::Tooltip("Allows you to change the number of days it takes for Biggoron to forge the Biggoron Sword");
+                UIWidgets::PaddedEnhancementCheckbox("Remember Save Location", "gRememberSaveLocation", false, false);
+                UIWidgets::Tooltip("When loading a save, places Link at the last entrance he went through.\n"
+                        "This doesn't work if the save was made in grottos/fairy fountains or dungeons.");
+                UIWidgets::PaddedEnhancementCheckbox("No Forced Navi", "gNoForcedNavi", true, false);
+                UIWidgets::Tooltip("Prevent forced Navi conversations");
+                UIWidgets::PaddedEnhancementCheckbox("Navi Timer Resets", "gEnhancements.ResetNaviTimer", true, false);
+                UIWidgets::Tooltip("Resets the Navi timer on scene change. If you have already talked to her, she will try and talk to you again, instead of needing a save warp or death. ");
                 UIWidgets::PaddedEnhancementCheckbox("No Skulltula Freeze", "gSkulltulaFreeze", true, false);
                 UIWidgets::Tooltip("Stops the game from freezing the player when picking up Gold Skulltulas");
                 UIWidgets::PaddedEnhancementCheckbox("Nighttime GS Always Spawn", "gNightGSAlwaysSpawn", true, false);
@@ -680,6 +728,8 @@ void DrawEnhancementsMenu() {
                 UIWidgets::Tooltip("The default response to Kaepora Gaebora is always that you understood what he said");
                 UIWidgets::PaddedEnhancementCheckbox("Exit Market at Night", "gMarketSneak", true, false);
                 UIWidgets::Tooltip("Allows exiting Hyrule Castle Market Town to Hyrule Field at night by speaking to the guard next to the gate.");
+                UIWidgets::PaddedEnhancementCheckbox("Shops and Games Always Open", "gEnhancements.OpenAllHours", true, false);
+                UIWidgets::Tooltip("Shops and minigames are open both day and night. Requires scene reload to take effect.");
                 UIWidgets::PaddedEnhancementCheckbox("Link as default file name", "gLinkDefaultName", true, false);
                 UIWidgets::Tooltip("Allows you to have \"Link\" as a premade file name");
 				UIWidgets::PaddedEnhancementCheckbox("Quit Fishing At Door", "gQuitFishingAtDoor", true, false);
@@ -694,6 +744,8 @@ void DrawEnhancementsMenu() {
                     "- Obtained the Master Sword\n"
                     "- Not within range of Time Block\n"
                     "- Not within range of Ocarina playing spots");
+                UIWidgets::PaddedEnhancementCheckbox("Pause Warp", "gPauseWarp", true, false);
+                UIWidgets::Tooltip("Selection of warp song in pause menu initiates warp. Disables song playback.");
                 
                 ImGui::EndTable();
                 ImGui::EndMenu();
@@ -991,9 +1043,13 @@ void DrawEnhancementsMenu() {
                 UIWidgets::Tooltip("Bonking into trees will have a chance to drop up to 3 sticks. Must already have obtained sticks.");
                 UIWidgets::PaddedEnhancementCheckbox("No Heart Drops", "gNoHeartDrops", true, false);
                 UIWidgets::Tooltip("Disables heart drops, but not heart placements, like from a Deku Scrub running off\nThis simulates Hero Mode from other games in the series");
-                UIWidgets::PaddedEnhancementCheckbox("Hyper Bosses", "gHyperBosses", true, false);
+                if (UIWidgets::PaddedEnhancementCheckbox("Hyper Bosses", "gHyperBosses", true, false)) {
+                    UpdateHyperBossesState();
+                }
                 UIWidgets::Tooltip("All major bosses move and act twice as fast.");
-                UIWidgets::PaddedEnhancementCheckbox("Hyper Enemies", "gHyperEnemies", true, false);
+                if (UIWidgets::PaddedEnhancementCheckbox("Hyper Enemies", "gHyperEnemies", true, false)) {
+                    UpdateHyperEnemiesState();
+                }
                 UIWidgets::Tooltip("All regular enemies and mini-bosses move and act twice as fast.");
                 UIWidgets::PaddedEnhancementCheckbox("Always Win Goron Pot", "gGoronPot", true, false);
                 UIWidgets::Tooltip("Always get the heart piece/purple rupee from the spinning Goron pot");
@@ -1004,6 +1060,8 @@ void DrawEnhancementsMenu() {
                 UIWidgets::Tooltip("All dogs can be traded in and will count as Richard.");
                 UIWidgets::PaddedEnhancementSliderInt("Cuccos Stay Put Multiplier: %dx", "##CuccoStayDurationMultiplier", "gCuccoStayDurationMultiplier", 1, 5, "", 1, true, true, false);
                 UIWidgets::Tooltip("Cuccos will stay in place longer after putting them down, by a multiple of the value of the slider.");
+                UIWidgets::PaddedEnhancementSliderInt("Leever Spawn Rate: %d seconds", "##LeeverSpawnRate", "gEnhancements.LeeverSpawnRate", 0, 10, "", 0, true, true, false);
+                UIWidgets::Tooltip("The time between leever groups spawning.");
 
                 ImGui::EndMenu();
             }
@@ -1020,6 +1078,8 @@ void DrawEnhancementsMenu() {
                 UIWidgets::Tooltip("Disables the voice audio when Navi calls you");
                 UIWidgets::PaddedEnhancementCheckbox("Disable Hot/Underwater Warning Text", "gDisableTunicWarningText", true, false);
                 UIWidgets::Tooltip("Disables warning text when you don't have on the Goron/Zora Tunic in Hot/Underwater conditions.");
+                UIWidgets::PaddedEnhancementCheckbox("Remember Minimap State Between Areas", "gEnhancements.RememberMapToggleState");
+                UIWidgets::Tooltip("Preserves the minimap visibility state when going between areas rather than defaulting it to \"on\" when going through loading zones.");
 
                 ImGui::EndMenu();
             }
@@ -1032,6 +1092,17 @@ void DrawEnhancementsMenu() {
             UIWidgets::Tooltip("Allows equipping the tunic and boots to c-buttons");
             UIWidgets::PaddedEnhancementCheckbox("Equipment Toggle", "gEquipmentCanBeRemoved", true, false);
             UIWidgets::Tooltip("Allows equipment to be removed by toggling it off on\nthe equipment subscreen.");
+            if (CVarGetInteger("gEquipmentCanBeRemoved", 0)) {
+                UIWidgets::PaddedText("Sword Toggle Options", true, false);
+                UIWidgets::EnhancementCombobox("gEnhancements.SwordToggle", swordToggleModes, SWORD_TOGGLE_NONE);
+                UIWidgets::Tooltip(
+                    "Introduces Options for unequipping Link's sword\n\n"
+                    "None: Only Biggoron's Sword/Giant's Knife can be toggled. Doing so will equip the Master Sword.\n\n"
+                    "Child Toggle: This will allow for completely unequipping any sword as child link.\n\n"
+                    "Both Ages: Any sword can be unequipped as either age. This may lead to swordless glitches as Adult.\n"
+                );
+            }
+
             UIWidgets::PaddedEnhancementCheckbox("Link's Cow in Both Time Periods", "gCowOfTime", true, false);
             UIWidgets::Tooltip("Allows the Lon Lon Ranch obstacle course reward to be shared across time periods");
             UIWidgets::PaddedEnhancementCheckbox("Enable visible guard vision", "gGuardVision", true, false);
@@ -1198,6 +1269,8 @@ void DrawEnhancementsMenu() {
             UIWidgets::Tooltip("Space between text characters (useful for HD font textures)");
             UIWidgets::PaddedEnhancementCheckbox("More info in file select", "gFileSelectMoreInfo", true, false);
             UIWidgets::Tooltip("Shows what items you have collected in the file select screen, like in N64 randomizer");
+            UIWidgets::PaddedEnhancementCheckbox("Better ammo rendering in pause menu", "gEnhancements.BetterAmmoRendering", true, false);
+            UIWidgets::Tooltip("Ammo counts in the pause menu will work correctly regardless of the position of items in the inventory");
             ImGui::EndMenu();
         }
 
@@ -1265,6 +1338,11 @@ void DrawEnhancementsMenu() {
             UIWidgets::PaddedEnhancementCheckbox("Fix Darunia dancing too fast", "gEnhancements.FixDaruniaDanceSpeed",
                                                  true, false, false, "", UIWidgets::CheckboxGraphics::Cross, true);
             UIWidgets::Tooltip("Fixes Darunia's dancing speed so he dances to the beat of Saria's Song, like in vanilla.");
+            UIWidgets::PaddedEnhancementCheckbox("Fix raised Floor Switches", "gEnhancements.FixFloorSwitches", true, false);
+            UIWidgets::Tooltip("Fixes the two raised floor switches, the one in Forest Temple Basement and the one at the top of Fire Temple. \n"
+                "This will lower them, making activating them easier");
+            UIWidgets::PaddedEnhancementCheckbox("Fix Zora hint dialogue", "gFixZoraHintDialogue", true, false);
+            UIWidgets::Tooltip("Fixes one Zora's dialogue giving a hint about bringing Ruto's Letter to King Zora to properly occur before moving King Zora rather than after");
 
             ImGui::EndMenu();
         }
@@ -1556,6 +1634,8 @@ void DrawCheatsMenu() {
         UIWidgets::Tooltip("This syncs the ingame time with the real world time");
         UIWidgets::PaddedEnhancementCheckbox("No ReDead/Gibdo Freeze", "gNoRedeadFreeze", true, false);
         UIWidgets::Tooltip("Prevents ReDeads and Gibdos from being able to freeze you with their scream");
+        UIWidgets::PaddedEnhancementCheckbox("Keese/Guay don't target you", "gNoKeeseGuayTarget", true, false);
+        UIWidgets::Tooltip("Keese and Guay no longer target you and simply ignore you as if you were wearing the skull mask");
         {
             static int32_t betaQuestEnabled = CVarGetInteger("gEnableBetaQuest", 0);
             static int32_t lastBetaQuestEnabled = betaQuestEnabled;
@@ -1632,6 +1712,7 @@ extern std::shared_ptr<ColViewerWindow> mColViewerWindow;
 extern std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
 extern std::shared_ptr<DLViewerWindow> mDLViewerWindow;
 extern std::shared_ptr<ValueViewerWindow> mValueViewerWindow;
+extern std::shared_ptr<MessageViewer> mMessageViewerWindow;
 
 void DrawDeveloperToolsMenu() {
     if (ImGui::BeginMenu("Developer Tools")) {
@@ -1729,6 +1810,12 @@ void DrawDeveloperToolsMenu() {
         if (mValueViewerWindow) {
             if (ImGui::Button(GetWindowButtonText("Value Viewer", CVarGetInteger("gValueViewer.WindowOpen", 0)).c_str(), ImVec2(-1.0f, 0.0f))) {
                 mValueViewerWindow->ToggleVisibility();
+            }
+        }
+        UIWidgets::Spacer(0);
+        if (mMessageViewerWindow) {
+            if (ImGui::Button(GetWindowButtonText("Message Viewer", CVarGetInteger("gMessageViewerEnabled", 0)).c_str(), ImVec2(-1.0f, 0.0f))) {
+                mMessageViewerWindow->ToggleVisibility();
             }
         }
 
@@ -1876,6 +1963,7 @@ extern std::shared_ptr<ItemTrackerSettingsWindow> mItemTrackerSettingsWindow;
 extern std::shared_ptr<EntranceTrackerWindow> mEntranceTrackerWindow;
 extern std::shared_ptr<CheckTracker::CheckTrackerWindow> mCheckTrackerWindow;
 extern std::shared_ptr<CheckTracker::CheckTrackerSettingsWindow> mCheckTrackerSettingsWindow;
+extern "C" u8 Randomizer_GetSettingValue(RandomizerSettingKey randoSettingKey);
 
 void DrawRandomizerMenu() {
     if (ImGui::BeginMenu("Randomizer")) {
@@ -1966,7 +2054,7 @@ void DrawRandomizerMenu() {
                 disableKeyColors = false;
             }
 
-            static const char* disableKeyColorsText = 
+            static const char* disableKeyColorsText =
                 "This setting is disabled because a savefile is loaded without any key\n"
                 "shuffle settings set to \"Any Dungeon\", \"Overworld\" or \"Anywhere\"";
 
@@ -1975,7 +2063,23 @@ void DrawRandomizerMenu() {
             UIWidgets::Tooltip(
                 "Matches the color of small keys and boss keys to the dungeon they belong to. "
                 "This helps identify keys from afar and adds a little bit of flair.\n\nThis only "
-                "applies to seeds with keys and boss keys shuffled to Any Dungeon, Overworld, or Anywhere.");
+                "applies to seeds with keys and boss keys shuffled to \"Any Dungeon\", \"Overworld\", or \"Anywhere\".");
+
+            bool disableCompassColors = !DUNGEON_ITEMS_CAN_BE_OUTSIDE_DUNGEON(RSK_SHUFFLE_MAPANDCOMPASS);
+
+            static const char* disableCompassColorsText =
+                "This setting is disabled because a savefile is loaded without the compass\n"
+                "shuffle settings set to \"Any Dungeon\", \"Overworld\" or \"Anywhere\"";
+
+            if (UIWidgets::PaddedEnhancementCheckbox("Compass Colors Match Dungeon", "gRandoEnhancement.MatchCompassColors", true, false,
+                                                  disableCompassColors, disableCompassColorsText, UIWidgets::CheckboxGraphics::Cross, true)) {
+                PatchCompasses();
+            }
+            UIWidgets::Tooltip(
+                "Matches the color of compasses to the dungeon they belong to. "
+                "This helps identify compasses from afar and adds a little bit of flair.\n\nThis only "
+                "applies to seeds with compasses shuffled to \"Any Dungeon\", \"Overworld\", or \"Anywhere\".");
+
             UIWidgets::PaddedEnhancementCheckbox("Quest Item Fanfares", "gRandoQuestItemFanfares", true, false);
             UIWidgets::Tooltip(
                 "Play unique fanfares when obtaining quest items "
@@ -2028,4 +2132,4 @@ void SohMenuBar::DrawElement() {
         ImGui::EndMenuBar();
     }
 }
-} // namespace SohGui 
+} // namespace SohGui

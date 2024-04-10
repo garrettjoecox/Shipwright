@@ -678,7 +678,7 @@ void EnOssan_EndInteraction(PlayState* play, EnOssan* this) {
     Actor_ProcessTalkRequest(&this->actor, play);
     play->msgCtx.msgMode = MSGMODE_TEXT_CLOSING;
     play->msgCtx.stateTimer = 4;
-    player->stateFlags2 &= ~0x20000000;
+    player->stateFlags2 &= ~PLAYER_STATE2_DISABLE_DRAW;
     func_800BC490(play, 1);
     Interface_ChangeAlpha(50);
     this->drawCursor = 0;
@@ -762,7 +762,7 @@ void EnOssan_State_Idle(EnOssan* this, PlayState* play, Player* player) {
     if (Actor_ProcessTalkRequest(&this->actor, play)) {
         // "Start conversation!!"
         osSyncPrintf(VT_FGCOL(YELLOW) "★★★ 会話開始！！ ★★★" VT_RST "\n");
-        player->stateFlags2 |= 0x20000000;
+        player->stateFlags2 |= PLAYER_STATE2_DISABLE_DRAW;
         func_800BC590(play);
         EnOssan_SetStateStartShopping(play, this, false);
     } else if (this->actor.xzDistToPlayer < 100.0f) {
@@ -1389,7 +1389,7 @@ void EnOssan_GiveItemWithFanfare(PlayState* play, EnOssan* this) {
 
     osSyncPrintf("\n" VT_FGCOL(YELLOW) "初めて手にいれた！！" VT_RST "\n\n");
     if (!IS_RANDO) {
-        func_8002F434(&this->actor, play, this->shelfSlots[this->cursorIndex]->getItemId, 120.0f, 120.0f);
+        Actor_OfferGetItem(&this->actor, play, this->shelfSlots[this->cursorIndex]->getItemId, 120.0f, 120.0f);
     } else {
         ShopItemIdentity shopItemIdentity = Randomizer_IdentifyShopItem(play->sceneNum, this->cursorIndex);
         // en_ossan/en_girla are also used for the happy mask shop, which never has randomized items
@@ -1398,12 +1398,12 @@ void EnOssan_GiveItemWithFanfare(PlayState* play, EnOssan* this) {
             GetItemEntry getItemEntry = Randomizer_GetItemFromKnownCheck(shopItemIdentity.randomizerCheck, shopItemIdentity.ogItemId);
             GiveItemEntryFromActor(&this->actor, play, getItemEntry, 120.0f, 120.0f);
         } else {
-            func_8002F434(&this->actor, play, this->shelfSlots[this->cursorIndex]->getItemId, 120.0f, 120.0f);
+            Actor_OfferGetItem(&this->actor, play, this->shelfSlots[this->cursorIndex]->getItemId, 120.0f, 120.0f);
         }
     }
     play->msgCtx.msgMode = MSGMODE_TEXT_CLOSING;
     play->msgCtx.stateTimer = 4;
-    player->stateFlags2 &= ~0x20000000;
+    player->stateFlags2 &= ~PLAYER_STATE2_DISABLE_DRAW;
     func_800BC490(play, 1);
     Interface_ChangeAlpha(50);
     this->drawCursor = 0;
@@ -1736,7 +1736,7 @@ void EnOssan_State_GiveItemWithFanfare(EnOssan* this, PlayState* play, Player* p
         return;
     }
     if (!IS_RANDO) {
-        func_8002F434(&this->actor, play, this->shelfSlots[this->cursorIndex]->getItemId, 120.0f, 120.0f);
+        Actor_OfferGetItem(&this->actor, play, this->shelfSlots[this->cursorIndex]->getItemId, 120.0f, 120.0f);
     } else {
         ShopItemIdentity shopItemIdentity = Randomizer_IdentifyShopItem(play->sceneNum, this->cursorIndex);
         // en_ossan/en_girla are also used for the happy mask shop, which never has randomized items
@@ -1746,7 +1746,7 @@ void EnOssan_State_GiveItemWithFanfare(EnOssan* this, PlayState* play, Player* p
                 Randomizer_GetItemFromKnownCheck(shopItemIdentity.randomizerCheck, shopItemIdentity.ogItemId);
             GiveItemEntryFromActor(&this->actor, play, getItemEntry, 120.0f, 120.0f);
         } else {
-            func_8002F434(&this->actor, play, this->shelfSlots[this->cursorIndex]->getItemId, 120.0f, 120.0f);
+            Actor_OfferGetItem(&this->actor, play, this->shelfSlots[this->cursorIndex]->getItemId, 120.0f, 120.0f);
         }
     }
 }
@@ -1811,7 +1811,7 @@ void EnOssan_State_ContinueShoppingPrompt(EnOssan* this, PlayState* play, Player
                     case 0:
                         osSyncPrintf(VT_FGCOL(YELLOW) "★★★ 続けるよ！！ ★★★" VT_RST "\n");
                         player->actor.shape.rot.y += 0x8000;
-                        player->stateFlags2 |= 0x20000000;
+                        player->stateFlags2 |= PLAYER_STATE2_DISABLE_DRAW;
                         func_800BC490(play, 2);
                         Message_StartTextbox(play, this->actor.textId, &this->actor);
                         EnOssan_SetStateStartShopping(play, this, true);
@@ -1830,7 +1830,7 @@ void EnOssan_State_ContinueShoppingPrompt(EnOssan* this, PlayState* play, Player
         selectedItem = this->shelfSlots[this->cursorIndex];
         selectedItem->updateStockedItemFunc(play, selectedItem);
         player->actor.shape.rot.y += 0x8000;
-        player->stateFlags2 |= 0x20000000;
+        player->stateFlags2 |= PLAYER_STATE2_DISABLE_DRAW;
         func_800BC490(play, 2);
         Message_StartTextbox(play, this->actor.textId, &this->actor);
         EnOssan_SetStateStartShopping(play, this, true);

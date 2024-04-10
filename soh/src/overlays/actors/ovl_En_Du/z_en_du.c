@@ -354,19 +354,19 @@ void func_809FE3B4(EnDu* this, PlayState* play) {
 void func_809FE3C0(EnDu* this, PlayState* play) {
     Player* player = GET_PLAYER(play);
 
-    if (player->stateFlags2 & 0x1000000) {
+    if (player->stateFlags2 & PLAYER_STATE2_ATTEMPT_PLAY_FOR_ACTOR) {
         func_8010BD88(play, OCARINA_ACTION_CHECK_SARIA);
-        player->stateFlags2 |= 0x2000000;
+        player->stateFlags2 |= PLAYER_STATE2_PLAY_FOR_ACTOR;
         player->unk_6A8 = &this->actor;
         EnDu_SetupAction(this, func_809FE4A4);
         return;
     }
     if (this->interactInfo.talkState == NPC_TALK_STATE_ACTION) {
-        func_8002DF54(play, &this->actor, 7);
+        Player_SetCsActionWithHaltedActors(play, &this->actor, 7);
         this->interactInfo.talkState = NPC_TALK_STATE_IDLE;
     }
     if (this->actor.xzDistToPlayer < 116.0f + this->collider.dim.radius) {
-        player->stateFlags2 |= 0x800000;
+        player->stateFlags2 |= PLAYER_STATE2_NEAR_OCARINA_ACTOR;
     }
 }
 
@@ -394,14 +394,14 @@ void func_809FE4A4(EnDu* this, PlayState* play) {
         EnDu_SetupAction(this, func_809FE890);
         play->msgCtx.ocarinaMode = OCARINA_MODE_04;
     } else {
-        player->stateFlags2 |= 0x800000;
+        player->stateFlags2 |= PLAYER_STATE2_NEAR_OCARINA_ACTOR;
     }
 }
 
 void func_809FE638(EnDu* this, PlayState* play) {
     Player* player = GET_PLAYER(play);
 
-    if (!(player->stateFlags1 & 0x20000000)) {
+    if (!(player->stateFlags1 & PLAYER_STATE1_IN_CUTSCENE)) {
         OnePointCutscene_Init(play, 3330, -99, &this->actor, MAIN_CAM);
         player->actor.shape.rot.y = player->actor.world.rot.y = this->actor.world.rot.y + 0x7FFF;
         Audio_PlayFanfare(NA_BGM_APPEAR);
@@ -476,7 +476,7 @@ void func_809FE890(EnDu* this, PlayState* play) {
     CsCmdActorAction* csAction;
 
     if (play->csCtx.state == CS_STATE_IDLE) {
-        func_8002DF54(play, &this->actor, 1);
+        Player_SetCsActionWithHaltedActors(play, &this->actor, 1);
         EnDu_SetupAction(this, func_809FEB08);
         return;
     }
@@ -549,7 +549,7 @@ void func_809FEB08(EnDu* this, PlayState* play) {
     this->unk_1EE = 0;
 
     if (this->unk_1E8 == 1) {
-        func_8002DF54(play, &this->actor, 7);
+        Player_SetCsActionWithHaltedActors(play, &this->actor, 7);
         Animation_ChangeByInfo(&this->skelAnime, sAnimationInfo, ENDU_ANIM_1);
         EnDu_SetupAction(this, func_809FE3C0);
         return;
@@ -569,7 +569,7 @@ void func_809FEB08(EnDu* this, PlayState* play) {
 
 void func_809FEC14(EnDu* this, PlayState* play) {
     if (this->interactInfo.talkState == NPC_TALK_STATE_ACTION) {
-        func_8002DF54(play, &this->actor, 7);
+        Player_SetCsActionWithHaltedActors(play, &this->actor, 7);
         EnDu_SetupAction(this, func_809FEC70);
         func_809FEC70(this, play);
     }
@@ -582,7 +582,7 @@ void func_809FEC70(EnDu* this, PlayState* play) {
     } else {
         f32 xzRange = this->actor.xzDistToPlayer + 1.0f;
 
-        func_8002F434(&this->actor, play, GI_BRACELET, xzRange, fabsf(this->actor.yDistToPlayer) + 1.0f);
+        Actor_OfferGetItem(&this->actor, play, GI_BRACELET, xzRange, fabsf(this->actor.yDistToPlayer) + 1.0f);
     }
 }
 
