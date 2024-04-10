@@ -236,24 +236,6 @@ void ItemEtcetera_Draw(Actor* thisx, PlayState* play) {
     ItemEtcetera* this = (ItemEtcetera*)thisx;
     s32 type = this->actor.params & 0xFF;
 
-    // if (IS_RANDO) {
-    //     GetItemEntry randoGetItem = (GetItemEntry)GET_ITEM_NONE;
-    //     if (type == ITEM_ETC_ARROW_FIRE) {
-    //         randoGetItem = Randomizer_GetItemFromKnownCheck(RC_LH_SUN, GI_ARROW_FIRE);
-    //     } else if (type == ITEM_ETC_LETTER) {
-    //         randoGetItem = Randomizer_GetItemFromKnownCheck(RC_LH_UNDERWATER_ITEM, GI_LETTER_RUTO);
-    //     }
-
-    //     EnItem00_CustomItemsParticles(&this->actor, play, randoGetItem);
-
-    //     if (randoGetItem.itemId != ITEM_NONE) {
-    //         func_8002EBCC(&this->actor, play, 0);
-    //         func_8002ED80(&this->actor, play, 0);
-    //         GetItemEntry_Draw(play, randoGetItem);
-    //         return;
-    //     }
-    // }
-
     func_8002EBCC(&this->actor, play, 0);
     func_8002ED80(&this->actor, play, 0);
     GetItem_Draw(play, this->giDrawId);
