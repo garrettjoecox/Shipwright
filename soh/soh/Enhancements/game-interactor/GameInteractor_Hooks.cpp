@@ -95,10 +95,6 @@ bool GameInteractor_Should(GIVanillaBehavior flag, bool result, void* opt) {
     return result;
 }
 
-void GameInteractor_CustomHook(GICustomHook flag, void* opt) {
-    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnCustomHook>(flag, opt);
-}
-
 // MARK: -  Save Files
 
 void GameInteractor_ExecuteOnSaveFile(int32_t fileNum) {
