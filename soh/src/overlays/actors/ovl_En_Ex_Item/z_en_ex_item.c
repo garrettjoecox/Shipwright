@@ -173,11 +173,7 @@ void EnExItem_WaitForObject(EnExItem* this, PlayState* play) {
                 onCounter = true;
             case EXITEM_BOMBCHUS_BOWLING:
                 this->unk_17C = func_8002EBCC;
-                if (IS_RANDO) {
-                    this->giDrawId = Randomizer_GetItemFromKnownCheck(RC_MARKET_BOMBCHU_BOWLING_BOMBCHUS, GI_BOMBCHUS_10).gid;
-                } else {
-                    this->giDrawId = GID_BOMBCHU;
-                }
+                this->giDrawId = GID_BOMBCHU;
                 this->timer = 65;
                 this->prizeRotateTimer = 35;
                 this->scale = 0.5f;
@@ -496,29 +492,6 @@ void EnExItem_DrawItems(EnExItem* this, PlayState* play) {
     }
     if (this) {}
     func_8002ED80(&this->actor, play, 0);
-    if (IS_RANDO) {
-        GetItemEntry randoGetItem = (GetItemEntry)GET_ITEM_NONE;
-        switch (this->type) {
-            case EXITEM_BOMB_BAG_BOWLING:
-            case EXITEM_BOMB_BAG_COUNTER:
-                randoGetItem = Randomizer_GetItemFromKnownCheck(RC_MARKET_BOMBCHU_BOWLING_FIRST_PRIZE, GI_BOMB_BAG_20);
-                break;
-            case EXITEM_BOMBCHUS_BOWLING:
-            case EXITEM_BOMBCHUS_COUNTER:
-                randoGetItem = Randomizer_GetItemFromKnownCheck(RC_MARKET_BOMBCHU_BOWLING_BOMBCHUS, GI_BOMBCHUS_10);
-                break;
-            case EXITEM_BULLET_BAG:
-                randoGetItem = Randomizer_GetItemFromKnownCheck(RC_LW_TARGET_IN_WOODS, GI_BULLET_BAG_50);
-                break;
-        }
-
-        if (randoGetItem.getItemId != GI_NONE) {
-            EnItem00_CustomItemsParticles(&this->actor, play, randoGetItem);
-            GetItemEntry_Draw(play, randoGetItem);
-            return;
-        }
-    }
-
     GetItem_Draw(play, this->giDrawId);
 }
 

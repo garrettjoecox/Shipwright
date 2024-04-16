@@ -30,6 +30,7 @@ extern "C" {
 #include "src/overlays/actors/ovl_En_Skj/z_en_skj.h"
 #include "src/overlays/actors/ovl_En_Hy/z_en_hy.h"
 #include "src/overlays/actors/ovl_Obj_Comb/z_obj_comb.h"
+#include "src/overlays/actors/ovl_En_Bom_Bowl_Pit/z_en_bom_bowl_pit.h"
 #include "adult_trade_shuffle.h"
 extern SaveContext gSaveContext;
 extern PlayState* gPlayState;
@@ -930,6 +931,13 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             gSaveContext.dogIsLost = false;
             enHy->actionFunc = func_80A7127C;
             *should = false;
+            break;
+        }
+        case GI_VB_GIVE_ITEM_FROM_BOMBCHU_BOWLING: {
+            EnBomBowlPit* enBomBowlPit = static_cast<EnBomBowlPit*>(optionalArg);
+            if (enBomBowlPit->prizeIndex == EXITEM_BOMB_BAG_BOWLING || enBomBowlPit->prizeIndex == EXITEM_HEART_PIECE_BOWLING) {
+                *should = false;
+            }
             break;
         }
         case GI_VB_TRADE_TIMER_ODD_MUSHROOM:
