@@ -27,6 +27,8 @@ extern "C" {
 #include "src/overlays/actors/ovl_En_Sth/z_en_sth.h"
 #include "src/overlays/actors/ovl_Item_Etcetera/z_item_etcetera.h"
 #include "src/overlays/actors/ovl_En_Box/z_en_box.h"
+#include "src/overlays/actors/ovl_En_Skj/z_en_skj.h"
+#include "src/overlays/actors/ovl_En_Hy/z_en_hy.h"
 #include "adult_trade_shuffle.h"
 extern SaveContext gSaveContext;
 extern PlayState* gPlayState;
