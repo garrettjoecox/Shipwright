@@ -1272,9 +1272,8 @@ void RandomizerOnActorInitHandler(void* actorRef) {
         }
         if (rc != RC_UNKNOWN_CHECK) {
             enExItem->sohItemEntry = Rando::Context::GetInstance()->GetFinalGIEntry(rc, true, (GetItemID)Rando::StaticData::GetLocation(rc)->GetVanillaItem());
+            enExItem->actionFunc = (EnExItemActionFunc)EnExItem_WaitForObjectRandomized;
         }
-
-        enExItem->actionFunc = (EnExItemActionFunc)EnExItem_WaitForObjectRandomized;
     }
 }
 
