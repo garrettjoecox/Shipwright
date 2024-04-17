@@ -130,9 +130,7 @@ void EnExItem_WaitForObject(EnExItem* this, PlayState* play) {
         osSyncPrintf(VT_FGCOL(PURPLE) "☆☆☆☆☆ 転送終了 ☆☆☆☆☆ %d\n" VT_RST, this->actor.params, this);
         osSyncPrintf(VT_FGCOL(CYAN) "☆☆☆☆☆ 転送終了 ☆☆☆☆☆ %d\n\n" VT_RST, this->actor.params, this);
         this->actor.objBankIndex = this->objectIdx;
-        if (GameInteractor_Should(GI_VB_DRAW_EX_ITEM, true, this)) {
-            this->actor.draw = EnExItem_Draw;
-        }
+        this->actor.draw = EnExItem_Draw;
         this->stopRotate = false;
         onCounter = false;
         switch (this->type) {
@@ -255,8 +253,6 @@ void EnExItem_WaitForObject(EnExItem* this, PlayState* play) {
             case EXITEM_SMALL_KEY_CHEST:
                 break;
         }
-
-        GameInteractor_Should(GI_VB_ADJUST_EX_ITEM_SCALE_AND_POSITION, false, this);
     }
 }
 

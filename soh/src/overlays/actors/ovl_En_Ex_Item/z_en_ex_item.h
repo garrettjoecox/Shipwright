@@ -55,6 +55,8 @@ typedef enum {
     /* 19 */ EXITEM_BULLET_BAG
 } EnExItemType;
 
+void EnExItem_WaitForObject(EnExItem* enExItem, PlayState* play);
+
 #define EXITEM_COUNTER 5
 #define EXITEM_CHEST 10
 #define EXITEM_MAGIC 16

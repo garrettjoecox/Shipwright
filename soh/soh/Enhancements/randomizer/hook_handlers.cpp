@@ -258,10 +258,27 @@ void RandomizerOnItemReceiveHandler(GetItemEntry receivedItemEntry) {
 }
 
 void EnExItem_DrawRandomizedItem(EnExItem* enExItem, PlayState* play) {
-    Actor_SetScale(&enExItem->actor, enExItem->scale);
     func_8002ED80(&enExItem->actor, play, 0);
     EnItem00_CustomItemsParticles(&enExItem->actor, play, enExItem->sohItemEntry);
     GetItemEntry_Draw(play, enExItem->sohItemEntry);
+}
+
+void EnExItem_WaitForObjectRandomized(EnExItem* enExItem, PlayState* play) {
+    EnExItem_WaitForObject(enExItem, play);
+    if (Object_IsLoaded(&play->objectCtx, enExItem->objectIdx)) {
+        enExItem->actor.draw = (ActorFunc)EnExItem_DrawRandomizedItem;
+        Actor_SetScale(&enExItem->actor, enExItem->scale);
+        
+        // for now we're just using this to not have items float
+        // below the bowling counter, but it would be nice to use
+        // this to not draw gigantic skull tokens etc.
+        switch (enExItem->type) {
+            case EXITEM_BOMB_BAG_COUNTER: {
+                enExItem->actor.shape.yOffset = -10.0f;
+                break;
+            }
+        }
+    }
 }
 
 void EnItem00_DrawRandomizedItem(EnItem00* enItem00, PlayState* play) {
@@ -788,47 +805,6 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             *should = false;
             break;
         }
-        case GI_VB_DRAW_EX_ITEM: {
-            EnExItem* enExItem = static_cast<EnExItem*>(optionalArg);
-            RandomizerCheck rc = RC_UNKNOWN_CHECK;
-            switch (enExItem->type) {
-                case EXITEM_BOMB_BAG_COUNTER:
-                case EXITEM_BOMB_BAG_BOWLING:
-                    rc = RC_MARKET_BOMBCHU_BOWLING_FIRST_PRIZE;
-                    break;
-                case EXITEM_HEART_PIECE_COUNTER:
-                case EXITEM_HEART_PIECE_BOWLING:
-                    rc = RC_MARKET_BOMBCHU_BOWLING_SECOND_PRIZE;
-                    break;
-                case EXITEM_BOMBCHUS_COUNTER:
-                case EXITEM_BOMBCHUS_BOWLING:
-                    rc = RC_MARKET_BOMBCHU_BOWLING_BOMBCHUS;
-                    break;
-                case EXITEM_BULLET_BAG:
-                    rc = RC_LW_TARGET_IN_WOODS;
-                    break;
-            }
-            if (rc != RC_UNKNOWN_CHECK) {
-                enExItem->sohItemEntry = Rando::Context::GetInstance()->GetFinalGIEntry(rc, true, (GetItemID)Rando::StaticData::GetLocation(rc)->GetVanillaItem());
-                enExItem->actor.draw = (ActorFunc)EnExItem_DrawRandomizedItem;
-            }
-            *should = false;
-            break;
-        }
-        case GI_VB_ADJUST_EX_ITEM_SCALE_AND_POSITION: {
-            EnExItem* enExItem = static_cast<EnExItem*>(optionalArg);
-            // for now we're just using this to not have items float
-            // below the bowling counter, but it would be nice to use
-            // this to not draw gigantic skull tokens etc.
-            switch (enExItem->type) {
-                case EXITEM_BOMB_BAG_COUNTER: {
-                    enExItem->actor.shape.yOffset = -10.0f;
-                    break;
-                }
-            }
-            *should = false;
-            break;
-        }
         case GI_VB_DESPAWN_HORSE_RACE_COW: {
             if (!RAND_GET_OPTION(RSK_SHUFFLE_COWS)) {
                 break;
@@ -1271,6 +1247,34 @@ void RandomizerOnActorInitHandler(void* actorRef) {
         s16 respawnData = gSaveContext.respawn[RESPAWN_MODE_RETURN].data & ((1 << 8) - 1);
         objComb->beehiveIdentity = OTRGlobals::Instance->gRandomizer->IdentifyBeehive(gPlayState->sceneNum, (s16)actor->world.pos.x, respawnData);
         objComb->actionFunc = (ObjCombActionFunc)ObjComb_RandomizerWait;
+    }
+
+    if (actor->id == ACTOR_EN_EX_ITEM) {
+        EnExItem* enExItem = static_cast<EnExItem*>(actorRef);
+        
+        RandomizerCheck rc = RC_UNKNOWN_CHECK;
+        switch (enExItem->type) {
+            case EXITEM_BOMB_BAG_COUNTER:
+            case EXITEM_BOMB_BAG_BOWLING:
+                rc = RC_MARKET_BOMBCHU_BOWLING_FIRST_PRIZE;
+                break;
+            case EXITEM_HEART_PIECE_COUNTER:
+            case EXITEM_HEART_PIECE_BOWLING:
+                rc = RC_MARKET_BOMBCHU_BOWLING_SECOND_PRIZE;
+                break;
+            case EXITEM_BOMBCHUS_COUNTER:
+            case EXITEM_BOMBCHUS_BOWLING:
+                rc = RC_MARKET_BOMBCHU_BOWLING_BOMBCHUS;
+                break;
+            case EXITEM_BULLET_BAG:
+                rc = RC_LW_TARGET_IN_WOODS;
+                break;
+        }
+        if (rc != RC_UNKNOWN_CHECK) {
+            enExItem->sohItemEntry = Rando::Context::GetInstance()->GetFinalGIEntry(rc, true, (GetItemID)Rando::StaticData::GetLocation(rc)->GetVanillaItem());
+        }
+
+        enExItem->actionFunc = (EnExItemActionFunc)EnExItem_WaitForObjectRandomized;
     }
 }
 
