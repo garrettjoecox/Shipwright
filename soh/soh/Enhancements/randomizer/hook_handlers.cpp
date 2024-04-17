@@ -27,6 +27,8 @@ extern "C" {
 #include "src/overlays/actors/ovl_En_Sth/z_en_sth.h"
 #include "src/overlays/actors/ovl_Item_Etcetera/z_item_etcetera.h"
 #include "src/overlays/actors/ovl_En_Box/z_en_box.h"
+#include "src/overlays/actors/ovl_En_Skj/z_en_skj.h"
+#include "src/overlays/actors/ovl_En_Hy/z_en_hy.h"
 #include "src/overlays/actors/ovl_Obj_Comb/z_obj_comb.h"
 #include "adult_trade_shuffle.h"
 extern SaveContext gSaveContext;
@@ -601,7 +603,7 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
                 if (item00->randoInf != RAND_INF_MAX) {
                     Flags_SetRandomizerInf(item00->randoInf);
                 } else {
-                    Flags_SetCollectible(gPlayState, item00->collectibleFlag);
+                Flags_SetCollectible(gPlayState, item00->collectibleFlag);
                 }
                 Actor_Kill(&item00->actor);
                 *should = false;
@@ -911,6 +913,22 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
                 // because the flag check will pass next time)
                 enSth->actionFunc = (EnSthActionFunc)EnSth_RewardObtainedTalk;
             }
+            *should = false;
+            break;
+        }
+        case GI_VB_GIVE_ITEM_FROM_OCARINA_MEMORY_GAME: {
+            EnSkj* enSkj = static_cast<EnSkj*>(optionalArg);
+            Flags_SetItemGetInf(ITEMGETINF_17);
+            enSkj->actionFunc = (EnSkjActionFunc)EnSkj_CleanupOcarinaGame;
+            *should = false;
+            break;
+        }
+        case GI_VB_GIVE_ITEM_FROM_LOST_DOG: {
+            EnHy* enHy = static_cast<EnHy*>(optionalArg);
+            Flags_SetInfTable(INFTABLE_191);
+            gSaveContext.dogParams = 0;
+            gSaveContext.dogIsLost = false;
+            enHy->actionFunc = func_80A7127C;
             *should = false;
             break;
         }

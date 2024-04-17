@@ -287,6 +287,8 @@ typedef enum {
     // Opt: *EnFr
     GI_VB_GIVE_ITEM_FROM_FROGS,
     // Opt: *EnSkj
+    GI_VB_GIVE_ITEM_FROM_OCARINA_MEMORY_GAME,
+    // Opt: *EnSkj
     GI_VB_GIVE_ITEM_FROM_SKULL_KID_SARIAS_SONG,
     GI_VB_GIVE_ITEM_FROM_MAN_ON_ROOF,
     // Opt: *EnSyatekiMan
@@ -301,6 +303,8 @@ typedef enum {
     GI_VB_GIVE_ITEM_FROM_HORSEBACK_ARCHERY,
     // Opt: *EnSth
     GI_VB_GIVE_ITEM_FROM_SKULLTULA_REWARD,
+    // Opt: *EnHy
+    GI_VB_GIVE_ITEM_FROM_LOST_DOG,
 
     GI_VB_GIVE_ITEM_FAIRY_OCARINA,
     GI_VB_GIVE_ITEM_WEIRD_EGG,
