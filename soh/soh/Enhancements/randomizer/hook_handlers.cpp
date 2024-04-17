@@ -258,6 +258,7 @@ void RandomizerOnItemReceiveHandler(GetItemEntry receivedItemEntry) {
 }
 
 void EnExItem_DrawRandomizedItem(EnExItem* enExItem, PlayState* play) {
+    Actor_SetScale(&enExItem->actor, enExItem->scale);
     func_8002ED80(&enExItem->actor, play, 0);
     EnItem00_CustomItemsParticles(&enExItem->actor, play, enExItem->sohItemEntry);
     GetItemEntry_Draw(play, enExItem->sohItemEntry);
@@ -810,6 +811,20 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             if (rc != RC_UNKNOWN_CHECK) {
                 enExItem->sohItemEntry = Rando::Context::GetInstance()->GetFinalGIEntry(rc, true, (GetItemID)Rando::StaticData::GetLocation(rc)->GetVanillaItem());
                 enExItem->actor.draw = (ActorFunc)EnExItem_DrawRandomizedItem;
+            }
+            *should = false;
+            break;
+        }
+        case GI_VB_ADJUST_EX_ITEM_SCALE_AND_POSITION: {
+            EnExItem* enExItem = static_cast<EnExItem*>(optionalArg);
+            // for now we're just using this to not have items float
+            // below the bowling counter, but it would be nice to use
+            // this to not draw gigantic skull tokens etc.
+            switch (enExItem->type) {
+                case EXITEM_BOMB_BAG_COUNTER: {
+                    enExItem->actor.shape.yOffset = -10.0f;
+                    break;
+                }
             }
             *should = false;
             break;

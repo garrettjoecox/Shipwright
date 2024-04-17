@@ -365,6 +365,7 @@ typedef enum {
     /*** Draw Overrides ***/
     // Opt: *EnExItem
     GI_VB_DRAW_EX_ITEM,
+    GI_VB_ADJUST_EX_ITEM_SCALE_AND_POSITION,
 
     /*** Fixes ***/
     // Vanilla condition: false

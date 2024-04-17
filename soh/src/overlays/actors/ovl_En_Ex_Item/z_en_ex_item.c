@@ -255,6 +255,8 @@ void EnExItem_WaitForObject(EnExItem* this, PlayState* play) {
             case EXITEM_SMALL_KEY_CHEST:
                 break;
         }
+
+        GameInteractor_Should(GI_VB_ADJUST_EX_ITEM_SCALE_AND_POSITION, false, this);
     }
 }
 
