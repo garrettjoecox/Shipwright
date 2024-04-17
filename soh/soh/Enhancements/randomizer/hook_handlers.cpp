@@ -257,6 +257,12 @@ void RandomizerOnItemReceiveHandler(GetItemEntry receivedItemEntry) {
     }
 }
 
+void EnExItem_DrawRandomizedItem(EnExItem* enExItem, PlayState* play) {
+    func_8002ED80(&enExItem->actor, play, 0);
+    EnItem00_CustomItemsParticles(&enExItem->actor, play, enExItem->sohItemEntry);
+    GetItemEntry_Draw(play, enExItem->sohItemEntry);
+}
+
 void EnItem00_DrawRandomizedItem(EnItem00* enItem00, PlayState* play) {
     f32 mtxScale = CVarGetFloat("gTimeSavers.SkipGetItemAnimationScale", 10.0f);
     Matrix_Scale(mtxScale, mtxScale, mtxScale, MTXMODE_APPLY);
@@ -778,6 +784,33 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
         }
         case GI_VB_TRADE_FROG: {
             Randomizer_ConsumeAdultTradeItem(gPlayState, ITEM_FROG);
+            *should = false;
+            break;
+        }
+        case GI_VB_DRAW_EX_ITEM: {
+            EnExItem* enExItem = static_cast<EnExItem*>(optionalArg);
+            RandomizerCheck rc = RC_UNKNOWN_CHECK;
+            switch (enExItem->type) {
+                case EXITEM_BOMB_BAG_COUNTER:
+                case EXITEM_BOMB_BAG_BOWLING:
+                    rc = RC_MARKET_BOMBCHU_BOWLING_FIRST_PRIZE;
+                    break;
+                case EXITEM_HEART_PIECE_COUNTER:
+                case EXITEM_HEART_PIECE_BOWLING:
+                    rc = RC_MARKET_BOMBCHU_BOWLING_SECOND_PRIZE;
+                    break;
+                case EXITEM_BOMBCHUS_COUNTER:
+                case EXITEM_BOMBCHUS_BOWLING:
+                    rc = RC_MARKET_BOMBCHU_BOWLING_BOMBCHUS;
+                    break;
+                case EXITEM_BULLET_BAG:
+                    rc = RC_LW_TARGET_IN_WOODS;
+                    break;
+            }
+            if (rc != RC_UNKNOWN_CHECK) {
+                enExItem->sohItemEntry = Rando::Context::GetInstance()->GetFinalGIEntry(rc, true, (GetItemID)Rando::StaticData::GetLocation(rc)->GetVanillaItem());
+                enExItem->actor.draw = (ActorFunc)EnExItem_DrawRandomizedItem;
+            }
             *should = false;
             break;
         }

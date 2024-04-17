@@ -362,6 +362,10 @@ typedef enum {
     // Opt: *EnNiwLady
     GI_VB_ANJU_SET_OBTAINED_TRADE_ITEM,
 
+    /*** Draw Overrides ***/
+    // Opt: *EnExItem
+    GI_VB_DRAW_EX_ITEM,
+
     /*** Fixes ***/
     // Vanilla condition: false
     GI_VB_FIX_SAW_SOFTLOCK,

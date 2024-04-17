@@ -130,7 +130,9 @@ void EnExItem_WaitForObject(EnExItem* this, PlayState* play) {
         osSyncPrintf(VT_FGCOL(PURPLE) "☆☆☆☆☆ 転送終了 ☆☆☆☆☆ %d\n" VT_RST, this->actor.params, this);
         osSyncPrintf(VT_FGCOL(CYAN) "☆☆☆☆☆ 転送終了 ☆☆☆☆☆ %d\n\n" VT_RST, this->actor.params, this);
         this->actor.objBankIndex = this->objectIdx;
-        this->actor.draw = EnExItem_Draw;
+        if (GameInteractor_Should(GI_VB_DRAW_EX_ITEM, true, this)) {
+            this->actor.draw = EnExItem_Draw;
+        }
         this->stopRotate = false;
         onCounter = false;
         switch (this->type) {
@@ -138,12 +140,7 @@ void EnExItem_WaitForObject(EnExItem* this, PlayState* play) {
                 onCounter = true;
             case EXITEM_BOMB_BAG_BOWLING:
                 this->unk_17C = func_8002EBCC;
-                if (IS_RANDO) {
-                    this->giDrawId =
-                        Randomizer_GetItemFromKnownCheck(RC_MARKET_BOMBCHU_BOWLING_FIRST_PRIZE, GI_BOMB_BAG_20).gid;
-                } else {
-                    this->giDrawId = GID_BOMB_BAG_30;
-                }
+                this->giDrawId = GID_BOMB_BAG_30;
                 this->timer = 65;
                 this->prizeRotateTimer = 35;
                 this->scale = 0.5f;
@@ -151,7 +148,7 @@ void EnExItem_WaitForObject(EnExItem* this, PlayState* play) {
                     this->actionFunc = EnExItem_BowlPrize;
                 } else {
                     this->actionFunc = EnExItem_SetupBowlCounter;
-                    this->actor.shape.yOffset = IS_RANDO ? -10.0f : -18.0f;
+                    this->actor.shape.yOffset = -18.0f;
                 }
                 break;
             case EXITEM_HEART_PIECE_COUNTER:
@@ -497,15 +494,7 @@ void EnExItem_DrawItems(EnExItem* this, PlayState* play) {
 
 void EnExItem_DrawHeartPiece(EnExItem* this, PlayState* play) {
     func_8002ED80(&this->actor, play, 0);
-
-    if (IS_RANDO) {
-        GetItemEntry randoGetItem =
-            Randomizer_GetItemFromKnownCheck(RC_MARKET_BOMBCHU_BOWLING_SECOND_PRIZE, GI_HEART_PIECE);
-        EnItem00_CustomItemsParticles(&this->actor, play, randoGetItem);
-        GetItemEntry_Draw(play, randoGetItem);
-    } else {
-        GetItem_Draw(play, GID_HEART_PIECE);
-    }
+    GetItem_Draw(play, GID_HEART_PIECE);
 }
 
 void EnExItem_DrawMagic(EnExItem* this, PlayState* play, s16 magicIndex) {

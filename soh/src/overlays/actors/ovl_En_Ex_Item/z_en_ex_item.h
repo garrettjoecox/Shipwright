@@ -27,6 +27,9 @@ typedef struct EnExItem {
     /* 0x0170 */ Vec3f initPos; // unused
     /* 0x017C */ EnExItemLightFunc unk_17C;
     /* 0x0180 */ EnExItemLightFunc unk_180;
+    // #region SOH [Randomizer] Caching the get item entry for the draw function for performance
+    /*        */ GetItemEntry sohItemEntry;
+    // #endregion
 } EnExItem; // size = 0x0184
 
 typedef enum {
