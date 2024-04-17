@@ -603,7 +603,7 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
                 if (item00->randoInf != RAND_INF_MAX) {
                     Flags_SetRandomizerInf(item00->randoInf);
                 } else {
-                Flags_SetCollectible(gPlayState, item00->collectibleFlag);
+                    Flags_SetCollectible(gPlayState, item00->collectibleFlag);
                 }
                 Actor_Kill(&item00->actor);
                 *should = false;
