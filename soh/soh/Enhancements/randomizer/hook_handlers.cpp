@@ -30,6 +30,7 @@ extern "C" {
 #include "src/overlays/actors/ovl_En_Skj/z_en_skj.h"
 #include "src/overlays/actors/ovl_En_Hy/z_en_hy.h"
 #include "src/overlays/actors/ovl_Obj_Comb/z_obj_comb.h"
+#include "src/overlays/actors/ovl_En_Bom_Bowl_Pit/z_en_bom_bowl_pit.h"
 #include "src/overlays/actors/ovl_En_Ge1/z_en_ge1.h"
 #include "adult_trade_shuffle.h"
 extern SaveContext gSaveContext;
@@ -261,6 +262,30 @@ void RandomizerOnItemReceiveHandler(GetItemEntry receivedItemEntry) {
             Player_TryCsAction(gPlayState, NULL, 8);
             GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnPlayerUpdate>(updateHook);
         });
+    }
+}
+
+void EnExItem_DrawRandomizedItem(EnExItem* enExItem, PlayState* play) {
+    func_8002ED80(&enExItem->actor, play, 0);
+    EnItem00_CustomItemsParticles(&enExItem->actor, play, enExItem->sohItemEntry);
+    GetItemEntry_Draw(play, enExItem->sohItemEntry);
+}
+
+void EnExItem_WaitForObjectRandomized(EnExItem* enExItem, PlayState* play) {
+    EnExItem_WaitForObject(enExItem, play);
+    if (Object_IsLoaded(&play->objectCtx, enExItem->objectIdx)) {
+        enExItem->actor.draw = (ActorFunc)EnExItem_DrawRandomizedItem;
+        Actor_SetScale(&enExItem->actor, enExItem->scale);
+        
+        // for now we're just using this to not have items float
+        // below the bowling counter, but it would be nice to use
+        // this to not draw gigantic skull tokens etc.
+        switch (enExItem->type) {
+            case EXITEM_BOMB_BAG_COUNTER: {
+                enExItem->actor.shape.yOffset = -10.0f;
+                break;
+            }
+        }
     }
 }
 
@@ -940,6 +965,13 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void
             *should = false;
             break;
         }
+        case GI_VB_GIVE_ITEM_FROM_BOMBCHU_BOWLING: {
+            EnBomBowlPit* enBomBowlPit = static_cast<EnBomBowlPit*>(optionalArg);
+            if (enBomBowlPit->prizeIndex == EXITEM_BOMB_BAG_BOWLING || enBomBowlPit->prizeIndex == EXITEM_HEART_PIECE_BOWLING) {
+                *should = false;
+            }
+            break;
+        }
         case GI_VB_GERUDOS_BE_FRIENDLY: {
             *should = CHECK_QUEST_ITEM(QUEST_GERUDO_CARD);
             break;
@@ -1239,7 +1271,34 @@ void RandomizerOnActorInitHandler(void* actorRef) {
         objComb->beehiveIdentity = OTRGlobals::Instance->gRandomizer->IdentifyBeehive(gPlayState->sceneNum, (s16)actor->world.pos.x, respawnData);
         objComb->actionFunc = (ObjCombActionFunc)ObjComb_RandomizerWait;
     }
-    
+
+    if (actor->id == ACTOR_EN_EX_ITEM) {
+        EnExItem* enExItem = static_cast<EnExItem*>(actorRef);
+        
+        RandomizerCheck rc = RC_UNKNOWN_CHECK;
+        switch (enExItem->type) {
+            case EXITEM_BOMB_BAG_COUNTER:
+            case EXITEM_BOMB_BAG_BOWLING:
+                rc = RC_MARKET_BOMBCHU_BOWLING_FIRST_PRIZE;
+                break;
+            case EXITEM_HEART_PIECE_COUNTER:
+            case EXITEM_HEART_PIECE_BOWLING:
+                rc = RC_MARKET_BOMBCHU_BOWLING_SECOND_PRIZE;
+                break;
+            case EXITEM_BOMBCHUS_COUNTER:
+            case EXITEM_BOMBCHUS_BOWLING:
+                rc = RC_MARKET_BOMBCHU_BOWLING_BOMBCHUS;
+                break;
+            case EXITEM_BULLET_BAG:
+                rc = RC_LW_TARGET_IN_WOODS;
+                break;
+        }
+        if (rc != RC_UNKNOWN_CHECK) {
+            enExItem->sohItemEntry = Rando::Context::GetInstance()->GetFinalGIEntry(rc, true, (GetItemID)Rando::StaticData::GetLocation(rc)->GetVanillaItem());
+            enExItem->actionFunc = (EnExItemActionFunc)EnExItem_WaitForObjectRandomized;
+        }
+    }
+
     if (actor->id == ACTOR_EN_GE1) {
         EnGe1* enGe1 = static_cast<EnGe1*>(actorRef);
         auto ge1Type = enGe1->actor.params & 0xFF;
