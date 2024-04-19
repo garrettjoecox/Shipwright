@@ -258,6 +258,8 @@ typedef enum {
     GI_VB_PLAY_DOOR_OF_TIME_CS,
     GI_VB_PLAY_RAINBOW_BRIDGE_CS,
 
+    GI_VB_BEGIN_TOWER_ESCAPE,
+
     /*** Give Items ***/
 
     // Opt: *EnBox

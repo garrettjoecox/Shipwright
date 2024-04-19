@@ -674,6 +674,15 @@ void TimeSaverOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void*
             }
             break;
         }
+        case GI_VB_BEGIN_TOWER_ESCAPE: {
+            if ((IS_RANDO && RAND_GET_OPTION(RSK_SKIP_TOWER_ESCAPE)) ||
+                 IS_BOSS_RUSH) {
+                Flags_SetEventChkInf(EVENTCHKINF_WATCHED_GANONS_CASTLE_COLLAPSE_CAUGHT_BY_GERUDO);
+                gPlayState->nextEntranceIndex = ENTR_GANON_BOSS_0;
+                *should = false;
+            }
+            break;
+        }
     }
 }
 
