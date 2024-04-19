@@ -576,8 +576,17 @@ void Randomizer::LoadMerchantMessages() {
                 "\x08{{item}}  {{price}} Rubis\x09&&\x1B%gAcheter&Ne pas acheter%w\x09\x02"));
 }
 
-bool Randomizer::IsTrialRequired(RandomizerInf trial) {
-    return Rando::Context::GetInstance()->GetTrial(trial - RAND_INF_TRIALS_DONE_LIGHT_TRIAL)->IsRequired();
+std::map<s32, Rando::TrialKey> trialFlagToTrialKey = {
+    { EVENTCHKINF_COMPLETED_LIGHT_TRIAL, Rando::TrialKey::LIGHT_TRIAL, },
+    { EVENTCHKINF_COMPLETED_FOREST_TRIAL, Rando::TrialKey::FOREST_TRIAL, },
+    { EVENTCHKINF_COMPLETED_FIRE_TRIAL, Rando::TrialKey::FIRE_TRIAL, },
+    { EVENTCHKINF_COMPLETED_WATER_TRIAL, Rando::TrialKey::WATER_TRIAL, },
+    { EVENTCHKINF_COMPLETED_SPIRIT_TRIAL, Rando::TrialKey::SPIRIT_TRIAL, },
+    { EVENTCHKINF_COMPLETED_SHADOW_TRIAL, Rando::TrialKey::SHADOW_TRIAL, }
+};
+
+bool Randomizer::IsTrialRequired(s32 trialFlag) {
+    return Rando::Context::GetInstance()->GetTrial(trialFlagToTrialKey[trialFlag])->IsRequired();
 }
 
 GetItemEntry Randomizer::GetItemFromActor(s16 actorId, s16 sceneNum, s16 actorParams, GetItemID ogItemId,
