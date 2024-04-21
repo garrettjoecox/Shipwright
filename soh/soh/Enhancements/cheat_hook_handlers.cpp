@@ -1,0 +1,64 @@
+#include <libultraship/bridge.h>
+#include "soh/OTRGlobals.h"
+#include "soh/Enhancements/game-interactor/GameInteractor.h"
+#include "soh/Enhancements/game-interactor/GameInteractor_Hooks.h"
+#include "soh/Enhancements/enhancementTypes.h"
+
+extern "C" {
+#include "macros.h"
+// #include "functions.h"
+#include "variables.h"
+
+extern SaveContext gSaveContext;
+extern PlayState* gPlayState;
+}
+
+void CheatsOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void* opt) {
+    switch (id) {
+        case GI_VB_DEKU_STICK_BREAK: {
+            if (CVarGetInteger("gDekuStickCheat", DEKU_STICK_NORMAL) != DEKU_STICK_NORMAL) {
+                *should = false;
+            }
+            break;
+        }
+        case GI_VB_DEKU_STICK_BE_ON_FIRE: {
+            if (CVarGetInteger("gDekuStickCheat", DEKU_STICK_NORMAL) == DEKU_STICK_UNBREAKABLE_AND_ALWAYS_ON_FIRE) {
+                Player* player = GET_PLAYER(gPlayState);
+                player->unk_860 = 200;    // Keeps the stick's flame lit
+                player->unk_85C = 1.0f;   // Ensures the stick is the proper length
+                *should = true;
+            }
+            break;
+        }
+        case GI_VB_DEKU_STICK_BURN_OUT: {
+            if (CVarGetInteger("gDekuStickCheat", DEKU_STICK_NORMAL) != DEKU_STICK_NORMAL) {
+                *should = false;
+            }
+            break;
+        }
+        case GI_VB_DEKU_STICK_BURN_DOWN: {
+            if (CVarGetInteger("gDekuStickCheat", DEKU_STICK_NORMAL) != DEKU_STICK_NORMAL) {
+                *should = false;
+            }
+            if (CVarGetInteger("gMother3Anniversary", false)) {
+                Player* player = GET_PLAYER(gPlayState);
+                if (player->stateFlags2 & PLAYER_STATE2_OCARINA_PLAYING && player->unk_860 < 20) {
+                    gSaveContext.dayTime += 0x200;
+                }
+
+            }
+            break;
+        }
+    }
+}
+
+static uint32_t onVanillaBehaviorHook = 0;
+void CheatsRegisterHooks() {
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnLoadGame>([](int32_t fileNum) mutable {
+
+        GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnVanillaBehavior>(onVanillaBehaviorHook);
+        onVanillaBehaviorHook = 0;
+        onVanillaBehaviorHook = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnVanillaBehavior>(CheatsOnVanillaBehaviorHandler);
+
+    });
+}
