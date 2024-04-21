@@ -6,7 +6,6 @@
 
 extern "C" {
 #include "macros.h"
-// #include "functions.h"
 #include "variables.h"
 
 extern SaveContext gSaveContext;
@@ -39,13 +38,6 @@ void CheatsOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void* op
         case GI_VB_DEKU_STICK_BURN_DOWN: {
             if (CVarGetInteger("gDekuStickCheat", DEKU_STICK_NORMAL) != DEKU_STICK_NORMAL) {
                 *should = false;
-            }
-            if (CVarGetInteger("gMother3Anniversary", false)) {
-                Player* player = GET_PLAYER(gPlayState);
-                if (player->stateFlags2 & PLAYER_STATE2_OCARINA_PLAYING && player->unk_860 < 20) {
-                    gSaveContext.dayTime += 0x200;
-                }
-
             }
             break;
         }
