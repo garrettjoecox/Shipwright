@@ -47,11 +47,8 @@ extern std::array<std::string, HINT_TYPE_MAX> hintTypeNames;
 using json = nlohmann::json;
 using namespace std::literals::string_literals;
 
-std::unordered_map<std::string, RandomizerCheck> SpoilerfileCheckNameToEnum;
-std::unordered_map<std::string, RandomizerGet> SpoilerfileGetNameToEnum;
 std::unordered_map<std::string, RandomizerCheckArea> SpoilerfileAreaNameToEnum;
 std::unordered_map<std::string, HintType> SpoilerfileHintTypeNameToEnum;
-std::multimap<std::tuple<s16, s16, s32>, RandomizerCheck> checkFromActorMultimap;
 std::set<RandomizerCheck> excludedLocations;
 std::set<RandomizerCheck> spoilerExcludedLocations;
 std::set<RandomizerTrick> enabledTricks;
@@ -129,24 +126,7 @@ static const char* frenchRupeeNames[36] = {
 Randomizer::Randomizer() {
     Rando::StaticData::InitItemTable();
     Rando::StaticData::InitLocationTable();
-    for (auto& location : Rando::StaticData::GetLocationTable()) {
-        SpoilerfileCheckNameToEnum[location.GetName()] = location.GetRandomizerCheck();
-        checkFromActorMultimap.emplace(std::make_tuple((s16)location.GetActorID(), (s16)location.GetScene(), location.GetActorParams()), location.GetRandomizerCheck());
-    }
-    SpoilerfileCheckNameToEnum["Invalid Location"] = RC_UNKNOWN_CHECK;
-    SpoilerfileCheckNameToEnum["Link's Pocket"] = RC_LINKS_POCKET;
 
-    for (auto& item: Rando::StaticData::GetItemTable()) {
-        // Easiest way to filter out all the empty values from the array, since we still technically want the 0/RG_NONE entry
-        if (item.GetName().english.empty()) continue;
-        SpoilerfileGetNameToEnum[item.GetName().english] = item.GetRandomizerGet();
-        SpoilerfileGetNameToEnum[item.GetName().french] = item.GetRandomizerGet();
-        EnumToSpoilerfileGetName[item.GetRandomizerGet()] = {
-            item.GetName().english,
-            item.GetName().english,
-            item.GetName().french,
-        };
-    }
     for (auto area : rcAreaNames) {
         SpoilerfileAreaNameToEnum[area.second] = area.first;
     }
@@ -256,7 +236,7 @@ void Randomizer::LoadHintMessages() {
         CustomMessage(ctx->GetHint(RH_GANONDORF_HINT)->GetText()));
     CustomMessageManager::Instance->CreateMessage(
         Randomizer::hintMessageTableID, TEXT_GANONDORF_NOHINT,
-        CustomMessage(ctx->GetHint(RH_SARIA)->GetText()));//RANDOTODO: Change to RH_BLANK or remove {{message}} replacment
+        CustomMessage(ctx->GetHint(RH_GANONDORF_NOHINT)->GetText()));
     CustomMessageManager::Instance->CreateMessage(
         Randomizer::hintMessageTableID, TEXT_SHEIK_NEED_HOOK,
         CustomMessage("{{message}}", "{{message}}", "{{message}}"));
@@ -1759,7 +1739,7 @@ Rando::Location* Randomizer::GetCheckObjectFromActor(s16 actorId, s16 sceneNum, 
         return Rando::StaticData::GetLocation(specialRc);
     }
 
-    auto range = checkFromActorMultimap.equal_range(std::make_tuple(actorId, sceneNum, actorParams));
+    auto range = Rando::StaticData::CheckFromActorMultimap.equal_range(std::make_tuple(actorId, sceneNum, actorParams));
 
     for (auto it = range.first; it != range.second; ++it) {
         if (
@@ -2634,7 +2614,11 @@ CustomMessage Randomizer::ReplaceWithItemName(CustomMessage message, std::string
                 ctx->overrides[hintedCheck].GetTrickName().english
             };
         } else {
-            itemName = EnumToSpoilerfileGetName[targetRG];
+            itemName = {
+                Rando::StaticData::RetrieveItem(targetRG).GetName().english,
+                Rando::StaticData::RetrieveItem(targetRG).GetName().french,
+                Rando::StaticData::RetrieveItem(targetRG).GetName().english,
+            };
         }
     message.Replace(std::move(toReplace), std::move(itemName[0]), std::move(itemName[1]), std::move(itemName[2]));
     return message;
@@ -2766,7 +2750,12 @@ CustomMessage Randomizer::GetMerchantMessage(RandomizerInf randomizerInf, u16 te
             std::string(ctx->overrides[rc].GetTrickName().english)
         };
     } else { 
-        shopItemName = EnumToSpoilerfileGetName[shopItemGet];
+        auto shopItem = Rando::StaticData::RetrieveItem(shopItemGet);
+        shopItemName = {
+            shopItem.GetName().english,
+            shopItem.GetName().french,
+            shopItem.GetName().english,
+        };
     }
     u16 shopItemPrice = ctx->GetItemLocation(rc)->GetPrice();
 

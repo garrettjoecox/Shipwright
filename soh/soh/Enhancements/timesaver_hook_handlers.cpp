@@ -24,8 +24,11 @@ extern "C" {
 #include "src/overlays/actors/ovl_Bg_Dy_Yoseizo/z_bg_dy_yoseizo.h"
 #include "src/overlays/actors/ovl_En_Dnt_Demo/z_en_dnt_demo.h"
 #include "src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.h"
+#include <overlays/actors/ovl_Boss_Ganondrof/z_boss_ganondrof.h>
+#include <objects/object_gnd/object_gnd.h>
 extern SaveContext gSaveContext;
 extern PlayState* gPlayState;
+extern int32_t D_8011D3AC;
 }
 
 #define RAND_GET_OPTION(option) Rando::Context::GetInstance()->GetOption(option).GetSelectedOptionIndex()
@@ -155,6 +158,7 @@ void TimeSaverOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void*
                 if ((gSaveContext.entranceIndex == ENTR_DESERT_COLOSSUS_1) && !Flags_GetEventChkInf(EVENTCHKINF_LEARNED_REQUIEM_OF_SPIRIT)) {
                     Flags_SetEventChkInf(EVENTCHKINF_LEARNED_REQUIEM_OF_SPIRIT);
                     // Normally happens in the cutscene
+                    gSaveContext.dayTime = gSaveContext.skyboxTime = 0xAC60;
                     if (GameInteractor_Should(GI_VB_GIVE_ITEM_REQUIEM_OF_SPIRIT, true, NULL)) {
                         Item_Give(gPlayState, ITEM_SONG_REQUIEM);
                     }
@@ -183,8 +187,6 @@ void TimeSaverOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void*
                 uint8_t isBlueWarp = 0;
                 // Deku Tree Blue warp
                 if (gSaveContext.entranceIndex == ENTR_KOKIRI_FOREST_0 && gSaveContext.cutsceneIndex == 0xFFF1) {
-                    gSaveContext.dayTime = gSaveContext.skyboxTime = 0x8000;
-
                     gSaveContext.entranceIndex = ENTR_KOKIRI_FOREST_11;
                     isBlueWarp = 1;
                 // Dodongo's Cavern Blue warp
@@ -199,9 +201,13 @@ void TimeSaverOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void*
                 } else if (gSaveContext.entranceIndex == ENTR_CHAMBER_OF_THE_SAGES_0 && gSaveContext.cutsceneIndex == 0x0 && gSaveContext.chamberCutsceneNum == CHAMBER_CS_FOREST) {
                     // Normally set in the blue warp cutscene
                     Flags_SetEventChkInf(EVENTCHKINF_SPOKE_TO_DEKU_TREE_SPROUT);
-                    gSaveContext.dayTime = gSaveContext.skyboxTime = 0x8000;
 
-                    gSaveContext.entranceIndex = ENTR_SACRED_FOREST_MEADOW_3;
+                    if (IS_RANDO) {
+                        gSaveContext.entranceIndex = ENTR_SACRED_FOREST_MEADOW_3;
+                    } else {
+                        gSaveContext.entranceIndex = ENTR_KOKIRI_FOREST_12;
+                    }
+
                     isBlueWarp = 1;
                 // Fire Temple Blue warp
                 } else if (gSaveContext.entranceIndex == ENTR_KAKARIKO_VILLAGE_0 && gSaveContext.cutsceneIndex == 0xFFF3) {
@@ -209,6 +215,9 @@ void TimeSaverOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void*
                     isBlueWarp = 1;
                 // Water Temple Blue warp
                 } else if (gSaveContext.entranceIndex == ENTR_CHAMBER_OF_THE_SAGES_0 && gSaveContext.cutsceneIndex == 0x0 && gSaveContext.chamberCutsceneNum == CHAMBER_CS_WATER) {
+                    // Normally set in the blue warp cutscene
+                    gSaveContext.dayTime = gSaveContext.skyboxTime = 0x4800;
+
                     gSaveContext.entranceIndex = ENTR_LAKE_HYLIA_9;
                     isBlueWarp = 1;
                 // Spirit Temple Blue warp
@@ -222,6 +231,9 @@ void TimeSaverOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void*
                 }
 
                 if (isBlueWarp) {
+                    // Normally set in the blue warp cutscene
+                    gSaveContext.dayTime = gSaveContext.skyboxTime = 0x8000;
+
                     *should = false;
                     gSaveContext.cutsceneIndex = 0;
 
@@ -232,6 +244,9 @@ void TimeSaverOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void*
 
                 // Flee hyrule castle cutscene
                 if (gSaveContext.entranceIndex == ENTR_HYRULE_FIELD_0 && gSaveContext.cutsceneIndex == 0xFFF1) {
+                    // Normally set in the blue warp cutscene
+                    gSaveContext.dayTime = gSaveContext.skyboxTime = 0x4AAA;
+
                     gSaveContext.cutsceneIndex = 0;
                     *should = false;
                 }
@@ -268,6 +283,13 @@ void TimeSaverOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void*
                     *should = false;
                 }
             }
+
+            if (gSaveContext.entranceIndex == ENTR_CASTLE_COURTYARD_GUARDS_DAY_0) {
+                if (CVarGetInteger("gTimeSavers.SkipChildStealth", false)) {
+                    gSaveContext.entranceIndex = ENTR_CASTLE_COURTYARD_ZELDA_0;
+                    *should = false;
+                }
+            }
             break;
         }
         case GI_VB_PLAY_ENTRANCE_CS: {
@@ -296,6 +318,13 @@ void TimeSaverOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void*
         case GI_VB_PLAY_ONEPOINT_ACTOR_CS: {
             if (CVarGetInteger("gTimeSavers.SkipCutscene.OnePoint", IS_RANDO)) {
                 Actor* actor = static_cast<Actor*>(opt);
+
+                // there are a few checks throughout the game (such as chest spawns) that rely on this
+                // the checks are for func_8005B198() == this->dyna.actor.category
+                // func_8005B198 just returns D_8011D3AC
+                // D_8011D3AC is set to camera->target->category in Camera_Demo5
+                D_8011D3AC = actor->category;
+
                 switch (actor->category) {
                     case ACTORCAT_BG:
                         if (actor->id == ACTOR_BG_DDAN_KD) {
@@ -420,6 +449,14 @@ void TimeSaverOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void*
             }
             break;
         }
+        case GI_VB_DEKU_JR_CONSIDER_FOREST_TEMPLE_FINISHED: {
+            // We're overriding this so that the Deku JR doesn't despawn after skipping the forest temple blue warp cutscene.
+            // It typically relies on the forest medallion being obtained, but that isn't given yet until after scene init
+            if (CVarGetInteger("gTimeSavers.SkipCutscene.Story", IS_RANDO)) {
+                *should = Flags_GetEventChkInf(EVENTCHKINF_USED_FOREST_TEMPLE_BLUE_WARP);
+            }
+            break;
+        }
         case GI_VB_GIVE_ITEM_FROM_BLUE_WARP:
         case GI_VB_PLAY_SHIEK_BLOCK_MASTER_SWORD_CS:
         case GI_VB_GIVE_ITEM_FAIRY_OCARINA:
@@ -514,6 +551,7 @@ void TimeSaverOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void*
                             } else {
                                 gPlayState->nextEntranceIndex = ENTR_HYRULE_FIELD_17;
                             }
+                            gSaveContext.dayTime = gSaveContext.skyboxTime = 0x8000;
                             gPlayState->transitionType = TRANS_TYPE_FADE_WHITE;
                             gPlayState->transitionTrigger = TRANS_TRIGGER_START;
                             gSaveContext.nextTransitionType = 2;
@@ -683,6 +721,31 @@ void TimeSaverOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void*
             }
             break;
         }
+        case GI_VB_PHANTOM_GANON_DEATH_SCENE: {
+            if (CVarGetInteger("gTimeSavers.SkipCutscene.QuickBossDeaths", IS_RANDO || IS_BOSS_RUSH)) {
+                *should = false;
+                BossGanondrof* pg = static_cast<BossGanondrof*>(opt);
+                Player* player = GET_PLAYER(gPlayState);
+                if (pg != nullptr && pg->work[GND_ACTION_STATE] == DEATH_SPASM) {
+                    // Skip to death scream animation and move ganondrof to middle
+                    pg->deathState = DEATH_SCREAM;
+                    pg->timers[0] = 50;
+                    AnimationHeader* screamAnim = (AnimationHeader*)gPhantomGanonScreamAnim;
+                    Animation_MorphToLoop(&pg->skelAnime, screamAnim, -10.0f);
+                    pg->actor.world.pos.x = GND_BOSSROOM_CENTER_X;
+                    pg->actor.world.pos.y = GND_BOSSROOM_CENTER_Y + 83.0f;
+                    pg->actor.world.pos.z = GND_BOSSROOM_CENTER_Z;
+                    pg->actor.shape.rot.y = 0;
+                    pg->work[GND_BODY_DECAY_INDEX] = 0;
+                    Audio_PlayActorSound2(&pg->actor, NA_SE_EN_FANTOM_LAST);
+
+                    // Move Player out of the center of the room
+                    player->actor.world.pos.x = GND_BOSSROOM_CENTER_X - 200.0f;
+                    player->actor.world.pos.z = GND_BOSSROOM_CENTER_Z;
+                }
+            }
+            break;
+        }
     }
 }
 
@@ -830,10 +893,12 @@ void TimeSaverOnActorInitHandler(void* actorRef) {
     }
 
     // Forest Temple entrance cutscene
-    if (actor->id == ACTOR_EN_PO_SISTERS && actor->params == 4124) {
+    // This is a bit of a hack, we can't effectively override the behavior of the torches 
+    // or poes from which the cutscene is triggered until we can have a "BeforeActorInit" hook.
+    // So for now we're just going to set the flag before they get to the room the cutscene is in
+    if (gPlayState->sceneNum == SCENE_FOREST_TEMPLE && actor->id == ACTOR_EN_ST && !Flags_GetSwitch(gPlayState, 0x1B)) {
         if (CVarGetInteger("gTimeSavers.SkipCutscene.GlitchAiding", 0)) {
             Flags_SetSwitch(gPlayState, 0x1B);
-            Actor_Kill(actor);
         }
     }
 
