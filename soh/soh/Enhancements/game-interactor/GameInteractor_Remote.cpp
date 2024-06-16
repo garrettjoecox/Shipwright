@@ -8,6 +8,7 @@
 #include <tuple>
 #include <type_traits>
 #include <libultraship/libultraship.h>
+#include <zlib.h>
 
 // MARK: - Remote
 
@@ -78,7 +79,64 @@ void GameInteractor::TransmitDataToRemote(const char* payload) {
 
 // Appends a newline character to the end of the json payload and sends it to the remote
 void GameInteractor::TransmitJsonToRemote(nlohmann::json payload) {
-    TransmitDataToRemote(payload.dump().c_str());
+    
+    if(strlen(payload.dump().c_str()) < 100 || payload.contains("jointTable")){
+        TransmitDataToRemote(payload.dump().c_str());
+    } else{
+        //convert the json to string 
+        char uncomp[50000];
+        char comp[10000];
+        //char ununcomp[50000];
+
+        strcpy(uncomp, payload.dump().c_str());
+
+        SPDLOG_INFO("[GameInteractor] Original Payload:\n{}", uncomp);
+
+        //compress
+        // zlib struct
+        z_stream defstream;
+        defstream.zalloc = Z_NULL;
+        defstream.zfree = Z_NULL;
+        defstream.opaque = Z_NULL;
+
+        defstream.avail_in = (uInt)strlen(uncomp); // size of input, string + terminator
+        defstream.next_in = (Bytef *)uncomp; // input char array
+        defstream.avail_out = (uInt)sizeof(comp); // size of output
+        defstream.next_out = (Bytef *)comp; // output char array
+
+        //deflateInit2(&defstream, Z_DEFAULT_COMPRESSION, Z_DEFLATED, 15, 8, Z_DEFAULT_STRATEGY);
+        deflateInit(&defstream, Z_DEFAULT_COMPRESSION);
+        deflate(&defstream, Z_FINISH);
+        int result = deflateEnd(&defstream);
+
+        SPDLOG_INFO("[GameInteractor] Compressed Payload:\n{}", comp);
+
+        
+        //decompress
+        // z_stream infstream;
+        // infstream.zalloc = Z_NULL;
+        // infstream.zfree = Z_NULL;
+        // infstream.opaque = Z_NULL;
+
+        // infstream.avail_in = (uInt)((char*)defstream.next_out - comp); // size of input
+        // infstream.next_in = (Bytef *)comp; // input char array
+        // infstream.avail_out = (uInt)sizeof(ununcomp); // size of output
+        // infstream.next_out = (Bytef *)ununcomp; // output char array
+
+        // inflateInit(&infstream);
+        // //inflateInit2(&infstream, 15);
+        // inflate(&infstream, Z_NO_FLUSH);
+        // inflateEnd(&infstream);
+
+        // SPDLOG_INFO("[GameInteractor] Uncompressed Payload:\n{}", ununcomp);
+
+        // if(strcmp(uncomp, ununcomp) == 0){
+        //     SPDLOG_INFO("Original And Uncompressed Matched!");
+        // }
+        if(result == Z_OK){
+            TransmitDataToRemote(comp);
+        }
+    }
 }
 
 // MARK: - Private
@@ -88,7 +146,7 @@ std::string receivedData;
 void GameInteractor::ReceiveFromServer() {
     while (isRemoteInteractorEnabled) {
         while (!isRemoteInteractorConnected && isRemoteInteractorEnabled) {
-            SPDLOG_TRACE("[GameInteractor] Attempting to make connection to server...");
+            //SPDLOG_TRACE("[GameInteractor] Attempting to make connection to server...");
             remoteSocket = SDLNet_TCP_Open(&remoteIP);
 
             if (remoteSocket) {
@@ -120,7 +178,7 @@ void GameInteractor::ReceiveFromServer() {
             if (socketsReady == 0) {
                 continue;
             }
-
+            
             char remoteDataReceived[512];
             memset(remoteDataReceived, 0, sizeof(remoteDataReceived));
             int len = SDLNet_TCP_Recv(remoteSocket, &remoteDataReceived, sizeof(remoteDataReceived));
@@ -132,6 +190,31 @@ void GameInteractor::ReceiveFromServer() {
             HandleRemoteData(remoteDataReceived);
 
             receivedData.append(remoteDataReceived, len);
+            // char remoteDataReceived[512];
+            // char inflatedDataReceived[512];
+            // memset(remoteDataReceived, 0, sizeof(remoteDataReceived));
+            // uLong compSize = SDLNet_TCP_Recv(remoteSocket, &remoteDataReceived, sizeof(remoteDataReceived));
+            // uLong ucompSize = sizeof(remoteDataReceived);
+
+            // uncompress((Bytef *) inflatedDataReceived, &ucompSize, (Bytef *) remoteDataReceived, compSize);
+
+            // SPDLOG_INFO("[GameInteractor] Recieved uncompressed payload:\n{}", inflatedDataReceived);
+
+            // SPDLOG_INFO("[GameInteractor] Recieved compressed payload:\n{}", remoteDataReceived);
+
+            // int len = sizeof(inflatedDataReceived);
+
+            // // char remoteDataReceived[512];
+            // // memset(remoteDataReceived, 0, sizeof(remoteDataReceived));
+            // // int len = SDLNet_TCP_Recv(remoteSocket, &remoteDataReceived, sizeof(remoteDataReceived));
+            // if (!len || !remoteSocket || len == -1) {
+            //     SPDLOG_ERROR("[GameInteractor] SDLNet_TCP_Recv: {}", SDLNet_GetError());
+            //     break;
+            // }
+
+            // HandleRemoteData(inflatedDataReceived);
+
+            // receivedData.append(inflatedDataReceived, len);
 
             // Proess all complete packets
             size_t delimiterPos = receivedData.find('\0');
