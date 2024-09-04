@@ -21,6 +21,15 @@
 
 extern "C" {
 extern SaveContext gSaveContext;
+#include "objects/object_kanban/object_kanban.h"
+#include "objects/gameplay_dangeon_keep/gameplay_dangeon_keep.h"
+
+// This is a list of pieces of the sign, we use this to draw the top part of the sign without the post
+static const char* sDisplayLists[] = {
+    object_kanban_DL_000CB0, object_kanban_DL_000DB8, object_kanban_DL_000E78, object_kanban_DL_000F38,
+    object_kanban_DL_000FF8, object_kanban_DL_0010B8, object_kanban_DL_0011C0, object_kanban_DL_0012C8,
+    object_kanban_DL_0013D0, object_kanban_DL_001488, object_kanban_DL_001540,
+};
 }
 
 extern "C" u8 Randomizer_GetSettingValue(RandomizerSettingKey randoSettingKey);
@@ -590,6 +599,56 @@ extern "C" void Randomizer_DrawSkeletonKey(PlayState* play, GetItemEntry* getIte
     gSPDisplayList(POLY_OPA_DISP++, (Gfx*)gGiSmallKeyDL);
 
     gSPGrayscale(POLY_OPA_DISP++, false);
+
+    CLOSE_DISPS(play->state.gfxCtx);
+}
+
+extern "C" void Randomizer_DrawOverworldKey(PlayState* play, GetItemEntry* getItemEntry) {
+    OPEN_DISPS(play->state.gfxCtx);
+
+    Matrix_Push();
+
+    Gfx_SetupDL_25Opa(play->state.gfxCtx);
+
+    Matrix_Scale(0.627329f, 0.627329f, 0.627329f, MTXMODE_APPLY);
+    Matrix_RotateZYX(0, 0, -32384, MTXMODE_APPLY);
+    Matrix_Translate(0.0f, -30.0f, 0.0f, MTXMODE_APPLY);
+
+    gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx, (char*)__FILE__, __LINE__),
+              G_MTX_MODELVIEW | G_MTX_LOAD);
+
+    gSPDisplayList(POLY_OPA_DISP++, (Gfx*)gGiSmallKeyDL);
+    Matrix_Pop();
+
+    Matrix_Push();
+    Gfx_SetupDL_25Opa(play->state.gfxCtx);
+    Gfx_SetupDL_25Xlu(play->state.gfxCtx);
+
+    Matrix_Scale(0.006211f, 0.006211f, 0.006211f, MTXMODE_APPLY);
+    Matrix_RotateZ(M_PI / 1.65f, MTXMODE_APPLY);
+    Matrix_Translate(-2732.919189f, -1925.465820f, -62.111916f, MTXMODE_APPLY);
+
+    gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx, (char*)__FILE__, __LINE__),
+              G_MTX_MODELVIEW | G_MTX_LOAD);
+
+    for (int i = 0; i < 8; i++) {
+        gSPDisplayList(POLY_OPA_DISP++, (Gfx*)sDisplayLists[i]);
+    }
+
+    Matrix_Pop();
+
+    Matrix_Push();
+    Gfx_SetupDL_25Opa(play->state.gfxCtx);
+
+    Matrix_Scale(0.003106f, 0.003106f, 0.003106f, MTXMODE_APPLY);
+    Matrix_RotateZ(M_PI / 1.2f, MTXMODE_APPLY);
+    Matrix_Translate(3975.155273f, -559.006348f, 0.0f, MTXMODE_APPLY);
+
+    gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx, (char*)__FILE__, __LINE__),
+                  G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    gSPDisplayList(POLY_OPA_DISP++, (Gfx*)gDoorChainDL);
+
+    Matrix_Pop();
 
     CLOSE_DISPS(play->state.gfxCtx);
 }
