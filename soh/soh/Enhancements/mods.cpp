@@ -788,6 +788,23 @@ f32 triforcePieceScale;
 
 void RegisterTriforceHunt() {
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnPlayerUpdate>([]() {
+        // Custom Win Conditions
+        int eligibleTriforcePieces = 0;
+
+        // If you've broken a pot
+        if (gSaveContext.sohStats.count[COUNT_POTS_BROKEN] > 0) {
+            eligibleTriforcePieces++;
+        }
+
+        // If you've rolled 5 times
+        if (gSaveContext.sohStats.count[COUNT_ROLLS] >= 5) {
+            eligibleTriforcePieces++;
+        }
+
+        if (gSaveContext.triforcePiecesCollected < eligibleTriforcePieces) {
+            GiveItemEntryWithoutActor(gPlayState, Rando::StaticData::RetrieveItem(RG_TRIFORCE_PIECE).GetGIEntry_Copy());
+        }
+
         if (!GameInteractor::IsGameplayPaused() &&
             OTRGlobals::Instance->gRandomizer->GetRandoSettingValue(RSK_TRIFORCE_HUNT)) {
 
