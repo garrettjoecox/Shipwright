@@ -31,6 +31,11 @@ void SkelAnime_DrawLimbLod(PlayState* play, s32 limbIndex, void** skeleton, Vec3
     OPEN_DISPS(play->state.gfxCtx);
 
     Matrix_Push();
+    if (CVarGetInteger(CVAR_COSMETIC("LimbChaos.Enabled"), 0)) {
+        if (CVarGetInteger(CVAR_COSMETIC("LimbChaos.TargetLimb"), 1) == limbIndex % 4) {
+            Matrix_RotateZYX(CVarGetInteger(CVAR_COSMETIC("LimbChaos.X"), 0), CVarGetInteger(CVAR_COSMETIC("LimbChaos.Y"), 0), CVarGetInteger(CVAR_COSMETIC("LimbChaos.Z"), 0), MTXMODE_APPLY);
+        }
+    }
     limb = (LodLimb*)SEGMENTED_TO_VIRTUAL(skeleton[limbIndex]);
     limbIndex++;
     rot = jointTable[limbIndex];
@@ -136,6 +141,11 @@ void SkelAnime_DrawFlexLimbLod(PlayState* play, s32 limbIndex, void** skeleton, 
     Vec3s rot;
 
     Matrix_Push();
+    if (CVarGetInteger(CVAR_COSMETIC("LimbChaos.Enabled"), 0)) {
+        if (CVarGetInteger(CVAR_COSMETIC("LimbChaos.TargetLimb"), 1) == limbIndex % 4) {
+            Matrix_RotateZYX(CVarGetInteger(CVAR_COSMETIC("LimbChaos.X"), 0), CVarGetInteger(CVAR_COSMETIC("LimbChaos.Y"), 0), CVarGetInteger(CVAR_COSMETIC("LimbChaos.Z"), 0), MTXMODE_APPLY);
+        }
+    }
 
     limb = (LodLimb*)SEGMENTED_TO_VIRTUAL(skeleton[limbIndex]);
     limbIndex++;
@@ -390,6 +400,11 @@ void SkelAnime_DrawFlexLimbOpa(PlayState* play, s32 limbIndex, void** skeleton, 
     OPEN_DISPS(play->state.gfxCtx);
 
     Matrix_Push();
+    if (CVarGetInteger(CVAR_COSMETIC("LimbChaos.Enabled"), 0)) {
+        if (CVarGetInteger(CVAR_COSMETIC("LimbChaos.TargetLimb"), 1) == limbIndex % 4) {
+            Matrix_RotateZYX(CVarGetInteger(CVAR_COSMETIC("LimbChaos.X"), 0), CVarGetInteger(CVAR_COSMETIC("LimbChaos.Y"), 0), CVarGetInteger(CVAR_COSMETIC("LimbChaos.Z"), 0), MTXMODE_APPLY);
+        }
+    }
 
     limb = (StandardLimb*)SEGMENTED_TO_VIRTUAL(skeleton[limbIndex]);
     limbIndex++;
@@ -560,6 +575,11 @@ Gfx* SkelAnime_DrawLimb(PlayState* play, s32 limbIndex, void** skeleton, Vec3s* 
     Vec3s rot;
 
     Matrix_Push();
+    if (CVarGetInteger(CVAR_COSMETIC("LimbChaos.Enabled"), 0)) {
+        if (CVarGetInteger(CVAR_COSMETIC("LimbChaos.TargetLimb"), 1) == limbIndex % 4) {
+            Matrix_RotateZYX(CVarGetInteger(CVAR_COSMETIC("LimbChaos.X"), 0), CVarGetInteger(CVAR_COSMETIC("LimbChaos.Y"), 0), CVarGetInteger(CVAR_COSMETIC("LimbChaos.Z"), 0), MTXMODE_APPLY);
+        }
+    }
 
     limb = (StandardLimb*)SEGMENTED_TO_VIRTUAL(skeleton[limbIndex]);
     limbIndex++;
@@ -665,6 +685,11 @@ Gfx* SkelAnime_DrawFlexLimb(PlayState* play, s32 limbIndex, void** skeleton, Vec
     Vec3s rot;
 
     Matrix_Push();
+    if (CVarGetInteger(CVAR_COSMETIC("LimbChaos.Enabled"), 0)) {
+        if (CVarGetInteger(CVAR_COSMETIC("LimbChaos.TargetLimb"), 1) == limbIndex % 4) {
+            Matrix_RotateZYX(CVarGetInteger(CVAR_COSMETIC("LimbChaos.X"), 0), CVarGetInteger(CVAR_COSMETIC("LimbChaos.Y"), 0), CVarGetInteger(CVAR_COSMETIC("LimbChaos.Z"), 0), MTXMODE_APPLY);
+        }
+    }
 
     limb = (StandardLimb*)SEGMENTED_TO_VIRTUAL(skeleton[limbIndex]);
     limbIndex++;

@@ -90,6 +90,7 @@ void EnMb_SpearPatrolEndCharge(EnMb* this, PlayState* play);
 void EnMb_SpearPatrolImmediateCharge(EnMb* this, PlayState* play);
 void EnMb_ClubWaitAfterAttack(EnMb* this, PlayState* play);
 void EnMb_ClubDamaged(EnMb* this, PlayState* play);
+void EnMb_SetupSpearPrepareAndCharge(EnMb* this);
 
 static ColliderCylinderInit sHitboxInit = {
     {
@@ -282,7 +283,7 @@ void EnMb_Init(Actor* thisx, PlayState* play) {
             this->actor.colChkInfo.mass = MASS_HEAVY;
             this->maxHomeDist = 1000.0f;
             this->playerDetectionRange = 1750.0f;
-            EnMb_SetupSpearGuardLookAround(this);
+            EnMb_SetupSpearPrepareAndCharge(this);
             break;
         case ENMB_TYPE_CLUB:
             SkelAnime_InitFlex(play, &this->skelAnime, &gEnMbClubSkel, &gEnMbClubStandStillClubDownAnim,
@@ -490,7 +491,8 @@ void EnMb_SetupSpearPrepareAndCharge(EnMb* this) {
     this->timer3 = (s16)frameCount + 6;
     Audio_PlayActorSound2(&this->actor, NA_SE_EN_MORIBLIN_SPEAR_AT);
     if (this->actor.params == ENMB_TYPE_SPEAR_GUARD) {
-        EnMb_SetupAction(this, EnMb_SpearGuardPrepareAndCharge);
+        this->timer3 = 0;
+        EnMb_SetupAction(this, EnMb_SpearPatrolPrepareAndCharge);
     } else {
         EnMb_SetupAction(this, EnMb_SpearPatrolPrepareAndCharge);
     }

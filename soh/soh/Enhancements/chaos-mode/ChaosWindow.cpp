@@ -15,6 +15,8 @@ extern "C" {
 #include "macros.h"
 extern PlayState* gPlayState;
 #include "src/overlays/actors/ovl_En_Md/z_en_md.h"
+#include "src/overlays/actors/ovl_En_Bubble/z_en_bubble.h"
+void func_809CC774(EnBubble* thisx);
 }
 
 float chaosWindowSize = 1.0f;
@@ -63,6 +65,14 @@ uint32_t eventKnuckleTimer;
 uint32_t eventMidoTimer;
 uint32_t eventGuardTimer;
 uint32_t eventErasureTimer;
+uint32_t moblinTimer;
+uint32_t backwardsTimer;
+uint32_t limbChaosTimer;
+uint32_t cardinalsRevengeTimer;
+uint32_t acidTimer;
+uint32_t fireMazeTimer;
+uint32_t floatingStuffTimer;
+static std::vector<Actor*> floatingStuffActors;
 
 ActorListEntry guardActors;
 Actor* currGuard = guardActors.head;
@@ -121,6 +131,20 @@ std::vector<eventObject> eventList = {
        "Hyrules finest Royal Guard comes to show you the business." },
     { EVENT_ERASURE, "Erase Dungeon Reward", "gEnhancements.Erasure", eventErasureTimer,
         "Erases a Dungeon Reward and respective Dungeon Boss." },
+    { EVENT_MOBLIN_CHARGE, "Moblin Charge", "gEnhancements.Moblin", moblinTimer,
+        "HERE'S JOHNNY" },
+    { EVENT_BACKWARDS, "Backwards Movement", "gEnhancements.Backwards", backwardsTimer,
+        "What are you running from?" },
+    { EVENT_LIMB_CHAOS, "Limb Chaos", "gEnhancements.LimbChaos", limbChaosTimer,
+        "My Leg!!!!!" },
+    { EVENT_CARDINALS_REVENGE, "Cardinals Revenge", "gEnhancements.CardinalsRevenge", cardinalsRevengeTimer,
+        "The pots are mad" },
+    { EVENT_ACID, "Acid", "gEnhancements.Acid", acidTimer,
+        "Trippy stuff man" },
+    { EVENT_FIRE_MAZE, "Fire Maze", "gEnhancements.FireMaze", fireMazeTimer,
+        "It's getting hot in here" },
+    { EVENT_FLOATING_STUFF, "Floating Stuff", "gEnhancements.FloatingStuff", floatingStuffTimer,
+        "What is this stuff? Why is it floating?" },
 };
 
 std::vector<uint32_t> teleportList = {
@@ -200,22 +224,22 @@ std::string formatChaosTimers(uint32_t value) {
 }
 
 void ChaosUpdateWindowSize() {
-    chaosWindowSize = CVarGetFloat(CVAR_ENHANCEMENT("ChaosWindowSize"), 0);
+    chaosWindowSize = CVarGetFloat(CVAR_ENHANCEMENT("ChaosWindowSize"), 1.0f);
 }
 
 void ChaosUpdateInterval() {
-    chaosInterval = (CVarGetInteger(CVAR_ENHANCEMENT("ChaosInterval"), 0) * 1200);
+    chaosInterval = (CVarGetInteger(CVAR_ENHANCEMENT("ChaosInterval"), 5) * 1200);
 }
 
 void ChaosUpdateVotingInterval() {
-    //votingInterval = (CVarGetInteger(CVAR_ENHANCEMENT("VotingInterval"), 0) * 20);
+    //votingInterval = (CVarGetInteger(CVAR_ENHANCEMENT("VotingInterval"), 60) * 20);
     votingInterval = 60;
 }
 
 void ChaosUpdateEventTimers() {
     uint32_t loop = 0;
     for (auto& eventUpdate : eventList) {
-        int32_t setTimer = CVarGetInteger(eventUpdate.eventVariable, 0) * 1200;
+        int32_t setTimer = CVarGetInteger(eventUpdate.eventVariable, 5) * 1200;
         eventList[loop].eventTimer = setTimer;
         loop++;
     }
@@ -274,6 +298,18 @@ bool isEventIdPresent(uint32_t eventId) {
     });
 
     return it != activeEvents.end();
+}
+
+void EnBubble_DrawAlt(Actor* thisx, PlayState* play) {
+    EnBubble* enBubble = (EnBubble*)thisx;
+    u32 pad;
+
+    thisx->shape.rot.y += 960;
+
+    GetItem_Draw(play, (GetItemDrawID)enBubble->unk_218);
+
+    enBubble->actor.shape.shadowScale = (f32)((enBubble->expansionWidth + 1.0f) * 0.2f);
+    func_809CC774(enBubble);
 }
 
 void ChaosEventsRepeater() {
@@ -516,7 +552,124 @@ void ChaosEventsRepeater() {
 
             }
         }
+
+        if (isEventIdPresent(EVENT_BACKWARDS) == true) {
+            if (backwardsTimer > 0) {
+                Player* player = GET_PLAYER(gPlayState);
+                player->actor.shape.rot.x = 32767;
+                player->actor.shape.rot.z = 32767;
+                backwardsTimer--;
+            }
+        }
+
+        if (isEventIdPresent(EVENT_LIMB_CHAOS) == true) {
+            if (limbChaosTimer > 0) {
+                limbChaosTimer--;
+                // Direction can be 0 or 1
+                static int xDirection = 0;
+                static int yDirection = 0;
+                static int zDirection = 0;
+                // Every 60 frames (3 seconds) randomize the target limb, can be 0-4
+                if (limbChaosTimer % 60 == 0) {
+                    CVarSetInteger(CVAR_COSMETIC("LimbChaos.TargetLimb"), (rand() % 5));
+                    CVarClear(CVAR_COSMETIC("LimbChaos.X"));
+                    CVarClear(CVAR_COSMETIC("LimbChaos.Y"));
+                    CVarClear(CVAR_COSMETIC("LimbChaos.Z"));
+                    xDirection = rand() % 2;
+                    yDirection = rand() % 2;
+                    zDirection = rand() % 2;
+                }
+
+                // Over the course of 60 frames, move the limb in the direction in a full 360 degree rotation
+                uint16_t rotation = ((float)(limbChaosTimer % 60) / 60) * UINT16_MAX;
+                uint16_t inverseRotation = UINT16_MAX - rotation;
+                // Apply the direction to the rotation
+                CVarSetInteger(CVAR_COSMETIC("LimbChaos.X"), xDirection == 0 ? rotation : inverseRotation);
+                CVarSetInteger(CVAR_COSMETIC("LimbChaos.Y"), yDirection == 0 ? rotation : inverseRotation);
+                CVarSetInteger(CVAR_COSMETIC("LimbChaos.Z"), zDirection == 0 ? rotation : inverseRotation);
+            }
+        }
+
+        if (isEventIdPresent(EVENT_CARDINALS_REVENGE) == true) {
+            if (cardinalsRevengeTimer > 0) {
+                cardinalsRevengeTimer--;
+                static int numOfPots = 8; // Every 45 degrees
+                static int spawnSpeed = 10; // 1 pot every 10 frames
+                static int lastAgroPotIndex = 0;
+                static float circleRadius = 100.0f; // Set the radius of the circle
+                static float angleIncrement = 2 * M_PI / numOfPots; // Calculate angle increment
+
+                if (cardinalsRevengeTimer % spawnSpeed == 0) {
+                    if (lastAgroPotIndex < numOfPots) {
+                        lastAgroPotIndex++;
+                    } else {
+                        lastAgroPotIndex = 0;
+                    }
+
+                    Player* player = GET_PLAYER(gPlayState);
+                    float x = player->actor.world.pos.x + circleRadius * cos(lastAgroPotIndex * angleIncrement);
+                    float z = player->actor.world.pos.z + circleRadius * sin(lastAgroPotIndex * angleIncrement);
+
+                    Actor_Spawn(&gPlayState->actorCtx, gPlayState, ACTOR_EN_TUBO_TRAP, x, player->actor.world.pos.y, z, 0, 0, 0, 0x1A, false);
+                }
+            }
+        }
+
+        if (isEventIdPresent(EVENT_ACID) == true) {
+            if (acidTimer > 0) {
+                acidTimer--;
+                CVarSetFloat("ChaosUVOffset", CVarGetFloat("ChaosUVOffset", 0.0f) + (0.05f));
+                if (CVarGetFloat("ChaosUVOffset", 0.0f) > 1.0f) {
+                    CVarSetFloat("ChaosUVOffset", -1.0f);
+                }
+            }
+        }
+
+        if (isEventIdPresent(EVENT_FLOATING_STUFF) == true) {
+            if (floatingStuffTimer > 0) {
+                floatingStuffTimer--;
+
+                if (floatingStuffActors.size() < 100 && floatingStuffTimer % 80 == 0) {
+                    float x = player->actor.world.pos.x + (rand() % 1000) - 500;
+                    float y = player->actor.world.pos.y + (rand() % 1000);
+                    float z = player->actor.world.pos.z + (rand() % 1000) - 500;
+                    Actor* actor = Actor_Spawn(&gPlayState->actorCtx, gPlayState, ACTOR_EN_BUBBLE, x, y, z, 0, 0, 0, 0, false);
+                    floatingStuffActors.push_back(actor);
+                    GetItemDrawID randomItem = (GetItemDrawID)(rand() % GID_MAXIMUM);
+                    ((EnBubble*)actor)->unk_218 = randomItem;
+
+                    actor->draw = EnBubble_DrawAlt;
+                }
+            }
+        }
     });
+}
+
+// Function to spawn a wall
+Actor* SpawnWall(float x, float y, float z, int16_t rotationY) {
+    return Actor_Spawn(&gPlayState->actorCtx, gPlayState, ACTOR_BG_HIDAN_FIREWALL, x, y, z, 0, rotationY, 0, 0, false);
+}
+
+void BuildFireWallRoom(std::vector<Actor*> *walls, float centerX, float centerY, float centerZ, int16_t wallsPerSide) {
+    const float wallWidth = 150.0f;
+    const float halfWidth = (wallsPerSide * wallWidth) / 2.0f;
+
+    // Loop through each side
+    for (int i = 0; i < wallsPerSide; i++) {
+        float offset = i * wallWidth - halfWidth + (wallWidth / 2.0f);
+
+        // Front wall (facing +Z)
+        walls->push_back(SpawnWall(centerX + offset, centerY, centerZ + halfWidth, 0));
+
+        // Back wall (facing -Z)
+        walls->push_back(SpawnWall(centerX + offset, centerY, centerZ - halfWidth, 0));
+
+        // Left wall (facing -X)
+        walls->push_back(SpawnWall(centerX - halfWidth, centerY, centerZ + offset, 0x4000));
+
+        // Right wall (facing +X)
+        walls->push_back(SpawnWall(centerX + halfWidth, centerY, centerZ + offset, 0x4000));
+    }
 }
 
 void ChaosEventsActivator(uint32_t eventId, bool isActive) {
@@ -730,6 +883,116 @@ void ChaosEventsActivator(uint32_t eventId, bool isActive) {
                 }
             }
             break;
+        case EVENT_MOBLIN_CHARGE: {
+            static Actor* moblin = nullptr;
+            if (isActive) {
+                Player* player = GET_PLAYER(gPlayState);
+                float spawnDistance = 45.0f; // Distance in front of the player to spawn the Moblin
+
+                // Get the player's current rotation (angle they are facing)
+                float playerRotY = player->actor.shape.rot.y * (M_PI / 32768.0f); // Convert fixed-point rotation to radians
+
+                // Calculate spawn coordinates in front of the player
+                float spawnX = player->actor.world.pos.x + spawnDistance * sin(playerRotY);
+                float spawnZ = player->actor.world.pos.z + spawnDistance * cos(playerRotY);
+                float spawnY = player->actor.world.pos.y;
+
+                // Calculate the Moblin's rotation so it faces the player
+                float deltaX = player->actor.world.pos.x - spawnX;
+                float deltaZ = player->actor.world.pos.z - spawnZ;
+                float angleToPlayer = atan2(deltaZ, deltaX);
+                int16_t moblinRotY = static_cast<int16_t>(angleToPlayer * (180.0f / M_PI));
+                moblinRotY -= 90.0f; // Adjust to align correctly
+                moblinRotY = static_cast<int16_t>(((moblinRotY / 360.0f) * 65536.0f) * -1);
+
+                // Spawn a single Moblin
+                moblin = Actor_Spawn(&gPlayState->actorCtx, gPlayState, ACTOR_EN_MB, spawnX, spawnY, spawnZ, 0, moblinRotY, 0, -1, false);
+            } else {
+                if (moblin != nullptr) {
+                    Player* player = GET_PLAYER(gPlayState);
+                    if (player->stateFlags2 & PLAYER_STATE2_GRABBED_BY_ENEMY) {
+                        player->stateFlags2 &= ~PLAYER_STATE2_GRABBED_BY_ENEMY;
+                        player->av2.actionVar2 = 200;
+                        func_8002F71C(gPlayState, &player->actor, 4.0f, player->actor.world.rot.y + 0x8000, 4.0f);
+                    }
+                    Actor_Kill(moblin);
+                    moblin = nullptr;
+                }
+            }
+            break;
+        }
+        case EVENT_BACKWARDS: {
+            Player* player = GET_PLAYER(gPlayState);
+            if (isActive) {
+                backwardsTimer = eventList[EVENT_BACKWARDS].eventTimer;
+                player->actor.shape.rot.x = 32767;
+                player->actor.shape.rot.z = 32767;
+            } else {
+                player->actor.shape.rot.x = 0;
+                player->actor.shape.rot.z = 0;
+            }
+            break;
+        }
+        case EVENT_LIMB_CHAOS: {
+            if (isActive) {
+                CVarSetInteger(CVAR_COSMETIC("LimbChaos.Enabled"), 1);
+                limbChaosTimer = eventList[EVENT_LIMB_CHAOS].eventTimer;
+            } else {
+                CVarClear(CVAR_COSMETIC("LimbChaos.Enabled"));
+            }
+            break;
+        }
+        case EVENT_CARDINALS_REVENGE: {
+            if (isActive) {
+                cardinalsRevengeTimer = eventList[EVENT_CARDINALS_REVENGE].eventTimer;
+            }
+            break;
+        }
+        case EVENT_ACID: {
+            if (isActive) {
+                CVarClear("ChaosUVOffset");
+                acidTimer = eventList[EVENT_ACID].eventTimer;
+            } else {
+                CVarClear("ChaosUVOffset");
+            }
+            break;
+        }
+        case EVENT_FIRE_MAZE: {
+            static std::vector<Actor*> fireMazeActors;
+            if (isActive) {
+                Player* player = GET_PLAYER(gPlayState);
+                // Builds a maze using fire wall actors. It should just build 3 layers of fire walls, and then remove a random one from each layer.
+                BuildFireWallRoom(&fireMazeActors, player->actor.world.pos.x, player->actor.world.pos.y, player->actor.world.pos.z, 1);
+                BuildFireWallRoom(&fireMazeActors, player->actor.world.pos.x, player->actor.world.pos.y, player->actor.world.pos.z, 3);
+                BuildFireWallRoom(&fireMazeActors, player->actor.world.pos.x, player->actor.world.pos.y, player->actor.world.pos.z, 5);
+
+                // Remove a random wall from each layer
+                int firstLayer = rand() % 4;
+                int secondLayer = rand() % 12;
+                int thirdLayer = rand() % 20;
+
+                Actor_Kill(fireMazeActors[firstLayer]);
+                Actor_Kill(fireMazeActors[4 + secondLayer]);
+                Actor_Kill(fireMazeActors[16 + thirdLayer]);
+            } else {
+                for (auto actor : fireMazeActors) {
+                    Actor_Kill(actor);
+                }
+                fireMazeActors.clear();
+            }
+        }
+        case EVENT_FLOATING_STUFF: {
+            if (isActive) {
+                Player* player = GET_PLAYER(gPlayState);
+
+                floatingStuffTimer = eventList[EVENT_FLOATING_STUFF].eventTimer;
+            } else {
+                for (auto actor : floatingStuffActors) {
+                    Actor_Kill(actor);
+                }
+                floatingStuffActors.clear();
+            }
+        }
         default:
             break;
     }
@@ -793,6 +1056,7 @@ void ChaosVotingFinished() {
 void ChaosTrackerTimer() {
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnGameFrameUpdate>([]() {
         if (!gPlayState || GameInteractor::IsGameplayPaused() || !CVarGetInteger(CVAR_ENHANCEMENT("EnableChaosMode"), 0)) {
+            CVarClear("ChaosUVOffset");
             return;
         }
 
@@ -964,6 +1228,21 @@ void ChaosWindow::DrawElement() {
 
     ImGui::BeginChild("Chaos Events");
     DrawChaosTrackerEvents();
+
+    if (CVarGetInteger(CVAR_ENHANCEMENT("EnableChaosMode"), 0)) {
+        for (int i = EVENT_INVISIBILITY; i < EVENT_MAX; i++) {
+            if (ImGui::Button(eventList[i].eventName)) {
+                if (isEventIdPresent(eventList[i].eventId) == false) {
+                    ChaosEventsManager(EVENT_ACTION_ADD, eventList[i].eventId);
+                    ChaosEventsActivator(eventList[i].eventId, true);
+                } else {
+                    ChaosEventsManager(EVENT_ACTION_REMOVE, eventList[i].eventId);
+                    ChaosEventsActivator(eventList[i].eventId, false);
+                }
+            }
+        }
+    }
+
     ImGui::EndChild();
 }
 
