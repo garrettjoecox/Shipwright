@@ -1,5 +1,5 @@
 #include "SohModals.h"
-#include "ImGui/imgui.h"
+#include <imgui.h>
 #include <vector>
 #include <string>
 #include <libultraship/bridge.h>
@@ -18,6 +18,15 @@ struct SohModal {
     std::function<void()> button2callback_;
 };
 std::vector<SohModal> modals;
+
+void SohModalWindow::Draw() {
+    if (!IsVisible()) {
+        return;
+    }
+    DrawElement();
+    // Sync up the IsVisible flag if it was changed by ImGui
+    SyncVisibilityConsoleVariable();
+}
 
 void SohModalWindow::DrawElement() {
     if (modals.size() > 0) {

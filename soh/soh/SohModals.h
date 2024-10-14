@@ -4,9 +4,10 @@
 #include "window/gui/GuiMenuBar.h"
 #include "window/gui/GuiElement.h"
 
-class SohModalWindow : public LUS::GuiWindow {
+class SohModalWindow : public Ship::GuiWindow {
   public:
-    using LUS::GuiWindow::GuiWindow;
+    using GuiWindow::GuiWindow;
+    void Draw() override;
 
     void InitElement() override {};
     void DrawElement() override;

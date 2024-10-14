@@ -40,9 +40,12 @@ void applyPreset(std::vector<PresetEntry> entries) {
 }
 
 void DrawPresetSelector(PresetType presetTypeId) {
-    const std::string presetTypeCvar = "gPreset" + std::to_string(presetTypeId);
+    const std::string presetTypeCvar = CVAR_GENERAL("SelectedPresets.") + std::to_string(presetTypeId);
     const PresetTypeDefinition presetTypeDef = presetTypes.at(presetTypeId);
-    const uint16_t selectedPresetId = CVarGetInteger(presetTypeCvar.c_str(), 0);
+    uint16_t selectedPresetId = CVarGetInteger(presetTypeCvar.c_str(), 0);
+    if(selectedPresetId >= presetTypeDef.presets.size()){
+        selectedPresetId = 0;
+    }
     const PresetDefinition selectedPresetDef = presetTypeDef.presets.at(selectedPresetId);
     std::string comboboxTooltip = "";
     for ( auto iter = presetTypeDef.presets.begin(); iter != presetTypeDef.presets.end(); ++iter ) {
@@ -70,7 +73,7 @@ void DrawPresetSelector(PresetType presetTypeId) {
         if (selectedPresetId != 0) {
             applyPreset(selectedPresetDef.entries);
         }
-        LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+        Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
     }
     ImGui::PopStyleVar(1);
 }

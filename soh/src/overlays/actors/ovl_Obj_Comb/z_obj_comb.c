@@ -7,6 +7,7 @@
 #include "z_obj_comb.h"
 #include "overlays/effects/ovl_Effect_Ss_Kakera/z_eff_ss_kakera.h"
 #include "objects/gameplay_field_keep/gameplay_field_keep.h"
+#include "include/z64actor.h"
 
 #define FLAGS 0
 
@@ -141,7 +142,7 @@ void ObjComb_ChooseItemDrop(ObjComb* this, PlayState* play) {
         } else if (Rand_ZeroOne() < 0.5f) {
             params = -1;
         }
-        if (params >= 0 && !CVarGetInteger("gNoRandomDrops", 0)) {
+        if (params >= 0 && !CVarGetInteger(CVAR_ENHANCEMENT("NoRandomDrops"), 0)) {
             Item_DropCollectible(play, &this->actor.world.pos, params);
         }
     }
