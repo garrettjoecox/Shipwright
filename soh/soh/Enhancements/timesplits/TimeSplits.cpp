@@ -1,13 +1,11 @@
 #include "TimeSplits.h"
 #include "soh/UIWidgets.hpp"
-#include "soh/Enhancements/randomizer/3drando/item_list.hpp"
 #include "soh/Enhancements/gameplaystats.h"
 #include "soh/SaveManager.h"
 #include "soh/util.h"
 #include <vector>
 #include "include/z64item.h"
 
-#include "nlohmann-json/include/nlohmann/json.hpp"
 #include <fstream>
 #include <filesystem>
 
@@ -691,7 +689,7 @@ void DrawTimeSplitSplits(){
             }
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.75f, 0.0f, 0.0f, 1.0f));
             // Item Image (Removal)
-            if (ImGui::ImageButton(std::to_string(i).c_str(), LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(itemImager),
+            if (ImGui::ImageButton(std::to_string(i).c_str(), Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(itemImager),
                                ImVec2(26.0f * uiScale, 26.0f *uiScale), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), pieceTint)) {
                 uint32_t currentStatus = splitStatus[i];
                 splitItem.erase(splitItem.begin() + i);
@@ -776,7 +774,7 @@ void DrawTimeSplitSplits(){
                 }
             }
             ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
-            if (ImGui::ImageButton(std::to_string(buttonID).c_str(), LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(itemImager),
+            if (ImGui::ImageButton(std::to_string(buttonID).c_str(), Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(itemImager),
                                    ImVec2(26.0f * uiScale, 26.0f *uiScale), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), pieceTint)) {
                 if (splitStatus[loopCounter] == 2) {
                     TimeSplitSkipSplit(loopCounter);
@@ -983,7 +981,7 @@ void DrawTimeSplitListManager() {
             if (splitItem[i] == obj.itemID) {
                 itemNum = obj.itemID;
                 TimeSplitColorTint();
-                ImGui::ImageButton(std::to_string(i).c_str(), LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(obj.itemImage),
+                ImGui::ImageButton(std::to_string(i).c_str(), Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(obj.itemImage),
                                 ImVec2(32.0f * uiScale, 32.0f * uiScale), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), pieceTint);
             }
         }
@@ -1008,7 +1006,7 @@ void DrawTimeSplitListManager() {
             if (i == 4 || i == 8) {
                 ImGui::TableNextColumn();
             }
-            if (ImGui::ImageButton(std::to_string(i).c_str(), LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(equipmentObjects[i].itemImage),
+            if (ImGui::ImageButton(std::to_string(i).c_str(), Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(equipmentObjects[i].itemImage),
                                 ImVec2(32.0f * uiScale, 32.0f * uiScale), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {
                 if (equipmentObjects[i].itemID == ITEM_BRACELET) {
                     ImGui::OpenPopup("Strength");
@@ -1023,7 +1021,7 @@ void DrawTimeSplitListManager() {
             for (int i = ITEM_BRACELET; i <= ITEM_GAUNTLETS_GOLD; i++) {
                 for (auto& obj : splitObjects) {
                     if (obj.itemID == i) {
-                        if (ImGui::ImageButton(std::to_string(i).c_str(), LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(obj.itemImage),
+                        if (ImGui::ImageButton(std::to_string(i).c_str(), Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(obj.itemImage),
                                        ImVec2(32.0f * uiScale, 32.0f * uiScale), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {
                             TimeSplitAddToSplits(i);
                             ImGui::CloseCurrentPopup();
@@ -1038,7 +1036,7 @@ void DrawTimeSplitListManager() {
             for (int i = ITEM_SCALE_SILVER; i <= ITEM_SCALE_GOLDEN; i++) {
                 for (auto& obj : splitObjects) {
                     if (obj.itemID == i) {
-                        if (ImGui::ImageButton(std::to_string(i).c_str(), LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(obj.itemImage),
+                        if (ImGui::ImageButton(std::to_string(i).c_str(), Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(obj.itemImage),
                                        ImVec2(32.0f * uiScale, 32.0f * uiScale), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {
                             TimeSplitAddToSplits(i);
                             ImGui::CloseCurrentPopup();
@@ -1061,7 +1059,7 @@ void DrawTimeSplitListManager() {
             if (i == 4 || i == 8 || i == 12 || i == 16 || i == 20) {
                 ImGui::TableNextColumn();
             }
-            if (ImGui::ImageButton(std::to_string(i).c_str(), LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(questObjects[i].itemImage),
+            if (ImGui::ImageButton(std::to_string(i).c_str(), Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(questObjects[i].itemImage),
                                 ImVec2(32.0f * uiScale, 32.0f * uiScale), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {
                 if (questObjects[i].itemID == ITEM_SKULL_TOKEN) {
                     ImGui::OpenPopup("Skull Count");
@@ -1092,7 +1090,7 @@ void DrawTimeSplitListManager() {
                 ImGui::TableNextColumn();
             }
             if (ImGui::ImageButton(std::to_string(i).c_str(),
-                                   LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(inventoryObjects[i].itemImage),
+                                   Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(inventoryObjects[i].itemImage),
                                    ImVec2(32.0f * uiScale, 32.0f * uiScale), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {
                 if (inventoryObjects[i].itemID == ITEM_STICK) {
                     //ImGui::OpenPopup("Stick");
@@ -1129,7 +1127,7 @@ void DrawTimeSplitListManager() {
             for (int i = ITEM_STICK; i <= ITEM_STICK_UPGRADE_30; i++) {
                 for (auto& obj : splitObjects) {
                     if (obj.itemID == i) {
-                        if (ImGui::ImageButton(std::to_string(i).c_str(), LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(obj.itemImage),
+                        if (ImGui::ImageButton(std::to_string(i).c_str(), Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(obj.itemImage),
                                        ImVec2(32.0f * uiScale, 32.0f * uiScale), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {
                             TimeSplitAddToSplits(i);
                             ImGui::CloseCurrentPopup();
@@ -1147,7 +1145,7 @@ void DrawTimeSplitListManager() {
             for (int i = ITEM_SLINGSHOT; i <= ITEM_BULLET_BAG_50; i++) {
                 for (auto& obj : splitObjects) {
                     if (obj.itemID == i) {
-                        if (ImGui::ImageButton(std::to_string(i).c_str(), LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(obj.itemImage),
+                        if (ImGui::ImageButton(std::to_string(i).c_str(), Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(obj.itemImage),
                                        ImVec2(32.0f * uiScale, 32.0f * uiScale), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {
                             TimeSplitAddToSplits(i);
                             ImGui::CloseCurrentPopup();
@@ -1165,7 +1163,7 @@ void DrawTimeSplitListManager() {
             for (int i = ITEM_NUT; i <= ITEM_NUT_UPGRADE_40; i++) {
                 for (auto& obj : splitObjects) {
                     if (obj.itemID == i) {
-                        if (ImGui::ImageButton(std::to_string(i).c_str(), LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(obj.itemImage),
+                        if (ImGui::ImageButton(std::to_string(i).c_str(), Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(obj.itemImage),
                                        ImVec2(32.0f * uiScale, 32.0f * uiScale), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {
                             TimeSplitAddToSplits(i);
                             ImGui::CloseCurrentPopup();
@@ -1183,7 +1181,7 @@ void DrawTimeSplitListManager() {
             for (int i = ITEM_OCARINA_FAIRY; i <= ITEM_OCARINA_TIME; i++) {
                 for (auto& obj : splitObjects) {
                     if (obj.itemID == i) {
-                        if (ImGui::ImageButton(std::to_string(i).c_str(), LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(obj.itemImage),
+                        if (ImGui::ImageButton(std::to_string(i).c_str(), Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(obj.itemImage),
                                        ImVec2(32.0f * uiScale, 32.0f * uiScale), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {
                             TimeSplitAddToSplits(i);
                             ImGui::CloseCurrentPopup();
@@ -1198,7 +1196,7 @@ void DrawTimeSplitListManager() {
             for (int i = ITEM_BOMB_BAG_20; i <= ITEM_BOMB_BAG_40; i++) {
                 for (auto& obj : splitObjects) {
                     if (obj.itemID == i) {
-                        if (ImGui::ImageButton(std::to_string(i).c_str(), LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(obj.itemImage),
+                        if (ImGui::ImageButton(std::to_string(i).c_str(), Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(obj.itemImage),
                                        ImVec2(32.0f * uiScale, 32.0f * uiScale), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {
                             TimeSplitAddToSplits(i);
                             ImGui::CloseCurrentPopup();
@@ -1213,7 +1211,7 @@ void DrawTimeSplitListManager() {
             for (int i = ITEM_BOW; i <= ITEM_QUIVER_50; i++) {
                 for (auto& obj : splitObjects) {
                     if (obj.itemID == i) {
-                        if (ImGui::ImageButton(std::to_string(i).c_str(), LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(obj.itemImage),
+                        if (ImGui::ImageButton(std::to_string(i).c_str(), Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(obj.itemImage),
                                        ImVec2(32.0f * uiScale, 32.0f * uiScale), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {
                             TimeSplitAddToSplits(i);
                             ImGui::CloseCurrentPopup();
@@ -1231,7 +1229,7 @@ void DrawTimeSplitListManager() {
             for (int i = ITEM_HOOKSHOT; i <= ITEM_LONGSHOT; i++) {
                 for (auto& obj : splitObjects) {
                     if (obj.itemID == i) {
-                        if (ImGui::ImageButton(std::to_string(i).c_str(), LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(obj.itemImage),
+                        if (ImGui::ImageButton(std::to_string(i).c_str(), Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(obj.itemImage),
                                        ImVec2(32.0f * uiScale, 32.0f * uiScale), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {
                             TimeSplitAddToSplits(i);
                             ImGui::CloseCurrentPopup();
@@ -1246,7 +1244,7 @@ void DrawTimeSplitListManager() {
             for (int i = ITEM_BOTTLE; i <= ITEM_POE; i++) {
                 for (auto& obj : splitObjects) {
                     if (obj.itemID == i) {
-                        if (ImGui::ImageButton(std::to_string(i).c_str(), LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(obj.itemImage),
+                        if (ImGui::ImageButton(std::to_string(i).c_str(), Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(obj.itemImage),
                                        ImVec2(32.0f * uiScale, 32.0f * uiScale), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {
                             TimeSplitAddToSplits(i);
                             ImGui::CloseCurrentPopup();
@@ -1263,7 +1261,7 @@ void DrawTimeSplitListManager() {
             for (int i = ITEM_SINGLE_MAGIC; i <= ITEM_DOUBLE_MAGIC; i++) {
                 for (auto& obj : splitObjects) {
                     if (obj.itemID == i) {
-                        if (ImGui::ImageButton(std::to_string(i).c_str(), LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(obj.itemImage),
+                        if (ImGui::ImageButton(std::to_string(i).c_str(), Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(obj.itemImage),
                                        ImVec2(32.0f * uiScale, 32.0f * uiScale), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {
                             TimeSplitAddToSplits(i);
                             ImGui::CloseCurrentPopup();
@@ -1278,7 +1276,7 @@ void DrawTimeSplitListManager() {
             for (int i = ITEM_WALLET_ADULT; i <= ITEM_WALLET_GIANT; i++) {
                 for (auto& obj : splitObjects) {
                     if (obj.itemID == i) {
-                        if (ImGui::ImageButton(std::to_string(i).c_str(), LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(obj.itemImage),
+                        if (ImGui::ImageButton(std::to_string(i).c_str(), Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(obj.itemImage),
                                        ImVec2(32.0f * uiScale, 32.0f * uiScale), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {
                             TimeSplitAddToSplits(i);
                             ImGui::CloseCurrentPopup();
@@ -1293,7 +1291,7 @@ void DrawTimeSplitListManager() {
             for (int i = ITEM_POCKET_EGG; i <= ITEM_CLAIM_CHECK; i++) {
                 for (auto& obj : splitObjects) {
                     if (obj.itemID == i) {
-                        if (ImGui::ImageButton(std::to_string(i).c_str(), LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(obj.itemImage),
+                        if (ImGui::ImageButton(std::to_string(i).c_str(), Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(obj.itemImage),
                                        ImVec2(32.0f * uiScale, 32.0f * uiScale), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {
                             TimeSplitAddToSplits(i);
                             ImGui::CloseCurrentPopup();
@@ -1310,7 +1308,7 @@ void DrawTimeSplitListManager() {
             for (int i = ITEM_WEIRD_EGG; i <= ITEM_MASK_TRUTH; i++) {
                 for (auto& obj : splitObjects) {
                     if (obj.itemID == i) {
-                        if (ImGui::ImageButton(std::to_string(i).c_str(), LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(obj.itemImage),
+                        if (ImGui::ImageButton(std::to_string(i).c_str(), Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(obj.itemImage),
                                        ImVec2(32.0f * uiScale, 32.0f * uiScale), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {
                             TimeSplitAddToSplits(i);
                             ImGui::CloseCurrentPopup();
@@ -1337,7 +1335,7 @@ void DrawTimeSplitListManager() {
             }
             itemNum = bossObjects[i].itemID;
             TimeSplitColorTint();
-            if (ImGui::ImageButton(std::to_string(i).c_str(), LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(bossObjects[i].itemImage),
+            if (ImGui::ImageButton(std::to_string(i).c_str(), Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(bossObjects[i].itemImage),
                                 ImVec2(32.0f * uiScale, 32.0f * uiScale), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), pieceTint)) {
                 TimeSplitAddToSplits(bossObjects[i].itemID);
             }
@@ -1361,7 +1359,7 @@ void DrawTimeSplitListManager() {
                 }
                 //itemNum = sceneObjects[i].itemID;
                 //TimeSplitColorTint();
-                if (ImGui::ImageButton(std::to_string(i).c_str(), LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(sceneObjects[i].itemImage),
+                if (ImGui::ImageButton(std::to_string(i).c_str(), Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(sceneObjects[i].itemImage),
                                        ImVec2(32.0f * uiScale, 32.0f * uiScale), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {
                     TimeSplitAddToSplits(sceneObjects[i].itemID);
                 }
@@ -1380,7 +1378,7 @@ void DrawTimeSplitListManager() {
             for (int i = 16; i <= 18; i++) {
                 //itemNum = obj.itemID;
                 //TimeSplitColorTint();
-                if (ImGui::ImageButton(std::to_string(i).c_str(), LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(sceneObjects[i].itemImage),
+                if (ImGui::ImageButton(std::to_string(i).c_str(), Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(sceneObjects[i].itemImage),
                                        ImVec2(32.0f * uiScale, 32.0f * uiScale), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {
                     TimeSplitAddToSplits(sceneObjects[i].itemID);
                 }
@@ -1437,8 +1435,8 @@ void TimeSplitWindow::DrawElement() {
 }
 
 void TimeSplitWindow::InitElement() {
-    LUS::Context::GetInstance()->GetWindow()->GetGui()->LoadGuiTexture("SPECIAL_TRIFORCE_PIECE_WHITE", gWTriforcePieceTex, ImVec4(1, 1, 1, 1));
-    LUS::Context::GetInstance()->GetWindow()->GetGui()->LoadGuiTexture("SPECIAL_SPLIT_ENTRANCE", gSplitEntranceTex, ImVec4(1, 1, 1, 1));
+    Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadGuiTexture("SPECIAL_TRIFORCE_PIECE_WHITE", gWTriforcePieceTex, ImVec4(1, 1, 1, 1));
+    Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadGuiTexture("SPECIAL_SPLIT_ENTRANCE", gSplitEntranceTex, ImVec4(1, 1, 1, 1));
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnItemReceive>([](GetItemEntry itemEntry) {
         TimeSplitSplitsHandler(itemEntry);
     });

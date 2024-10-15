@@ -20,7 +20,7 @@ void TimeSplitSceneSplitHandler(uint32_t entrance);
 #include <libultraship/libultraship.h>
 
 #ifdef __cplusplus
-class TimeSplitWindow : public LUS::GuiWindow {
+class TimeSplitWindow : public Ship::GuiWindow {
   public:
     using GuiWindow::GuiWindow;
 
