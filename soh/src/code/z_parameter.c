@@ -22,8 +22,6 @@
 #include "soh/Enhancements/game-interactor/GameInteractor_Hooks.h"
 #include "soh/Enhancements/randomizer/randomizer_grotto.h"
 
-#include "soh/Enhancements/timesplits/TimeSplits.h"
-
 #define DO_ACTION_TEX_WIDTH() 48
 #define DO_ACTION_TEX_HEIGHT() 16
 #define DO_ACTION_TEX_SIZE() ((DO_ACTION_TEX_WIDTH() * DO_ACTION_TEX_HEIGHT()) / 2)
@@ -1846,6 +1844,7 @@ void GameplayStats_SetTimestamp(PlayState* play, u8 item) {
     }
 
     gSaveContext.sohStats.itemTimestamp[item] = time;
+    GameInteractor_ExecuteOnTimestamp(item);
 }
 
 // Gameplay stat tracking: Update time the item was acquired
@@ -3116,9 +3115,6 @@ void Inventory_UpdateBottleItem(PlayState* play, u8 item, u8 button) {
 
     play->pauseCtx.cursorItem[PAUSE_ITEM] = item;
     gSaveContext.buttonStatus[BUTTON_STATUS_INDEX(button)] = BTN_ENABLED;
-    if (item != ITEM_BOTTLE) {
-        TimeSplitSplitsHandlerS(item);
-    }
 }
 
 s32 Inventory_ConsumeFairy(PlayState* play) {
@@ -3322,6 +3318,8 @@ s32 Health_ChangeBy(PlayState* play, s16 healthChange) {
             healthLevel = 1;
         }
     }
+
+    GameInteractor_ExecuteOnPlayerHealthChange(healthChange);
 
     // "Life=%d ＊＊＊  %d ＊＊＊＊＊＊"
     osSyncPrintf("  ライフ=%d  ＊＊＊  %d  ＊＊＊＊＊＊\n", gSaveContext.health, healthLevel);

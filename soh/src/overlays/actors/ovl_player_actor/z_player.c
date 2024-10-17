@@ -31,7 +31,6 @@
 #include "soh/Enhancements/randomizer/randomizer_grotto.h"
 #include "soh/frame_interpolation.h"
 #include "soh/Enhancements/game-interactor/GameInteractor_Hooks.h"
-#include "soh/Enhancements/timesplits/TimeSplits.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -11433,8 +11432,6 @@ void Player_UpdateCommon(Player* this, PlayState* play, Input* input) {
                                   : (this->bodyShockTimer != 0) ? &gPlayerAnim_link_normal_electric_shock_end
                                                             : &gPlayerAnim_link_derth_rebirth);
                 }
-                TimeSplitSceneSplitHandler(gSaveContext.entranceIndex);
-                
             } else {
                 if ((this->actor.parent == NULL) &&
                     ((play->transitionTrigger == TRANS_TRIGGER_START) || (this->unk_A87 != 0) || !func_808382DC(this, play))) {
