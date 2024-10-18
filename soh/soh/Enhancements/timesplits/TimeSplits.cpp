@@ -340,52 +340,33 @@ void TimeSplitsFileManagement(uint32_t action, const char* listEntry, std::vecto
     }
 }
 
-void TimeSplitsPopUpContext(uint32_t itemClicked) {
-    uint32_t rowIndex = 0;
-    ImGui::OpenPopup(std::to_string(itemClicked).c_str());
-    auto it = popupList.find(itemClicked);
-    if (it != popupList.end()) {
-        if (ImGui::BeginPopup(std::to_string(itemClicked).c_str())) {
-            for (auto& popupID : it->second) {
-                auto findID = std::find_if(splitObjectList.begin(), splitObjectList.end(),
-                    [popupID](const SplitObject& obj) {
-                        return obj.splitID == popupID;
-                    });
-
-                if (findID != splitObjectList.end()) {
-                    SplitObject& popupObject = *findID;
-                    if (ImGui::ImageButton(Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(popupObject.splitImage),
-                        ImVec2(26.0f, 26.0f), ImVec2(0, 0), ImVec2(1, 1), 2.0f, ImVec4(0, 0, 0, 0), popupObject.splitTint)) {
-                        splitList.push_back(popupObject);
-                        if (splitList.size() == 1) {
-                            splitList[0].splitTimeStatus = SPLIT_ACTIVE;
-                        } else {
-                            splitList[splitList.size() - 1].splitTimeStatus = SPLIT_INACTIVE;
-                        }
-                        ImGui::CloseCurrentPopup();
-                        displayPopup = false;
-                    }
-                    if (rowIndex != 5) {
-                        ImGui::SameLine();
-                    }
-                    rowIndex++;
-                }
+void TimeSplitsPopUpContext() {
+    int rowIndex = 0;
+    if (ImGui::BeginPopup("TimeSplitsPopUp") && popupID) {
+        for (auto item : popupList[popupID]) {
+            auto findID = std::find_if(splitObjectList.begin(), splitObjectList.end(), [&](const SplitObject& obj) { return obj.splitID == item; });
+            if (findID == splitObjectList.end()) {
+                continue;
             }
-            ImGui::EndPopup();
+
+            SplitObject& popupObject = *findID;
+            if (ImGui::ImageButton(Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(popupObject.splitImage),
+                ImVec2(26.0f, 26.0f), ImVec2(0, 0), ImVec2(1, 1), 2.0f, ImVec4(0, 0, 0, 0), popupObject.splitTint)) {
+                splitList.push_back(popupObject);
+                if (splitList.size() == 1) {
+                    splitList[0].splitTimeStatus = SPLIT_ACTIVE;
+                } else {
+                    splitList[splitList.size() - 1].splitTimeStatus = SPLIT_INACTIVE;
+                }
+                ImGui::CloseCurrentPopup();
+                displayPopup = false;
+            }
+            if (rowIndex != 5) {
+                ImGui::SameLine();
+            }
+            rowIndex++;
         }
-    } else {
-        auto findID = std::find_if(splitObjectList.begin(), splitObjectList.end(),
-                    [itemClicked](const SplitObject& obj) {
-                        return obj.splitID == popupID;
-                    });
-        SplitObject& popupObject = *findID;
-        splitList.push_back(popupObject);
-        if (splitList.size() == 1) {
-            splitList[0].splitTimeStatus = SPLIT_ACTIVE;
-        } else {
-            splitList[splitList.size() - 1].splitTimeStatus = SPLIT_INACTIVE;
-        }
-        displayPopup = false;
+        ImGui::EndPopup();
     }
 }
 
@@ -577,9 +558,21 @@ void TimeSplitsDrawItemList(uint32_t type) {
             ImGui::PushID(split.splitID);
             if (ImGui::ImageButton(Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(split.splitImage),
                                ImVec2(26.0f, 26.0f), ImVec2(0, 0), ImVec2(1, 1), 2.0f, ImVec4(0, 0, 0, 0), split.splitTint)) {
-                popupID = split.splitID;
-                displayPopup = true;
+                
+                if (popupList.contains(split.splitID)) {
+                    popupID = split.splitID;
+                    ImGui::OpenPopup("TimeSplitsPopUp");
+                } else {
+                    splitList.push_back(split);
+                    if (splitList.size() == 1) {
+                        splitList[0].splitTimeStatus = SPLIT_ACTIVE;
+                    } else {
+                        splitList[splitList.size() - 1].splitTimeStatus = SPLIT_INACTIVE;
+                    }
+                }
             }
+
+            TimeSplitsPopUpContext();
             ImGui::PopID();
             ImGui::TableNextColumn();
             ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 7.0f));
@@ -691,10 +684,6 @@ void TimeSplitWindow::DrawElement() {
     if (!initialized) {
         InitializeSplitDataFile();
         initialized = true;
-    }
-
-    if (displayPopup) {
-        TimeSplitsPopUpContext(popupID);
     }
 
     ImGui::PushStyleColor(ImGuiCol_WindowBg, windowColor);
