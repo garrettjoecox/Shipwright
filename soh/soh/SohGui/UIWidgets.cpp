@@ -830,7 +830,7 @@ namespace UIWidgets {
         return 0;
     }
 
-    bool InputString(const char* label, std::string* value) {
-        return ImGui::InputText(label, (char*)value->c_str(), value->capacity() + 1, ImGuiInputTextFlags_CallbackResize, InputTextResizeCallback, value);
+    bool InputString(const char* label, std::string* value, ImGuiInputTextFlags flags) {
+        return ImGui::InputText(label, (char*)value->c_str(), value->capacity() + 1, ImGuiInputTextFlags_CallbackResize | flags, InputTextResizeCallback, value);
     }
 }

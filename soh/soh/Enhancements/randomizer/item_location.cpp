@@ -131,6 +131,7 @@ bool ItemLocation::HasObtained() const {
 
 void ItemLocation::SetCheckStatus(RandomizerCheckStatus status_) {
     status = status_;
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnRandoSetCheckStatus>(rc, status);
 }
 
 RandomizerCheckStatus ItemLocation::GetCheckStatus() {
@@ -139,6 +140,7 @@ RandomizerCheckStatus ItemLocation::GetCheckStatus() {
 
 void ItemLocation::SetIsSkipped(bool isSkipped_) {
     isSkipped = isSkipped_;
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnRandoSetIsSkipped>(rc, isSkipped);
 }
 
 bool ItemLocation::GetIsSkipped() {

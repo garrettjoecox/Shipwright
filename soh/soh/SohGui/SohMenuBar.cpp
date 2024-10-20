@@ -21,6 +21,7 @@
 #ifdef ENABLE_REMOTE_CONTROL
 #include "soh/Network/CrowdControl/CrowdControl.h"
 #include "soh/Network/Sail/Sail.h"
+#include "soh/Network/Anchor/Anchor.h"
 #endif
 
 
@@ -1985,6 +1986,7 @@ void DrawRemoteControlMenu() {
     if (ImGui::BeginMenu("Network")) {
         Sail::Instance->DrawMenu();
         CrowdControl::Instance->DrawMenu();
+        Anchor::Instance->DrawMenu();
         ImGui::EndMenu();
     }
 }

@@ -207,6 +207,7 @@ void EnDoor_Idle(EnDoor* this, PlayState* play) {
                 Flags_SetSwitch(play, this->actor.params & 0x3F);
             }
             Audio_PlayActorSound2(&this->actor, NA_SE_EV_CHAIN_KEY_UNLOCK);
+            GameInteractor_ExecuteOnDungeonKeyUsedHooks(gSaveContext.mapIndex);
         }
     } else if (!Player_InCsMode(play)) {
         if (fabsf(playerPosRelToDoor.y) < 20.0f && fabsf(playerPosRelToDoor.x) < 20.0f &&
@@ -234,6 +235,11 @@ void EnDoor_Idle(EnDoor* this, PlayState* play) {
             this->actionFunc = EnDoor_AjarOpen;
         }
     }
+    // #region SOH [Co-op]
+    if (Flags_GetSwitch(play, this->actor.params & 0x3F)) {
+        DECR(this->lockTimer);
+    }
+    // #endregion
 }
 
 void EnDoor_WaitForCheck(EnDoor* this, PlayState* play) {

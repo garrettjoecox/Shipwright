@@ -21,8 +21,11 @@ DEFINE_HOOK(OnFlagSet, (int16_t flagType, int16_t flag));
 DEFINE_HOOK(OnFlagUnset, (int16_t flagType, int16_t flag));
 DEFINE_HOOK(OnSceneSpawnActors, ());
 DEFINE_HOOK(OnPlayerUpdate, ());
+DEFINE_HOOK(OnPlayerSfx, (u16 sfxId));
 DEFINE_HOOK(OnOcarinaSongAction, ());
 DEFINE_HOOK(OnShopSlotChange, (uint8_t cursorIndex, int16_t price));
+DEFINE_HOOK(OnDungeonKeyUsed, (uint16_t mapIndex));
+DEFINE_HOOK(ShouldActorInit, (void* actor, bool* result));
 DEFINE_HOOK(OnActorInit, (void* actor));
 DEFINE_HOOK(OnActorUpdate, (void* actor));
 DEFINE_HOOK(OnActorKill, (void* actor));
@@ -35,7 +38,7 @@ DEFINE_HOOK(OnPlayerBottleUpdate, (int16_t contents));
 DEFINE_HOOK(OnPlayDestroy, ());
 DEFINE_HOOK(OnPlayDrawEnd, ());
 DEFINE_HOOK(OnVanillaBehavior, (GIVanillaBehavior flag, bool* result, va_list originalArgs));
-DEFINE_HOOK(OnSaveFile, (int32_t fileNum));
+DEFINE_HOOK(OnSaveFile, (int32_t fileNum, int32_t sectionID));
 DEFINE_HOOK(OnLoadFile, (int32_t fileNum));
 DEFINE_HOOK(OnDeleteFile, (int32_t fileNum));
 
@@ -62,3 +65,7 @@ DEFINE_HOOK(OnSetGameLanguage, ());
 DEFINE_HOOK(OnFileDropped, (std::string filePath));
 DEFINE_HOOK(OnAssetAltChange, ());
 DEFINE_HOOK(OnKaleidoUpdate, ());
+
+DEFINE_HOOK(OnRandoSetCheckStatus, (RandomizerCheck rc, RandomizerCheckStatus status));
+DEFINE_HOOK(OnRandoSetIsSkipped, (RandomizerCheck rc, bool isSkipped));
+DEFINE_HOOK(OnRandoEntranceDiscovered, (u16 entranceIndex, u8 isReversedEntrance));
