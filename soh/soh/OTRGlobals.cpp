@@ -77,8 +77,10 @@
 #ifdef ENABLE_REMOTE_CONTROL
 #include "soh/Network/CrowdControl/CrowdControl.h"
 #include "soh/Network/Sail/Sail.h"
+#include "soh/Network/Anchor/Anchor.h"
 CrowdControl* CrowdControl::Instance;
 Sail* Sail::Instance;
+Anchor* Anchor::Instance;
 #endif
 
 #include "Enhancements/mods.h"
@@ -1161,6 +1163,7 @@ extern "C" void InitOTR() {
 #ifdef ENABLE_REMOTE_CONTROL
     CrowdControl::Instance = new CrowdControl();
     Sail::Instance = new Sail();
+    Anchor::Instance = new Anchor();
 #endif
 
     OTRMessage_Init();
@@ -1196,6 +1199,9 @@ extern "C" void InitOTR() {
     if (CVarGetInteger(CVAR_REMOTE_SAIL("Enabled"), 0)) {
         Sail::Instance->Enable();
     }
+    if (CVarGetInteger(CVAR_REMOTE_ANCHOR("Enabled"), 0)) {
+        Anchor::Instance->Enable();
+    }
 #endif
 }
 
@@ -1212,6 +1218,9 @@ extern "C" void DeinitOTR() {
     }
     if (CVarGetInteger(CVAR_REMOTE_SAIL("Enabled"), 0)) {
         Sail::Instance->Disable();
+    }
+    if (CVarGetInteger(CVAR_REMOTE_ANCHOR("Enabled"), 0)) {
+        Anchor::Instance->Disable();
     }
     SDLNet_Quit();
 #endif
