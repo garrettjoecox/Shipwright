@@ -184,6 +184,10 @@ void GameInteractor_ExecuteOnLoadFile(int32_t fileNum) {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnLoadFile>(fileNum);
 }
 
+void GameInteractor_ExecuteOnCopyFile(int32_t sourceFileNum, int32_t destFileNum) {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnCopyFile>(sourceFileNum, destFileNum);
+}
+
 void GameInteractor_ExecuteOnDeleteFile(int32_t fileNum) {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnDeleteFile>(fileNum);
 }

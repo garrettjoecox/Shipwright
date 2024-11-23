@@ -37,6 +37,7 @@ DEFINE_HOOK(OnOpenText, (u16 * textId, bool* loadFromMessageTable));
 DEFINE_HOOK(OnVanillaBehavior, (GIVanillaBehavior flag, bool* result, va_list originalArgs));
 DEFINE_HOOK(OnSaveFile, (int32_t fileNum));
 DEFINE_HOOK(OnLoadFile, (int32_t fileNum));
+DEFINE_HOOK(OnCopyFile, (int32_t sourceFileNum, uint32_t destFileNum));
 DEFINE_HOOK(OnDeleteFile, (int32_t fileNum));
 
 DEFINE_HOOK(OnDialogMessage, ());

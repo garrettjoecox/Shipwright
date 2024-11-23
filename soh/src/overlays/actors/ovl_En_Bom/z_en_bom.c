@@ -287,7 +287,12 @@ void EnBom_Update(Actor* thisx, PlayState* play2) {
 
             // spawn spark effect on even frames
             effPos = thisx->world.pos;
-            effPos.y += 17.0f;
+            if (CVarGetInteger("gHoliday.lilDavid.BombArrows.Active", 0) &&
+                thisx->parent && thisx->parent->id == ACTOR_EN_ARROW) {
+                effPos.y += 5.0f;
+            } else {
+                effPos.y += 17.0f;
+            }
             if ((play->gameplayFrames % 2) == 0) {
                 EffectSsGSpk_SpawnFuse(play, thisx, &effPos, &effVelocity, &effAccel);
             }

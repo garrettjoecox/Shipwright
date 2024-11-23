@@ -40,6 +40,7 @@ bool GameInteractor_Should(GIVanillaBehavior flag, uint32_t result, ...);
 // MARK: -  Save Files
 void GameInteractor_ExecuteOnSaveFile(int32_t fileNum);
 void GameInteractor_ExecuteOnLoadFile(int32_t fileNum);
+void GameInteractor_ExecuteOnCopyFile(int32_t sourceFileNum, int32_t destFileNum);
 void GameInteractor_ExecuteOnDeleteFile(int32_t fileNum);
 
 // MARK: - Dialog
