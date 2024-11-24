@@ -6,6 +6,7 @@
 
 #include "z_en_ma1.h"
 #include "objects/object_ma1/object_ma1.h"
+#include "soh/OTRGlobals.h"
 #include "soh/Enhancements/game-interactor/GameInteractor_Hooks.h"
 #include "soh_assets.h"
 

@@ -10,6 +10,7 @@
 #include "vt.h"
 #include "soh/frame_interpolation.h"
 #include "soh_assets.h"
+#include "soh/ResourceManagerHelpers.h"
 
 #define FLAGS (ACTOR_FLAG_UPDATE_WHILE_CULLED | ACTOR_FLAG_ALWAYS_THROWN)
 

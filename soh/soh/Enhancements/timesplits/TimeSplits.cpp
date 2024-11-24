@@ -745,14 +745,18 @@ void TimeSplitsDrawOptionsMenu() {
     ImGui::SeparatorText("Window Options");
     if (ImGui::ColorEdit4("Background Color", (float*)&windowColor, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel)) {
         Color_RGBA8 color;
-        color.r = windowColor.x;
-        color.g = windowColor.y;
-        color.b = windowColor.z;
-        color.a = windowColor.w;
+        color.r = windowColor.x * 255.0;
+        color.g = windowColor.y * 255.0;
+        color.b = windowColor.z * 255.0;
+        color.a = windowColor.w * 255.0;
+        CVarSetColor("TimeSplits.WindowColor", color);
+        Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
     }
     ImGui::SameLine();
     if (ImGui::Button("Reset")) {
         windowColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+        CVarSetColor("TimeSplits.WindowColor", {0, 0, 0, 1});
+        Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
     }
 
     if (UIWidgets::PaddedEnhancementSliderFloat("Window Size: %.1fx", "##windowSize",
@@ -914,6 +918,9 @@ static bool initialized = false;
 void TimeSplitWindow::DrawElement() {
     ImGui::SetWindowFontScale(timeSplitsWindowSize);
     if (!initialized) {
+        Color_RGBA8 defaultColour = {0, 0, 0, 255};
+        Color_RGBA8 color = CVarGetColor("TimeSplits.WindowColor", defaultColour);
+        windowColor = {(float)color.r / 255.0f, (float)color.g / 255.0f, (float)color.b / 255.0f, (float)color.a / 255.0f};
         InitializeSplitDataFile();
         initialized = true;
     }

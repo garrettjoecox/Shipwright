@@ -1,5 +1,6 @@
 #include <libultraship/bridge.h>
 #include "soh/OTRGlobals.h"
+#include "soh/ResourceManagerHelpers.h"
 #include "soh/Enhancements/enhancementTypes.h"
 #include "soh/Enhancements/custom-message/CustomMessageTypes.h"
 #include "soh/Enhancements/item-tables/ItemTableManager.h"
@@ -10,6 +11,7 @@
 #include "soh/Enhancements/game-interactor/GameInteractor_Hooks.h"
 #include "soh/ImGuiUtils.h"
 #include "soh/Notification/Notification.h"
+#include "soh/SaveManager.h"
 
 extern "C" {
 #include "macros.h"
@@ -1397,6 +1399,7 @@ void RandomizerOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, va_l
             }
             break;
         }
+        case VB_FREEZE_ON_SKULL_TOKEN:
         case VB_TRADE_TIMER_ODD_MUSHROOM:
         case VB_TRADE_TIMER_EYEDROPS:
         case VB_TRADE_TIMER_FROG:
@@ -1834,7 +1837,7 @@ void RandomizerOnActorInitHandler(void* actorRef) {
     if (
         actor->id == ACTOR_OBJ_OSHIHIKI &&
         LINK_IS_CHILD &&
-        IsGameMasterQuest() &&
+        ResourceMgr_IsGameMasterQuest() &&
         gPlayState->sceneNum == SCENE_SPIRIT_TEMPLE && actor->room == 6 && // Spirit Temple silver block hallway
         actor->params == 0x9C7 // Silver block that is marked as in the hole
     ) {
@@ -2193,7 +2196,7 @@ void RandomizerRegisterHooks() {
         onGameFrameUpdateHook = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnGameFrameUpdate>(RandomizerOnGameFrameUpdateHandler);
         onSceneSpawnActorsHook = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSceneSpawnActors>(RandomizerOnSceneSpawnActorsHandler);
         onPlayDestroyHook = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnPlayDestroy>(RandomizerOnPlayDestroyHandler);
-        onPlayDestroyHook = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnExitGame>(RandomizerOnExitGameHandler);
+        onExitGameHook = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnExitGame>(RandomizerOnExitGameHandler);
         onKaleidoUpdateHook = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnKaleidoscopeUpdate>(RandomizerOnKaleidoscopeUpdateHandler);
 
         if (RAND_GET_OPTION(RSK_FISHSANITY) != RO_FISHSANITY_OFF) {

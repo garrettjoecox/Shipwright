@@ -8,6 +8,7 @@
 #include "vt.h"
 #include "objects/object_hs/object_hs.h"
 #include "soh_assets.h"
+#include "soh/ResourceManagerHelpers.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_FRIENDLY)
 
