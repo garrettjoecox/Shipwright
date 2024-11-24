@@ -6,6 +6,8 @@
 #include "soh/frame_interpolation.h"
 #include "soh_assets.h"
 #include "soh/Enhancements/game-interactor/GameInteractor_Hooks.h"
+#include "soh/OTRGlobals.h"
+#include "soh/ResourceManagerHelpers.h"
 
 #include <stdlib.h> // malloc
 #include <string.h> // memcpy
