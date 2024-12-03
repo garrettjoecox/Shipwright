@@ -641,8 +641,8 @@ public:
         inline static std::vector<HOOK_ID> hooksForFilter;
     };
 
-    template <typename H> std::unordered_map<uint32_t, HookInfo> GetHookData() {
-        return RegisteredGameHooks<H>::hookData;
+    template <typename H> std::unordered_map<uint32_t, HookInfo>* GetHookData() {
+        return &RegisteredGameHooks<H>::hookData;
     }
 
     // General Hooks
