@@ -39,6 +39,7 @@
 #include "Enhancements/debugger/MessageViewer.h"
 #include "soh/Notification/Notification.h"
 #include "soh/Enhancements/Holiday/Caladius.h"
+#include "soh/Enhancements/TimeDisplay/TimeDisplay.h"
 
 bool isBetaQuestEnabled = false;
 
@@ -138,6 +139,7 @@ namespace SohGui {
     std::shared_ptr<SohModalWindow> mModalWindow;
     std::shared_ptr<Notification::Window> mNotificationWindow;
     std::shared_ptr<CaladiusWindow> mCaladiusWindow;
+    std::shared_ptr<TimeDisplayWindow> mTimeDisplayWindow;
 
     void SetupGuiElements() {
         auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
@@ -226,6 +228,8 @@ namespace SohGui {
         mCaladiusWindow = std::make_shared<CaladiusWindow>(CVAR_WINDOW("Holiday Cal"), "Holiday Cal");
         gui->AddGuiWindow(mCaladiusWindow);
         mCaladiusWindow->Show();
+        mTimeDisplayWindow = std::make_shared<TimeDisplayWindow>(CVAR_WINDOW("TimeDisplayEnabled"), "Additional Timers");
+        gui->AddGuiWindow(mTimeDisplayWindow);
     }
 
     void Destroy() {
@@ -262,6 +266,7 @@ namespace SohGui {
         mTimeSplitWindow = nullptr;
         mCaladiusWindow = nullptr;
         mPlandomizerWindow = nullptr;
+        mTimeDisplayWindow = nullptr;
     }
 
     void RegisterPopup(std::string title, std::string message, std::string button1, std::string button2, std::function<void()> button1callback, std::function<void()> button2callback) {

@@ -2,6 +2,7 @@
 #include "vt.h"
 
 #include "overlays/actors/ovl_Arms_Hook/z_arms_hook.h"
+#include "overlays/actors/ovl_En_Arrow/z_en_arrow.h"
 #include "overlays/actors/ovl_En_Part/z_en_part.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
 #include "objects/gameplay_dangeon_keep/gameplay_dangeon_keep.h"
@@ -1081,14 +1082,11 @@ void TitleCard_InitPlaceName(PlayState* play, TitleCardContext* titleCtx, void* 
 }
 
 void TitleCard_Update(PlayState* play, TitleCardContext* titleCtx) {
-    const Color_RGB8 TitleCard_Colors_ori = {255,255,255};
-    Color_RGB8 TitleCard_Colors = {255,255,255};
-    if (titleCtx->isBossCard && CVarGetInteger(CVAR_COSMETIC("HUD.TitleCard.Boss.Changed"), 1) == 2) {
-        TitleCard_Colors = CVarGetColor24(CVAR_COSMETIC("HUD.TitleCard.Boss.Value"), TitleCard_Colors_ori);
-    } else if (!titleCtx->isBossCard && CVarGetInteger(CVAR_COSMETIC("HUD.TitleCard.Map.Changed"), 1) == 2) {
-        TitleCard_Colors = CVarGetColor24(CVAR_COSMETIC("HUD.TitleCard.Map.Value"), TitleCard_Colors_ori);
-    } else {
-        TitleCard_Colors = TitleCard_Colors_ori;
+    Color_RGB8 TitleCard_Colors = { 255, 255, 255 };
+    if (titleCtx->isBossCard && CVarGetInteger(CVAR_COSMETIC("HUD.TitleCard.Boss.Changed"), 0) == 1) {
+        TitleCard_Colors = CVarGetColor24(CVAR_COSMETIC("HUD.TitleCard.Boss.Value"), TitleCard_Colors);
+    } else if (!titleCtx->isBossCard && CVarGetInteger(CVAR_COSMETIC("HUD.TitleCard.Map.Changed"), 0) == 1) {
+        TitleCard_Colors = CVarGetColor24(CVAR_COSMETIC("HUD.TitleCard.Map.Value"), TitleCard_Colors);
     }
 
     if (DECR(titleCtx->delayTimer) == 0) {
@@ -2350,8 +2348,14 @@ void Actor_DrawFaroresWindPointer(PlayState* play) {
         } else if (D_8015BC18 > 0.0f) {
             static Vec3f effectVel = { 0.0f, -0.05f, 0.0f };
             static Vec3f effectAccel = { 0.0f, -0.025f, 0.0f };
-            static Color_RGBA8 effectPrimCol = { 255, 255, 255, 0 };
-            static Color_RGBA8 effectEnvCol = { 100, 200, 0, 0 };
+            Color_RGBA8 effectPrimCol = { 255, 255, 255, 0 };
+            Color_RGBA8 effectEnvCol = { 100, 200, 0, 0 };
+            if (CVarGetInteger(CVAR_COSMETIC("Magic.FaroresSecondary.Changed"), 0)) {
+                effectEnvCol = CVarGetColor(CVAR_COSMETIC("Magic.FaroresSecondary.Value"), effectEnvCol);
+            }
+            if (CVarGetInteger(CVAR_COSMETIC("Magic.FaroresPrimary.Changed"), 0)) {
+                effectPrimCol = CVarGetColor(CVAR_COSMETIC("Magic.FaroresPrimary.Value"), effectPrimCol);
+            }
             Vec3f* curPos = &gSaveContext.respawn[RESPAWN_MODE_TOP].pos;
             Vec3f* nextPos = &gSaveContext.respawn[RESPAWN_MODE_DOWN].pos;
             f32 prevNum = D_8015BC18;
@@ -2446,8 +2450,16 @@ void Actor_DrawFaroresWindPointer(PlayState* play) {
             Matrix_Push();
 
             gDPPipeSync(POLY_XLU_DISP++);
-            gDPSetPrimColor(POLY_XLU_DISP++, 128, 128, 255, 255, 200, alpha);
-            gDPSetEnvColor(POLY_XLU_DISP++, 100, 200, 0, 255);
+            Color_RGB8 Spell_env = { 100, 200, 0 };
+            Color_RGB8 Spell_col = { 255, 255, 200 };
+            if (CVarGetInteger(CVAR_COSMETIC("Magic.FaroresSecondary.Changed"), 0)) {
+                Spell_env = CVarGetColor24(CVAR_COSMETIC("Magic.FaroresSecondary.Value"), Spell_env);
+            }
+            if (CVarGetInteger(CVAR_COSMETIC("Magic.FaroresPrimary.Changed"), 0)) {
+                Spell_col = CVarGetColor24(CVAR_COSMETIC("Magic.FaroresPrimary.Value"), Spell_col);
+            }
+            gDPSetPrimColor(POLY_XLU_DISP++, 128, 128, Spell_col.r, Spell_col.g, Spell_col.b, alpha);
+            gDPSetEnvColor(POLY_XLU_DISP++, Spell_env.r, Spell_env.g, Spell_env.b, 255);
 
             Matrix_RotateZ(((play->gameplayFrames * 1500) & 0xFFFF) * M_PI / 32768.0f, MTXMODE_APPLY);
             gSPMatrix(POLY_XLU_DISP++, MATRIX_NEWMTX(play->state.gfxCtx),
@@ -3854,8 +3866,14 @@ Actor* Actor_GetProjectileActor(PlayState* play, Actor* refActor, f32 radius) {
             //  it can also be an arrow.
             //  Luckily, the field at the same offset in the arrow actor is the x component of a vector
             //  which will rarely ever be 0. So it's very unlikely for this bug to cause an issue.
+            //
+            //  SoH [Port] We're making a change here, it doesn't technically fix the bug but makes it behave
+            //  more like hardware. Because of pointer size differences in SoH this was accessing a different
+            //  place in memory and causing issues with Dark link behavior, and probably other places too
             if ((Math_Vec3f_DistXYZ(&refActor->world.pos, &actor->world.pos) > radius) ||
-                (((ArmsHook*)actor)->timer == 0)) {
+                (actor->id == ACTOR_ARMS_HOOK && ((ArmsHook*)actor)->timer == 0) ||
+                (actor->id == ACTOR_EN_ARROW && ((EnArrow*)actor)->unk_210.x == 0)
+            ) {
                 actor = actor->next;
             } else {
                 deltaX = Math_SinS(actor->world.rot.y) * (actor->speedXZ * 10.0f);

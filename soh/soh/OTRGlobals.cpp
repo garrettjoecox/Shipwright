@@ -874,6 +874,7 @@ std::unordered_map<ItemID, RandomizerGet> ItemIDtoRandomizerGetMap {
     { ITEM_KOKIRI_EMERALD, RG_KOKIRI_EMERALD },
     { ITEM_GORON_RUBY, RG_GORON_RUBY },
     { ITEM_ZORA_SAPPHIRE, RG_ZORA_SAPPHIRE },
+    { ITEM_SWORD_MASTER, RG_MASTER_SWORD },
 };
 
 extern "C" RandomizerGet RetrieveRandomizerGetFromItemID(ItemID itemID) {
@@ -1932,7 +1933,7 @@ extern "C" u32 SpoilerFileExists(const char* spoilerFileName) {
 }
 
 extern "C" u8 Randomizer_GetSettingValue(RandomizerSettingKey randoSettingKey) {
-    return OTRGlobals::Instance->gRandoContext->GetOption(randoSettingKey).GetSelectedOptionIndex();
+    return OTRGlobals::Instance->gRandoContext->GetOption(randoSettingKey).GetContextOptionIndex();
 }
 
 extern "C" RandomizerCheck Randomizer_GetCheckFromActor(s16 actorId, s16 sceneNum, s16 actorParams) {
@@ -2152,7 +2153,6 @@ extern "C" int CustomMessage_RetrieveIfExists(PlayState* play) {
         } else if (textId >= TEXT_SHOP_ITEM_RANDOM_CONFIRM && textId <= TEXT_SHOP_ITEM_RANDOM_CONFIRM_END){
             RandomizerCheck rc = OTRGlobals::Instance->gRandomizer->GetCheckFromRandomizerInf((RandomizerInf)((textId - TEXT_SHOP_ITEM_RANDOM_CONFIRM) + RAND_INF_SHOP_ITEMS_KF_SHOP_ITEM_1));
             messageEntry = OTRGlobals::Instance->gRandomizer->GetMerchantMessage(rc, TEXT_SHOP_ITEM_RANDOM_CONFIRM);
-        // textId: TEXT_SCRUB_RANDOM + (randomizerInf - RAND_INF_SCRUBS_PURCHASED_DODONGOS_CAVERN_DEKU_SCRUB_NEAR_BOMB_BAG_LEFT)
         } else if (textId == TEXT_SCRUB_RANDOM) {
             EnDns* enDns = (EnDns*)GET_PLAYER(play)->talkActor;
             RandomizerCheck rc = OTRGlobals::Instance->gRandomizer->GetCheckFromRandomizerInf((RandomizerInf)enDns->sohScrubIdentity.randomizerInf);
