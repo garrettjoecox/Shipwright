@@ -84,6 +84,7 @@ Sail* Sail::Instance;
 #include "Enhancements/mods.h"
 #include "Enhancements/game-interactor/GameInteractor.h"
 #include "Enhancements/randomizer/draw.h"
+#include "Enhancements/custom-collectible/CustomCollectible.h"
 #include <libultraship/libultraship.h>
 
 // Resource Types/Factories
@@ -703,6 +704,7 @@ extern "C" void VanillaItemTable_Init() {
         GET_ITEM(ITEM_NUT_UPGRADE_30,   OBJECT_GI_NUTS,          GID_NUTS,             0xA7, 0x80, CHEST_ANIM_SHORT, ITEM_CATEGORY_LESSER,          MOD_NONE, GI_NUT_UPGRADE_30),
         GET_ITEM(ITEM_NUT_UPGRADE_40,   OBJECT_GI_NUTS,          GID_NUTS,             0xA8, 0x80, CHEST_ANIM_SHORT, ITEM_CATEGORY_LESSER,          MOD_NONE, GI_NUT_UPGRADE_40),
         GET_ITEM(ITEM_BULLET_BAG_50,    OBJECT_GI_DEKUPOUCH,     GID_BULLET_BAG_50,    0x6C, 0x80, CHEST_ANIM_LONG,  ITEM_CATEGORY_LESSER,          MOD_NONE, GI_BULLET_BAG_50),
+        GET_ITEM(ITEM_SHIP,             OBJECT_UNSET_16E,        GID_MAXIMUM,          0x00, 0x80, CHEST_ANIM_LONG,  ITEM_CATEGORY_LESSER,          MOD_NONE, GI_SHIP),
         GET_ITEM_NONE,
         GET_ITEM_NONE,
         GET_ITEM_NONE // GI_MAX - if you need to add to this table insert it before this entry.
@@ -874,6 +876,7 @@ std::unordered_map<ItemID, RandomizerGet> ItemIDtoRandomizerGetMap {
     { ITEM_KOKIRI_EMERALD, RG_KOKIRI_EMERALD },
     { ITEM_GORON_RUBY, RG_GORON_RUBY },
     { ITEM_ZORA_SAPPHIRE, RG_ZORA_SAPPHIRE },
+    { ITEM_SWORD_MASTER, RG_MASTER_SWORD },
 };
 
 extern "C" RandomizerGet RetrieveRandomizerGetFromItemID(ItemID itemID) {
@@ -1172,6 +1175,7 @@ extern "C" void InitOTR() {
     DebugConsole_Init();
 
     InitMods();
+    CustomCollectible::RegisterHooks();
     ActorDB::AddBuiltInCustomActors();
     // #region SOH [Randomizer] TODO: Remove these and refactor spoiler file handling for randomizer
     CVarClear(CVAR_GENERAL("RandomizerNewFileDropped"));
@@ -1932,7 +1936,7 @@ extern "C" u32 SpoilerFileExists(const char* spoilerFileName) {
 }
 
 extern "C" u8 Randomizer_GetSettingValue(RandomizerSettingKey randoSettingKey) {
-    return OTRGlobals::Instance->gRandoContext->GetOption(randoSettingKey).GetSelectedOptionIndex();
+    return OTRGlobals::Instance->gRandoContext->GetOption(randoSettingKey).GetContextOptionIndex();
 }
 
 extern "C" RandomizerCheck Randomizer_GetCheckFromActor(s16 actorId, s16 sceneNum, s16 actorParams) {
@@ -2152,7 +2156,6 @@ extern "C" int CustomMessage_RetrieveIfExists(PlayState* play) {
         } else if (textId >= TEXT_SHOP_ITEM_RANDOM_CONFIRM && textId <= TEXT_SHOP_ITEM_RANDOM_CONFIRM_END){
             RandomizerCheck rc = OTRGlobals::Instance->gRandomizer->GetCheckFromRandomizerInf((RandomizerInf)((textId - TEXT_SHOP_ITEM_RANDOM_CONFIRM) + RAND_INF_SHOP_ITEMS_KF_SHOP_ITEM_1));
             messageEntry = OTRGlobals::Instance->gRandomizer->GetMerchantMessage(rc, TEXT_SHOP_ITEM_RANDOM_CONFIRM);
-        // textId: TEXT_SCRUB_RANDOM + (randomizerInf - RAND_INF_SCRUBS_PURCHASED_DODONGOS_CAVERN_DEKU_SCRUB_NEAR_BOMB_BAG_LEFT)
         } else if (textId == TEXT_SCRUB_RANDOM) {
             EnDns* enDns = (EnDns*)GET_PLAYER(play)->talkActor;
             RandomizerCheck rc = OTRGlobals::Instance->gRandomizer->GetCheckFromRandomizerInf((RandomizerInf)enDns->sohScrubIdentity.randomizerInf);

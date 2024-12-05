@@ -19,7 +19,7 @@ uint64_t GetUnixTimestamp();
 
 bool isFeverDisabled = false;
 bool isExchangeDisabled = false;
-float fontScale = 1.0f;
+static float fontScale = 1.0f;
 
 extern GetItemEntry vanillaQueuedItemEntry;
 

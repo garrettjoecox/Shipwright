@@ -345,6 +345,19 @@ typedef enum {
     VB_INFLICT_VOID_DAMAGE,
     VB_GANONDORF_DECIDE_TO_FIGHT,
     VB_USE_ITEM,
+    // Vanilla condition: Close enough & various cutscene checks
+    // Opt: *EnRu1
+    VB_PLAY_CHILD_RUTO_INTRO,
+    // Vanilla condition: !INFTABLE_RUTO_IN_JJ_WANTS_TO_BE_TOSSED_TO_SAPPHIRE && in the big okto room
+    // Opt: *EnRu1
+    VB_RUTO_WANT_TO_BE_TOSSED_TO_SAPPHIRE,
+    // Vanilla condition: Landed on the platform in the big okto room
+    // Opt: *EnRu1
+    VB_RUTO_RUN_TO_SAPPHIRE,
+    // Vanilla condition: !Flags_GetInfTable(INFTABLE_145)
+    // Opt: *EnRu1
+    VB_RUTO_BE_CONSIDERED_NOT_KIDNAPPED,
+    
 
     /*** Give Items ***/
 
@@ -658,8 +671,8 @@ public:
         inline static std::vector<HOOK_ID> hooksForFilter;
     };
 
-    template <typename H> std::unordered_map<uint32_t, HookInfo> GetHookData() {
-        return RegisteredGameHooks<H>::hookData;
+    template <typename H> std::unordered_map<uint32_t, HookInfo>* GetHookData() {
+        return &RegisteredGameHooks<H>::hookData;
     }
 
     // General Hooks
