@@ -1891,6 +1891,12 @@ u8 Return_Item(u8 itemID, ModIndex modId, ItemID returnItem) {
  * @return u8 
  */
 u8 Item_Give(PlayState* play, u8 item) {
+    // TODO: Add ShouldItemGive
+    // if (!GameInteractor_ShouldItemGive(item) || item == ITEM_SHIP) {
+    if (item == ITEM_SHIP) {
+        return ITEM_NONE;
+    }
+
     //prevents getting sticks without the bag in case something got missed
     if (
         IS_RANDO &&
@@ -2485,6 +2491,11 @@ u8 Item_CheckObtainability(u8 item) {
     s16 i;
     s16 slot = SLOT(item);
     s32 temp;
+
+    // SOH [Enhancements] Added to enable custom item gives
+    if (item == ITEM_SHIP) {
+        return ITEM_NONE;
+    }
 
     if (item >= ITEM_STICKS_5) {
         slot = SLOT(sExtraItemBases[item - ITEM_STICKS_5]);
