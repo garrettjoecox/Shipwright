@@ -86,7 +86,7 @@ static void OnPresentChange() {
         uint32_t giftsCollected = CVarGetInteger(CVAR("GiftsCollected"), 0);
         giftsCollected++;
         CVarSetInteger(CVAR("GiftsCollected"), giftsCollected);
-        Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+        Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
         std::string msg = std::to_string(giftsCollected).c_str();
         msg += " Gifts in Inventory.";
         Notification::Emit({
@@ -117,7 +117,7 @@ static void OnPresentChange() {
             vanillaQueuedItemEntry = Rando::StaticData::RetrieveItem(RG_TRIFORCE_PIECE).GetGIEntry_Copy();
             giftsCollected -= giftsRequired;
             CVarSetInteger(CVAR("GiftsCollected"), giftsCollected);
-            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
 
             std::string msg = std::to_string(giftsCollected).c_str();
             msg += " Gifts in Inventory.";

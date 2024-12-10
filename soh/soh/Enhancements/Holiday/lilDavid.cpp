@@ -27,7 +27,7 @@ static void OnConfigurationChanged() {
     COND_HOOK(OnSaveFile, CVarGetInteger(CVAR("BombArrows.Enabled"), 0), [](int32_t file) {
         std::string cvar = StringHelper::Sprintf("%s%d", CVAR("BombArrows.Save"), file);
         CVarSetInteger(cvar.c_str(), CVarGetInteger(CVAR("BombArrows.Active"), 0));
-        Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+        Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
     });
 
     COND_HOOK(OnLoadFile, CVarGetInteger(CVAR("BombArrows.Enabled"), 0), [](int32_t file) {
@@ -39,13 +39,13 @@ static void OnConfigurationChanged() {
         std::string cvarFrom = StringHelper::Sprintf("%s%d", CVAR("BombArrows.Save"), from);
         std::string cvarTo = StringHelper::Sprintf("%s%d", CVAR("BombArrows.Save"), to);
         CVarSetInteger(cvarTo.c_str(), CVarGetInteger(cvarFrom.c_str(), 0));
-        Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+        Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
     });
 
     COND_HOOK(OnDeleteFile, CVarGetInteger(CVAR("BombArrows.Enabled"), 0), [](int32_t file) {
         std::string cvar = StringHelper::Sprintf("%s%d", CVAR("BombArrows.Save"), file);
         CVarSetInteger(cvar.c_str(), 0);
-        Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+        Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
     });
 
     COND_ID_HOOK(OnActorInit, ACTOR_EN_ARROW, CVarGetInteger(CVAR("BombArrows.Enabled"), 0), [](void* actorRef) {
