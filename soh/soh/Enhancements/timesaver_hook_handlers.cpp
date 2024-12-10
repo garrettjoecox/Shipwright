@@ -38,7 +38,7 @@ extern int32_t D_8011D3AC;
 extern void BgSpot03Taki_HandleWaterfallState(BgSpot03Taki* bgSpot03Taki, PlayState* play);
 extern void BgSpot03Taki_ApplyOpeningAlpha(BgSpot03Taki* bgSpot03Taki, s32 bufferIndex);
 
-extern void func_80AF36EC(EnRu2* enRu2, PlayState* play);
+extern void EnRu2_SetEncounterSwitchFlag(EnRu2* enRu2, PlayState* play);
 }
 
 #define RAND_GET_OPTION(option) Rando::Context::GetInstance()->GetOption(option).GetContextOptionIndex()
@@ -340,11 +340,14 @@ void TimeSaverOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, va_li
             if (ForcedDialogIsDisabled(FORCED_DIALOG_SKIP_NAVI)) {
                 ElfMsg* naviTalk = va_arg(args, ElfMsg*);
                 int32_t paramsHighByte = naviTalk->actor.params >> 8;
-                if ((paramsHighByte & 0x80) == 0 && (paramsHighByte & 0x3F) != 0x3F) {
-                    Flags_SetSwitch(gPlayState, paramsHighByte & 0x3F);
-                    Actor_Kill(&naviTalk->actor);
-                    *should = false;
+                if ((paramsHighByte & 0x80) != 0) {
+                    break;
                 }
+                if ((paramsHighByte & 0x3F) != 0x3F) {
+                    Flags_SetSwitch(gPlayState, paramsHighByte & 0x3F);
+                }
+                Actor_Kill(&naviTalk->actor);
+                *should = false;
             }
             break;
         }
@@ -893,7 +896,7 @@ void TimeSaverOnActorInitHandler(void* actorRef) {
     if (actor->id == ACTOR_EN_RU2 && gPlayState->sceneNum == SCENE_WATER_TEMPLE) {
         if (CVarGetInteger(CVAR_ENHANCEMENT("TimeSavers.SkipCutscene.Story"), IS_RANDO)) {
             EnRu2* enRu2 = (EnRu2*)actor;
-            func_80AF36EC(enRu2, gPlayState);
+            EnRu2_SetEncounterSwitchFlag(enRu2, gPlayState);
             Actor_Kill(actor);
         }
     }
