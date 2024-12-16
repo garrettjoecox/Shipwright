@@ -149,6 +149,13 @@ void func_80AFB950(EnSi* this, PlayState* play) {
 void EnSi_Update(Actor* thisx, PlayState* play) {
     EnSi* this = (EnSi*)thisx;
 
+    // #region SOH [Co-op]
+    if (GET_GS_FLAGS((thisx->params & 0x1F00) >> 8) & (thisx->params & 0xFF)) {
+        Actor_Kill(&this->actor);
+        return;
+    }
+    // #endregion
+
     Actor_MoveXZGravity(&this->actor);
     Actor_UpdateBgCheckInfo(play, &this->actor, 0.0f, 0.0f, 0.0f, 4);
     this->actionFunc(this, play);
