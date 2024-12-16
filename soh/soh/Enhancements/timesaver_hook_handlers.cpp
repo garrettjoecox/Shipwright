@@ -12,6 +12,7 @@ extern "C" {
 #include "src/overlays/actors/ovl_Bg_Bdan_Switch/z_bg_bdan_switch.h"
 #include "src/overlays/actors/ovl_Bg_Treemouth/z_bg_treemouth.h"
 #include "src/overlays/actors/ovl_En_Owl/z_en_owl.h"
+#include "src/overlays/actors/ovl_En_Go2/z_en_go2.h"
 #include "src/overlays/actors/ovl_En_Ko/z_en_ko.h"
 #include "src/overlays/actors/ovl_En_Ma1/z_en_ma1.h"
 #include "src/overlays/actors/ovl_En_Ru2/z_en_ru2.h"
@@ -267,7 +268,7 @@ void TimeSaverOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, va_li
                         break;
                     }
                     case ACTOR_BG_BDAN_SWITCH: {
-                        // The switch in jabu that you are intended to press with a box to reach barrinade
+                        // The switch in jabu that you are intended to press with a box to reach barinade
                         // can be skipped by either a frame perfect roll open or with OI
                         // The One Point for that switch is used in common setups for the former and is required for the latter to work
                         if (actor->params == 14848 && gPlayState->sceneNum == SCENE_JABU_JABU && CVarGetInteger(CVAR_ENHANCEMENT("TimeSavers.SkipCutscene.GlitchAiding"), 0)){
@@ -285,6 +286,12 @@ void TimeSaverOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, va_li
                         BgHidanKousi_SetupAction(switchActor, func_80889C18);
                         *should = false;
                         RateLimitedSuccessChime();
+                        break;
+                    }
+                    case ACTOR_EN_GO2: {
+                        EnGo2* biggoron = (EnGo2*)actor;
+                        biggoron->isAwake = true;
+                        *should = false;
                         break;
                     }
                     case ACTOR_BG_HIDAN_FWBIG:
@@ -313,6 +320,7 @@ void TimeSaverOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, va_li
                     case ACTOR_BG_MORI_HINERI:
                     case ACTOR_BG_MIZU_SHUTTER:
                     case ACTOR_SHOT_SUN:
+                    case ACTOR_BG_HAKA_GATE:
                         *should = false;
                         RateLimitedSuccessChime();
                         break;
@@ -519,11 +527,23 @@ void TimeSaverOnVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, va_li
             }
             break;
         }
+        case VB_PLAY_GORON_FREE_CS: {
+            if (CVarGetInteger(CVAR_ENHANCEMENT("TimeSavers.SkipCutscene.Story"), 0)) {
+                *should = false;
+            }
+            break;
+        }
         case VB_PLAY_DOOR_OF_TIME_CS: {
             if (CVarGetInteger(CVAR_ENHANCEMENT("TimeSavers.SkipMiscInteractions"), IS_RANDO)) {
                 *should = false;
                 Flags_SetEnv(gPlayState, 2);
                 Sfx_PlaySfxCentered(NA_SE_SY_CORRECT_CHIME);
+            }
+            break;
+        }
+        case VB_PLAY_FIRE_ARROW_CS: {
+            if (CVarGetInteger(CVAR_ENHANCEMENT("TimeSavers.SkipMiscInteractions"), 0)) {
+                *should = false;
             }
             break;
         }

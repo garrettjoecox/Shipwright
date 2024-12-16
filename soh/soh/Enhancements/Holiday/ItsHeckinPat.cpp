@@ -33,7 +33,7 @@ void Present_Init(Actor* actor, PlayState* play) {
     presents[actor] = present;
 
     actor->gravity = -1;
-    Actor_MoveForward(actor);
+    Actor_MoveXZGravity(actor);
     actor->shape.rot.y = Random(0, 0xFFFF);
 
     Actor_UpdateBgCheckInfo(play, actor, 10.0f, 10.0f, 0.0f, 0xFF);

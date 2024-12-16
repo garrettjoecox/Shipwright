@@ -77,7 +77,7 @@ void Penguin_Update(Actor* actor, PlayState* play) {
         actor->speedXZ = 0.0f;
     }
 
-    Actor_MoveForward(actor);
+    Actor_MoveXZGravity(actor);
 
     Actor_UpdateBgCheckInfo(play, actor, 10.0f, 10.0f, 0.0f, 0xFF);
 }
