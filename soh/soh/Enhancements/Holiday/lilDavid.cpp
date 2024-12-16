@@ -24,7 +24,7 @@ static void OnConfigurationChanged() {
     if (!CVarGetInteger(CVAR("BombArrows.Enabled"), 0))
         CVarSetInteger(CVAR("BombArrows.Active"), 0);
 
-    COND_HOOK(OnSaveFile, CVarGetInteger(CVAR("BombArrows.Enabled"), 0), [](int32_t file) {
+    COND_HOOK(OnSaveFile, CVarGetInteger(CVAR("BombArrows.Enabled"), 0), [](int32_t file, int sectionID) {
         std::string cvar = StringHelper::Sprintf("%s%d", CVAR("BombArrows.Save"), file);
         CVarSetInteger(cvar.c_str(), CVarGetInteger(CVAR("BombArrows.Active"), 0));
         Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
