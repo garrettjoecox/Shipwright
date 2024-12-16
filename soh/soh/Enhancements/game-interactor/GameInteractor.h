@@ -371,6 +371,7 @@ typedef enum {
     // Vanilla condition: !Flags_GetInfTable(INFTABLE_145)
     // Opt: *EnRu1
     VB_RUTO_BE_CONSIDERED_NOT_KIDNAPPED,
+    VB_PLAYER_ROLL,
     
 
     /*** Give Items ***/

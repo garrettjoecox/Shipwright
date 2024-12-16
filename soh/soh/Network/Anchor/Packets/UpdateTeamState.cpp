@@ -151,7 +151,7 @@ void Anchor::HandlePacket_UpdateTeamState(nlohmann::json payload) {
             gSaveContext.infTable[i] = loadedData.infTable[i];
         }
 
-        for (int i = 0; i < 17; i++) {
+        for (int i = 0; i < 52; i++) {
             gSaveContext.randomizerInf[i] = loadedData.randomizerInf[i];
         }
 

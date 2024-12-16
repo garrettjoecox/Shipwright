@@ -123,6 +123,7 @@ static void DrawMenu() {
     if (UIWidgets::EnhancementCheckbox("Bomb Arrows", CVAR("BombArrows.Enabled"))) {
         OnConfigurationChanged();
     }
+    UIWidgets::Tooltip("Equip bombs over an already equipped Bow to shoot bomb arrows");
 }
 
 static void RegisterMod() {

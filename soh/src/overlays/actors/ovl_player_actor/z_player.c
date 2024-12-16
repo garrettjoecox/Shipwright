@@ -6265,11 +6265,16 @@ s32 func_8083BBA0(Player* this, PlayState* play) {
 }
 
 void Player_SetupRoll(Player* this, PlayState* play) {
+    if (!GameInteractor_Should(VB_PLAYER_ROLL, true)) {
+        return;
+    }
+
     Player_SetupAction(play, this, Player_Action_Roll, 0);
     LinkAnimation_PlayOnceSetSpeed(play, &this->skelAnime,
                                    GET_PLAYER_ANIM(PLAYER_ANIMGROUP_landing_roll, this->modelAnimType),
                                    1.25f * sWaterSpeedFactor);
     gSaveContext.sohStats.count[COUNT_ROLLS]++;
+    GameInteractor_ExecuteOnPlayerRoll();
 }
 
 s32 Player_TryRoll(Player* this, PlayState* play) {
@@ -8554,6 +8559,16 @@ void Player_Action_808414F8(Player* this, PlayState* play) {
         }
 
         Player_GetMovementSpeedAndYaw(this, &speedTarget, &yawTarget, SPEED_MODE_LINEAR, play);
+
+        int32_t giSpeedModifier = GameInteractor_RunSpeedModifier();
+        if (giSpeedModifier != 0) {
+            if (giSpeedModifier > 0) {
+                speedTarget *= giSpeedModifier;
+            } else {
+                speedTarget /= abs(giSpeedModifier);
+            }
+        }
+
         sp2C = func_8083FD78(this, &speedTarget, &yawTarget, play);
 
         if (sp2C >= 0) {

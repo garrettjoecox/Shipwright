@@ -102,13 +102,33 @@ void Penguin_Destroy(Actor* actor, PlayState* play) {
 
 static void OnConfigurationChanged() {
     COND_HOOK(OnPlayerUpdate, CVarGetInteger(CVAR("Hailstorm"), 0), []() {
-        // Every frame has a 1/300 chance of spawning hail
-        if (rand() % 300 == 0) { 
+        // Every frame has a 1/500 chance of spawning close hail
+        if (rand() % 500 == 0) { 
             int spawned = 0;
             while (spawned < 1) {
                 Vec3f pos = GET_PLAYER(gPlayState)->actor.world.pos;
-                pos.x += (float)Random(0, 100) - 50.0f;
-                pos.z += (float)Random(0, 100) - 50.0f;
+                pos.x += (float)Random(0, 50) - 25.0f;
+                pos.z += (float)Random(0, 50) - 25.0f;
+                pos.y += 200.0f;
+
+                Actor* actor = Actor_Spawn(&gPlayState->actorCtx, gPlayState, ACTOR_EN_NUTSBALL, pos.x, pos.y, pos.z, 0, 0, 0, 0, false);
+                EnNutsball* nut = (EnNutsball*)actor;
+                nut->actor.draw = EnNutsball_Draw;
+                nut->actor.shape.rot.y = 0;
+                nut->timer = 0;
+                nut->actionFunc = func_80ABBBA8;
+                nut->actor.speedXZ = 0.0f;
+                nut->actor.gravity = -2.0f;
+                spawned++;
+            }
+        }
+        // Every frame has a 1/50 chance of spawning far hail
+        if (rand() % 50 == 0) { 
+            int spawned = 0;
+            while (spawned < 1) {
+                Vec3f pos = GET_PLAYER(gPlayState)->actor.world.pos;
+                pos.x += (float)Random(0, 500) - 250.0f;
+                pos.z += (float)Random(0, 500) - 250.0f;
                 pos.y += 200.0f;
 
                 Actor* actor = Actor_Spawn(&gPlayState->actorCtx, gPlayState, ACTOR_EN_NUTSBALL, pos.x, pos.y, pos.z, 0, 0, 0, 0, false);
@@ -191,9 +211,11 @@ static void DrawMenu() {
     if (UIWidgets::EnhancementCheckbox("Penguins", CVAR("Penguins"))) {
         OnConfigurationChanged();
     }
+    UIWidgets::Tooltip("Penguins will spawn in huddles throughout hyrule");
     if (UIWidgets::EnhancementCheckbox("Hailstorm", CVAR("Hailstorm"))) {
         OnConfigurationChanged();
     }
+    UIWidgets::Tooltip("Ever persistent hailstorm throughout hyrule");
 }
 
 static void RegisterMod() {
