@@ -383,6 +383,15 @@ void Anchor::DrawMenu() {
                     ImGui::EndMenu();
                 }
             }
+
+            if (ImGui::Button("Request Team State", ImVec2(ImGui::GetContentRegionAvail().x - 25.0f, 0.0f))) {
+                SendPacket_RequestTeamState();
+            }
+            ImGui::SameLine();
+            if (ImGui::Button(ICON_FA_TRASH)) {
+                SendPacket_ClearTeamState();
+            }
+            UIWidgets::Tooltip("Clear Team State");
         } else {
             ImGui::Text("Connecting...");
         }

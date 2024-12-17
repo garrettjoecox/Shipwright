@@ -133,6 +133,7 @@ class Anchor : public Network {
     void SendJsonToRemote(nlohmann::json packet);
     bool IsSaveLoaded();
 
+    void SendPacket_ClearTeamState();
     void SendPacket_ConsumeAdultTradeItem(u8 itemId);
     void SendPacket_DamagePlayer(u32 clientId, u8 damageEffect, u8 damage);
     void SendPacket_EntranceDiscovered(u16 entranceIndex);

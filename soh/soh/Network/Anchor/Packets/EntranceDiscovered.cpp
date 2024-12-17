@@ -7,12 +7,14 @@
 #include "soh/Enhancements/randomizer/randomizer_entrance.h"
 #include "soh/OTRGlobals.h"
 
+static bool isResultOfHandling = false;
+
 /**
  * ENTRANCE_DISCOVERED
  */
 
 void Anchor::SendPacket_EntranceDiscovered(u16 entranceIndex) {
-    if (!IsSaveLoaded()) {
+    if (!IsSaveLoaded() || isResultOfHandling) {
         return;
     }
 
@@ -30,8 +32,10 @@ void Anchor::HandlePacket_EntranceDiscovered(nlohmann::json payload) {
         return;
     }
 
+    isResultOfHandling = true;
     u16 entranceIndex = payload["entranceIndex"].get<u16>();
     Entrance_SetEntranceDiscovered(entranceIndex, 1);
+    isResultOfHandling = false;
 }
 
 #endif // ENABLE_REMOTE_CONTROL
