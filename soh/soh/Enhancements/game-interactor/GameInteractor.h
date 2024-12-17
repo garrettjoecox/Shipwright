@@ -245,6 +245,11 @@ typedef enum {
     ```
     */
     VB_DRAW_AMMO_COUNT,
+    // Opt: *ObjTsubo
+    VB_POT_SETUP_DRAW,
+    VB_POT_DROP_ITEM,
+    // Opt: *ActorDoorShutter
+    VB_LOCK_BOSS_DOOR,
     // Vanilla condition: true
     VB_HAVE_OCARINA_NOTE_D4,
     // Vanilla condition: true
@@ -297,6 +302,10 @@ typedef enum {
     /*** Play Cutscenes ***/
 
     VB_PLAY_TRANSITION_CS,
+    VB_PLAY_GORON_FREE_CS,
+    VB_PLAY_FIRE_ARROW_CS,
+    // Vanilla condition: INV_CONTENT(ITEM_ARROW_FIRE) == ITEM_NONE
+    VB_SPAWN_FIRE_ARROW,
     // Opt: *EventChkInf flag
     VB_PLAY_ENTRANCE_CS,
     // Opt: *cutsceneId
@@ -362,10 +371,12 @@ typedef enum {
     // Vanilla condition: !Flags_GetInfTable(INFTABLE_145)
     // Opt: *EnRu1
     VB_RUTO_BE_CONSIDERED_NOT_KIDNAPPED,
+    VB_PLAYER_ROLL,
     
 
     /*** Give Items ***/
 
+    VB_FREEZE_ON_SKULL_TOKEN,
     // Opt: *EnBox
     VB_GIVE_ITEM_FROM_CHEST,
     // Opt: ItemID
@@ -374,7 +385,6 @@ typedef enum {
     VB_GIVE_ITEM_FROM_ITEM_00,
     // Opt: *EnSi
     VB_GIVE_ITEM_SKULL_TOKEN,
-    VB_FREEZE_ON_SKULL_TOKEN,
     // Opt: *EnCow
     VB_GIVE_ITEM_FROM_COW,
     // Opt: *EnDns

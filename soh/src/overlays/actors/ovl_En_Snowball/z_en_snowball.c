@@ -197,7 +197,7 @@ void EnSnowball_Update(Actor* thisx, PlayState* play) {
     this->prevY = this->actor.world.pos.y;
 
     // Process movement (moves foward based on speed and rotation)
-    Actor_MoveForward(thisx);
+    Actor_MoveXZGravity(thisx);
 
     // Prevent actor from going through the ground or walls
     Actor_UpdateBgCheckInfo(play, &this->actor, MAX(10.0f, this->actor.scale.x * 250.0f), MAX(10.0f, this->actor.scale.x * 500.0f), 0.0f, 0xFF);

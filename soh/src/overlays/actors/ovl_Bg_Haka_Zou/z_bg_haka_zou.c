@@ -268,7 +268,9 @@ void func_80882E54(BgHakaZou* this, PlayState* play) {
 }
 
 void func_80883000(BgHakaZou* this, PlayState* play) {
-    if (this->collider.base.acFlags & AC_HIT) {
+    // #region SOH [Co-op]
+    if ((this->collider.base.acFlags & AC_HIT) || Flags_GetSwitch(play, this->switchFlag)) {
+    // #endregion
         Flags_SetSwitch(play, this->switchFlag);
 
         if (this->dyna.actor.params == STA_GIANT_BIRD_STATUE) {
@@ -396,7 +398,7 @@ void BgHakaZou_Update(Actor* thisx, PlayState* play) {
     this->actionFunc(this, play);
 
     if (this->dyna.actor.params == 3) {
-        Actor_MoveForward(&this->dyna.actor);
+        Actor_MoveXZGravity(&this->dyna.actor);
     }
 }
 

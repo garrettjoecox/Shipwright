@@ -181,8 +181,10 @@ void ShinyDrawImGui() {
     UIWidgets::PaddedEnhancementCheckbox("Enable Shiny Enemies", CVAR("Shiny.Enabled"), true, false);
     UIWidgets::Tooltip("Allows enemies to be shiny.\nShiny enemies are 25% bigger and have 4 times the health but drop the equivalent of a gold rupee upon death");
 
-    UIWidgets::PaddedEnhancementSliderInt("Shiny Chance: %d", "##ShinyChance", CVAR("Shiny.Chance"), 1, 8192, "", 8192, true, true, false, false, "");
-    UIWidgets::Tooltip("The chance for an enemy to be shiny is 1 / Shiny Chance");
+    if (CVarGetInteger(CVAR("Shiny.Enabled"), 0)) {
+        UIWidgets::PaddedEnhancementSliderInt("Shiny Chance: %d", "##ShinyChance", CVAR("Shiny.Chance"), 1, 8192, "", 8192, true, true, false, false, "");
+        UIWidgets::Tooltip("The chance for an enemy to be shiny is 1 / Shiny Chance");
+    }
 }
 
 #pragma endregion

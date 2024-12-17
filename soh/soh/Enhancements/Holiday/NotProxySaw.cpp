@@ -135,6 +135,7 @@ static void DrawMenu() {
     if (UIWidgets::EnhancementCheckbox("Ganon Dating Sim", CVAR("GanonDatingSim"))) {
         ConfigurationChanged();
     }
+    UIWidgets::Tooltip("Prior to fighting him at the top of his Castle, you make an attempt to convince Ganon to join you instead.");
 }
 
 static void RegisterMod() {

@@ -125,7 +125,7 @@ const s16 entrances[] = {
     0x00B7, 0x0201, 0x003B, 0x0463, 0x0588, 0x057C, 0x0578, 0x0340, 0x04C2, 0x03E8, 0x04BE, 0x0482, 0x0315, 0x045B, 0x0371, 0x0394,
     0x0272, 0x0211, 0x0053, 0x0472, 0x0453, 0x0351, 0x0384, 0x044B, 0x03EC, 0x04FF, 0x0700, 0x0800, 0x0701, 0x0801, 0x0702, 0x0802,
     0x0703, 0x0803, 0x0704, 0x0804, 0x0705, 0x0805, 0x0706, 0x0806, 0x0707, 0x0807, 0x0708, 0x0808, 0x0709, 0x0809, 0x070A, 0x080A,
-    0x070B, 0x080B, 0x070C, 0x080C, 0x070D, 0x080D, 0x070E, 0x080E, 0x070F, 0x080F, 0x0710,         0x0711, 0x0811, 0x0712, 0x0812,
+    0x070B, 0x080B,         0x080C, 0x070D, 0x080D, 0x070E, 0x080E, 0x070F, 0x080F, 0x0710,         0x0711, 0x0811, 0x0712, 0x0812,
     0x0713, 0x0813, 0x0714, 0x0814, 0x0715, 0x0815, 0x0716, 0x0816, 0x0717, 0x0817, 0x0718, 0x0818, 0x0719, 0x0819,         0x081A,
     0x071B, 0x081B, 0x071C, 0x081C, 0x071D, 0x081D, 0x071E, 0x081E, 0x071F, 0x081F, 0x0720, 0x0820, 0x004B, 0x035D, 0x031C, 0x0361,
     0x002D, 0x050B, 0x044F, 0x0359, 0x05E0, 0x020D, 0x011E, 0x0286, 0x04E2, 0x04D6, 0x01DD, 0x04DA, 0x00FC, 0x01A9, 0x0185, 0x04DE,
@@ -158,6 +158,14 @@ static void RandomGrotto_WaitOpen(DoorAna* doorAna, PlayState* play) {
 }
 
 static void SpawnRandomGrotto() {
+    if (
+        gPlayState->sceneNum == SCENE_TEMPLE_OF_TIME_EXTERIOR_DAY || 
+        gPlayState->sceneNum == SCENE_TEMPLE_OF_TIME_EXTERIOR_NIGHT || 
+        gPlayState->sceneNum == SCENE_TEMPLE_OF_TIME_EXTERIOR_RUINS
+    ) {
+        return;
+    }
+
     Vec3f pos;
     pos.y = 9999.0f;
     int spawnAttempts = 0;
@@ -170,8 +178,8 @@ static void SpawnRandomGrotto() {
             pos.z = 0;
         }
         // X/Z anywhere from -1000.0 to +1000.0 from player 
-        pos.x += (float)(Random(0, 2000)) - 1000.0f;
-        pos.z += (float)(Random(0, 2000)) - 1000.0f;
+        pos.x += (float)(Random(0, 5000)) - 2500.0f;
+        pos.z += (float)(Random(0, 5000)) - 2500.0f;
 
         raycastResult = BgCheck_AnyRaycastFloor1(&gPlayState->colCtx, &snowballPoly, &pos);
 
@@ -211,12 +219,15 @@ static void DrawMenu() {
     if (UIWidgets::EnhancementCheckbox("Snowballs", CVAR("Snowballs"))) {
         ConfigurationChanged();
     }
+    UIWidgets::Tooltip("Rogue snowballs will spawn in Hyrule Field and Kakariko Village.");
     if (UIWidgets::EnhancementCheckbox("Lake Hylia Icebergs", CVAR("Icebergs"))) {
         ConfigurationChanged();
     }
+    UIWidgets::Tooltip("Icebergs will spawn in Lake Hylia.");
     if (UIWidgets::EnhancementCheckbox("Down the Rabbit Hole", CVAR("DownTheRabbitHole"))) {
         ConfigurationChanged();
     }
+    UIWidgets::Tooltip("Random grottos will spawn throughout Hyrule. Who knows where they will take you?");
     if (UIWidgets::EnhancementCheckbox("Super Bonk", CVAR("SuperBonk"))) {
         ConfigurationChanged();
     }

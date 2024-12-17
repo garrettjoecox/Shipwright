@@ -67,6 +67,7 @@ static void DrawMenu() {
     if (UIWidgets::EnhancementCheckbox("Evil Gossip Stone", CVAR("EvilGossipStone"))) {
         OnConfigurationChanged();
     }
+    UIWidgets::Tooltip("Don't you dare talk to them.");
 }
 
 static void RegisterMod() {

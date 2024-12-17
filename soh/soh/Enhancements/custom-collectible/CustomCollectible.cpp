@@ -177,7 +177,7 @@ void CustomCollectible_Update(Actor* actor, PlayState* play) {
     }
 
     if (actor->gravity != 0.0f) {
-        Actor_MoveForward(actor);
+        Actor_MoveXZGravity(actor);
         Actor_UpdateBgCheckInfo(play, actor, 20.0f, 15.0f, 15.0f, 0x1D);
     }
 

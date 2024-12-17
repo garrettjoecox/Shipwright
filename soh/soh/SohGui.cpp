@@ -40,6 +40,9 @@
 #include "soh/Notification/Notification.h"
 #include "soh/Enhancements/Holiday/Caladius.h"
 #include "soh/Enhancements/TimeDisplay/TimeDisplay.h"
+#ifdef ENABLE_REMOTE_CONTROL
+#include "soh/Network/Anchor/Anchor.h"
+#endif
 
 bool isBetaQuestEnabled = false;
 
@@ -140,6 +143,9 @@ namespace SohGui {
     std::shared_ptr<Notification::Window> mNotificationWindow;
     std::shared_ptr<CaladiusWindow> mCaladiusWindow;
     std::shared_ptr<TimeDisplayWindow> mTimeDisplayWindow;
+#ifdef ENABLE_REMOTE_CONTROL    
+    std::shared_ptr<AnchorRoomWindow> mAnchorRoomWindow;
+#endif
 
     void SetupGuiElements() {
         auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
@@ -230,6 +236,10 @@ namespace SohGui {
         mCaladiusWindow->Show();
         mTimeDisplayWindow = std::make_shared<TimeDisplayWindow>(CVAR_WINDOW("TimeDisplayEnabled"), "Additional Timers");
         gui->AddGuiWindow(mTimeDisplayWindow);
+#ifdef ENABLE_REMOTE_CONTROL
+        mAnchorRoomWindow = std::make_shared<AnchorRoomWindow>(CVAR_WINDOW("AnchorRoom"), "Anchor Room");
+        gui->AddGuiWindow(mAnchorRoomWindow);
+#endif
     }
 
     void Destroy() {
@@ -267,6 +277,9 @@ namespace SohGui {
         mCaladiusWindow = nullptr;
         mPlandomizerWindow = nullptr;
         mTimeDisplayWindow = nullptr;
+#ifdef ENABLE_REMOTE_CONTROL
+        mAnchorRoomWindow = nullptr;
+#endif
     }
 
     void RegisterPopup(std::string title, std::string message, std::string button1, std::string button2, std::function<void()> button1callback, std::function<void()> button2callback) {

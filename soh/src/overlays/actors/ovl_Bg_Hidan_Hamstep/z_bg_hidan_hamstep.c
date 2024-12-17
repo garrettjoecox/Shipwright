@@ -278,7 +278,9 @@ void func_80888734(BgHidanHamstep* this) {
 }
 
 void func_808887C4(BgHidanHamstep* this, PlayState* play) {
-    if (this->collider.base.acFlags & AC_HIT) {
+    // #region SOH [Co-op]
+    if ((this->collider.base.acFlags & AC_HIT) || Flags_GetSwitch(play, (this->dyna.actor.params >> 8) & 0xFF)) {
+    // #endregion
         OnePointCutscene_Init(play, 3310, 100, &this->dyna.actor, MAIN_CAM);
         Audio_PlayActorSound2(&this->dyna.actor, NA_SE_EV_HAMMER_SWITCH);
         this->collider.base.acFlags = AC_NONE;
@@ -294,7 +296,7 @@ void func_80888860(BgHidanHamstep* this, PlayState* play) {
     s32 pad2;
     s32 quakeIndex;
 
-    Actor_MoveForward(&this->dyna.actor);
+    Actor_MoveXZGravity(&this->dyna.actor);
 
     if (((this->dyna.actor.world.pos.y - this->dyna.actor.home.pos.y) < (-20.0f - this->dyna.actor.minVelocityY)) &&
         (this->dyna.actor.velocity.y <= 0.0f)) {
@@ -343,7 +345,7 @@ void func_80888A58(BgHidanHamstep* this, PlayState* play) {
     s32 pad2;
     s32 quakeIndex;
 
-    Actor_MoveForward(&this->dyna.actor);
+    Actor_MoveXZGravity(&this->dyna.actor);
     func_80888694(this, (BgHidanHamstep*)this->dyna.actor.parent);
 
     if (((this->dyna.actor.params & 0xFF) <= 0) || ((this->dyna.actor.params & 0xFF) >= 6)) {

@@ -661,7 +661,7 @@ void func_80B0D878(EnSw* this, PlayState* play) {
 }
 
 void func_80B0DB00(EnSw* this, PlayState* play) {
-    Actor_MoveForward(&this->actor);
+    Actor_MoveXZGravity(&this->actor);
     this->actor.shape.rot.x += 0x1000;
     this->actor.shape.rot.z += 0x1000;
     Actor_UpdateBgCheckInfo(play, &this->actor, 20.0f, 20.0f, 0.0f, 5);
@@ -915,6 +915,13 @@ void func_80B0E9BC(EnSw* this, PlayState* play) {
 
 void EnSw_Update(Actor* thisx, PlayState* play) {
     EnSw* this = (EnSw*)thisx;
+
+    // #region SOH [Co-op]
+    if (GET_GS_FLAGS((thisx->params & 0x1F00) >> 8) & (thisx->params & 0xFF)) {
+        Actor_Kill(&this->actor);
+        return;
+    }
+    // #endregion
 
     SkelAnime_Update(&this->skelAnime);
     func_80B0C9F0(this, play);

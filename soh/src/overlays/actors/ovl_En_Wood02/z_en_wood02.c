@@ -6,6 +6,7 @@
 
 #include "z_en_wood02.h"
 #include "objects/object_wood02/object_wood02.h"
+#include "soh/Enhancements/Holiday/Fredomato.h"
 
 #define FLAGS 0
 
@@ -368,7 +369,9 @@ void EnWood02_Update(Actor* thisx, PlayState* play2) {
             dropsSpawnPt = this->actor.world.pos;
             dropsSpawnPt.y += 200.0f;
 
-            if ((this->unk_14C >= 0) && (this->unk_14C < 0x64) && (CVarGetInteger(CVAR_ENHANCEMENT("TreesDropSticks"), 0)) && !(INV_CONTENT(ITEM_STICK) == ITEM_NONE)) {
+            if (HandleTreeBonk(&this->actor)) {
+                // no-op
+            } else if ((this->unk_14C >= 0) && (this->unk_14C < 0x64) && (CVarGetInteger(CVAR_ENHANCEMENT("TreesDropSticks"), 0)) && !(INV_CONTENT(ITEM_STICK) == ITEM_NONE)) {
                 (numDrops = (Rand_ZeroOne() * 4));
                 for (i = 0; i < numDrops; ++i) {
                     Item_DropCollectible(play, &dropsSpawnPt, ITEM00_STICK);
@@ -431,7 +434,7 @@ void EnWood02_Update(Actor* thisx, PlayState* play2) {
         this->unk_14C++;
         Math_ApproachF(&this->actor.velocity.x, 0.0f, 1.0f, 5 * 0.01f);
         Math_ApproachF(&this->actor.velocity.z, 0.0f, 1.0f, 5 * 0.01f);
-        func_8002D7EC(&this->actor);
+        Actor_UpdatePos(&this->actor);
         this->actor.shape.rot.z = Math_SinS(3000 * this->unk_14C) * 0x4000;
         this->unk_14E[0]--;
 

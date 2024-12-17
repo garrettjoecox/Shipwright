@@ -277,7 +277,9 @@ void BgBreakwall_Wait(BgBreakwall* this, PlayState* play) {
         }
     }
 
-    if (GameInteractor_Should(VB_BG_BREAKWALL_BREAK, this->collider.base.acFlags & 2 || blueFireArrowHit)) {
+    // #region SOH [Co-op]
+    if (GameInteractor_Should(VB_BG_BREAKWALL_BREAK, this->collider.base.acFlags & 2 || blueFireArrowHit) || Flags_GetSwitch(play, this->dyna.actor.params & 0x3F)) {
+    // #endregion
         Vec3f effectPos;
         s32 wallType = ((this->dyna.actor.params >> 13) & 3) & 0xFF;
 

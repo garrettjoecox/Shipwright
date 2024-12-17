@@ -11,6 +11,7 @@
 #include "objects/object_mizu_objects/object_mizu_objects.h"
 #include "objects/object_haka_door/object_haka_door.h"
 #include "soh/ResourceManagerHelpers.h"
+#include "soh/Enhancements/game-interactor/GameInteractor_Hooks.h"
 
 #include "soh/Enhancements/Holiday/Archez.h"
 
@@ -197,7 +198,7 @@ void EnDoor_Idle(EnDoor* this, PlayState* play) {
     s16 phi_v0;
 
     doorType = this->actor.params >> 7 & 7;
-    func_8002DBD0(&this->actor, &playerPosRelToDoor, &player->actor.world.pos);
+    Actor_WorldToActorCoords(&this->actor, &playerPosRelToDoor, &player->actor.world.pos);
     if (this->playerIsOpening != 0) {
         this->actionFunc = EnDoor_Open;
         Animation_PlayOnceSetSpeed(&this->skelAnime, D_809FCECC[this->animStyle],
@@ -206,6 +207,7 @@ void EnDoor_Idle(EnDoor* this, PlayState* play) {
             gSaveContext.inventory.dungeonKeys[gSaveContext.mapIndex]--;
             Flags_SetSwitch(play, this->actor.params & 0x3F);
             Audio_PlayActorSound2(&this->actor, NA_SE_EV_CHAIN_KEY_UNLOCK);
+            GameInteractor_ExecuteOnDungeonKeyUsedHooks(gSaveContext.mapIndex);
         }
     } else if (!Player_InCsMode(play)) {
         if (fabsf(playerPosRelToDoor.y) < 20.0f && fabsf(playerPosRelToDoor.x) < 20.0f &&
@@ -233,6 +235,11 @@ void EnDoor_Idle(EnDoor* this, PlayState* play) {
             this->actionFunc = EnDoor_AjarOpen;
         }
     }
+    // #region SOH [Co-op]
+    if (Flags_GetSwitch(play, this->actor.params & 0x3F)) {
+        DECR(this->lockTimer);
+    }
+    // #endregion
 }
 
 void EnDoor_WaitForCheck(EnDoor* this, PlayState* play) {

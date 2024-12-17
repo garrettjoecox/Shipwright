@@ -5,6 +5,8 @@
 #include "soh/Enhancements/game-interactor/GameInteractor.h"
 #include "soh/Enhancements/custom-message/CustomMessageManager.h"
 #include "soh/Enhancements/randomizer/randomizer.h"
+#include "soh/frame_interpolation.h"
+#include "soh_assets.h"
 
 extern "C" {
 #include "macros.h"
@@ -80,9 +82,28 @@ void RandomizeBoulder(Actor* refActor) {
     Actor_Kill(actor);
 }
 
-static void OnPresentChange() {
-    isExchangeDisabled = !CVarGetInteger(CVAR("OrnExch.Enabled"), 0);
-    COND_ID_HOOK(OnActorKill, ACTOR_EN_OE2, CVarGetInteger(CVAR("OrnExch.Enabled"), 0), [](void* actorRef) {
+bool spawningPresents = false;
+
+struct Present {
+};
+
+std::unordered_map<Actor*, Present> presents;
+
+void Present_Init(Actor* actor, PlayState* play) {
+    Present present;
+    presents[actor] = present;
+
+    actor->gravity = -1;
+    Actor_MoveXZGravity(actor);
+    actor->shape.rot.y = Random(0, 0xFFFF);
+
+    Actor_UpdateBgCheckInfo(play, actor, 10.0f, 10.0f, 0.0f, 0xFF);
+}
+
+void Present_Update(Actor* actor, PlayState* play) {
+    Present* present = &presents[actor];
+
+    if (actor->xzDistToPlayer < 50.0f && actor->yDistToPlayer < 50.0f) {
         uint32_t giftsCollected = CVarGetInteger(CVAR("GiftsCollected"), 0);
         giftsCollected++;
         CVarSetInteger(CVAR("GiftsCollected"), giftsCollected);
@@ -91,9 +112,33 @@ static void OnPresentChange() {
         msg += " Gifts in Inventory.";
         Notification::Emit({
             .itemIcon = "RG_TRIFORCE_PIECE",
-            .message = msg
+            .message = msg,
+            .messageColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f),
         });
-    });
+        Actor_Kill(actor);
+    }
+}
+
+void Present_Draw(Actor* actor, PlayState* play) {
+    OPEN_DISPS(play->state.gfxCtx);
+
+    Gfx_SetupDL_25Opa(play->state.gfxCtx);
+
+    Matrix_Scale(30.0f, 30.0f, 30.0f, MTXMODE_APPLY);
+    Matrix_Translate(49.20f, 0.0f, -106.60f, MTXMODE_APPLY);
+    gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx, (char*)__FILE__, __LINE__), G_MTX_MODELVIEW | G_MTX_LOAD);
+    gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, 255);
+    gSPDisplayList(POLY_OPA_DISP++, (Gfx*)gXmasDecor100DL);
+
+    CLOSE_DISPS(play->state.gfxCtx);
+}
+
+void Present_Destroy(Actor* actor, PlayState* play) {
+    presents.erase(actor);
+}
+
+static void OnPresentChange() {
+    isExchangeDisabled = !CVarGetInteger(CVAR("OrnExch.Enabled"), 0);
     COND_ID_HOOK(OnOpenText, 0x204A, CVarGetInteger(CVAR("OrnExch.Enabled"), 0), [](u16 * textId, bool* loadFromMessageTable) {
         auto messageEntry = CustomMessage("");
         bool reduceGifts = false;
@@ -125,6 +170,48 @@ static void OnPresentChange() {
                 .itemIcon = "RG_TRIFORCE_PIECE",
                 .message = msg
             });
+        }
+    });
+
+    COND_HOOK(OnSceneSpawnActors, CVarGetInteger(CVAR("OrnExch.Enabled"), 0), []() {
+        presents.clear();
+        Vec3f pos;
+        static CollisionPoly presentPoly;
+        static f32 raycastResult;
+        pos.y = 9999.0f;
+        int spawnAttempts = 0;
+        while (spawnAttempts < 20) {
+            if (GET_PLAYER(gPlayState) != nullptr) {
+                pos.x = GET_PLAYER(gPlayState)->actor.world.pos.x;
+                pos.z = GET_PLAYER(gPlayState)->actor.world.pos.z;
+            } else {
+                pos.x = 0;
+                pos.z = 0;
+            }
+            // X/Z anywhere from -1000.0 to +1000.0 from player 
+            pos.x += (float)(Random(0, 20000)) - 10000.0f;
+            pos.z += (float)(Random(0, 20000)) - 10000.0f;
+
+            raycastResult = BgCheck_AnyRaycastFloor1(&gPlayState->colCtx, &presentPoly, &pos);
+
+            if (raycastResult > BGCHECK_Y_MIN) {
+                spawningPresents = true;
+                Actor* actor = Actor_Spawn(&gPlayState->actorCtx, gPlayState, ACTOR_EN_OE2, pos.x, raycastResult, pos.z, 0, 0, 0, 0, false);
+                spawningPresents = false;
+                // break;
+            }
+
+            spawnAttempts++;
+        }
+    });
+
+    COND_ID_HOOK(ShouldActorInit, ACTOR_EN_OE2, CVarGetInteger(CVAR("OrnExch.Enabled"), 0), [](void* actorRef, bool* should) {
+        Actor* actor = (Actor*)actorRef;
+        if (spawningPresents) {
+            actor->init = Present_Init;
+            actor->update = Present_Update;
+            actor->draw = Present_Draw;
+            actor->destroy = Present_Destroy;
         }
     });
 }
@@ -194,32 +281,32 @@ static void DrawMenu() {
     }
     UIWidgets::Tooltip("Can you beat your objective before the Fever sets in?/n"
                        "- Obtaining Ice Traps extends your timer.");
-    if (UIWidgets::EnhancementSliderFloat("", "##FontScale", CVAR("FontScale"), 
-        1.0f, 5.0f, "Font: %.1fx", 1.0f, false, false, isFeverDisabled)) {
-        OnFeverConfigurationChanged();
+    if (CVarGetInteger(CVAR("Fever.Enabled"), 0)) {
+        if (UIWidgets::EnhancementSliderFloat("", "##FontScale", CVAR("FontScale"), 
+            1.0f, 5.0f, "Font: %.1fx", 1.0f, false, false, isFeverDisabled)) {
+            OnFeverConfigurationChanged();
+        }
+        UIWidgets::PaddedEnhancementSliderInt("Starting Timer: %d minutes", "##StartTime", CVAR("StartTimer"),
+            5, 30, "", 15, true, true, false, isFeverDisabled);
+        UIWidgets::PaddedEnhancementSliderInt("Time Extensions: %d minutes", "##ExtendTime", CVAR("ExtendTimer"),
+            1, 10, "", 5, true, true, false, isFeverDisabled);
     }
-    UIWidgets::PaddedEnhancementSliderInt("Starting Timer: %d minutes", "##StartTime", CVAR("StartTimer"),
-        5, 30, "", 15, true, true, false, isFeverDisabled);
-    UIWidgets::PaddedEnhancementSliderInt("Time Extensions: %d minutes", "##ExtendTime", CVAR("ExtendTimer"),
-        1, 10, "", 5, true, true, false, isFeverDisabled);
     UIWidgets::PaddedSeparator();
 
     if (UIWidgets::EnhancementCheckbox("Boulder Blitz", CVAR("Blitz.Enabled"))) {
         OnBlitzChange();
     }
+    UIWidgets::Tooltip("Boulders will randomly be replaced with other boulder types.");
     UIWidgets::PaddedSeparator();
 
     if (UIWidgets::EnhancementCheckbox("Ornament Exchange", CVAR("OrnExch.Enabled"))) {
         OnPresentChange();
-        bool toggle = CVarGetInteger(CVAR("OrnExch.Enabled"), 0);
-        CVarSetInteger("gHoliday.ItsHeckinPat.GiftsForNPCs", toggle);
-        OnConfigChanged();
     }
-    UIWidgets::Tooltip("See Malon as Young Link in Lon Lon Ranch to exchange Gifts for Ornaments!\n"
-                       "Note: Enabling this will set \"Gifts For NPCs\" to match.");
-    UIWidgets::PaddedEnhancementSliderInt("Gifts Required: %d Gifts", "##GiftsReq", CVAR("OrnExch.Amount"),
-        5, 30, "", 15, true, true, false, isExchangeDisabled);
-
+    UIWidgets::Tooltip("See Malon as Young Link in Lon Lon Ranch to exchange Gifts for Ornaments!");
+    if (CVarGetInteger(CVAR("OrnExch.Enabled"), 0)) {
+        UIWidgets::PaddedEnhancementSliderInt("Gifts Required: %d Gifts", "##GiftsReq", CVAR("OrnExch.Amount"),
+            5, 30, "", 15, true, true, false, isExchangeDisabled);
+    }
 }
 
 

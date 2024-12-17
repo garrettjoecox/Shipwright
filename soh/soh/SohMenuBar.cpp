@@ -22,6 +22,7 @@
 #ifdef ENABLE_REMOTE_CONTROL
 #include "soh/Network/CrowdControl/CrowdControl.h"
 #include "soh/Network/Sail/Sail.h"
+#include "soh/Network/Anchor/Anchor.h"
 #endif
 
 
@@ -585,7 +586,7 @@ void DrawSettingsMenu() {
             };
 
             ImGui::Text("Position");
-            UIWidgets::EnhancementCombobox(CVAR_SETTING("Notifications.Position"), notificationPosition, 0);
+            UIWidgets::EnhancementCombobox(CVAR_SETTING("Notifications.Position"), notificationPosition, 3);
             UIWidgets::EnhancementSliderFloat("Duration: %.1f seconds", "##NotificationDuration", CVAR_SETTING("Notifications.Duration"), 3.0f, 30.0f, "", 10.0f, false, true, false);
             UIWidgets::EnhancementSliderFloat("BG Opacity: %.1f %%", "##NotificaitonBgOpacity", CVAR_SETTING("Notifications.BgOpacity"), 0.0f, 1.0f, "", 0.5f, true, true, false);
             UIWidgets::EnhancementSliderFloat("Size: %.1f", "##NotificaitonSize", CVAR_SETTING("Notifications.Size"), 1.0f, 20.0f, "", 1.8f, false, true, false);
@@ -1556,6 +1557,8 @@ void DrawEnhancementsMenu() {
             UIWidgets::Tooltip("Restores the original outcomes when performing Reverse Bottle Adventure.");
             UIWidgets::PaddedEnhancementCheckbox("Early Eyeball Frog", CVAR_ENHANCEMENT("EarlyEyeballFrog"), true, false);
             UIWidgets::Tooltip("Restores a bug from NTSC 1.0/1.1 that allows you to obtain the eyeball frog from King Zora instead of the Zora Tunic by holding shield.");
+            UIWidgets::PaddedEnhancementCheckbox("Pulsate boss icon", CVAR_ENHANCEMENT("PulsateBossIcon"), true, false);
+            UIWidgets::Tooltip("Restores an unfinished feature to pulsate the boss room icon when you are in the boss room.");
 
             ImGui::EndMenu();
         }
@@ -2101,6 +2104,7 @@ void DrawRemoteControlMenu() {
     if (ImGui::BeginMenu("Network")) {
         Sail::Instance->DrawMenu();
         CrowdControl::Instance->DrawMenu();
+        Anchor::Instance->DrawMenu();
         ImGui::EndMenu();
     }
 }

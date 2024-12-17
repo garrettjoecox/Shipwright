@@ -1,5 +1,6 @@
 #include "TimeDisplay.h"
 #include "soh/Enhancements/gameplaystats.h"
+#include "soh/Enhancements/Holiday/Fredomato.h"
 #include <global.h>
 
 #include "assets/textures/parameter_static/parameter_static.h"
@@ -40,7 +41,8 @@ const std::vector<TimeObject> timeDisplayList = {
     { DISPLAY_IN_GAME_TIMER, "Display Gameplay Timer", CVAR_ENHANCEMENT("TimeDisplay.Timers.InGameTimer") },
     { DISPLAY_TIME_OF_DAY, "Display Time of Day", CVAR_ENHANCEMENT("TimeDisplay.Timers.TimeofDay") },
     { DISPLAY_CONDITIONAL_TIMER, "Display Conditional Timer", CVAR_ENHANCEMENT("TimeDisplay.Timers.HotWater") },
-    { DISPLAY_NAVI_TIMER, "Display Navi Timer", CVAR_ENHANCEMENT("TimeDisplay.Timers.NaviTimer") }
+    { DISPLAY_NAVI_TIMER, "Display Navi Timer", CVAR_ENHANCEMENT("TimeDisplay.Timers.NaviTimer") },
+    { DISPLAY_FRED_QUEST, "Display Fred's Quest", CVAR_ENHANCEMENT("TimeDisplay.Timers.FredsQuest") }
 };
 
 static std::vector<TimeObject> activeTimers;
@@ -134,6 +136,10 @@ static void TimeDisplayGetTimer(uint32_t timeID) {
             }
             textureDisplay = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName("NAVI_TIMER");
             break;
+        case DISPLAY_FRED_QUEST:
+            timeDisplayTime = std::to_string(FredsQuestWoodOnHand) + "/" + std::to_string(FredsQuestWoodCollected) + "/" +
+                             std::to_string(CVarGetInteger("gHoliday.Fredomato.FredsQuest.WoodNeeded", 300));
+            textureDisplay = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName("ITEM_STICK");
         default:
             break;
     }
@@ -188,6 +194,12 @@ void TimeDisplayWindow::Draw() {
             ImGui::TableNextColumn();
             ImGui::Image(textureDisplay, ImVec2(16.0f * fontScale, 16.0f * fontScale));
             ImGui::TableNextColumn();
+
+            if (timers.timeID == DISPLAY_FRED_QUEST) {
+                ImGui::Text("%s", timeDisplayTime.c_str());
+                ImGui::PopID();
+                continue;
+            }
 
             if (timeDisplayTime != "-:--") {
                 char* textToDecode = new char[timeDisplayTime.size() + 1];

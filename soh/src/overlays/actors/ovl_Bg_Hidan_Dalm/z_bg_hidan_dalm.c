@@ -126,8 +126,10 @@ void BgHidanDalm_Destroy(Actor* thisx, PlayState* play) {
 void BgHidanDalm_Wait(BgHidanDalm* this, PlayState* play) {
     Player* player = GET_PLAYER(play);
 
-    if ((this->collider.base.acFlags & AC_HIT) && !Player_InCsMode(play) &&
-        (player->meleeWeaponAnimation == 22 || player->meleeWeaponAnimation == 23)) {
+    // #region SOH [Co-op]
+    if (((this->collider.base.acFlags & AC_HIT) && !Player_InCsMode(play) &&
+        (player->meleeWeaponAnimation == 22 || player->meleeWeaponAnimation == 23)) || Flags_GetSwitch(play, this->switchFlag)) {
+    // #endregion
         this->collider.base.acFlags &= ~AC_HIT;
         if ((this->collider.elements[0].info.bumperFlags & BUMP_HIT) ||
             (this->collider.elements[1].info.bumperFlags & BUMP_HIT)) {
@@ -181,7 +183,7 @@ void BgHidanDalm_Update(Actor* thisx, PlayState* play) {
     BgHidanDalm* this = (BgHidanDalm*)thisx;
 
     this->actionFunc(this, play);
-    Actor_MoveForward(&this->dyna.actor);
+    Actor_MoveXZGravity(&this->dyna.actor);
     Actor_UpdateBgCheckInfo(play, &this->dyna.actor, 10.0f, 15.0f, 32.0f, 5);
 }
 
