@@ -19,6 +19,10 @@
  */
 
 void Anchor::SendPacket_RequestTeamState() {
+    if (!IsSaveLoaded()) {
+        return;
+    }
+
     nlohmann::json payload;
     payload["type"] = REQUEST_TEAM_STATE;
     payload["targetTeamId"] = CVarGetString(CVAR_REMOTE_ANCHOR("TeamId"), "default");

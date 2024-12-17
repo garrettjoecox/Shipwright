@@ -105,6 +105,20 @@ void Anchor::SendPacket_UpdateTeamState() {
     SendJsonToRemote(payload);
 }
 
+void Anchor::SendPacket_ClearTeamState() {
+    if (!IsSaveLoaded()) {
+        return;
+    }
+
+    json payload;
+    payload["type"] = UPDATE_TEAM_STATE;
+    payload["targetTeamId"] = CVarGetString(CVAR_REMOTE_ANCHOR("TeamId"), "default");
+
+    payload["queue"] = json::array();
+    payload["state"] = json::object();
+    SendJsonToRemote(payload);
+}
+
 void Anchor::HandlePacket_UpdateTeamState(nlohmann::json payload) {
     isHandlingUpdateTeamState = true;
     // This can happen in between file select and the game starting, so we cant use this check, but we need to ensure we

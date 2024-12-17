@@ -49,6 +49,8 @@ void AnchorRoomWindow::Draw() {
                 continue;
             }
 
+            ImGui::PushID(clientId);
+
             if (client.clientId == Anchor::Instance->roomState.ownerClientId) {
                 ImGui::TextColored(ImVec4(1, 1, 0, 1), "%s", ICON_FA_GAVEL);
                 ImGui::SameLine();
@@ -58,6 +60,7 @@ void AnchorRoomWindow::Draw() {
                 ImGui::TextColored(ImVec4(0.8f, 1.0f, 0.8f, 1.0f), "%s", CVarGetString(CVAR_REMOTE_ANCHOR("Name"), ""));
             } else if (!client.online) {
                 ImGui::TextColored(ImVec4(1, 1, 1, 0.3f), "%s - offline", client.name.c_str());
+                ImGui::PopID();
                 continue;
             } else {
                 ImGui::Text("%s", client.name.c_str());
@@ -105,6 +108,7 @@ void AnchorRoomWindow::Draw() {
                     ImGui::EndTooltip();
                 }
             }
+            ImGui::PopID();
         }
     }
 
