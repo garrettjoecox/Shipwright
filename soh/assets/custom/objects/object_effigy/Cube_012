@@ -1,0 +1,10 @@
+<DisplayList Version="0">
+	<ClearGeometryMode G_LIGHTING="1" />
+	<LoadVertices Path="objects/object_effigy/Cube_012_layer_Opaque_vtx_cull" VertexBufferIndex="0" VertexOffset="0" Count="8"/>
+	<SetGeometryMode G_LIGHTING="1" />
+	<CullDisplayList Start="0" End="7"/>
+	<CallDisplayList Path="objects/object_effigy/mat_Cube_012_f3dlite_material_layerOpaque"/>
+	<CallDisplayList Path="objects/object_effigy/Cube_012_layer_Opaque_tri_0"/>
+	<EndDisplayList/>
+</DisplayList>
+

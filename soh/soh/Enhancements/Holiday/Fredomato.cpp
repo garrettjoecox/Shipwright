@@ -10,12 +10,14 @@
 #include "soh/Enhancements/custom-collectible/CustomCollectible.h"
 #include "soh/Notification/Notification.h"
 #include "soh/Enhancements/nametag.h"
+#include "soh_assets.h"
 
 #include "objects/gameplay_field_keep/gameplay_field_keep.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
 #include "objects/object_md/object_md.h"
 #include "objects/object_trap/object_trap.h"
 #include "objects/object_toryo/object_toryo.h"
+#include "objects/object_hidan_objects/object_hidan_objects.h"
 #include "src/overlays/actors/ovl_Door_Ana/z_door_ana.h"
 extern "C" {
 #include "macros.h"
@@ -54,7 +56,6 @@ const s16 entrances[] = {
     0x02F5, 0x0413, 0x02B2, 0x0457, 0x047A, 0x010E, 0x0608, 0x0564, 0x060C, 0x0610, 0x0580 
 };
 
-static bool midoGrottoInit = false;
 static SkelAnime midoSkelAnime;
 static Vec3s midoJointTable[17];
 static Vec3s midoMorphTable[17];
@@ -66,65 +67,16 @@ static SkelAnime collectionPointSkelAnime;
 static Vec3s collectionPointJointTable[17];
 static Vec3s collectionPointMorphTable[17];
 static std::string collectionPointNametag;
-
-
-static void RandomGrotto_WaitOpen(DoorAna* doorAna, PlayState* play) {
-    if (!midoGrottoInit) {
-        midoGrottoInit = true;
-        SkelAnime_InitFlex(play, &midoSkelAnime, (FlexSkeletonHeader*)&gMidoSkel, (AnimationHeader*)&gMidoWalkingAnim, midoJointTable, midoMorphTable, 17);
-    }
-    SkelAnime_Update(&midoSkelAnime);
-
-    Actor* actor = &doorAna->actor;
-    Player* player = GET_PLAYER(play);
-    if (!Player_InCsMode(play)) {
-        Math_SmoothStepToF(&actor->world.pos.x, player->actor.world.pos.x, 0.1f, 10.0f, 0.0f);
-        Math_SmoothStepToF(&actor->world.pos.z, player->actor.world.pos.z, 0.1f, 10.0f, 0.0f);
-        Math_SmoothStepToF(&actor->world.pos.y, player->actor.world.pos.y, 0.1f, 10.0f, 0.0f);
-    }
-
-    Math_ApproachS(&doorAna->actor.shape.rot.y, doorAna->actor.yawTowardsPlayer, 5, 0xBB8);
-
-    if (Math_StepToF(&actor->scale.x, 0.01f, 0.001f)) {
-        if ((actor->targetMode != 0) && (play->transitionTrigger == TRANS_TRIGGER_OFF) && (player->stateFlags1 & PLAYER_STATE1_FLOOR_DISABLED) && (player->av1.actionVar1 == 0)) {
-            play->nextEntranceIndex = RandomElement(entrances);
-            DoorAna_SetupAction((DoorAna*)actor, DoorAna_GrabPlayer);
-        } else {
-            if (!Player_InCsMode(play) && !(player->stateFlags1 & (PLAYER_STATE1_ON_HORSE | PLAYER_STATE1_IN_WATER)) &&
-                actor->xzDistToPlayer <= 15.0f && -50.0f <= actor->yDistToPlayer &&
-                actor->yDistToPlayer <= 15.0f) {
-                player->stateFlags1 |= PLAYER_STATE1_FLOOR_DISABLED;
-                actor->targetMode = 1;
-            } else {
-                actor->targetMode = 0;
-            }
-        }
-    }
-    Actor_SetScale(actor, actor->scale.x);
-}
-
-static void RandomGrotto_Draw(Actor* actor, PlayState* play) {
-    if (!midoGrottoInit) {
-        return;
-    }
-    OPEN_DISPS(play->state.gfxCtx);
-
-    Gfx_SetupDL_25Xlu(play->state.gfxCtx);
-    gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx, (char*)__FILE__, __LINE__), G_MTX_MODELVIEW | G_MTX_LOAD);
-    gSPDisplayList(POLY_XLU_DISP++, (Gfx*)gGrottoDL);
-
-    Matrix_Translate(0.0f, -2700.0f, 0.0f, MTXMODE_APPLY);
-    gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx, (char*)__FILE__, __LINE__), G_MTX_MODELVIEW | G_MTX_LOAD);
-    gSPSegment(POLY_OPA_DISP++, 0x08, (uintptr_t)gMidoEyeOpenTex);
-    func_80034BA0(play, &midoSkelAnime, NULL, NULL, actor, 255);
-
-    CLOSE_DISPS(play->state.gfxCtx);
-}
+static int midoSpeedChangeTimer = 0;
+static Vec3f midoKickedPosition = {-9999.0f, -9999.0f, -9999.0f};
+static int fireWallTick = 0;
+static int moveMidoTimer = 0;
 
 static Vec3f FindValidPos(f32 distance) {
     Vec3f pos;
     pos.y = 9999.0f;
-    while (true) {
+    int attempts = 0;
+    while (attempts < 100) {
         if (GET_PLAYER(gPlayState) != nullptr) {
             pos.x = GET_PLAYER(gPlayState)->actor.world.pos.x;
             pos.z = GET_PLAYER(gPlayState)->actor.world.pos.z;
@@ -141,24 +93,87 @@ static Vec3f FindValidPos(f32 distance) {
             pos.y = raycastResult;
             return pos;
         }
+        attempts++;
     }
+    return pos;
 }
 
-// TODO: If in hyrule field and treeChopper is on, teleport somewhere else in hyrule field
-static void SpawnRandomGrotto() {
-    if (
-        gPlayState->sceneNum == SCENE_TEMPLE_OF_TIME_EXTERIOR_DAY || 
-        gPlayState->sceneNum == SCENE_TEMPLE_OF_TIME_EXTERIOR_NIGHT || 
-        gPlayState->sceneNum == SCENE_TEMPLE_OF_TIME_EXTERIOR_RUINS
-    ) {
+static void Mido_Update(Actor* actor, PlayState* play) {
+    SkelAnime_Update(&midoSkelAnime);
+
+    if (FredsQuestComplete) {
+        actor->speedXZ = 0;
         return;
     }
 
+    Math_ApproachS(&actor->world.rot.y, actor->yawTowardsPlayer, 5, 0xBB8);
+    actor->shape.rot.y = actor->world.rot.y;
+
+    if (midoSpeedChangeTimer <= 0) {
+        if (CVarGetInteger(CVAR("MadMido.MinSpeed"), 1) >= CVarGetInteger(CVAR("MadMido.MaxSpeed"), 10)) {
+            actor->speedXZ = CVarGetInteger(CVAR("MadMido.MinSpeed"), 1);
+        } else {
+            actor->speedXZ = Random(CVarGetInteger(CVAR("MadMido.MinSpeed"), 1), CVarGetInteger(CVAR("MadMido.MaxSpeed"), 10));
+        }
+        midoSpeedChangeTimer = CVarGetInteger(CVAR("MadMido.SpeedChange"), 30) * 20;
+    } else {
+        midoSpeedChangeTimer--;
+    }
+
+    if (actor->xzDistToPlayer > 1000.0f && actor->velocity.y < -3.0f) {
+        actor->velocity.y += ABS(actor->yDistToPlayer) * 0.01f;
+    }
+
+    if ((actor->xzDistToPlayer <= 50.0f) && (fabsf(actor->yDistToPlayer) <= fabsf(20.0f))) {
+        GameInteractor::RawAction::KnockbackPlayer(1.0f);
+        midoKickedPosition = FindValidPos(20000.0f);
+        midoKickedPosition.y += 1000.0f;
+
+        actor->speedXZ = 0.0f;
+        midoSpeedChangeTimer = CVarGetInteger(CVAR("MadMido.SpeedChange"), 30) * 20;
+    }
+
+    if (actor->gravity != 0.0f) {
+        Actor_MoveXZGravity(actor);
+        Actor_UpdateBgCheckInfo(play, actor, 20.0f, 15.0f, 15.0f, 0x1D);
+    }
+
+    if (moveMidoTimer <= 0) {
+        Vec3f pos = FindValidPos(2000.0f);
+        moveMidoTimer = 20 * 60;
+        actor->world.pos.x = pos.x;
+        actor->world.pos.y = pos.y;
+        actor->world.pos.z = pos.z;
+    } else {
+        moveMidoTimer--;
+    }
+
+    // if (actor->bgCheckFlags & 0x0003) {
+    //     actor->speedXZ = 0.0f;
+    // }
+}
+
+static void Mido_Draw(Actor* actor, PlayState* play) {
+    OPEN_DISPS(play->state.gfxCtx);
+
+    Matrix_Scale(2.0f, 2.0f, 2.0f, MTXMODE_APPLY);
+    Matrix_Translate(0.0f, -200.0f, 0.0f, MTXMODE_APPLY);
+    gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx, (char*)__FILE__, __LINE__), G_MTX_MODELVIEW | G_MTX_LOAD);
+    gSPSegment(POLY_OPA_DISP++, 0x08, (uintptr_t)gMidoEyeOpenTex);
+    func_80034BA0(play, &midoSkelAnime, NULL, NULL, actor, 255);
+
+    CLOSE_DISPS(play->state.gfxCtx);
+}
+
+static void SpawnMido() {
     Vec3f pos = FindValidPos(2000.0f);
-    Actor* grotto = Actor_Spawn(&gPlayState->actorCtx, gPlayState, ACTOR_DOOR_ANA, pos.x, pos.y, pos.z, 0, 0, 0, 0, false);
-    midoGrottoInit = false;
-    DoorAna_SetupAction((DoorAna*)grotto, RandomGrotto_WaitOpen);
-    grotto->draw = RandomGrotto_Draw;
+    moveMidoTimer = 20 * 60;
+    EnItem00* mido = CustomCollectible::Spawn(pos.x, pos.y, pos.z, 0, 0, 0, NULL, NULL);
+    SkelAnime_InitFlex(gPlayState, &midoSkelAnime, (FlexSkeletonHeader*)&gMidoSkel, (AnimationHeader*)&gMidoWalkingAnim, midoJointTable, midoMorphTable, 17);
+    mido->actor.update = Mido_Update;
+    mido->actor.draw = Mido_Draw;
+    mido->actor.gravity = -0.9f;
+    mido->actor.flags |= ACTOR_FLAG_DRAW_WHILE_CULLED & ACTOR_FLAG_UPDATE_WHILE_CULLED;
 }
 
 void SpawnStick(Vec3f pos) {
@@ -184,6 +199,7 @@ void ChooseSpecialTree() {
 
     while (actor != NULL) {
         if (ACTOR_EN_WOOD02 == actor->id && actor->params < 10) {
+            actor->flags |= ACTOR_FLAG_DRAW_WHILE_CULLED & ACTOR_FLAG_UPDATE_WHILE_CULLED;
             trees.push_back(actor);
         }
         actor = actor->next;
@@ -197,7 +213,7 @@ void ChooseSpecialTree() {
 }
 
 extern "C" bool HandleTreeBonk(Actor* actor) {
-    if (!CVarGetInteger(CVAR("FredsQuest.Enabled"), 0)) {
+    if (!CVarGetInteger(CVAR("FredsQuest.Enabled"), 0) || gPlayState->sceneNum != SCENE_HYRULE_FIELD) {
         return false; 
     }
 
@@ -222,7 +238,7 @@ extern "C" bool HandleTreeBonk(Actor* actor) {
 
         // Move tree (instead of killing and spawning another)
         actor->colChkInfo.health = 8;
-        Vec3f pos = FindValidPos(5000.0f);
+        Vec3f pos = FindValidPos(10000.0f);
         actor->world.pos.x = pos.x;
         actor->world.pos.y = pos.y;
         actor->world.pos.z = pos.z;
@@ -267,10 +283,19 @@ void SpawnCrazyTaxiArrow() {
 
 void CollectionPoint_Update(Actor* actor, PlayState* play) {
     EnItem00* enItem00 = (EnItem00*)actor;
+    Vec3f flamePos;
+    actor->flags |= ACTOR_FLAG_DRAW_WHILE_CULLED & ACTOR_FLAG_UPDATE_WHILE_CULLED;
+    fireWallTick = (fireWallTick + 1) % 8;
 
     SkelAnime_Update(&collectionPointSkelAnime);
 
     if (FredsQuestComplete) {
+        for (int i = 0; i < 2; i++) {
+            flamePos.x = Rand_CenteredFloat(400.0f) + actor->world.pos.x + 200.0f;
+            flamePos.y = Rand_CenteredFloat(1000.0f) + actor->world.pos.y;
+            flamePos.z = Rand_CenteredFloat(400.0f) + actor->world.pos.z + 100.0f;
+            EffectSsEnFire_SpawnVec3f(play, actor, &flamePos, 300, 0, 0, -1);
+        }
         return;
     }
 
@@ -307,23 +332,54 @@ void CollectionPoint_Update(Actor* actor, PlayState* play) {
     }
 }
 
+const char* effigyDls[12] = {
+    gEffigy7DL,
+    gEffigy8DL,
+    gEffigy9DL,
+    gEffigy10DL,
+    gEffigy11DL,
+    gEffigy1DL,
+    gEffigy2DL,
+    gEffigy3DL,
+    gEffigy4DL,
+    gEffigy6DL,
+    gEffigy12DL,
+    gEffigy5DL,
+};
+
+static const char* sFireballTexs[] = {
+    gFireTempleFireball0Tex, gFireTempleFireball1Tex, gFireTempleFireball2Tex, gFireTempleFireball3Tex,
+    gFireTempleFireball4Tex, gFireTempleFireball5Tex, gFireTempleFireball6Tex, gFireTempleFireball7Tex,
+};
+
 void CollectionPoint_Draw(Actor* actor, PlayState* play) {
     OPEN_DISPS(play->state.gfxCtx);
+
+    if (FredsQuestComplete) {
+        Matrix_Push();
+        Gfx_SetupDL(POLY_XLU_DISP, 0x14);
+        gSPSegment(POLY_XLU_DISP++, 0x08, (uintptr_t)sFireballTexs[fireWallTick]);
+        gDPSetPrimColor(POLY_XLU_DISP++, 0, 0x01, 255, 255, 0, 150);
+        gDPSetEnvColor(POLY_XLU_DISP++, 255, 0, 0, 255);
+        Matrix_Scale(16.0f, 16.0f, 16.0f, MTXMODE_APPLY);
+        Matrix_Translate(0, 0.0f, -500.0f, MTXMODE_APPLY);
+        gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx, (char*)__FILE__, __LINE__), G_MTX_MODELVIEW | G_MTX_LOAD);
+        gSPDisplayList(POLY_XLU_DISP++, (Gfx*)gFireTempleFireballUpperHalfDL);
+        Matrix_Pop();
+    }
 
     Gfx_SetupDL_25Opa(play->state.gfxCtx);
     SkelAnime_DrawSkeletonOpa(play, &collectionPointSkelAnime, NULL, NULL, actor);
 
-    // For every 2% of the goal, draw a stick at a different angle, building a tree
-    Matrix_Scale(40.0f, 40.0f, 40.0f, MTXMODE_APPLY);
-    Matrix_Translate(0, 0, -300.0f, MTXMODE_APPLY);
-    for (int i = 0; i < FredsQuestWoodCollected / (CVarGetInteger(CVAR("FredsQuest.WoodNeeded"), 300) / 50); i++) {
-        float angle = 10 * i;
-        float radius = (50 - i) * 0.5f; // Radius decreases as it goes up
-        float height = 10.0f;    // Incremental height
+    int woodCollected = FredsQuestWoodCollected;
+    int woodNeeded = CVarGetInteger(CVAR("FredsQuest.WoodNeeded"), 300);
 
-        Matrix_Translate(radius * cosf(angle), height, radius * sinf(angle), MTXMODE_APPLY);
-        Matrix_RotateY(angle, MTXMODE_APPLY);
-        GetItem_Draw(play, GID_STICK);
+    Matrix_Scale(8.0f, 8.0f, 8.0f, MTXMODE_APPLY);
+    Matrix_Translate(0, 0.0f, -2000.0f, MTXMODE_APPLY);
+    // Render effigy based on percentage of wood collected
+    for (int i = 0; i < ((float)woodCollected / woodNeeded * 12); i++) {
+        gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx, (char*)__FILE__, __LINE__), G_MTX_MODELVIEW | G_MTX_LOAD);
+        gSPDisplayList(POLY_OPA_DISP++, (Gfx*)effigyDls[i]);
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
@@ -333,7 +389,6 @@ void SpawnCollectionPoint() {
     EnItem00* collectionPoint = CustomCollectible::Spawn(859.0f, 347.0f, 5185.0f, 0xB000, 0, 0, NULL, NULL);
     collectionPoint->actor.update = CollectionPoint_Update;
     collectionPoint->actor.draw = CollectionPoint_Draw;
-    collectionPoint->actor.flags |= ACTOR_FLAG_DRAW_WHILE_CULLED;
     SkelAnime_InitFlex(gPlayState, &collectionPointSkelAnime, (FlexSkeletonHeader*)&object_toryo_Skel_007150, 
         (AnimationHeader*)&object_toryo_Anim_000E50, collectionPointJointTable, collectionPointMorphTable, 17);
 }
@@ -401,6 +456,39 @@ void OnSceneInit() {
     FredsQuestWoodOnHand = 0;
     lastDisplayedCount = -1;
     FredsQuestComplete = false;
+    CVarClear(CVAR("FredsQuest.SpeedModifier"));
+
+    COND_ID_HOOK(ShouldActorInit, ACTOR_EN_PO_FIELD, CVarGetInteger(CVAR("FredsQuest.Enabled"), 0), [](void* actor, bool* should) {
+        *should = false;
+    });
+
+    COND_HOOK(OnPlayerUpdate, CVarGetInteger(CVAR("MadMido.Enabled"), 0) && gPlayState->sceneNum == SCENE_HYRULE_FIELD, []() {
+        Player* player = GET_PLAYER(gPlayState);
+        if (midoKickedPosition.y != -9999.0f) {
+            Math_ApproachF(&player->actor.world.pos.x, midoKickedPosition.x, 1.0f, 100.0f);
+            Math_ApproachF(&player->actor.world.pos.y, midoKickedPosition.y, 1.0f, 100.0f);
+            Math_ApproachF(&player->actor.world.pos.z, midoKickedPosition.z, 1.0f, 100.0f);
+            float distancexyz = Math3D_Vec3f_DistXYZ(&player->actor.world.pos, &midoKickedPosition);
+            if (distancexyz < 100.0f) {
+                midoKickedPosition.y = -9999.0f;
+            }
+        }
+    });
+
+    COND_HOOK(OnPlayerUpdate, CVarGetInteger(CVAR("RandomTraps.Enabled"), 0), []() {
+        if (rand() % CVarGetInteger(CVAR("RandomTraps.SpawnChance"), 400) == 0) { 
+            SpawnRandomTrap();
+        }
+    });
+
+    COND_HOOK(OnPlayerUpdate, CVarGetInteger(CVAR("FredsQuest.Enabled"), 0) && gPlayState->sceneNum == SCENE_HYRULE_FIELD, []() {
+        if (CVarGetInteger(CVAR("FredsQuest.EncumberedThreshold"), 60) != 0 && FredsQuestWoodOnHand >= CVarGetInteger(CVAR("FredsQuest.EncumberedThreshold"), 60)) {
+            // The further past the threshold, the slower you go
+            CVarSetFloat(CVAR("FredsQuest.SpeedModifier"), MAX(1.0f - (float)(FredsQuestWoodOnHand - CVarGetInteger(CVAR("FredsQuest.EncumberedThreshold"), 60)) / 100.0f, 0.7f));
+        } else {
+            CVarClear(CVAR("FredsQuest.SpeedModifier"));
+        }
+    });
 
     if (gPlayState->sceneNum != SCENE_HYRULE_FIELD) {
         return;
@@ -409,30 +497,14 @@ void OnSceneInit() {
     ChooseSpecialTree();
     SpawnCrazyTaxiArrow();
     SpawnCollectionPoint();
+    if (CVarGetInteger(CVAR("MadMido.Enabled"), 0)) {
+        SpawnMido();
+    }
 }
 
 static void ConfigurationChanged() {
+    CVarClear(CVAR("FredsQuest.SpeedModifier"));
     COND_HOOK(OnSceneSpawnActors, CVarGetInteger(CVAR("FredsQuest.Enabled"), 0), OnSceneInit);
-
-    COND_HOOK(OnPlayerUpdate, CVarGetInteger(CVAR("RandomTraps.Enabled"), 0), []() {
-        if (rand() % CVarGetInteger(CVAR("RandomTraps.SpawnChance"), 400) == 0) { 
-            SpawnRandomTrap();
-        }
-    });
-
-    COND_HOOK(OnPlayerUpdate, CVarGetInteger(CVAR("FredsQuest.Enabled"), 0), []() {
-        if (CVarGetInteger(CVAR("FredsQuest.EncumberedThreshold"), 60) == 0 || FredsQuestWoodOnHand <= CVarGetInteger(CVAR("FredsQuest.EncumberedThreshold"), 60)) {
-            GameInteractor::State::RunSpeedModifier = 0;
-        } else {
-            GameInteractor::State::RunSpeedModifier = -2;
-        }
-    });
-
-    COND_VB_SHOULD(VB_PLAYER_ROLL, CVarGetInteger(CVAR("FredsQuest.Enabled"), 0), {
-        if (FredsQuestWoodOnHand > CVarGetInteger(CVAR("FredsQuest.EncumberedThreshold"), 0)) {
-            *should = false;
-        }
-    });
 }
 
 static void DrawMenu() {
@@ -452,7 +524,7 @@ static void DrawMenu() {
         if (UIWidgets::EnhancementCheckbox("Crazy Taxi Arrow", CVAR("FredsQuest.CrazyTaxiArrow"))) {
             ConfigurationChanged();
         }
-        if (UIWidgets::EnhancementSliderInt("Wood Needed", "##FredsQuest.WoodNeeded", CVAR("FredsQuest.WoodNeeded"), 0, 1000, "%d", 300, false)) {
+        if (UIWidgets::EnhancementSliderInt("Wood Needed", "##FredsQuest.WoodNeeded", CVAR("FredsQuest.WoodNeeded"), 50, 1000, "%d", 300, false)) {
             ConfigurationChanged();
         }
         if (UIWidgets::EnhancementSliderInt("Tree Bonk Drop Rate", "##FredsQuest.TreeBonkDropRate", CVAR("FredsQuest.TreeBonkDropRate"), 0, 10, "%d", 1, false)) {
@@ -478,6 +550,22 @@ static void DrawMenu() {
             ConfigurationChanged();
         }
         if (UIWidgets::EnhancementSliderInt("Spawn Chance", "##RandomTraps.SpawnChance", CVAR("RandomTraps.SpawnChance"), 40, 2000, "%d", 1000, false)) {
+            ConfigurationChanged();
+        }
+    }
+    if (UIWidgets::EnhancementCheckbox("Mad Mido", CVAR("MadMido.Enabled"))) {
+        ConfigurationChanged();
+    }
+    UIWidgets::Tooltip("Mido will chase you around and kick you if you get too close.");
+    if (CVarGetInteger(CVAR("MadMido.Enabled"), 0)) {
+        if (UIWidgets::EnhancementSliderInt("Speed Change (Seconds)", "##MadMido.SpeedChange", CVAR("MadMido.SpeedChange"), 3, 500, "%d", 30, false)) {
+            ConfigurationChanged();
+        }
+        UIWidgets::Tooltip("How often Mido will change speed.");
+        if (UIWidgets::EnhancementSliderInt("Minimum Speed", "##MadMido.MinSpeed", CVAR("MadMido.MinSpeed"), 1, 10, "%d", 1, false)) {
+            ConfigurationChanged();
+        }
+        if (UIWidgets::EnhancementSliderInt("Maximum Speed", "##MadMido.MaxSpeed", CVAR("MadMido.MaxSpeed"), 1, 30, "%d", 10, false)) {
             ConfigurationChanged();
         }
     }
