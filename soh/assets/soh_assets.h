@@ -29,6 +29,42 @@ static const ALIGN_ASSET(2) char gHorseAntlersDL[] = dgHorseAntlersDL;
 #define dgEponaRudolphHatDL "__OTR__objects/object_festivehats/gEponaRudolphHatDL"
 static const ALIGN_ASSET(2) char gEponaRudolphHatDL[] = dgEponaRudolphHatDL;
 
+#define dgEffigy1DL "__OTR__objects/object_effigy/Cube_001"
+static const ALIGN_ASSET(2) char gEffigy1DL[] = dgEffigy1DL;
+
+#define dgEffigy2DL "__OTR__objects/object_effigy/Cube_002"
+static const ALIGN_ASSET(2) char gEffigy2DL[] = dgEffigy2DL;
+
+#define dgEffigy3DL "__OTR__objects/object_effigy/Cube_003"
+static const ALIGN_ASSET(2) char gEffigy3DL[] = dgEffigy3DL;
+
+#define dgEffigy4DL "__OTR__objects/object_effigy/Cube_004"
+static const ALIGN_ASSET(2) char gEffigy4DL[] = dgEffigy4DL;
+
+#define dgEffigy5DL "__OTR__objects/object_effigy/Cube_005"
+static const ALIGN_ASSET(2) char gEffigy5DL[] = dgEffigy5DL;
+
+#define dgEffigy6DL "__OTR__objects/object_effigy/Cube_006"
+static const ALIGN_ASSET(2) char gEffigy6DL[] = dgEffigy6DL;
+
+#define dgEffigy7DL "__OTR__objects/object_effigy/Cube_007"
+static const ALIGN_ASSET(2) char gEffigy7DL[] = dgEffigy7DL;
+
+#define dgEffigy8DL "__OTR__objects/object_effigy/Cube_008"
+static const ALIGN_ASSET(2) char gEffigy8DL[] = dgEffigy8DL;
+
+#define dgEffigy9DL "__OTR__objects/object_effigy/Cube_009"
+static const ALIGN_ASSET(2) char gEffigy9DL[] = dgEffigy9DL;
+
+#define dgEffigy10DL "__OTR__objects/object_effigy/Cube_010"
+static const ALIGN_ASSET(2) char gEffigy10DL[] = dgEffigy10DL;
+
+#define dgEffigy11DL "__OTR__objects/object_effigy/Cube_011"
+static const ALIGN_ASSET(2) char gEffigy11DL[] = dgEffigy11DL;
+
+#define dgEffigy12DL "__OTR__objects/object_effigy/Cube_012"
+static const ALIGN_ASSET(2) char gEffigy12DL[] = dgEffigy12DL;
+
 #define dgChristmasGreenTreasureChestFrontTex "__OTR__objects/object_box/gChristmasGreenTreasureChestFrontTex"
 static const ALIGN_ASSET(2) char gChristmasGreenTreasureChestFrontTex[] = dgChristmasGreenTreasureChestFrontTex;
 

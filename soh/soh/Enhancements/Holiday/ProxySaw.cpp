@@ -44,7 +44,7 @@ static void SpawnSnowballs() {
 
     int actorsSpawned = 0;
 
-    while (actorsSpawned < 30) {
+    while (actorsSpawned < CVarGetInteger(CVAR("SnowballCount"), 30)) {
         snowballPos.x = (float)(Random(
             (gPlayState->sceneNum == SCENE_HYRULE_FIELD ? -10000 : -2700) + 10000,
             (gPlayState->sceneNum == SCENE_HYRULE_FIELD ? 5000 : 2000) + 10000
@@ -194,11 +194,25 @@ static void SpawnRandomGrotto() {
 
 }
 
+static int hitWallTimer = 0;
+
 static void ConfigurationChanged() {
     COND_HOOK(OnSceneSpawnActors, CVarGetInteger(CVAR("Snowballs"), 0), SpawnSnowballs);
     COND_HOOK(OnPlayerUpdate, CVarGetInteger(CVAR("SuperBonk"), 0), []() {
         Player* player = GET_PLAYER(gPlayState);
+
+        if (hitWallTimer > 0) {
+            hitWallTimer--;
+
+            if (hitWallTimer == 0) {
+                player->currentBoots = PLAYER_BOOTS_HOVER;
+                Inventory_ChangeEquipment(EQUIP_TYPE_BOOTS, EQUIP_VALUE_BOOTS_HOVER);
+            }
+        }
         if (player->actor.bgCheckFlags & 0x08 && ABS(player->linearVelocity) > 15.0f) {
+            player->currentBoots = PLAYER_BOOTS_KOKIRI;
+            Inventory_ChangeEquipment(EQUIP_TYPE_BOOTS, EQUIP_VALUE_BOOTS_KOKIRI);
+            hitWallTimer = 2;
             player->yaw = ((player->actor.wallYaw - player->yaw) + player->actor.wallYaw) - 0x8000;
             Player_PlaySfx(&player->actor, NA_SE_PL_BODY_HIT);
         }
@@ -208,6 +222,7 @@ static void ConfigurationChanged() {
         Player* player = GET_PLAYER(gPlayState);
 
         player->linearVelocity = -100.0f;
+        hitWallTimer = 2;
     });
     COND_HOOK(OnSceneSpawnActors, CVarGetInteger(CVAR("Icebergs"), 0), SpawnIcebergs);
     COND_HOOK(OnSceneSpawnActors, CVarGetInteger(CVAR("DownTheRabbitHole"), 0), SpawnRandomGrotto);
@@ -220,6 +235,12 @@ static void DrawMenu() {
         ConfigurationChanged();
     }
     UIWidgets::Tooltip("Rogue snowballs will spawn in Hyrule Field and Kakariko Village.");
+    if (CVarGetInteger(CVAR("Snowballs"), 0)) {
+        if (UIWidgets::EnhancementSliderInt("Snowball Count", "##SnowballCount", CVAR("SnowballCount"), 0, 150, "%d", 30, false)) {
+            ConfigurationChanged();
+        }
+        UIWidgets::Tooltip("The number of snowballs that will spawn.");
+    }
     if (UIWidgets::EnhancementCheckbox("Lake Hylia Icebergs", CVAR("Icebergs"))) {
         ConfigurationChanged();
     }
