@@ -41,6 +41,7 @@ void Settings::CreateOptionDescriptions() {
                                                   "\n"
                                                   "Open - Sleeping Waterfall is always open. "
                                                   "Link may always enter Zora's Domain.";
+    mOptionDescriptions[RSK_LOCK_OVERWORLD_DOORS] = "Add locks to all overworld wooden doors, requiring specific small keys to open them";
     mOptionDescriptions[RSK_STARTING_AGE] =
         "Choose which age Link will start as.\n\n"
         "Starting as adult means you start with the Master Sword in your inventory.\n"

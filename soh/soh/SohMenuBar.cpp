@@ -774,7 +774,7 @@ void DrawEnhancementsMenu() {
                 UIWidgets::PaddedEnhancementCheckbox("Exit Market at Night", CVAR_ENHANCEMENT("MarketSneak"), true, false);
                 UIWidgets::Tooltip("Allows exiting Hyrule Castle Market Town to Hyrule Field at night by speaking to the guard next to the gate.");
                 UIWidgets::PaddedEnhancementCheckbox("Shops and Games Always Open", CVAR_ENHANCEMENT("OpenAllHours"), true, false);
-                UIWidgets::Tooltip("Shops and minigames are open both day and night. Requires scene reload to take effect.");
+                UIWidgets::Tooltip("Shops and minigames are open both day and night. Requires scene reload to take effect.\n\nNote: This is not compatible with Locked Overworld Doors in Rando");
                 UIWidgets::PaddedEnhancementCheckbox("Link as default file name", CVAR_ENHANCEMENT("LinkDefaultName"), true, false);
                 UIWidgets::Tooltip("Allows you to have \"Link\" as a premade file name");
 				UIWidgets::PaddedEnhancementCheckbox("Quit Fishing At Door", CVAR_ENHANCEMENT("QuitFishingAtDoor"), true, false);
