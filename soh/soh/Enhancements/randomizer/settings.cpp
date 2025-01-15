@@ -110,6 +110,7 @@ void Settings::CreateOptions() {
     mOptions[RSK_DOOR_OF_TIME] = Option::U8("Door of Time", {"Closed", "Song only", "Open"}, OptionCategory::Setting, CVAR_RANDOMIZER_SETTING("DoorOfTime"), mOptionDescriptions[RSK_DOOR_OF_TIME], WidgetType::Combobox);
     mOptions[RSK_ZORAS_FOUNTAIN] = Option::U8("Zora's Fountain", {"Closed", "Closed as child", "Open"}, OptionCategory::Setting, CVAR_RANDOMIZER_SETTING("ZorasFountain"), mOptionDescriptions[RSK_ZORAS_FOUNTAIN]);
     mOptions[RSK_SLEEPING_WATERFALL] = Option::U8("Sleeping Waterfall", {"Closed", "Open"}, OptionCategory::Setting, CVAR_RANDOMIZER_SETTING("SleepingWaterfall"), mOptionDescriptions[RSK_SLEEPING_WATERFALL]);
+    mOptions[RSK_LOCK_OVERWORLD_DOORS] = Option::Bool("Lock Overworld Doors", CVAR_RANDOMIZER_SETTING("LockOverworldDoors"), mOptionDescriptions[RSK_LOCK_OVERWORLD_DOORS]);
     mOptions[RSK_GERUDO_FORTRESS] = Option::U8("Fortress Carpenters", {"Normal", "Fast", "Free"}, OptionCategory::Setting, CVAR_RANDOMIZER_SETTING("FortressCarpenters"), mOptionDescriptions[RSK_GERUDO_FORTRESS]);
     mOptions[RSK_RAINBOW_BRIDGE] = Option::U8("Rainbow Bridge", {"Vanilla", "Always open", "Stones", "Medallions", "Dungeon rewards", "Dungeons", "Tokens", "Greg"}, OptionCategory::Setting, CVAR_RANDOMIZER_SETTING("RainbowBridge"), mOptionDescriptions[RSK_RAINBOW_BRIDGE], WidgetType::Combobox, RO_BRIDGE_VANILLA, false, IMFLAG_NONE);
     mOptions[RSK_RAINBOW_BRIDGE_STONE_COUNT] = Option::U8("Bridge Stone Count", {NumOpts(0, 4)}, OptionCategory::Setting, CVAR_RANDOMIZER_SETTING("StoneCount"), "", WidgetType::Slider, 3, true);
@@ -551,6 +552,7 @@ void Settings::CreateOptions() {
         &mOptions[RSK_DOOR_OF_TIME],
         &mOptions[RSK_ZORAS_FOUNTAIN],
         &mOptions[RSK_SLEEPING_WATERFALL],
+        &mOptions[RSK_LOCK_OVERWORLD_DOORS],
     }, WidgetContainerType::COLUMN);
     mOptionGroups[RSG_WORLD_IMGUI] = OptionGroup::SubGroup("World Settings", {
         &mOptions[RSK_STARTING_AGE],
@@ -805,6 +807,7 @@ void Settings::CreateOptions() {
         &mOptions[RSK_DOOR_OF_TIME],
         &mOptions[RSK_ZORAS_FOUNTAIN],
         &mOptions[RSK_SLEEPING_WATERFALL],
+        &mOptions[RSK_LOCK_OVERWORLD_DOORS],
         &mOptions[RSK_GERUDO_FORTRESS],
         &mOptions[RSK_RAINBOW_BRIDGE],
         &mOptions[RSK_RAINBOW_BRIDGE_STONE_COUNT],
